@@ -1,0 +1,13 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "cube_all",
+		"transform": "forge:default-block"
+    },
+    "variants": {
+        "normal": [{}],
+        "type": {
+        	"cube": { "textures": { "all": "psf:blocks/strut_cube" }}
+        }
+    }
+}

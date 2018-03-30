@@ -10,6 +10,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterBlockEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.block.controller.BlockController;
+import net.gegy1000.psf.server.block.strut.BlockStrut;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -23,10 +24,13 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 public class PSFBlockRegistry {
     private static final Set<Block> REGISTERED_BLOCKS = new LinkedHashSet<>();
     private static final Set<ItemBlock> REGISTERED_ITEM_BLOCKS = new LinkedHashSet<>();
+    
+    public static BlockStrut strut;
 
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
         register(event, "controller", new BlockController());
+        register(event, "strut", strut = new BlockStrut());
     }
 
     @SubscribeEvent
@@ -37,7 +41,7 @@ public class PSFBlockRegistry {
                     PracticalSpaceFireworks.LOGGER.warn("Tried to register ItemBlock for block without registry name!");
                     continue;
                 }
-                ItemBlock itemBlock = ((RegisterItemBlock) block).createItemBlock();
+                ItemBlock itemBlock = ((RegisterItemBlock) block).createItemBlock(block);
                 event.getRegistry().register(itemBlock.setRegistryName(block.getRegistryName()));
             }
         }
@@ -45,6 +49,7 @@ public class PSFBlockRegistry {
 
     private static void register(RegistryEvent.Register<Block> event, @Nonnull String identifier, Block block) {
         event.getRegistry().register(block.setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, identifier)));
+        block.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
         REGISTERED_BLOCKS.add(block);
 
         if (block instanceof RegisterBlockEntity) {

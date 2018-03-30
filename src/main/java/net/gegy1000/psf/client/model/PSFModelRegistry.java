@@ -3,6 +3,7 @@ package net.gegy1000.psf.client.model;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.gegy1000.psf.server.block.strut.StrutType;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -42,6 +43,11 @@ public class PSFModelRegistry {
                     PracticalSpaceFireworks.LOGGER.error("Tried to register item model for block without item!");
                 }
             }
+        }
+        
+        Item strut = Item.getItemFromBlock(PSFBlockRegistry.strut);
+        for (StrutType type : StrutType.values()) {
+            ModelLoader.setCustomModelResourceLocation(strut, type.ordinal(), new ModelResourceLocation(PSFBlockRegistry.strut.getRegistryName(), "type=" + type.getName()));
         }
     }
 }
