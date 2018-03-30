@@ -3,10 +3,13 @@ package net.gegy1000.psf.client.model;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.strut.StrutType;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.IStateMapper;
+import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -44,6 +47,9 @@ public class PSFModelRegistry {
                 }
             }
         }
+        
+        IStateMapper controllerMapper = new StateMap.Builder().ignore(BlockController.TYPE).build();
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.basicController, controllerMapper);
         
         Item strut = Item.getItemFromBlock(PSFBlockRegistry.strut);
         for (StrutType type : StrutType.values()) {

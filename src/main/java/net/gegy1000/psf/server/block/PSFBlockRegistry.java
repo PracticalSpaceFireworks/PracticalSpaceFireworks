@@ -10,6 +10,8 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterBlockEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.block.controller.BlockController;
+import net.gegy1000.psf.server.block.controller.ControllerType;
+import net.gegy1000.psf.server.block.module.BlockBattery;
 import net.gegy1000.psf.server.block.strut.BlockStrut;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -27,10 +29,13 @@ public class PSFBlockRegistry {
     
     public static BlockStrut strut;
 
+    public static BlockController basicController;
+
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
-        register(event, "controller", new BlockController());
+        register(event, "controller_basic", basicController = new BlockController(ControllerType.BASIC));
         register(event, "strut", strut = new BlockStrut());
+        register(event, "battery", new BlockBattery());
     }
 
     @SubscribeEvent
