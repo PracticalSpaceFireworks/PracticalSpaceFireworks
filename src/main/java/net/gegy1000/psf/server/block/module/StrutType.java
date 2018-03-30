@@ -1,4 +1,4 @@
-package net.gegy1000.psf.server.block.strut;
+package net.gegy1000.psf.server.block.module;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

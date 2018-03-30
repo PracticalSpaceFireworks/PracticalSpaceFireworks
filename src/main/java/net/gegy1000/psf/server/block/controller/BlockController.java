@@ -10,6 +10,7 @@ import net.gegy1000.psf.server.api.RegisterBlockEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -54,8 +55,15 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileController) {
-            Map<BlockPos, IModule> modules = ((TileController)te).scanStructure();
-            System.out.println(modules);
+            if (!worldIn.isRemote) {
+                Map<BlockPos, IModule> modules = ((TileController) te).scanStructure();
+                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos);
+
+                modules.keySet().forEach(worldIn::setBlockToAir);
+
+                spacecraft.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+                worldIn.spawnEntity(spacecraft);
+            }
             return true;
         }
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);

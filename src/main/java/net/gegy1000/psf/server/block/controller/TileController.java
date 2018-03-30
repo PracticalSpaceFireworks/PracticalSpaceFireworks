@@ -18,6 +18,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.gegy1000.psf.server.modules.EmptyModule;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -27,9 +28,11 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public class TileController extends TileEntity {
     
+    private final IModule module = new EmptyModule(){};
+    
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityController.INSTANCE || super.hasCapability(capability, facing);
+        return capability == CapabilityController.INSTANCE || capability == CapabilityModule.INSTANCE || super.hasCapability(capability, facing);
     }
     
     @Override
@@ -39,17 +42,14 @@ public class TileController extends TileEntity {
             // TODO
             return null;
         }
+        if (capability == CapabilityModule.INSTANCE) {
+            return CapabilityModule.INSTANCE.cast(module);
+        }
         return super.getCapability(capability, facing);
     }
 
     public Map<BlockPos, IModule> scanStructure() {
-        IBlockState state = getWorld().getBlockState(getPos());
-        BlockPos origin = getPos().offset(state.getValue(BlockController.DIRECTION).getOpposite());
-        IBlockState originState = getWorld().getBlockState(origin);
-        if (originState.getBlock() != PSFBlockRegistry.strut) {
-            return Collections.emptyMap();
-        }
-        Iterator<BlockPos> struts = getContiguousIterator(origin);
+        Iterator<BlockPos> struts = getContiguousIterator(getPos(), PSFBlockRegistry.strut.getDefaultState());
         Map<BlockPos, IModule> ret = new HashMap<>();
         while (struts.hasNext()) {
             BlockPos pos = struts.next();
@@ -74,8 +74,7 @@ public class TileController extends TileEntity {
     
     public static final int CONTIGUOUS_RANGE = 10;
     
-    private Iterator<BlockPos> getContiguousIterator(final BlockPos origin) {
-        final IBlockState state = world.getBlockState(origin);
+    private Iterator<BlockPos> getContiguousIterator(final @Nonnull BlockPos origin, final @Nonnull IBlockState state) {
         return new Iterator<BlockPos>() {
 
             private Set<BlockPos> seen = Sets.newHashSet(origin);

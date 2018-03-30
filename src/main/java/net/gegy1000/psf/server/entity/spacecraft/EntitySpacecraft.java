@@ -1,11 +1,15 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import java.util.Collections;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+
 import io.netty.buffer.ByteBuf;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -26,11 +30,16 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private boolean testLaunched;
 
     public EntitySpacecraft(World world) {
+        this(world, Collections.emptySet(), BlockPos.ORIGIN);
+    }
+    
+    public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin) {
         super(world);
 
         SpacecraftBuilder builder = new SpacecraftBuilder();
-        builder.setBlockState(BlockPos.ORIGIN, Blocks.GRASS.getDefaultState());
-        builder.setBlockState(BlockPos.ORIGIN.up(), Blocks.BIRCH_FENCE.getDefaultState());
+        for (BlockPos pos : positions) {
+            builder.setBlockState(pos.subtract(origin), world.getBlockState(pos));
+        }
         this.blockAccess = builder.buildBlockAccess();
         this.metadata = builder.buildMetadata();
     }
@@ -100,6 +109,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     public void readSpawnData(ByteBuf buffer) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
+        this.model = null;
     }
 
     public SpacecraftBlockAccess getBlockAccess() {

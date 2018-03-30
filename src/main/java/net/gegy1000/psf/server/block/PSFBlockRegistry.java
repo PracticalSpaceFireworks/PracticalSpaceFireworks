@@ -12,7 +12,8 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.module.BlockBattery;
-import net.gegy1000.psf.server.block.strut.BlockStrut;
+import net.gegy1000.psf.server.block.module.BlockStrut;
+import net.gegy1000.psf.server.block.module.TileModule;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -34,8 +35,13 @@ public class PSFBlockRegistry {
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
         register(event, "controller_basic", basicController = new BlockController(ControllerType.BASIC));
+        
+        // Modules
         register(event, "strut", strut = new BlockStrut());
         register(event, "battery", new BlockBattery());
+       
+        // Register module TE only once
+        GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + "." + "module");
     }
 
     @SubscribeEvent

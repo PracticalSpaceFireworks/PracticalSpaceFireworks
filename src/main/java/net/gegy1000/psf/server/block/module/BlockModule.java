@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.server.api.RegisterBlockEntity;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -14,10 +13,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public abstract class BlockModule extends Block implements RegisterBlockEntity {
+public abstract class BlockModule extends Block {
     
-    public BlockModule() {
-        super(Material.IRON);
+    public BlockModule(Material mat) {
+        super(mat);
     }
     
     protected abstract IModule createModule(@Nonnull World world, @Nonnull IBlockState state);
@@ -40,10 +39,5 @@ public abstract class BlockModule extends Block implements RegisterBlockEntity {
     @Nullable
     public TileEntity createTileEntity(@Nonnull World world, @Nonnull IBlockState state) {
         return new TileModule(createModule(world, state));
-    }
-    
-    @Override
-    public Class<? extends TileEntity> getEntityClass() {
-        return TileModule.class;
     }
 }

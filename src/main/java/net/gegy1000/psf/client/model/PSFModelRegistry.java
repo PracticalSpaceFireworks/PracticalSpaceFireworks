@@ -4,7 +4,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.BlockController;
-import net.gegy1000.psf.server.block.strut.StrutType;
+import net.gegy1000.psf.server.block.module.StrutType;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
