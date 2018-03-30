@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "psf",
+    "name": "Practical Space Fireworks",
+    "description": "Space Fireworks but Practical. Makes sense right?",
+    "version": "${version}",
+    "url": "https://github.com/gegy1000/PracticalSpaceFireworks/",
+    "authorList": [
+      "ExpensiveKoala",
+      "gegy1000",
+      "tterrag"
+    ],
+    "dependencies": [],
+    "credits": ""
+  }
+]
