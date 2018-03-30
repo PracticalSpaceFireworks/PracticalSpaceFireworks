@@ -1,6 +1,10 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import javax.annotation.Nullable;
+
 import io.netty.buffer.ByteBuf;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -11,26 +15,22 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 
-import javax.annotation.Nullable;
-
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SpacecraftBlockAccess implements IBlockAccess {
     private final int[] blockData;
 
     private final BlockPos minPos;
     private final BlockPos maxPos;
+    
+    private final BlockPos offset;
+    private final World world;
 
-    SpacecraftBlockAccess(int[] blockData, BlockPos minPos, BlockPos maxPos) {
-        this.blockData = blockData;
-
-        this.minPos = minPos;
-        this.maxPos = maxPos;
-    }
-
-    public SpacecraftBlockAccess(BlockPos minPos, BlockPos maxPos) {
-        this(new int[getDataSize(minPos, maxPos)], minPos, maxPos);
+    public SpacecraftBlockAccess(BlockPos minPos, BlockPos maxPos, BlockPos offset, World world) {
+        this(new int[getDataSize(minPos, maxPos)], minPos, maxPos, offset, world);
     }
 
     public BlockPos getMinPos() {
@@ -64,12 +64,12 @@ public class SpacecraftBlockAccess implements IBlockAccess {
 
     @Override
     public int getCombinedLight(BlockPos pos, int lightValue) {
-        return 15728880;
+        return world.getCombinedLight(pos.add(offset), lightValue);
     }
 
     @Override
     public Biome getBiome(BlockPos pos) {
-        return Biomes.DEFAULT;
+        return world.getBiome(pos.add(offset));
     }
 
     @Override
@@ -97,14 +97,19 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         compound.setInteger("max_y", this.maxPos.getY());
         compound.setInteger("max_z", this.maxPos.getZ());
 
+        compound.setInteger("off_x", this.offset.getX());
+        compound.setInteger("off_y", this.offset.getY());
+        compound.setInteger("off_z", this.offset.getZ());
+
         compound.setIntArray("block_data", this.blockData);
 
         return compound;
     }
 
-    public static SpacecraftBlockAccess deserialize(NBTTagCompound compound) {
+    public static SpacecraftBlockAccess deserialize(NBTTagCompound compound, World world) {
         BlockPos minPos = new BlockPos(compound.getInteger("min_x"), compound.getInteger("min_y"), compound.getInteger("min_z"));
         BlockPos maxPos = new BlockPos(compound.getInteger("max_x"), compound.getInteger("max_y"), compound.getInteger("max_z"));
+        BlockPos offset = new BlockPos(compound.getInteger("off_x"), compound.getInteger("off_y"), compound.getInteger("off_z"));
 
         int expectedLength = getDataSize(minPos, maxPos);
         int[] blockData = compound.getIntArray("block_data");
@@ -113,28 +118,30 @@ public class SpacecraftBlockAccess implements IBlockAccess {
             blockData = new int[expectedLength];
         }
 
-        return new SpacecraftBlockAccess(blockData, minPos, maxPos);
+        return new SpacecraftBlockAccess(blockData, minPos, maxPos, offset, world);
     }
 
     public void serialize(ByteBuf buffer) {
         buffer.writeLong(this.minPos.toLong());
         buffer.writeLong(this.maxPos.toLong());
+        buffer.writeLong(this.offset.toLong());
 
         for (int block : this.blockData) {
             buffer.writeShort(block & 0xFFFF);
         }
     }
 
-    public static SpacecraftBlockAccess deserialize(ByteBuf buffer) {
+    public static SpacecraftBlockAccess deserialize(ByteBuf buffer, World world) {
         BlockPos minPos = BlockPos.fromLong(buffer.readLong());
         BlockPos maxPos = BlockPos.fromLong(buffer.readLong());
+        BlockPos offset = BlockPos.fromLong(buffer.readLong());
 
         int[] blockData = new int[getDataSize(minPos, maxPos)];
         for (int i = 0; i < blockData.length; i++) {
             blockData[i] = buffer.readUnsignedShort();
         }
 
-        return new SpacecraftBlockAccess(blockData, minPos, maxPos);
+        return new SpacecraftBlockAccess(blockData, minPos, maxPos, offset, world);
     }
 
     static int getPosIndex(BlockPos pos, BlockPos minPos, BlockPos maxPos) {

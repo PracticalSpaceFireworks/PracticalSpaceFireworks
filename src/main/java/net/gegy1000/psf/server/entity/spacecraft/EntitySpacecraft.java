@@ -40,7 +40,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         for (BlockPos pos : positions) {
             builder.setBlockState(pos.subtract(origin), world.getBlockState(pos));
         }
-        this.blockAccess = builder.buildBlockAccess();
+        this.blockAccess = builder.buildBlockAccess(this);
         this.metadata = builder.buildMetadata();
     }
 
@@ -71,6 +71,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+        
+        if (this.posY > 1000) {
+            setDead();
+        }
     }
 
     @Override
@@ -82,6 +86,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public boolean canBeCollidedWith() {
         return true;
     }
+    
+    @Override
+    public boolean isInRangeToRenderDist(double distance) {
+        return super.isInRangeToRenderDist(distance / 8);
+    }
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
@@ -91,7 +100,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
+        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"), getEntityWorld());
         this.metadata = SpacecraftMetadata.deserialize(compound.getCompoundTag("metadata"));
     }
 
@@ -108,7 +117,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
+        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer, getEntityWorld());
         this.model = null;
     }
 

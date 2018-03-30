@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 
 public class SpacecraftBuilder {
@@ -43,7 +44,7 @@ public class SpacecraftBuilder {
         this.blockValues.add(Block.getStateId(state));
     }
 
-    public SpacecraftBlockAccess buildBlockAccess() {
+    public SpacecraftBlockAccess buildBlockAccess(Entity e) {
         BlockPos minPos = new BlockPos(this.minX, this.minY, this.minZ);
         BlockPos maxPos = new BlockPos(this.maxX, this.maxY, this.maxZ);
 
@@ -56,7 +57,7 @@ public class SpacecraftBuilder {
             blockData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = state;
         }
 
-        return new SpacecraftBlockAccess(blockData, minPos, maxPos);
+        return new SpacecraftBlockAccess(blockData, minPos, maxPos, e.getPosition(), e.getEntityWorld());
     }
 
     public SpacecraftMetadata buildMetadata() {
