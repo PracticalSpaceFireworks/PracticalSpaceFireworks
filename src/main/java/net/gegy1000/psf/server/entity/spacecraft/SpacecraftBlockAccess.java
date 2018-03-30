@@ -1,10 +1,6 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -26,7 +22,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     private final BlockPos minPos;
     private final BlockPos maxPos;
 
-    private SpacecraftBlockAccess(int[] blockData, BlockPos minPos, BlockPos maxPos) {
+    SpacecraftBlockAccess(int[] blockData, BlockPos minPos, BlockPos maxPos) {
         this.blockData = blockData;
 
         this.minPos = minPos;
@@ -141,77 +137,20 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         return new SpacecraftBlockAccess(blockData, minPos, maxPos);
     }
 
-    private static int getPosIndex(BlockPos pos, BlockPos minPos, BlockPos maxPos) {
-        return getPosIndex(pos.getX(), pos.getY(), pos.getZ(), minPos, maxPos);
-    }
-
-    private static int getPosIndex(int x, int y, int z, BlockPos minPos, BlockPos maxPos) {
+    static int getPosIndex(BlockPos pos, BlockPos minPos, BlockPos maxPos) {
         int sizeX = maxPos.getX() - minPos.getX() + 1;
         int sizeY = maxPos.getY() - minPos.getY() + 1;
         int sizeZ = maxPos.getZ() - minPos.getZ() + 1;
-        int localX = x - minPos.getX();
-        int localY = y - minPos.getY();
-        int localZ = z - minPos.getZ();
+        int localX = pos.getX() - minPos.getX();
+        int localY = pos.getY() - minPos.getY();
+        int localZ = pos.getZ() - minPos.getZ();
         if (localX >= 0 && localY >= 0 && localZ >= 0 && localX < sizeX && localY < sizeY && localZ < sizeZ) {
             return localX + (localZ + localY * sizeZ) * sizeX;
         }
         return -1;
     }
 
-    private static int getDataSize(BlockPos minPos, BlockPos maxPos) {
+    static int getDataSize(BlockPos minPos, BlockPos maxPos) {
         return (maxPos.getX() - minPos.getX() + 1) * (maxPos.getY() - minPos.getY() + 1) * (maxPos.getZ() - minPos.getZ() + 1);
-    }
-
-    public static class Builder {
-        private final LongList blockKeys = new LongArrayList();
-        private final IntList blockValues = new IntArrayList();
-
-        private int minX, minY, minZ;
-        private int maxX, maxY, maxZ;
-
-        public Builder setBlockState(BlockPos pos, IBlockState state) {
-            if (pos.getX() < this.minX) {
-                this.minX = pos.getX();
-            }
-            if (pos.getX() > this.maxX) {
-                this.maxX = pos.getX();
-            }
-
-            if (pos.getY() < this.minY) {
-                this.minY = pos.getY();
-            }
-            if (pos.getY() > this.maxY) {
-                this.maxY = pos.getY();
-            }
-
-            if (pos.getZ() < this.minZ) {
-                this.minZ = pos.getZ();
-            }
-            if (pos.getZ() > this.maxZ) {
-                this.maxZ = pos.getZ();
-            }
-
-            this.blockKeys.add(pos.toLong());
-            this.blockValues.add(Block.getStateId(state));
-
-            return this;
-        }
-
-        public SpacecraftBlockAccess build() {
-            BlockPos minPos = new BlockPos(this.minX, this.minY, this.minZ);
-            BlockPos maxPos = new BlockPos(this.maxX, this.maxY, this.maxZ);
-
-            int[] blockData = new int[getDataSize(minPos, maxPos)];
-
-            for (int i = 0; i < this.blockKeys.size(); i++) {
-                BlockPos key = BlockPos.fromLong(this.blockKeys.getLong(i));
-                int state = this.blockValues.getInt(i);
-
-                int posIndex = getPosIndex(key, minPos, maxPos);
-                blockData[posIndex] = state;
-            }
-
-            return new SpacecraftBlockAccess(blockData, minPos, maxPos);
-        }
     }
 }
