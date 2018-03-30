@@ -6,9 +6,17 @@ out/
 *.iws
 *.iml
 
+# Eclipse
+
+*.launch
+*.project
+*.classpath
+.settings/
+
 # Gradle
 build/
 .gradle/
 
 # Minecraft
 minecraft/
+/bin/

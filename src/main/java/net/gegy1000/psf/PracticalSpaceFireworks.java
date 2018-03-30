@@ -6,11 +6,17 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod(modid = PracticalSpaceFireworks.MODID, name = "Practical Space Fireworks", version = PracticalSpaceFireworks.VERSION, acceptedMinecraftVersions = "[1.12]")
+@ParametersAreNonnullByDefault
 public class PracticalSpaceFireworks {
+    @Nonnull
     public static final String MODID = "psf";
     public static final String VERSION = "0.1.0-dev";
 
