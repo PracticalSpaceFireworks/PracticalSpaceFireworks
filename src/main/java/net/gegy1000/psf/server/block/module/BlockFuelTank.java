@@ -12,6 +12,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 
@@ -39,17 +41,23 @@ public class BlockFuelTank extends BlockModule {
 
     @Override
     public boolean isOpaqueCube(@Nonnull IBlockState state) {
-        int count = 0;
-        if (state.getValue(NORTH)) count++;
-        if (state.getValue(SOUTH)) count++;
-        if (state.getValue(WEST)) count++;
-        if (state.getValue(EAST)) count++;
-        return count != 3 && count != 0;
+        return false;
     }
 
     @Override
     public boolean isFullCube(@Nonnull IBlockState state) {
-        return this.isOpaqueCube(state);
+        return false;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldSideBeRendered(IBlockState state, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, EnumFacing side) {
+        int count = 0;
+        if (this.canConnect(blockAccess, pos, EnumFacing.NORTH)) count++;
+        if (this.canConnect(blockAccess, pos, EnumFacing.SOUTH)) count++;
+        if (this.canConnect(blockAccess, pos, EnumFacing.WEST)) count++;
+        if (this.canConnect(blockAccess, pos, EnumFacing.EAST)) count++;
+        return count == 2 || super.shouldSideBeRendered(state, blockAccess, pos, side);
     }
 
     @Override

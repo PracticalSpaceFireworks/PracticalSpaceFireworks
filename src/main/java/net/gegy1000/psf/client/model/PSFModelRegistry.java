@@ -15,6 +15,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -27,6 +28,8 @@ import java.util.Set;
 public class PSFModelRegistry {
     @SubscribeEvent
     public static void onRegisterModels(ModelRegistryEvent event) {
+        OBJLoader.INSTANCE.addDomain(PracticalSpaceFireworks.MODID);
+
         Set<Item> registeredItems = PSFItemRegistry.getRegisteredItems();
 
         for (Item item : registeredItems) {
