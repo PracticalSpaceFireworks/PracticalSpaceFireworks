@@ -10,6 +10,7 @@ import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -19,11 +20,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import lombok.Setter;
+
 public class EntityBoundSatellite implements ISatellite {
     private final EntitySpacecraft spacecraft;
 
     private final List<IModule> modules = new ArrayList<>();
     private IController controller;
+    @Setter
+    @Nonnull
+    private String name = "";
 
     public EntityBoundSatellite(EntitySpacecraft spacecraft) {
         this.spacecraft = spacecraft;
@@ -40,6 +49,11 @@ public class EntityBoundSatellite implements ISatellite {
                 this.modules.add(entity.getCapability(CapabilityModule.INSTANCE, null));
             }
         }
+    }
+    
+    @Override
+    public String getName() {
+        return name.isEmpty() ? ISatellite.super.getName() : name;
     }
 
     @Override
@@ -89,5 +103,20 @@ public class EntityBoundSatellite implements ISatellite {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ISatellite && ((ISatellite) obj).getId().equals(this.getId());
+    }
+    
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound tag = ISatellite.super.serializeNBT();
+        tag.setString("name", name);
+        return tag;
+    }
+    
+    @Override
+    public void deserializeNBT(@Nullable NBTTagCompound tag) {
+        ISatellite.super.deserializeNBT(tag);
+        if (tag != null) {
+            this.name = tag.getString("name");
+        }
     }
 }

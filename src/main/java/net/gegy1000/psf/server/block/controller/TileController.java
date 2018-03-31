@@ -1,7 +1,6 @@
 package net.gegy1000.psf.server.block.controller;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,35 +8,30 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Sets;
 
+import lombok.Getter;
 import lombok.Value;
-import lombok.val;
 import lombok.experimental.Delegate;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.remote.PacketRequestModulesWorld;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
 import net.gegy1000.psf.server.modules.EmptyModule;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.gegy1000.psf.server.satellite.TileBoundSatellite;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
 
@@ -62,10 +56,12 @@ public class TileController extends TileEntity {
         IModule module;
     }
     
+    private final ISatellite satellite = new TileBoundSatellite(this);
     private final IController controller = new Controller();
     
     private int lastScanTime = Integer.MIN_VALUE;
     
+    @Getter
     private Map<BlockPos, ScanValue> modules = Collections.emptyMap();
     
     @Override
@@ -105,49 +101,7 @@ public class TileController extends TileEntity {
             if (lastScanTime + 20 <= getWorld().getTotalWorldTime()) {
                 modules = scanStructure();
             }
-            return CapabilitySatellite.INSTANCE.cast(new ISatellite() {
-                
-                private UUID id = UUID.randomUUID();
-                
-                @Override
-                public UUID getId() {
-                    return id;
-                }
-                
-                @Override
-                public BlockPos getPosition() {
-                    return getPos();
-                }
-
-                @Override
-                public IController getController() {
-                    return getCapability(CapabilityController.INSTANCE, facing);
-                }
-
-                @Override
-                public Collection<IModule> getModules() {
-                    return modules.values().stream().map(ScanValue::getModule).collect(Collectors.toList());
-                }
-
-                @Override
-                public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
-                    SpacecraftBuilder builder = new SpacecraftBuilder();
-                    for (val e : modules.entrySet()) {
-                        builder.setBlockState(e.getKey().subtract(origin), e.getValue().getState());
-                    }
-                    return builder.buildBlockAccess(origin, world);
-                }
-
-                @Override
-                public void requestModules() {
-                    PSFNetworkHandler.network.sendToServer(new PacketRequestModulesWorld(getPos()));
-                }
-
-                @Override
-                public String toString() {
-                    return "Craft #" + hashCode();
-                }
-            });
+            return CapabilitySatellite.INSTANCE.cast(satellite);
         }
         if (capability == CapabilityController.INSTANCE) {
             return CapabilityController.INSTANCE.cast(controller);
@@ -156,6 +110,19 @@ public class TileController extends TileEntity {
             return CapabilityModule.INSTANCE.cast(module);
         }
         return super.getCapability(capability, facing);
+    }
+    
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+        compound = super.writeToNBT(compound);
+        compound.setTag("satellite_data", satellite.serializeNBT());
+        return compound;
+    }
+    
+    @Override
+    public void readFromNBT(NBTTagCompound compound) {
+        super.readFromNBT(compound);
+        satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
     }
 
     public Map<BlockPos, ScanValue> scanStructure() {
