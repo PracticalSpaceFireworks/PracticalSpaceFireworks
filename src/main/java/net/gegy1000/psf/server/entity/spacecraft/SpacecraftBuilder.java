@@ -111,9 +111,9 @@ public class SpacecraftBuilder {
         return new SpacecraftBlockAccess(world, blockData, lightData, this.entities, biome, minPos, maxPos);
     }
 
-    public LauncherMetadata buildMetadata() {
+    public LaunchMetadata buildMetadata() {
         double mass = 0.0;
-        ImmutableList.Builder<LauncherMetadata.Thruster> thrusters = ImmutableList.builder();
+        ImmutableList.Builder<LaunchMetadata.Thruster> thrusters = ImmutableList.builder();
 
         for (int i = 0; i < this.blockKeys.size(); i++) {
             long posKey = this.blockKeys.getLong(i);
@@ -125,10 +125,10 @@ public class SpacecraftBuilder {
             IModule module = TileModule.getModule(this.entities.get(posKey));
             if (module instanceof ModuleThruster) {
                 ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
-                thrusters.add(new LauncherMetadata.Thruster(pos, tier.getThrust()));
+                thrusters.add(new LaunchMetadata.Thruster(pos, tier.getThrust()));
             }
         }
 
-        return new LauncherMetadata(thrusters.build(), mass);
+        return new LaunchMetadata(thrusters.build(), mass);
     }
 }

@@ -9,11 +9,11 @@ import net.minecraftforge.common.util.Constants;
 
 import java.util.List;
 
-public class LauncherMetadata {
+public class LaunchMetadata {
     private final ImmutableList<Thruster> thrusters;
     private final double mass;
 
-    public LauncherMetadata(ImmutableList<Thruster> thrusters, double mass) {
+    public LaunchMetadata(ImmutableList<Thruster> thrusters, double mass) {
         this.thrusters = thrusters;
         this.mass = mass;
     }
@@ -40,7 +40,7 @@ public class LauncherMetadata {
         buffer.writeDouble(this.mass);
     }
 
-    public static LauncherMetadata deserialize(NBTTagCompound compound) {
+    public static LaunchMetadata deserialize(NBTTagCompound compound) {
         ImmutableList.Builder<Thruster> thrusters = ImmutableList.builder();
         NBTTagList thrusterList = compound.getTagList("thrusters", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < thrusterList.tagCount(); i++) {
@@ -50,10 +50,10 @@ public class LauncherMetadata {
 
         double mass = compound.getDouble("mass");
 
-        return new LauncherMetadata(thrusters.build(), mass);
+        return new LaunchMetadata(thrusters.build(), mass);
     }
 
-    public static LauncherMetadata deserialize(ByteBuf buffer) {
+    public static LaunchMetadata deserialize(ByteBuf buffer) {
         ImmutableList.Builder<Thruster> thrusters = ImmutableList.builder();
 
         int thrusterCount = buffer.readUnsignedByte();
@@ -63,7 +63,7 @@ public class LauncherMetadata {
 
         double mass = buffer.readDouble();
 
-        return new LauncherMetadata(thrusters.build(), mass);
+        return new LaunchMetadata(thrusters.build(), mass);
     }
 
     public List<Thruster> getThrusters() {

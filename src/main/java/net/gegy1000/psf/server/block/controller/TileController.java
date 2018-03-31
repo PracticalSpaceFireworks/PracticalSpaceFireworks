@@ -1,5 +1,32 @@
 package net.gegy1000.psf.server.block.controller;
 
+import com.google.common.collect.Sets;
+import lombok.Value;
+import lombok.experimental.Delegate;
+import lombok.val;
+import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.block.remote.PacketRequestModulesWorld;
+import net.gegy1000.psf.server.capability.CapabilityController;
+import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.gegy1000.psf.server.capability.CapabilitySatellite;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
+import net.gegy1000.psf.server.modules.EmptyModule;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,31 +38,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Sets;
-
-import lombok.Value;
-import lombok.val;
-import lombok.experimental.Delegate;
-import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IController;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.module.BlockModule;
-import net.gegy1000.psf.server.capability.CapabilityController;
-import net.gegy1000.psf.server.capability.CapabilityModule;
-import net.gegy1000.psf.server.capability.CapabilitySatellite;
-import net.gegy1000.psf.server.modules.EmptyModule;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.capabilities.Capability;
 
 
 public class TileController extends TileEntity {
@@ -115,31 +117,31 @@ public class TileController extends TileEntity {
                 public BlockPos getPosition() {
                     return getPos();
                 }
-                
-                @Override
-                public NBTTagCompound serialize(NBTTagCompound compound) {
-                    return compound;
-                }
-                
-                @Override
-                public Collection<IModule> getModules() {
-                    return modules.values().stream().map(ScanValue::getModule).collect(Collectors.toList());
-                }
-                
-                @Override
-                public Map<BlockPos, IBlockState> getComponents() {
-                    Map<BlockPos, IBlockState> ret = new HashMap<>();
-                    for (val e : modules.entrySet()) {
-                        ret.put(e.getKey(), e.getValue().getState());
-                    }
-                    return ret;
-                }
-                
+
                 @Override
                 public IController getController() {
                     return getCapability(CapabilityController.INSTANCE, facing);
                 }
-                
+
+                @Override
+                public Collection<IModule> getModules() {
+                    return modules.values().stream().map(ScanValue::getModule).collect(Collectors.toList());
+                }
+
+                @Override
+                public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
+                    SpacecraftBuilder builder = new SpacecraftBuilder();
+                    for (val e : modules.entrySet()) {
+                        builder.setBlockState(e.getKey().subtract(origin), e.getValue().getState());
+                    }
+                    return builder.buildBlockAccess(origin, world);
+                }
+
+                @Override
+                public void requestModules() {
+                    PSFNetworkHandler.network.sendToServer(new PacketRequestModulesWorld(getPos()));
+                }
+
                 @Override
                 public String toString() {
                     return "Craft #" + hashCode();

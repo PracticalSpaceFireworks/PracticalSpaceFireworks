@@ -1,10 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -27,6 +22,11 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SpacecraftBlockAccess implements IBlockAccess {
@@ -90,6 +90,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     }
 
     @Override
+    @Nonnull
     public WorldType getWorldType() {
         return WorldType.DEFAULT;
     }
@@ -98,6 +99,11 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
         IBlockState state = this.getBlockState(pos);
         return state.isSideSolid(this, pos, side);
+    }
+
+    @Nonnull
+    public Collection<TileEntity> getEntities() {
+        return this.entities.values();
     }
 
     public NBTTagCompound serialize(NBTTagCompound compound) {
@@ -120,6 +126,8 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         for (Map.Entry<Long, TileEntity> entry : this.entities.entrySet()) {
             entityList.appendTag(entry.getValue().serializeNBT());
         }
+
+        compound.setTag("entities", entityList);
 
         return compound;
     }
@@ -223,16 +231,5 @@ public class SpacecraftBlockAccess implements IBlockAccess {
 
     static int getDataSize(BlockPos minPos, BlockPos maxPos) {
         return (maxPos.getX() - minPos.getX() + 1) * (maxPos.getY() - minPos.getY() + 1) * (maxPos.getZ() - minPos.getZ() + 1);
-    }
-
-    public Map<BlockPos, IBlockState> getAllStates() {
-        Map<BlockPos, IBlockState> ret = new HashMap<>();
-        for (BlockPos p : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
-            IBlockState state = getBlockState(p);
-            if (state.getBlock() != Blocks.AIR) {
-                ret.put(p, state);
-            }
-        }
-        return ret;
     }
 }

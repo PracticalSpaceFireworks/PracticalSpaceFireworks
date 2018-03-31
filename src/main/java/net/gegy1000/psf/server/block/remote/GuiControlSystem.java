@@ -1,16 +1,5 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
-import org.lwjgl.input.Mouse;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
@@ -18,8 +7,6 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -29,6 +16,15 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.client.GuiScrollingList;
+import org.lwjgl.input.Mouse;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GuiControlSystem extends GuiContainer {
     
@@ -128,13 +124,9 @@ public class GuiControlSystem extends GuiContainer {
 
     public void selectCraft(int index) {
         this.selectedCraft = index;
-        SpacecraftBuilder builder = new SpacecraftBuilder();
         ISatellite craft = container.getTe().getCrafts().get(index);
         BlockPos origin = craft.getController().getPosition().orElse(BlockPos.ORIGIN);
-        for (val e : craft.getComponents().entrySet()) {
-            builder.setBlockState(e.getKey().subtract(origin), e.getValue());
-        }
-        this.model = SpacecraftModel.build(builder.buildBlockAccess(origin, Minecraft.getMinecraft().world));
-        PSFNetworkHandler.network.sendToServer(new PacketRequestModules(origin));
+        this.model = SpacecraftModel.build(craft.buildBlockAccess(origin, Minecraft.getMinecraft().world));
+        craft.requestModules();
     }
 }

@@ -2,22 +2,27 @@ package net.gegy1000.psf.server.entity.spacecraft;
 
 import io.netty.buffer.ByteBuf;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.capability.CapabilitySatellite;
+import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.vecmath.Point3d;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,12 +34,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private static final double GRAVITY = 1.6;
 
     private final Matrix rotationMatrix = new Matrix(3);
+    private final EntityBoundSatellite satellite = new EntityBoundSatellite(this);
 
     @SideOnly(Side.CLIENT)
     public SpacecraftModel model;
 
     private SpacecraftBlockAccess blockAccess;
-    private LauncherMetadata metadata;
+    private LaunchMetadata metadata;
 
     private boolean testLaunched;
 
@@ -51,6 +57,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.blockAccess = builder.buildBlockAccess(this);
         this.metadata = builder.buildMetadata();
 
+        this.satellite.detectModules();
         this.recalculateRotation();
     }
 
@@ -72,8 +79,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             this.setDead();
         }
 
-        this.rotationYaw += 0.5;
-
         if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
             this.recalculateRotation();
         }
@@ -83,7 +88,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             this.motionY += acceleration;
 
             if (this.world.isRemote) {
-                for (LauncherMetadata.Thruster thruster : this.metadata.getThrusters()) {
+                for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
                     BlockPos thrusterPos = thruster.getPos();
                     Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
                     this.rotationMatrix.transform(thrusterPoint);
@@ -186,8 +191,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, compound.getCompoundTag("block_data"));
-        this.metadata = LauncherMetadata.deserialize(compound.getCompoundTag("metadata"));
+        this.metadata = LaunchMetadata.deserialize(compound.getCompoundTag("metadata"));
 
+        this.satellite.detectModules();
         this.recalculateRotation();
     }
 
@@ -206,13 +212,30 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     public void readSpawnData(ByteBuf buffer) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, buffer);
-        this.metadata = LauncherMetadata.deserialize(buffer);
+        this.metadata = LaunchMetadata.deserialize(buffer);
         this.model = null;
+
+        this.satellite.detectModules();
 
         this.recalculateRotation();
     }
 
     public SpacecraftBlockAccess getBlockAccess() {
         return this.blockAccess;
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
+        return capability == CapabilitySatellite.INSTANCE ||
+                super.hasCapability(capability, facing);
+    }
+
+    @Nullable
+    @Override
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
+        if (capability == CapabilitySatellite.INSTANCE) {
+            return CapabilitySatellite.INSTANCE.cast(satellite);
+        }
+        return super.getCapability(capability, facing);
     }
 }
