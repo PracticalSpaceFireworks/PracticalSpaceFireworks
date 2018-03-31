@@ -61,7 +61,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
 
                 modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
 
-                spacecraft.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+                spacecraft.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0);
                 worldIn.spawnEntity(spacecraft);
             }
             return true;
