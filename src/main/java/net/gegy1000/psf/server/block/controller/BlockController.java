@@ -1,10 +1,15 @@
 package net.gegy1000.psf.server.block.controller;
 
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
+import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.block.Block;
@@ -20,10 +25,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
 
 public class BlockController extends Block implements RegisterItemBlock, RegisterItemModel, RegisterTileEntity {
     
@@ -54,7 +55,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileController) {
             if (!worldIn.isRemote) {
-                Map<BlockPos, IModule> modules = ((TileController) te).scanStructure();
+                Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
                 EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos);
 
                 modules.keySet().forEach(worldIn::setBlockToAir);

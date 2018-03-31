@@ -1,7 +1,14 @@
 package net.gegy1000.psf.api;
 
-import net.minecraftforge.energy.IEnergyStorage;
+import java.util.Optional;
 
-public interface IController extends IModule, IEnergyStorage {
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import net.minecraft.util.math.BlockPos;
+
+@ParametersAreNonnullByDefault
+public interface IController extends IModule {
+    
+    Optional<BlockPos> getPosition();
 
 }

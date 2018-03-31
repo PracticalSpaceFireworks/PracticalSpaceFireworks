@@ -83,11 +83,12 @@ public class SpacecraftBuilder {
             }
         }
     }
-
+    
     public SpacecraftBlockAccess buildBlockAccess(Entity e) {
-        World world = e.getEntityWorld();
-        BlockPos origin = e.getPosition();
+        return buildBlockAccess(e.getPosition(), e.getEntityWorld());
+    }
 
+    public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
         BlockPos minPos = new BlockPos(this.minX, this.minY, this.minZ);
         BlockPos maxPos = new BlockPos(this.maxX, this.maxY, this.maxZ);
 
@@ -101,8 +102,8 @@ public class SpacecraftBuilder {
 
         int[] lightData = new int[SpacecraftBlockAccess.getDataSize(minPos, maxPos)];
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
-            pos = origin.add(pos);
-            lightData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = world.getCombinedLight(pos, 0);
+            BlockPos pos2 = origin.add(pos);
+            lightData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = world.getCombinedLight(pos2, 0);
         }
 
         Biome biome = world.getBiome(origin);
