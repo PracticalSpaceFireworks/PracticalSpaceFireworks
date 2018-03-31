@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import io.netty.buffer.ByteBuf;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,6 +37,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     
     public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin) {
         super(world);
+        setSize(1, 1);
 
         SpacecraftBuilder builder = new SpacecraftBuilder();
         for (BlockPos pos : positions) {
@@ -93,6 +95,19 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return super.isInRangeToRenderDist(distance / 8);
     }
 
+    @Override
+    public @Nonnull AxisAlignedBB getRenderBoundingBox() {
+        AxisAlignedBB ret = new AxisAlignedBB(BlockPos.ORIGIN);
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(this.blockAccess.getMinPos(), this.blockAccess.getMaxPos())) {
+            IBlockState state = this.blockAccess.getBlockState(pos);
+            AxisAlignedBB bb = state.getCollisionBoundingBox(blockAccess, pos);
+            if (bb != null) {
+                ret = ret.union(bb.offset(pos));
+            }
+        }
+        return ret.offset(posX, posY, posZ);
+    }
+    
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
         this.testLaunched = true;
