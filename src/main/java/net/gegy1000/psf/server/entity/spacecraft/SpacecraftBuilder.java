@@ -11,6 +11,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 
 public class SpacecraftBuilder {
     private final LongList blockKeys = new LongArrayList();
@@ -50,7 +52,6 @@ public class SpacecraftBuilder {
         BlockPos maxPos = new BlockPos(this.maxX, this.maxY, this.maxZ);
 
         int[] blockData = new int[SpacecraftBlockAccess.getDataSize(minPos, maxPos)];
-
         for (int i = 0; i < this.blockKeys.size(); i++) {
             BlockPos pos = BlockPos.fromLong(this.blockKeys.getLong(i));
             int state = this.blockValues.getInt(i);
@@ -58,7 +59,18 @@ public class SpacecraftBuilder {
             blockData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = state;
         }
 
-        return new SpacecraftBlockAccess(blockData, minPos, maxPos, e.getPosition(), e.getEntityWorld());
+        World world = e.getEntityWorld();
+        BlockPos origin = e.getPosition();
+
+        Biome biome = world.getBiome(origin);
+
+        int[] lightData = new int[SpacecraftBlockAccess.getDataSize(minPos, maxPos)];
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
+            pos = origin.add(pos);
+            lightData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = world.getCombinedLight(pos, 0);
+        }
+
+        return new SpacecraftBlockAccess(blockData, lightData, biome, minPos, maxPos);
     }
 
     public SpacecraftMetadata buildMetadata() {

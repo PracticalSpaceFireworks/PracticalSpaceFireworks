@@ -63,8 +63,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         super.onUpdate();
 
         if (this.testLaunched) {
-            double acceleration = this.metadata.getTotalAcceleration();
-            this.motionY += acceleration / 20.0;
+            double acceleration = this.metadata.getTotalAcceleration() / 20.0;
+            this.motionY += acceleration;
 
             for (SpacecraftMetadata.Thruster thruster : this.metadata.getThrusters()) {
                 BlockPos thrusterPos = thruster.getPos();
@@ -185,7 +185,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"), getEntityWorld());
+        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
         this.metadata = SpacecraftMetadata.deserialize(compound.getCompoundTag("metadata"));
 
         this.resetMatrix = true;
@@ -205,7 +205,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer, getEntityWorld());
+        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
         this.metadata = SpacecraftMetadata.deserialize(ByteBufUtils.readTag(buffer));
         this.model = null;
 

@@ -1,7 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import javax.annotation.Nullable;
-
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,25 +11,23 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
+
+import javax.annotation.Nullable;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SpacecraftBlockAccess implements IBlockAccess {
     private final int[] blockData;
+    private final int[] lightData;
+
+    private final Biome biome;
 
     private final BlockPos minPos;
     private final BlockPos maxPos;
-    
-    private final BlockPos offset;
-    private final World world;
-
-    public SpacecraftBlockAccess(BlockPos minPos, BlockPos maxPos, BlockPos offset, World world) {
-        this(new int[getDataSize(minPos, maxPos)], minPos, maxPos, offset, world);
-    }
 
     public BlockPos getMinPos() {
         return this.minPos;
@@ -64,12 +60,16 @@ public class SpacecraftBlockAccess implements IBlockAccess {
 
     @Override
     public int getCombinedLight(BlockPos pos, int lightValue) {
-        return world.getCombinedLight(pos.add(offset), lightValue);
+        int posIndex = getPosIndex(pos, this.minPos, this.maxPos);
+        if (posIndex > -1) {
+            return this.lightData[posIndex];
+        }
+        return 15 << 20 | 15 << 4;
     }
 
     @Override
     public Biome getBiome(BlockPos pos) {
-        return world.getBiome(pos.add(offset));
+        return this.biome;
     }
 
     @Override
@@ -97,51 +97,69 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         compound.setInteger("max_y", this.maxPos.getY());
         compound.setInteger("max_z", this.maxPos.getZ());
 
-        compound.setInteger("off_x", this.offset.getX());
-        compound.setInteger("off_y", this.offset.getY());
-        compound.setInteger("off_z", this.offset.getZ());
+        if (this.biome.getRegistryName() != null) {
+            compound.setString("biome", this.biome.getRegistryName().toString());
+        }
 
         compound.setIntArray("block_data", this.blockData);
+        compound.setIntArray("light_data", this.lightData);
 
         return compound;
     }
 
-    public static SpacecraftBlockAccess deserialize(NBTTagCompound compound, World world) {
+    public static SpacecraftBlockAccess deserialize(NBTTagCompound compound) {
         BlockPos minPos = new BlockPos(compound.getInteger("min_x"), compound.getInteger("min_y"), compound.getInteger("min_z"));
         BlockPos maxPos = new BlockPos(compound.getInteger("max_x"), compound.getInteger("max_y"), compound.getInteger("max_z"));
-        BlockPos offset = new BlockPos(compound.getInteger("off_x"), compound.getInteger("off_y"), compound.getInteger("off_z"));
+        Biome biome = Biome.REGISTRY.getObject(new ResourceLocation(compound.getString("biome")));
 
         int expectedLength = getDataSize(minPos, maxPos);
+
         int[] blockData = compound.getIntArray("block_data");
         if (blockData.length != expectedLength) {
             PracticalSpaceFireworks.LOGGER.error("Loaded block data array of wrong length");
             blockData = new int[expectedLength];
         }
 
-        return new SpacecraftBlockAccess(blockData, minPos, maxPos, offset, world);
+        int[] lightData = compound.getIntArray("light_data");
+        if (lightData.length != expectedLength) {
+            PracticalSpaceFireworks.LOGGER.error("Loaded light data array of wrong length");
+            lightData = new int[expectedLength];
+        }
+
+        return new SpacecraftBlockAccess(blockData, lightData, biome, minPos, maxPos);
     }
 
     public void serialize(ByteBuf buffer) {
         buffer.writeLong(this.minPos.toLong());
         buffer.writeLong(this.maxPos.toLong());
-        buffer.writeLong(this.offset.toLong());
+        buffer.writeShort(Biome.getIdForBiome(this.biome) & 0xFFFF);
 
         for (int block : this.blockData) {
             buffer.writeShort(block & 0xFFFF);
         }
+
+        for (int light : this.lightData) {
+            buffer.writeInt(light);
+        }
     }
 
-    public static SpacecraftBlockAccess deserialize(ByteBuf buffer, World world) {
+    public static SpacecraftBlockAccess deserialize(ByteBuf buffer) {
         BlockPos minPos = BlockPos.fromLong(buffer.readLong());
         BlockPos maxPos = BlockPos.fromLong(buffer.readLong());
-        BlockPos offset = BlockPos.fromLong(buffer.readLong());
+
+        Biome biome = Biome.getBiome(buffer.readUnsignedShort(), Biomes.DEFAULT);
 
         int[] blockData = new int[getDataSize(minPos, maxPos)];
         for (int i = 0; i < blockData.length; i++) {
             blockData[i] = buffer.readUnsignedShort();
         }
 
-        return new SpacecraftBlockAccess(blockData, minPos, maxPos, offset, world);
+        int[] lightData = new int[getDataSize(minPos, maxPos)];
+        for (int i = 0; i < lightData.length; i++) {
+            lightData[i] = buffer.readInt();
+        }
+
+        return new SpacecraftBlockAccess(blockData, lightData, biome, minPos, maxPos);
     }
 
     static int getPosIndex(BlockPos pos, BlockPos minPos, BlockPos maxPos) {
