@@ -11,6 +11,7 @@ import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
 import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -58,6 +59,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
             if (!worldIn.isRemote) {
                 Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
                 EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos);
+                spacecraft.getCapability(CapabilitySatellite.INSTANCE, null).setName(te.getCapability(CapabilitySatellite.INSTANCE, null).getName());
 
                 modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
 

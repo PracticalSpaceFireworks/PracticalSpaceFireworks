@@ -39,7 +39,7 @@ public class GuiCraftList extends GuiScrollingList {
     @Override
     protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
         ISatellite craft = getCrafts().get(slotIdx);
-        boolean hovered = mouseY >= slotTop && mouseY <= slotTop + slotHeight && mouseX >= entryRight - listWidth && mouseX <= entryRight; 
-        gui.mc.fontRenderer.drawSplitString(craft.toString(), left + slotBuffer, slotTop, listWidth - (slotBuffer * 2), hovered ? 0xFFFFFF55 : -1);
+        boolean hovered = mouseY >= slotTop && mouseY < slotTop + slotHeight && mouseX >= entryRight - listWidth && mouseX < entryRight; 
+        gui.mc.fontRenderer.drawSplitString(craft.getName(), left + slotBuffer, slotTop + (slotHeight / 2) - (gui.mc.fontRenderer.FONT_HEIGHT / 2), listWidth - (slotBuffer * 2), hovered ? 0xFFFFFF55 : -1);
     }
 }

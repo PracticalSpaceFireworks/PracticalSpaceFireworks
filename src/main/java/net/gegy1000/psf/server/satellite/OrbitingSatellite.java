@@ -61,7 +61,8 @@ public class OrbitingSatellite implements ISatellite {
     }
 
     @Override
-    public NBTTagCompound serialize(NBTTagCompound compound) {
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound compound = new NBTTagCompound();
         compound.setString("name", this.name);
         compound.setUniqueId("uuid", this.uuid);
 

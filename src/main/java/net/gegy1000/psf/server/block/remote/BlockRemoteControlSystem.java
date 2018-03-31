@@ -30,6 +30,7 @@ public class BlockRemoteControlSystem extends BlockHorizontal implements Registe
     static {
         PSFNetworkHandler.network.registerMessage(PacketModules.Handler.class, PacketModules.class, PSFNetworkHandler.nextID(), Side.CLIENT);
         PSFNetworkHandler.network.registerMessage(PacketRequestModulesWorld.Handler.class, PacketRequestModulesWorld.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketSetName.Handler.class, PacketSetName.class, PSFNetworkHandler.nextID(), Side.SERVER);
     }
     
     public BlockRemoteControlSystem() {

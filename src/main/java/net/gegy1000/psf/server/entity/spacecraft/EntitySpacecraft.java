@@ -18,6 +18,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -201,6 +202,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     protected void readEntityFromNBT(NBTTagCompound compound) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, compound.getCompoundTag("block_data"));
         this.metadata = LaunchMetadata.deserialize(compound.getCompoundTag("metadata"));
+        this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
 
         this.satellite.detectModules();
         this.recalculateRotation();
@@ -210,18 +212,21 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     protected void writeEntityToNBT(NBTTagCompound compound) {
         compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
         compound.setTag("metadata", this.metadata.serialize(new NBTTagCompound()));
+        compound.setTag("satellite", this.satellite.serializeNBT());
     }
 
     @Override
     public void writeSpawnData(ByteBuf buffer) {
         this.blockAccess.serialize(buffer);
         this.metadata.serialize(buffer);
+        ByteBufUtils.writeTag(buffer, this.satellite.serializeNBT());
     }
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, buffer);
         this.metadata = LaunchMetadata.deserialize(buffer);
+        this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;
 
         this.satellite.detectModules();

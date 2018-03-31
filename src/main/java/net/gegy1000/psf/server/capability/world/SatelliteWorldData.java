@@ -79,7 +79,7 @@ public interface SatelliteWorldData extends ICapabilityProvider {
             NBTTagCompound compound = new NBTTagCompound();
             NBTTagList satelliteList = new NBTTagList();
             for (ISatellite satellite : instance.getSatellites()) {
-                satelliteList.appendTag(satellite.serialize(new NBTTagCompound()));
+                satelliteList.appendTag(satellite.serializeNBT());
             }
             compound.setTag("satellites", satelliteList);
             return compound;
