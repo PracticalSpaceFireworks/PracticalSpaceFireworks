@@ -47,9 +47,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         setSize(1, 1);
 
         SpacecraftBuilder builder = new SpacecraftBuilder();
-        for (BlockPos pos : positions) {
-            builder.setBlockState(pos.subtract(origin), world.getBlockState(pos));
-        }
+        builder.copyFrom(world, origin, positions);
         this.blockAccess = builder.buildBlockAccess(this);
         this.metadata = builder.buildMetadata();
     }
@@ -62,15 +60,39 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public void onUpdate() {
         super.onUpdate();
 
+        this.motionX *= 0.98;
+        this.motionY *= 0.98;
+        this.motionZ *= 0.98;
+
+        this.motionY -= 1.6 / 20.0;
+
+        if (this.posY > 1000) {
+            setDead();
+        }
+
+        this.rotationYaw += 0.5;
+
+        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3 || this.resetMatrix) {
+            this.rotationMatrix.identity();
+            this.rotationMatrix.rotate(180.0F - this.rotationYaw, 0.0F, 1.0F, 0.0F);
+            this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
+
+            this.setEntityBoundingBox(this.calculateEncompassingBounds());
+
+            this.resetMatrix = false;
+        }
+
         if (this.testLaunched) {
             double acceleration = this.metadata.getTotalAcceleration() / 20.0;
             this.motionY += acceleration;
 
             for (SpacecraftMetadata.Thruster thruster : this.metadata.getThrusters()) {
                 BlockPos thrusterPos = thruster.getPos();
-                double posX = this.posX + thrusterPos.getX();
-                double posY = this.posY + thrusterPos.getY() + 0.5;
-                double posZ = this.posZ + thrusterPos.getZ();
+                Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                this.rotationMatrix.transform(thrusterPoint);
+                double posX = this.posX + thrusterPoint.x;
+                double posY = this.posY + thrusterPoint.y;
+                double posZ = this.posZ + thrusterPoint.z;
                 for (int i = 0; i < 10; i++) {
                     double motionX = this.rand.nextDouble() * 2.0 - 1;
                     double motionY = -acceleration;
@@ -80,25 +102,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
         }
 
-        this.motionX *= 0.98;
-        this.motionY *= 0.98;
-        this.motionZ *= 0.98;
-
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-
-        if (this.posY > 1000) {
-            setDead();
-        }
-
-        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3 || this.resetMatrix) {
-            this.rotationMatrix.identity();
-            this.rotationMatrix.rotate(this.rotationYaw, 0.0F, 1.0F, 0.0F);
-            this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
-
-            this.setEntityBoundingBox(this.calculateEncompassingBounds());
-
-            this.resetMatrix = false;
-        }
     }
 
     @Override
@@ -119,17 +123,19 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    public @Nonnull AxisAlignedBB getRenderBoundingBox() {
+    public @Nonnull
+    AxisAlignedBB getRenderBoundingBox() {
         return this.calculateEncompassingBounds();
     }
 
-    private @Nonnull AxisAlignedBB calculateEncompassingBounds() {
-        AxisAlignedBB ret = new AxisAlignedBB(BlockPos.ORIGIN);
+    private @Nonnull
+    AxisAlignedBB calculateEncompassingBounds() {
+        AxisAlignedBB ret = new AxisAlignedBB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         for (AxisAlignedBB bb : this.collectTransformedBlockBounds()) {
             ret = ret.union(bb);
         }
 
-        return ret.offset(posX - 0.5, posY, posZ - 0.5);
+        return ret.offset(posX, posY, posZ);
     }
 
     @Override
@@ -166,15 +172,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
-        bounds = bounds.offset(pos);
-
-        Point3d min = new Point3d(bounds.minX, bounds.minY, bounds.minZ);
-        Point3d max = new Point3d(bounds.maxX, bounds.maxY, bounds.maxZ);
-
-        this.rotationMatrix.transform(min);
-        this.rotationMatrix.transform(max);
-
-        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
+        bounds = bounds.offset(pos.getX() - 0.5, pos.getY(), pos.getZ() - 0.5);
+        return this.rotationMatrix.transform(bounds);
     }
 
     @Override

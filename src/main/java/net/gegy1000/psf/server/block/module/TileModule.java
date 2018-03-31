@@ -1,12 +1,9 @@
 package net.gegy1000.psf.server.block.module;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
@@ -20,10 +17,14 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 @NoArgsConstructor
 @AllArgsConstructor
 public class TileModule extends TileEntity {
-    
+
+    @Getter
     private IModule module;
     
     @Override

@@ -1,5 +1,7 @@
 package net.gegy1000.psf.server.util;
 
+import net.minecraft.util.math.AxisAlignedBB;
+
 import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
@@ -43,8 +45,31 @@ public class Matrix {
         this.updateMatrix();
     }
 
-    public void transform(Point3d point) {
+    public Point3d transform(Point3d point) {
         this.matrix.transform(point);
+        return point;
+    }
+
+    public Point3d transform(double x, double y, double z) {
+        return this.transform(new Point3d(x, y, z));
+    }
+
+    public AxisAlignedBB transform(AxisAlignedBB bounds) {
+        Point3d[] transformedPoints = new Point3d[] {
+                this.transform(bounds.minX, bounds.minY, bounds.minZ),
+                this.transform(bounds.minX, bounds.minY, bounds.maxZ),
+                this.transform(bounds.minX, bounds.maxY, bounds.minZ),
+                this.transform(bounds.minX, bounds.maxY, bounds.maxZ),
+                this.transform(bounds.maxX, bounds.minY, bounds.minZ),
+                this.transform(bounds.maxX, bounds.minY, bounds.maxZ),
+                this.transform(bounds.maxX, bounds.maxY, bounds.minZ),
+                this.transform(bounds.maxX, bounds.maxY, bounds.maxZ)
+        };
+
+        Point3d min = PointUtils.min(transformedPoints);
+        Point3d max = PointUtils.max(transformedPoints);
+
+        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     private Matrix4d takePool() {

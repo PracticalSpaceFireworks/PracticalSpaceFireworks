@@ -1,7 +1,5 @@
 package net.gegy1000.psf.server.modules;
 
-import javax.annotation.Nonnull;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.minecraft.util.ResourceLocation;
@@ -10,6 +8,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
+
+import javax.annotation.Nonnull;
 
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class Modules {
@@ -29,7 +29,7 @@ public class Modules {
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut")).setRegistryName("strut"));
         
         registry.register(new SimpleModuleFactory(() -> new ModuleBattery(100000)).setRegistryName("battery_simple"));
-        registry.register(new SimpleModuleFactory(ModuleThruster::new).setRegistryName("thruster"));
+        registry.register(new SimpleModuleFactory(() -> new ModuleThruster(ModuleThruster.ThrusterTier.SIMPLE)).setRegistryName("thruster"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("antenna")).setRegistryName("antenna"));
     }
 

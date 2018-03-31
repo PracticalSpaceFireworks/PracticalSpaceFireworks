@@ -30,9 +30,10 @@ public class RenderSpacecraft extends Render<EntitySpacecraft> {
         float lerpPitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 
         GlStateManager.pushMatrix();
-        GlStateManager.translate(x - 0.5, y, z - 0.5);
-        GlStateManager.rotate(lerpYaw, 0.0F, 1.0F, 0.0F);
+        GlStateManager.translate(x, y, z);
+        GlStateManager.rotate(180.0F - lerpYaw, 0.0F, 1.0F, 0.0F);
         GlStateManager.rotate(lerpPitch, 1.0F, 0.0F, 0.0F);
+        GlStateManager.translate(-0.5, 0.0, -0.5);
 
         GlStateManager.disableLighting();
         this.renderLayers(model);

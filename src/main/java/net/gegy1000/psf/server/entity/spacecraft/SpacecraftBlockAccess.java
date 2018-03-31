@@ -1,6 +1,8 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -9,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -16,13 +19,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SpacecraftBlockAccess implements IBlockAccess {
     private final int[] blockData;
     private final int[] lightData;
+    private final Long2ObjectMap<TileEntity> entities;
 
     private final Biome biome;
 
@@ -55,7 +62,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     @Nullable
     @Override
     public TileEntity getTileEntity(BlockPos pos) {
-        return null;
+        return this.entities.get(pos.toLong());
     }
 
     @Override
@@ -104,6 +111,11 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         compound.setIntArray("block_data", this.blockData);
         compound.setIntArray("light_data", this.lightData);
 
+        NBTTagList entityList = new NBTTagList();
+        for (Map.Entry<Long, TileEntity> entry : this.entities.entrySet()) {
+            entityList.appendTag(entry.getValue().serializeNBT());
+        }
+
         return compound;
     }
 
@@ -126,7 +138,19 @@ public class SpacecraftBlockAccess implements IBlockAccess {
             lightData = new int[expectedLength];
         }
 
-        return new SpacecraftBlockAccess(blockData, lightData, biome, minPos, maxPos);
+        Long2ObjectMap<TileEntity> entities = new Long2ObjectOpenHashMap<>();
+        NBTTagList entityList = compound.getTagList("entities", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < entityList.tagCount(); i++) {
+            NBTTagCompound entityTag = entityList.getCompoundTagAt(i);
+            TileEntity entity = TileEntity.create(null, entityTag);
+            if (entity == null) {
+                PracticalSpaceFireworks.LOGGER.warn("Failed to deserialize TE for spacecraft");
+                continue;
+            }
+            entities.put(entity.getPos().toLong(), entity);
+        }
+
+        return new SpacecraftBlockAccess(blockData, lightData, entities, biome, minPos, maxPos);
     }
 
     public void serialize(ByteBuf buffer) {
@@ -140,6 +164,11 @@ public class SpacecraftBlockAccess implements IBlockAccess {
 
         for (int light : this.lightData) {
             buffer.writeInt(light);
+        }
+
+        buffer.writeShort(this.entities.size() & 0xFFFF);
+        for (Map.Entry<Long, TileEntity> entry : this.entities.entrySet()) {
+            ByteBufUtils.writeTag(buffer, entry.getValue().serializeNBT());
         }
     }
 
@@ -159,7 +188,19 @@ public class SpacecraftBlockAccess implements IBlockAccess {
             lightData[i] = buffer.readInt();
         }
 
-        return new SpacecraftBlockAccess(blockData, lightData, biome, minPos, maxPos);
+        int entityCount = buffer.readUnsignedShort();
+        Long2ObjectMap<TileEntity> entities = new Long2ObjectOpenHashMap<>();
+        for (int i = 0; i < entityCount; i++) {
+            NBTTagCompound entityTag = ByteBufUtils.readTag(buffer);
+            TileEntity entity = TileEntity.create(null, entityTag);
+            if (entity == null) {
+                PracticalSpaceFireworks.LOGGER.warn("Failed to deserialize TE for spacecraft");
+                continue;
+            }
+            entities.put(entity.getPos().toLong(), entity);
+        }
+
+        return new SpacecraftBlockAccess(blockData, lightData, entities, biome, minPos, maxPos);
     }
 
     static int getPosIndex(BlockPos pos, BlockPos minPos, BlockPos maxPos) {
