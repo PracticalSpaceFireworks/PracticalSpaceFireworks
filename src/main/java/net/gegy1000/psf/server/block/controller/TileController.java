@@ -1,14 +1,29 @@
 package net.gegy1000.psf.server.block.controller;
 
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Sets;
+
 import lombok.Value;
-import lombok.experimental.Delegate;
 import lombok.val;
+import lombok.experimental.Delegate;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.PacketRequestModulesWorld;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
@@ -24,20 +39,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 public class TileController extends TileEntity {
@@ -158,17 +159,14 @@ public class TileController extends TileEntity {
     }
 
     public Map<BlockPos, ScanValue> scanStructure() {
-        Iterator<BlockPos> struts = getContiguousIterator(getPos());
+        Iterator<BlockPos> modules = getContiguousIterator(getPos());
         Map<BlockPos, ScanValue> ret = new HashMap<>();
-        while (struts.hasNext()) {
-            BlockPos pos = struts.next();
-            for (EnumFacing dir : EnumFacing.VALUES) {
-                BlockPos pos2 = pos.offset(dir);
-                TileEntity te = getWorld().getTileEntity(pos2);
-                if (te != null && te.hasCapability(CapabilityModule.INSTANCE, dir)) {
-                    IModule module = te.getCapability(CapabilityModule.INSTANCE, dir);
-                    ret.put(pos2, new ScanValue(getWorld().getBlockState(pos2), module));
-                }
+        while (modules.hasNext()) {
+            BlockPos pos = modules.next();
+            TileEntity te = getWorld().getTileEntity(pos);
+            if (te != null && te.hasCapability(CapabilityModule.INSTANCE, null)) {
+                IModule module = te.getCapability(CapabilityModule.INSTANCE, null);
+                ret.put(pos, new ScanValue(getWorld().getBlockState(pos), module));
             }
         }
         
@@ -201,7 +199,8 @@ public class TileController extends TileEntity {
                 if (ret.getDistance() < CONTIGUOUS_RANGE) {
                     for (EnumFacing face : EnumFacing.VALUES) {
                         BlockPos bp = ret.getPos().offset(face);
-                        if (!seen.contains(bp) && BlockModule.isStructural(world.getBlockState(bp))) {
+                        TileEntity te = getWorld().getTileEntity(ret.getPos());
+                        if (!seen.contains(bp) && te != null && te.hasCapability(CapabilityModule.INSTANCE, null)) {
                             search.offer(new Node(bp, ret.getDistance() + 1));
                         }
                         seen.add(bp);

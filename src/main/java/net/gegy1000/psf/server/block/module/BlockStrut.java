@@ -16,6 +16,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockStrut extends BlockModule {
     
@@ -61,7 +62,7 @@ public class BlockStrut extends BlockModule {
     }
 
     @Override
-    public boolean isStructuralModule(IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
         return true;
     }
 }
