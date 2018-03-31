@@ -26,7 +26,7 @@ public class BlockFuelTank extends BlockModule {
         this.setSoundType(SoundType.METAL);
         this.setHardness(3.0F);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
-        this.setDefaultState(this.blockState.getBaseState()
+        this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.UP)
                 .withProperty(NORTH, false).withProperty(SOUTH, false)
                 .withProperty(EAST, false).withProperty(WEST, false));
     }
@@ -44,7 +44,7 @@ public class BlockFuelTank extends BlockModule {
         if (state.getValue(SOUTH)) count++;
         if (state.getValue(WEST)) count++;
         if (state.getValue(EAST)) count++;
-        return count >= 3;
+        return count != 3 && count != 0;
     }
 
     @Override
