@@ -16,7 +16,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 public interface ISatellite extends INBTSerializable<NBTTagCompound> {
 
     default String getName() {
-        return "Craft #" + hashCode();
+        return "Unnamed Craft #" + hashCode() % 1000;
     }
     
     default void setName(String name) {}
