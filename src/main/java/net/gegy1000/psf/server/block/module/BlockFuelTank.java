@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockFuelTank extends BlockModule {
     private static final PropertyBool NORTH = PropertyBool.create("north");
@@ -52,21 +53,21 @@ public class BlockFuelTank extends BlockModule {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState state, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, EnumFacing side) {
-        return !canConnect(blockAccess, pos, side) && super.shouldSideBeRendered(state, blockAccess, pos, side);
+        return !canConnect(state, blockAccess, pos, side) && super.shouldSideBeRendered(state, blockAccess, pos, side);
     }
 
     @Override
     @Nonnull
     public IBlockState getActualState(@Nonnull IBlockState state, IBlockAccess world, BlockPos pos) {
-        return state.withProperty(NORTH, this.canConnect(world, pos, EnumFacing.NORTH))
-                .withProperty(SOUTH, this.canConnect(world, pos, EnumFacing.SOUTH))
-                .withProperty(EAST, this.canConnect(world, pos, EnumFacing.EAST))
-                .withProperty(WEST, this.canConnect(world, pos, EnumFacing.WEST));
+        return state.withProperty(NORTH, this.canConnect(state, world, pos, EnumFacing.NORTH))
+                .withProperty(SOUTH, this.canConnect(state, world, pos, EnumFacing.SOUTH))
+                .withProperty(EAST, this.canConnect(state, world, pos, EnumFacing.EAST))
+                .withProperty(WEST, this.canConnect(state, world, pos, EnumFacing.WEST));
     }
 
-    private boolean canConnect(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    private boolean canConnect(IBlockState me, IBlockAccess world, BlockPos pos, EnumFacing side) {
         IBlockState state = world.getBlockState(pos.offset(side));
-        return state.getBlock() == this || BlockModule.isStructural(state);
+        return state.getBlock() == this || BlockModule.isStructural(me, state);
     }
 
     @Nonnull
@@ -78,18 +79,18 @@ public class BlockFuelTank extends BlockModule {
     @Override
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
         super.onBlockAdded(worldIn, pos, state);
-        updateNeighbors(worldIn, pos);
+        updateNeighbors(state, worldIn, pos);
     }
     
     @Override
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         super.breakBlock(worldIn, pos, state);
-        updateNeighbors(worldIn, pos);
+        updateNeighbors(state, worldIn, pos);
     }
 
-    private void updateNeighbors(World worldIn, BlockPos pos) {
+    private void updateNeighbors(IBlockState state, World worldIn, BlockPos pos) {
         for (EnumFacing dir : EnumFacing.HORIZONTALS) {
-            if (canConnect(worldIn, pos, dir)) {
+            if (canConnect(state, worldIn, pos, dir)) {
                 BlockPos pos2 = pos.offset(dir);
                 worldIn.notifyNeighborsOfStateChange(pos2, worldIn.getBlockState(pos2).getBlock(), true);
             }
@@ -108,7 +109,10 @@ public class BlockFuelTank extends BlockModule {
     }
 
     @Override
-    public boolean isStructuralModule(IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
+        if (connecting != null && connecting.getBlock() == this) {
+            return true;
+        }
         boolean n = state.getValue(NORTH);
         boolean s = state.getValue(SOUTH);
         boolean w = state.getValue(WEST);

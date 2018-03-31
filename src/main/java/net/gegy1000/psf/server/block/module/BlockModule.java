@@ -67,13 +67,13 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        if (isStructuralModule(getDefaultState())) {
+        if (isStructuralModule(null, getDefaultState())) {
             return canPlaceBlockAt(world, pos);
         }
 
         BlockPos pos2 = pos.offset(side.getOpposite());
         IBlockState on = world.getBlockState(pos2).getActualState(world, pos2);
-        return isStructural(on) && super.canPlaceBlockOnSide(world, pos, side);
+        return isStructural(getDefaultState(), on) && super.canPlaceBlockOnSide(world, pos, side);
     }
 
     @Override
@@ -86,11 +86,11 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
         super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
         state = state.getActualState(worldIn, pos);
-        if (!isStructuralModule(state)) {
+        if (!isStructuralModule(null, state)) {
             BlockPos connectedTo = pos.offset(state.getValue(DIRECTION).getOpposite());
             if (connectedTo.equals(fromPos)) {
                 IBlockState other = worldIn.getBlockState(connectedTo).getActualState(worldIn, connectedTo);
-                if (!isStructural(other)) {
+                if (!isStructural(state, other)) {
                     worldIn.destroyBlock(pos, true);
                 }
             }
@@ -119,11 +119,11 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         return getDefaultState().withProperty(DIRECTION, EnumFacing.values()[meta]);
     }
 
-    public boolean isStructuralModule(IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
         return false;
     }
 
-    public static boolean isStructural(IBlockState state) {
-        return state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(state);
+    public static boolean isStructural(@Nullable IBlockState connecting, IBlockState state) {
+        return state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(connecting, state);
     }
 }
