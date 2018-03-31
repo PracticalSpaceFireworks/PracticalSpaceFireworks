@@ -7,6 +7,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
+import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.block.Block;
@@ -23,7 +24,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockModule extends Block implements RegisterItemBlock {
+public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
     
     public static final @Nonnull IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
     

@@ -62,12 +62,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             for (SpacecraftMetadata.Thruster thruster : this.metadata.getThrusters()) {
                 BlockPos thrusterPos = thruster.getPos();
                 double posX = this.posX + thrusterPos.getX();
-                double posY = this.posY + thrusterPos.getY() - 1.0;
+                double posY = this.posY + thrusterPos.getY() + 0.5;
                 double posZ = this.posZ + thrusterPos.getZ();
                 for (int i = 0; i < 10; i++) {
-                    double motionX = this.rand.nextDouble() * 2.0 - 0.5;
+                    double motionX = this.rand.nextDouble() * 2.0 - 1;
                     double motionY = -acc;
-                    double motionZ = this.rand.nextDouble() * 2.0 - 0.5;
+                    double motionZ = this.rand.nextDouble() * 2.0 - 1;
                     this.world.spawnParticle(EnumParticleTypes.FLAME, posX, posY, posZ, motionX * 0.1, motionY, motionZ * 0.1);
                 }
             }

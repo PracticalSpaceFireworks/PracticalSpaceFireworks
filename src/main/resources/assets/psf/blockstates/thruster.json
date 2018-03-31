@@ -1,0 +1,19 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "psf:thruster",
+		"transform": "forge:default-block"
+    },
+    "variants": {
+        "normal": [{}],
+        "inventory": [{}],
+        "facing": {
+        	"down": {},
+        	"up": {},
+        	"north": {},
+        	"south": {},
+        	"east": {},
+        	"west": {}
+        }
+    }
+}
