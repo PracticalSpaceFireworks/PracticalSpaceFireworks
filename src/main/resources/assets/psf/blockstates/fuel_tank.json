@@ -16,10 +16,10 @@
     "east=false,north=true,south=true,west=false": {"model": "psf:fuel_tank_full"},
     "east=true,north=false,south=false,west=true": {"model": "psf:fuel_tank_full"},
 
-    "east=false,north=true,south=false,west=true": {"model": "psf:strut_edge.obj"},
-    "east=false,north=false,south=true,west=true": {"model": "psf:strut_edge.obj", "y": 270},
-    "east=true,north=true,south=false,west=false": {"model": "psf:strut_edge.obj", "y": 90},
-    "east=true,north=false,south=true,west=false": {"model": "psf:strut_edge.obj", "y": 180},
+    "east=false,north=true,south=false,west=true": {"model": "psf:fuel_tank_corner.obj"},
+    "east=false,north=false,south=true,west=true": {"model": "psf:fuel_tank_corner.obj", "y": 270},
+    "east=true,north=true,south=false,west=false": {"model": "psf:fuel_tank_corner.obj", "y": 90},
+    "east=true,north=false,south=true,west=false": {"model": "psf:fuel_tank_corner.obj", "y": 180},
 
     "inventory": {"model": "psf:fuel_tank_full"}
   }
