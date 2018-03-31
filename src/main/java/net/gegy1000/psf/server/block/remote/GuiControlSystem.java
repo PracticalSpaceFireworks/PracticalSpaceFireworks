@@ -187,6 +187,19 @@ public class GuiControlSystem extends GuiContainer {
                     .map(m -> (IEnergyStorage) m)
                     .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
             mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
+            y += 15;
+            mc.fontRenderer.drawString("Position:", x, y, color);
+            ISatellite craft = getCraft();
+            if (craft != null) {
+                BlockPos pos = craft.getPosition();
+                x += 5;
+                y += 10;
+                mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
+                y += 10;
+                mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
+                y += 10;
+                mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
+            }
             
         } else {
             craftList.drawScreen(mouseX, mouseY, partialTicks);
