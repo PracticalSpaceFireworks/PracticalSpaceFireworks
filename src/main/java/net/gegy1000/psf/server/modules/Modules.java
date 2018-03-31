@@ -30,6 +30,7 @@ public class Modules {
         
         registry.register(new SimpleModuleFactory(() -> new ModuleBattery(100000)).setRegistryName("battery_simple"));
         registry.register(new SimpleModuleFactory(ModuleThruster::new).setRegistryName("thruster"));
+        registry.register(new SimpleModuleFactory(() -> new EmptyModule("antenna")).setRegistryName("antenna"));
     }
 
     public static @Nonnull IForgeRegistry<IModuleFactory> get() {

@@ -16,6 +16,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -113,11 +114,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     public void writeSpawnData(ByteBuf buffer) {
         this.blockAccess.serialize(buffer);
+        ByteBufUtils.writeTag(buffer, this.metadata.serialize(new NBTTagCompound()));
     }
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(buffer, getEntityWorld());
+        this.metadata = SpacecraftMetadata.deserialize(ByteBufUtils.readTag(buffer));
         this.model = null;
     }
 

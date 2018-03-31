@@ -19,7 +19,7 @@ public class PSFEntityRegistry {
                 .entity(EntitySpacecraft.class)
                 .name(PracticalSpaceFireworks.MODID + ".spacecraft")
                 .id(new ResourceLocation(PracticalSpaceFireworks.MODID, "spacecraft"), CRAFT_ID)
-                .tracker(1024, 1, true)
+                .tracker(1024, 100, false)
                 .build());
     }
 }

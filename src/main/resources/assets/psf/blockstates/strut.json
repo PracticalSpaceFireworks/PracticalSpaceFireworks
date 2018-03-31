@@ -1,7 +1,7 @@
 {
     "forge_marker": 1,
     "defaults": {
-        "model": "cube_all",
+        "model": "psf:strut",
 		"transform": "forge:default-block"
     },
     "variants": {

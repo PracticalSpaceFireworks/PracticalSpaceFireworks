@@ -11,10 +11,11 @@ import net.gegy1000.psf.server.api.RegisterBlockEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
-import net.gegy1000.psf.server.block.module.BlockBattery;
+import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileModule;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
@@ -31,15 +32,18 @@ public class PSFBlockRegistry {
     public static BlockStrut strut;
 
     public static BlockController basicController;
+    public static BlockModule thruster;
 
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
         register(event, "controller_basic", basicController = new BlockController(ControllerType.BASIC));
         
         // Modules
-        register(event, "strut", strut = new BlockStrut());
-        register(event, "battery", new BlockBattery());
-       
+        strut = register(event, "strut", new BlockStrut());
+        registerModuleBlock(event, "battery_simple");
+        thruster = registerModuleBlock(event, "thruster");
+        registerModuleBlock(event, "antenna");
+
         // Register module TE only once
         GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + "." + "module");
     }
@@ -57,8 +61,16 @@ public class PSFBlockRegistry {
             }
         }
     }
+    
+    private static BlockModule registerModuleBlock(RegistryEvent.Register<Block> event, @Nonnull String identifier) {
+        return registerModuleBlock(event, Material.IRON, identifier);
+    }
+    
+    private static BlockModule registerModuleBlock(RegistryEvent.Register<Block> event, Material material, @Nonnull String identifier) {
+        return register(event, identifier, new BlockModule(material, identifier));
+    }
 
-    private static void register(RegistryEvent.Register<Block> event, @Nonnull String identifier, Block block) {
+    private static <T extends Block> T register(RegistryEvent.Register<Block> event, @Nonnull String identifier, T block) {
         event.getRegistry().register(block.setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, identifier)));
         block.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
         REGISTERED_BLOCKS.add(block);
@@ -67,6 +79,8 @@ public class PSFBlockRegistry {
             String blockEntityKey = PracticalSpaceFireworks.MODID + "." + identifier;
             GameRegistry.registerTileEntity(((RegisterBlockEntity) block).getEntityClass(), blockEntityKey);
         }
+        
+        return block;
     }
 
     public static Set<Block> getRegisteredBlocks() {

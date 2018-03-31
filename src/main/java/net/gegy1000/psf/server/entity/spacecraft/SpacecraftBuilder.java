@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
 import net.minecraft.block.state.IBlockState;
@@ -68,7 +69,7 @@ public class SpacecraftBuilder {
             IBlockState state = Block.getStateById(this.blockValues.getInt(i));
 
             // TODO: Thrusters can be defined in a better way
-            if (state.getBlock() instanceof BlockFence) {
+            if (state.getBlock() == PSFBlockRegistry.thruster) {
                 thrusters.add(new SpacecraftMetadata.Thruster(pos));
             }
         }
