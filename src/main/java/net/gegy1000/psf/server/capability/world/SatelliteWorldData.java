@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.capability.world;
 
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.satellite.OrbitingSatellite;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,17 +21,17 @@ public interface SatelliteWorldData extends ICapabilityProvider {
     @Nonnull
     World getWorld();
 
-    void addSatellite(@Nonnull OrbitingSatellite satellite);
+    void addSatellite(@Nonnull ISatellite satellite);
 
-    void removeSatellite(@Nonnull OrbitingSatellite satellite);
+    void removeSatellite(@Nonnull ISatellite satellite);
 
     @Nonnull
-    Collection<OrbitingSatellite> getSatellites();
+    Collection<ISatellite> getSatellites();
 
     class Impl implements SatelliteWorldData {
         private final World world;
 
-        private final Set<OrbitingSatellite> satellites = new HashSet<>();
+        private final Set<ISatellite> satellites = new HashSet<>();
 
         public Impl(World world) {
             this.world = world;
@@ -56,18 +57,18 @@ public interface SatelliteWorldData extends ICapabilityProvider {
         }
 
         @Override
-        public void addSatellite(@Nonnull OrbitingSatellite satellite) {
+        public void addSatellite(@Nonnull ISatellite satellite) {
             this.satellites.add(satellite);
         }
 
         @Override
-        public void removeSatellite(@Nonnull OrbitingSatellite satellite) {
+        public void removeSatellite(@Nonnull ISatellite satellite) {
             this.satellites.remove(satellite);
         }
 
         @Override
         @Nonnull
-        public Collection<OrbitingSatellite> getSatellites() {
+        public Collection<ISatellite> getSatellites() {
             return Collections.unmodifiableSet(this.satellites);
         }
     }
@@ -77,7 +78,7 @@ public interface SatelliteWorldData extends ICapabilityProvider {
         public NBTBase writeNBT(Capability<SatelliteWorldData> capability, SatelliteWorldData instance, EnumFacing side) {
             NBTTagCompound compound = new NBTTagCompound();
             NBTTagList satelliteList = new NBTTagList();
-            for (OrbitingSatellite satellite : instance.getSatellites()) {
+            for (ISatellite satellite : instance.getSatellites()) {
                 satelliteList.appendTag(satellite.serialize(new NBTTagCompound()));
             }
             compound.setTag("satellites", satelliteList);

@@ -33,6 +33,7 @@ public class Modules {
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("antenna")).setRegistryName("antenna"));
 
         registry.register(new SimpleModuleFactory(ModuleFuelTank::new).setRegistryName("fuel_tank"));
+        registry.register(new SimpleModuleFactory(() -> new EmptyModule("payload_attacher")).setRegistryName("payload_attacher"));
     }
 
     public static @Nonnull IForgeRegistry<IModuleFactory> get() {

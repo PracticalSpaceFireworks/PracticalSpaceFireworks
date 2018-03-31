@@ -1,13 +1,18 @@
 package net.gegy1000.psf.server.satellite;
 
+import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
-public class OrbitingSatellite {
+public class OrbitingSatellite implements ISatellite {
     private final World world;
 
     private final String name;
@@ -24,6 +29,28 @@ public class OrbitingSatellite {
         this.blockAccess = blockAccess;
     }
 
+    @Override
+    public UUID getId() {
+        return this.uuid;
+    }
+
+    @Override
+    public IController getController() {
+        // TODO: Hold list of modules and controller
+        return null;
+    }
+
+    @Override
+    public Collection<IModule> getModules() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public BlockPos getPosition() {
+        return this.position;
+    }
+
+    @Override
     public NBTTagCompound serialize(NBTTagCompound compound) {
         compound.setString("name", this.name);
         compound.setUniqueId("uuid", this.uuid);
@@ -54,6 +81,6 @@ public class OrbitingSatellite {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof OrbitingSatellite && ((OrbitingSatellite) obj).uuid.equals(this.uuid);
+        return obj instanceof ISatellite && ((ISatellite) obj).getId().equals(this.uuid);
     }
 }

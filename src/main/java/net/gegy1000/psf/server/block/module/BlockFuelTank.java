@@ -62,7 +62,7 @@ public class BlockFuelTank extends BlockModule {
     }
 
     private boolean canConnect(IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return world.getBlockState(pos.offset(side)).getBlock() instanceof BlockFuelTank;
+        return BlockModule.isStructuralModule(world.getBlockState(pos.offset(side)));
     }
 
     @Nonnull

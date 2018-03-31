@@ -7,6 +7,7 @@ import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.module.BlockFuelTank;
 import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.block.module.BlockPayloadAttacher;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
@@ -38,6 +39,7 @@ public class PSFBlockRegistry {
     public static BlockRemoteControlSystem remoteControlSystem;
 
     public static BlockFuelTank fuelTank;
+    public static BlockPayloadAttacher payloadAttacher;
 
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
@@ -49,6 +51,7 @@ public class PSFBlockRegistry {
         thruster = registerModuleBlock(event, "thruster");
         registerModuleBlock(event, "antenna");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
+        payloadAttacher = register(event, "payload_attacher", new BlockPayloadAttacher());
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
 
