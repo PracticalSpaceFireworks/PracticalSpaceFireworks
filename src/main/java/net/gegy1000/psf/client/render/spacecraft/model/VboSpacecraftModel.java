@@ -14,6 +14,8 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
+import lombok.Getter;
+
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -21,11 +23,14 @@ public class VboSpacecraftModel implements SpacecraftModel {
     private static final BlockRendererDispatcher BLOCK_RENDERER = Minecraft.getMinecraft().getBlockRendererDispatcher();
     private static final BufferBuilder BUILDER = new BufferBuilder(0x20000);
 
+    @Getter
+    private final SpacecraftBlockAccess renderWorld;
     private final Map<BlockRenderLayer, VertexBuffer> buffers = new EnumMap<>(BlockRenderLayer.class);
 
     private boolean available = true;
 
     VboSpacecraftModel(SpacecraftBlockAccess blockAccess) {
+        this.renderWorld = blockAccess;
         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
             VertexBuffer buffer = new VertexBuffer(DefaultVertexFormats.BLOCK);
             buffer.bindBuffer();

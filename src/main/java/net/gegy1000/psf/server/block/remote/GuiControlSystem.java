@@ -28,7 +28,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
@@ -73,7 +75,7 @@ public class GuiControlSystem extends GuiContainer {
         buttonBack.visible = false;
         addButton(buttonBack);
         
-        tfName = new GuiTextField(1, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 100, 20);
+        tfName = new GuiTextField(1, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
         ISatellite craft = getCraft();
         if (craft != null) {
             tfName.setText(craft.getName());
@@ -145,14 +147,62 @@ public class GuiControlSystem extends GuiContainer {
         mc.getTextureManager().bindTexture(TEXTURE_LOC);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
         if (selectedCraft >= 0) {
+            ISatellite craft = getCraft();
+            if (craft == null) {
+                return;
+            }
+            
+            BlockPos from = model.getRenderWorld().getMinPos();
+            BlockPos to = model.getRenderWorld().getMaxPos();
+            AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(from), new Vec3d(to).addVector(1, 1, 1));
+
+            drawRect(guiLeft + 9, guiTop + 9, guiLeft + (xSize / 2) - 9, guiTop + ySize - 9, 0xFF8A8A8A);
+            drawRect(guiLeft + 10, guiTop + 10, guiLeft + (xSize / 2) - 10, guiTop + ySize - 10, 0xFF000000);
+
             GlStateManager.pushMatrix();
-            GlStateManager.translate(guiLeft + (ySize / 3), guiTop + (ySize / 2), 100);
-            GlStateManager.translate(-8,-8,-8);
-            GlStateManager.rotate(-10, 1, 0, 0);
-            GlStateManager.rotate(mc.world.getTotalWorldTime() + partialTicks, 0, 1, 0);
-            GlStateManager.translate(8, 8, 8);
+            
+            double lengthX = (bb.maxX - bb.minX) * 16;
+            double lengthY = (bb.maxY - bb.minY) * 16;
+            double lengthZ = (bb.maxZ - bb.minZ) * 16;
+
+            double halfX = lengthX / 2;
+            double halfY = lengthY / 2;
+            double halfZ = lengthZ / 2;
+            
+            final double maxW = 6 * 16;
+            final double maxH = 11 * 16;
+            
+            double overW = Math.max(lengthX - maxW, lengthZ - maxW);
+            double overH = lengthY - maxH;
+            
+            double sc = 1;
+            
+            if (overW > 0 && overW > overH) {
+                sc = maxW / (overW + maxW);
+            } else if (overH > 0 && overH > overW) {
+                sc = maxH / (overH + maxH);
+            }
+            
+//            halfX *= sc;
+//            halfY *= sc;
+//            halfZ *= sc;
+            
+            GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
+            GlStateManager.rotate(0, 1, 0, 0);
+            
+            BlockPos min = model.getRenderWorld().getMinPos();
+
+            GlStateManager.translate(-halfX, -halfY, -halfZ);
+            GlStateManager.rotate(mc.world.getTotalWorldTime() + mc.getRenderPartialTicks(), 0, 1, 0);       
+
+            GlStateManager.translate(halfX, halfY, halfZ);
+
+            GlStateManager.translate(min.getX() * 16, min.getY() * 16, min.getZ() * 16);
+
             GlStateManager.scale(-16, -16, -16);
             
+            GlStateManager.scale(sc, sc, sc);
+
             mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             model.render(BlockRenderLayer.SOLID);
 
@@ -189,17 +239,14 @@ public class GuiControlSystem extends GuiContainer {
             mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
             y += 15;
             mc.fontRenderer.drawString("Position:", x, y, color);
-            ISatellite craft = getCraft();
-            if (craft != null) {
-                BlockPos pos = craft.getPosition();
-                x += 5;
-                y += 10;
-                mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
-                y += 10;
-                mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
-                y += 10;
-                mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
-            }
+            BlockPos pos = craft.getPosition();
+            x += 5;
+            y += 10;
+            mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
+            y += 10;
+            mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
+            y += 10;
+            mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
             
         } else {
             craftList.drawScreen(mouseX, mouseY, partialTicks);

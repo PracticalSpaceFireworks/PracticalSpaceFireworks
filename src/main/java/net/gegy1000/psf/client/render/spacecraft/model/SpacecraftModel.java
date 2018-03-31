@@ -22,4 +22,6 @@ public interface SpacecraftModel {
     void delete();
 
     boolean isAvailable();
+    
+    SpacecraftBlockAccess getRenderWorld();
 }
