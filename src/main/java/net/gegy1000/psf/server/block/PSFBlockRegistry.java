@@ -1,10 +1,11 @@
 package net.gegy1000.psf.server.block;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
+import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
+import net.gegy1000.psf.server.block.module.BlockBattery;
 import net.gegy1000.psf.server.block.module.BlockFuelTank;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockPayloadAttacher;
@@ -47,7 +48,7 @@ public class PSFBlockRegistry {
 
         // Modules
         strut = register(event, "strut", new BlockStrut());
-        registerModuleBlock(event, "battery_simple");
+        register(event, "battery_simple", new BlockBattery("battery_simple"));
         thruster = registerModuleBlock(event, "thruster");
         registerModuleBlock(event, "antenna");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
