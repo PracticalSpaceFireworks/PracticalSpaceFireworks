@@ -1,9 +1,9 @@
 {
 	"credit": "Made with Blockbench, a free, modern block model editor by JannisX11",
 	"textures": {
-		"0": "blocks/antenna2",
-		"1": "blocks/antenna",
-		"particle": "blocks/antenna2"
+		"0": "blocks/antenna",
+		"1": "blocks/base",
+		"particle": "blocks/base"
 	},
 	"elements": [
 		{
