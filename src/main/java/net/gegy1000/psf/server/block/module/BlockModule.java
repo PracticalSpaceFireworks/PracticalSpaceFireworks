@@ -5,7 +5,6 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -66,10 +65,10 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     }
     
     @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        IBlockState on = worldIn.getBlockState(pos.offset(side.getOpposite()));
-        if (on.getBlock() == PSFBlockRegistry.strut) {
-            return super.canPlaceBlockOnSide(worldIn, pos, side);
+    public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+        TileEntity on = world.getTileEntity(pos.offset(side.getOpposite()));
+        if (on instanceof TileModule) {
+            return ((TileModule) on).getModule().isStructuralModule() && super.canPlaceBlockOnSide(world, pos, side);
         }
         return false;
     }

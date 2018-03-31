@@ -1,29 +1,25 @@
 package net.gegy1000.psf.server.block.controller;
 
+import com.google.common.collect.Sets;
+import lombok.Value;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.capability.CapabilityController;
+import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.gegy1000.psf.server.modules.EmptyModule;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Sets;
-
-import lombok.Value;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
-import net.gegy1000.psf.server.capability.CapabilityController;
-import net.gegy1000.psf.server.capability.CapabilityModule;
-import net.gegy1000.psf.server.modules.EmptyModule;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.capabilities.Capability;
 
 
 public class TileController extends TileEntity {
@@ -49,7 +45,7 @@ public class TileController extends TileEntity {
     }
 
     public Map<BlockPos, IModule> scanStructure() {
-        Iterator<BlockPos> struts = getContiguousIterator(getPos(), PSFBlockRegistry.strut.getDefaultState());
+        Iterator<BlockPos> struts = getContiguousIterator(getPos());
         Map<BlockPos, IModule> ret = new HashMap<>();
         while (struts.hasNext()) {
             BlockPos pos = struts.next();
@@ -74,7 +70,7 @@ public class TileController extends TileEntity {
     
     public static final int CONTIGUOUS_RANGE = 10;
     
-    private Iterator<BlockPos> getContiguousIterator(final @Nonnull BlockPos origin, final @Nonnull IBlockState state) {
+    private Iterator<BlockPos> getContiguousIterator(final @Nonnull BlockPos origin) {
         return new Iterator<BlockPos>() {
 
             private Set<BlockPos> seen = Sets.newHashSet(origin);
@@ -92,8 +88,11 @@ public class TileController extends TileEntity {
                 if (ret.getDistance() < CONTIGUOUS_RANGE) {
                     for (EnumFacing face : EnumFacing.VALUES) {
                         BlockPos bp = ret.getPos().offset(face);
-                        if (!seen.contains(bp) && world.getBlockState(bp).getBlock() == PSFBlockRegistry.strut) {
-                            search.offer(new Node(bp, ret.getDistance() + 1));
+                        if (!seen.contains(bp)) {
+                            TileEntity tile = world.getTileEntity(bp);
+                            if (tile instanceof TileModule && ((TileModule) tile).getModule().isStructuralModule()) {
+                                search.offer(new Node(bp, ret.getDistance() + 1));
+                            }
                         }
                         seen.add(bp);
                     }

@@ -44,8 +44,8 @@ public class BlockStrut extends BlockModule {
     }
     
     @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        return canPlaceBlockAt(worldIn, pos);
+    public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+        return canPlaceBlockAt(world, pos);
     }
     
     @Override

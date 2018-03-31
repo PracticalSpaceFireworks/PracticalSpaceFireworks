@@ -26,7 +26,7 @@ public class Modules {
     
     @SubscribeEvent
     public static void registerModules(RegistryEvent.Register<IModuleFactory> event) {
-        registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut")).setRegistryName("strut"));
+        registry.register(new SimpleModuleFactory(() -> new StructuralModule("strut")).setRegistryName("strut"));
         
         registry.register(new SimpleModuleFactory(() -> new ModuleBattery(100000)).setRegistryName("battery_simple"));
         registry.register(new SimpleModuleFactory(() -> new ModuleThruster(ModuleThruster.ThrusterTier.SIMPLE)).setRegistryName("thruster"));
