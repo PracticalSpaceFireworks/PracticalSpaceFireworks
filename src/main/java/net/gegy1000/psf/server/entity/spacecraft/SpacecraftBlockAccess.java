@@ -74,7 +74,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         if (posIndex > -1) {
             return this.lightData[posIndex];
         }
-        return (15 - this.world.getSkylightSubtracted()) << 20 | 15 << 4;
+        return 15 << 20;
     }
 
     @Override
