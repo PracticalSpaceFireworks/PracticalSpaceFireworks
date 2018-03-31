@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -29,6 +30,7 @@ import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.modules.EmptyModule;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -101,6 +103,23 @@ public class TileController extends TileEntity {
                 modules = scanStructure();
             }
             return CapabilitySatellite.INSTANCE.cast(new ISatellite() {
+                
+                private UUID id = UUID.randomUUID();
+                
+                @Override
+                public UUID getId() {
+                    return id;
+                }
+                
+                @Override
+                public BlockPos getPosition() {
+                    return getPos();
+                }
+                
+                @Override
+                public NBTTagCompound serialize(NBTTagCompound compound) {
+                    return compound;
+                }
                 
                 @Override
                 public Collection<IModule> getModules() {

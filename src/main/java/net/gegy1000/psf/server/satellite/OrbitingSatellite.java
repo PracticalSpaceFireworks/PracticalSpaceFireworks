@@ -4,12 +4,14 @@ import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 public class OrbitingSatellite implements ISatellite {
@@ -82,5 +84,10 @@ public class OrbitingSatellite implements ISatellite {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ISatellite && ((ISatellite) obj).getId().equals(this.uuid);
+    }
+
+    @Override
+    public Map<BlockPos, IBlockState> getComponents() {
+        return blockAccess.getAllStates();
     }
 }
