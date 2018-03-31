@@ -50,6 +50,7 @@ public class PSFBlockRegistry {
         registerModuleBlock(event, "battery_simple");
         thruster = registerModuleBlock(event, "thruster");
         registerModuleBlock(event, "antenna");
+        registerModuleBlock(event, "entity_detector");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
         payloadAttacher = register(event, "payload_attacher", new BlockPayloadAttacher());
 

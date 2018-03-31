@@ -3,6 +3,7 @@ package net.gegy1000.psf.server.entity.spacecraft;
 import io.netty.buffer.ByteBuf;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
+import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
@@ -106,6 +107,14 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+    }
+
+    @Override
+    public void setDead() {
+        super.setDead();
+        if (world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+            world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).addSatellite(satellite);
+        }
     }
 
     @Override
