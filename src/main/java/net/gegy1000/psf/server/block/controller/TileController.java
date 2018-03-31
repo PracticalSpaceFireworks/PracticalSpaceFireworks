@@ -3,7 +3,7 @@ package net.gegy1000.psf.server.block.controller;
 import com.google.common.collect.Sets;
 import lombok.Value;
 import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.modules.EmptyModule;
@@ -88,11 +88,8 @@ public class TileController extends TileEntity {
                 if (ret.getDistance() < CONTIGUOUS_RANGE) {
                     for (EnumFacing face : EnumFacing.VALUES) {
                         BlockPos bp = ret.getPos().offset(face);
-                        if (!seen.contains(bp)) {
-                            TileEntity tile = world.getTileEntity(bp);
-                            if (tile instanceof TileModule && ((TileModule) tile).getModule().isStructuralModule()) {
-                                search.offer(new Node(bp, ret.getDistance() + 1));
-                            }
+                        if (!seen.contains(bp) && BlockModule.isStructuralModule(world.getBlockState(bp))) {
+                            search.offer(new Node(bp, ret.getDistance() + 1));
                         }
                         seen.add(bp);
                     }

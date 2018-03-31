@@ -42,12 +42,7 @@ public class BlockStrut extends BlockModule {
     public boolean shouldSideBeRendered(@Nonnull IBlockState blockState, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
         return blockAccess.getBlockState(pos.offset(side)).getBlock() != this && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
     }
-    
-    @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        return canPlaceBlockAt(world, pos);
-    }
-    
+
     @Override
     public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta,
             @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
@@ -63,5 +58,10 @@ public class BlockStrut extends BlockModule {
     public @Nonnull IBlockState getStateFromMeta(int meta) {
         meta = Math.abs(meta) % StrutType.values().length;
         return getDefaultState().withProperty(TYPE, StrutType.values()[meta]);
+    }
+
+    @Override
+    public boolean isStructuralModule() {
+        return true;
     }
 }

@@ -65,4 +65,12 @@ public class TileModule extends TileEntity {
         this.module = factory.get();
         this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
     }
+
+    @Nullable
+    public static IModule getModule(TileEntity entity) {
+        if (entity instanceof TileModule) {
+            return ((TileModule) entity).getModule();
+        }
+        return null;
+    }
 }

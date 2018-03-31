@@ -28,8 +28,4 @@ public interface IModule extends INBTSerializable<NBTTagCompound> {
     ResourceLocation getRegistryName();
 
     IModule setRegistryName(@Nullable ResourceLocation registryName);
-
-    default boolean isStructuralModule() {
-        return false;
-    }
 }

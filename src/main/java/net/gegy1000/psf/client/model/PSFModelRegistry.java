@@ -53,6 +53,7 @@ public class PSFModelRegistry {
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.basicController, controllerMapper);
         
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.strut, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.fuelTank, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
         
         Item strut = Item.getItemFromBlock(PSFBlockRegistry.strut);
         for (StrutType type : StrutType.values()) {

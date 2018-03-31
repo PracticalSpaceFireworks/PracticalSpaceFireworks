@@ -26,11 +26,13 @@ public class Modules {
     
     @SubscribeEvent
     public static void registerModules(RegistryEvent.Register<IModuleFactory> event) {
-        registry.register(new SimpleModuleFactory(() -> new StructuralModule("strut")).setRegistryName("strut"));
+        registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut")).setRegistryName("strut"));
         
         registry.register(new SimpleModuleFactory(() -> new ModuleBattery(100000)).setRegistryName("battery_simple"));
         registry.register(new SimpleModuleFactory(() -> new ModuleThruster(ModuleThruster.ThrusterTier.SIMPLE)).setRegistryName("thruster"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("antenna")).setRegistryName("antenna"));
+
+        registry.register(new SimpleModuleFactory(ModuleFuelTank::new).setRegistryName("fuel_tank"));
     }
 
     public static @Nonnull IForgeRegistry<IModuleFactory> get() {

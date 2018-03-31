@@ -66,11 +66,12 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        TileEntity on = world.getTileEntity(pos.offset(side.getOpposite()));
-        if (on instanceof TileModule) {
-            return ((TileModule) on).getModule().isStructuralModule() && super.canPlaceBlockOnSide(world, pos, side);
+        if (isStructuralModule()) {
+            return canPlaceBlockAt(world, pos);
         }
-        return false;
+
+        IBlockState on = world.getBlockState(pos.offset(side.getOpposite()));
+        return isStructuralModule(on) && super.canPlaceBlockOnSide(world, pos, side);
     }
 
     @Override
@@ -98,5 +99,13 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public @Nonnull IBlockState getStateFromMeta(int meta) {
         meta = Math.abs(meta) % EnumFacing.values().length;
         return getDefaultState().withProperty(DIRECTION, EnumFacing.values()[meta]);
+    }
+
+    public boolean isStructuralModule() {
+        return false;
+    }
+
+    public static boolean isStructuralModule(IBlockState state) {
+        return state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule();
     }
 }

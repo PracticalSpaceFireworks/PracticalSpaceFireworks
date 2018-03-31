@@ -121,13 +121,10 @@ public class SpacecraftBuilder {
 
             mass += MaterialMass.getMass(state);
 
-            TileEntity entity = this.entities.get(posKey);
-            if (entity instanceof TileModule) {
-                IModule module = ((TileModule) entity).getModule();
-                if (module instanceof ModuleThruster) {
-                    ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
-                    thrusters.add(new LauncherMetadata.Thruster(pos, tier.getThrust()));
-                }
+            IModule module = TileModule.getModule(this.entities.get(posKey));
+            if (module instanceof ModuleThruster) {
+                ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
+                thrusters.add(new LauncherMetadata.Thruster(pos, tier.getThrust()));
             }
         }
 

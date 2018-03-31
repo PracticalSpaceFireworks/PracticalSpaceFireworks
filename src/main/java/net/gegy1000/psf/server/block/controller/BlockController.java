@@ -5,7 +5,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
-import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -45,11 +45,8 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        TileEntity on = world.getTileEntity(pos.offset(side.getOpposite()));
-        if (on instanceof TileModule) {
-            return ((TileModule) on).getModule().isStructuralModule() && super.canPlaceBlockOnSide(world, pos, side);
-        }
-        return false;
+        IBlockState on = world.getBlockState(pos.offset(side.getOpposite()));
+        return BlockModule.isStructuralModule(on) && super.canPlaceBlockOnSide(world, pos, side);
     }
     
     @Override

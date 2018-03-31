@@ -5,6 +5,7 @@ import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
+import net.gegy1000.psf.server.block.module.BlockFuelTank;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileModule;
@@ -28,7 +29,7 @@ import java.util.Set;
 public class PSFBlockRegistry {
     private static final Set<Block> REGISTERED_BLOCKS = new LinkedHashSet<>();
     private static final Set<ItemBlock> REGISTERED_ITEM_BLOCKS = new LinkedHashSet<>();
-    
+
     public static BlockStrut strut;
 
     public static BlockController basicController;
@@ -36,15 +37,18 @@ public class PSFBlockRegistry {
 
     public static BlockRemoteControlSystem remoteControlSystem;
 
+    public static BlockFuelTank fuelTank;
+
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
         register(event, "controller_basic", basicController = new BlockController(ControllerType.BASIC));
-        
+
         // Modules
         strut = register(event, "strut", new BlockStrut());
         registerModuleBlock(event, "battery_simple");
         thruster = registerModuleBlock(event, "thruster");
         registerModuleBlock(event, "antenna");
+        fuelTank = register(event, "fuel_tank", new BlockFuelTank());
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
 
@@ -65,11 +69,11 @@ public class PSFBlockRegistry {
             }
         }
     }
-    
+
     private static BlockModule registerModuleBlock(RegistryEvent.Register<Block> event, @Nonnull String identifier) {
         return registerModuleBlock(event, Material.IRON, identifier);
     }
-    
+
     private static BlockModule registerModuleBlock(RegistryEvent.Register<Block> event, Material material, @Nonnull String identifier) {
         return register(event, identifier, new BlockModule(material, identifier));
     }
@@ -83,7 +87,7 @@ public class PSFBlockRegistry {
             String blockEntityKey = PracticalSpaceFireworks.MODID + "." + identifier;
             GameRegistry.registerTileEntity(((RegisterTileEntity) block).getEntityClass(), blockEntityKey);
         }
-        
+
         return block;
     }
 
