@@ -19,6 +19,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.DependsOn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,17 +67,34 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        if (isStructuralModule()) {
+        if (isStructuralModule(getDefaultState())) {
             return canPlaceBlockAt(world, pos);
         }
 
-        IBlockState on = world.getBlockState(pos.offset(side.getOpposite()));
-        return isStructuralModule(on) && super.canPlaceBlockOnSide(world, pos, side);
+        BlockPos pos2 = pos.offset(side.getOpposite());
+        IBlockState on = world.getBlockState(pos2).getActualState(world, pos2);
+        return isStructural(on) && super.canPlaceBlockOnSide(world, pos, side);
     }
 
     @Override
     public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
         return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, facing);
+    }
+    
+    @Override
+    @Deprecated
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
+        state = state.getActualState(worldIn, pos);
+        if (!isStructuralModule(state)) {
+            BlockPos connectedTo = pos.offset(state.getValue(DIRECTION).getOpposite());
+            if (connectedTo.equals(fromPos)) {
+                IBlockState other = worldIn.getBlockState(connectedTo).getActualState(worldIn, connectedTo);
+                if (!isStructural(other)) {
+                    worldIn.destroyBlock(pos, true);
+                }
+            }
+        }
     }
 
     @Override
@@ -101,11 +119,11 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         return getDefaultState().withProperty(DIRECTION, EnumFacing.values()[meta]);
     }
 
-    public boolean isStructuralModule() {
+    public boolean isStructuralModule(IBlockState state) {
         return false;
     }
 
-    public static boolean isStructuralModule(IBlockState state) {
-        return state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule();
+    public static boolean isStructural(IBlockState state) {
+        return state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(state);
     }
 }

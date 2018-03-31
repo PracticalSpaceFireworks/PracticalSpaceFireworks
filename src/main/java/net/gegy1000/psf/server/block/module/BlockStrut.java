@@ -61,7 +61,7 @@ public class BlockStrut extends BlockModule {
     }
 
     @Override
-    public boolean isStructuralModule() {
+    public boolean isStructuralModule(IBlockState state) {
         return true;
     }
 }

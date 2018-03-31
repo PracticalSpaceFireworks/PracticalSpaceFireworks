@@ -47,7 +47,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
         IBlockState on = world.getBlockState(pos.offset(side.getOpposite()));
-        return BlockModule.isStructuralModule(on) && super.canPlaceBlockOnSide(world, pos, side);
+        return BlockModule.isStructural(on) && super.canPlaceBlockOnSide(world, pos, side);
     }
     
     @Override
