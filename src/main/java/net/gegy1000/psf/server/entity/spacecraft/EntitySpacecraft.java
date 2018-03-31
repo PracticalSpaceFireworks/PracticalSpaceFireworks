@@ -99,7 +99,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         double motionX = (this.rand.nextDouble() * 2.0 - 1) * 0.3;
                         double motionY = -acceleration;
                         double motionZ = (this.rand.nextDouble() * 2.0 - 1) * 0.3;
-                        this.world.spawnParticle(EnumParticleTypes.FLAME, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
+                        this.world.spawnParticle(EnumParticleTypes.FLAME, true, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
                     }
                 }
             }
