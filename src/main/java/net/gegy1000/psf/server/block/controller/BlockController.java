@@ -20,6 +20,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -58,7 +59,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
                 Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
                 EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos);
 
-                modules.keySet().forEach(worldIn::setBlockToAir);
+                modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
 
                 spacecraft.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
                 worldIn.spawnEntity(spacecraft);
