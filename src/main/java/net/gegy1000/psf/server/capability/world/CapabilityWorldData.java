@@ -16,6 +16,8 @@ public class CapabilityWorldData {
     public static Capability<SatelliteWorldData> SATELLITE_INSTANCE;
 
     public static void register() {
-        CapabilityManager.INSTANCE.register(SatelliteWorldData.class, new SatelliteWorldData.Storage(), SatelliteWorldData.Implementation::new);
+        CapabilityManager.INSTANCE.register(SatelliteWorldData.class, new SatelliteWorldData.Storage(), () -> {
+            throw new IllegalStateException("Cannot construct satellite world data without world reference");
+        });
     }
 }

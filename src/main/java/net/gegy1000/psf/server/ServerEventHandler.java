@@ -12,6 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ServerEventHandler {
     @SubscribeEvent
     public static void onAttachWorldCapabilities(AttachCapabilitiesEvent<World> event) {
-        event.addCapability(CapabilityWorldData.SATELLITE_ID, new SatelliteWorldData.Implementation());
+        event.addCapability(CapabilityWorldData.SATELLITE_ID, new SatelliteWorldData.Impl(event.getObject()));
     }
 }

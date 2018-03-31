@@ -5,24 +5,36 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public interface SatelliteWorldData extends ICapabilityProvider {
-    void addSatellite(OrbitingSatellite satellite);
+    @Nonnull
+    World getWorld();
 
-    void removeSatellite(OrbitingSatellite satellite);
+    void addSatellite(@Nonnull OrbitingSatellite satellite);
 
+    void removeSatellite(@Nonnull OrbitingSatellite satellite);
+
+    @Nonnull
     Collection<OrbitingSatellite> getSatellites();
 
-    class Implementation implements SatelliteWorldData {
+    class Impl implements SatelliteWorldData {
+        private final World world;
+
         private final Set<OrbitingSatellite> satellites = new HashSet<>();
+
+        public Impl(World world) {
+            this.world = world;
+        }
 
         @Override
         public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
@@ -38,16 +50,23 @@ public interface SatelliteWorldData extends ICapabilityProvider {
         }
 
         @Override
-        public void addSatellite(OrbitingSatellite satellite) {
+        @Nonnull
+        public World getWorld() {
+            return this.world;
+        }
+
+        @Override
+        public void addSatellite(@Nonnull OrbitingSatellite satellite) {
             this.satellites.add(satellite);
         }
 
         @Override
-        public void removeSatellite(OrbitingSatellite satellite) {
+        public void removeSatellite(@Nonnull OrbitingSatellite satellite) {
             this.satellites.remove(satellite);
         }
 
         @Override
+        @Nonnull
         public Collection<OrbitingSatellite> getSatellites() {
             return Collections.unmodifiableSet(this.satellites);
         }
@@ -70,7 +89,7 @@ public interface SatelliteWorldData extends ICapabilityProvider {
             NBTTagCompound compound = (NBTTagCompound) nbt;
             NBTTagList satelliteList = compound.getTagList("satellites", Constants.NBT.TAG_COMPOUND);
             for (int i = 0; i < satelliteList.tagCount(); i++) {
-                instance.addSatellite(OrbitingSatellite.deserialize(compound));
+                instance.addSatellite(OrbitingSatellite.deserialize(instance.getWorld(), compound));
             }
         }
     }

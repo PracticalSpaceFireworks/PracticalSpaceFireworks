@@ -15,8 +15,8 @@ public class Matrix {
     private final Stack<Matrix4d> matrices = new Stack<>();
     private final Matrix4d matrix = new Matrix4d();
 
-    public Matrix(int poolSize) {
-        for (int i = 0; i < poolSize; i++) {
+    public Matrix(int initPoolSize) {
+        for (int i = 0; i < initPoolSize; i++) {
             this.pool.push(new Matrix4d());
         }
     }
@@ -73,6 +73,9 @@ public class Matrix {
     }
 
     private Matrix4d takePool() {
+        if (this.pool.isEmpty()) {
+            return new Matrix4d();
+        }
         Matrix4d pop = this.pool.pop();
         pop.setIdentity();
         return pop;

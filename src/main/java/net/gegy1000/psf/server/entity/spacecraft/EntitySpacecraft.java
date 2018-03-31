@@ -38,8 +38,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     private boolean testLaunched;
 
-    private boolean recalculateRotation = true;
-
     public EntitySpacecraft(World world) {
         this(world, Collections.emptySet(), BlockPos.ORIGIN);
     }
@@ -52,6 +50,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         builder.copyFrom(world, origin, positions);
         this.blockAccess = builder.buildBlockAccess(this);
         this.metadata = builder.buildMetadata();
+
+        this.recalculateRotation();
     }
 
     @Override
@@ -74,23 +74,28 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.rotationYaw += 0.5;
 
-        Matrix rotationMatrix = this.getRotationMatrix();
+        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
+            this.recalculateRotation();
+        }
+
         if (this.testLaunched) {
             double acceleration = this.metadata.getTotalAcceleration() / 20.0;
             this.motionY += acceleration;
 
-            for (LauncherMetadata.Thruster thruster : this.metadata.getThrusters()) {
-                BlockPos thrusterPos = thruster.getPos();
-                Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
-                rotationMatrix.transform(thrusterPoint);
-                double posX = this.posX + thrusterPoint.x;
-                double posY = this.posY + thrusterPoint.y;
-                double posZ = this.posZ + thrusterPoint.z;
-                for (int i = 0; i < 10; i++) {
-                    double motionX = this.rand.nextDouble() * 2.0 - 1;
-                    double motionY = -acceleration;
-                    double motionZ = this.rand.nextDouble() * 2.0 - 1;
-                    this.world.spawnParticle(EnumParticleTypes.FLAME, posX, posY, posZ, motionX * 0.1, motionY, motionZ * 0.1);
+            if (this.world.isRemote) {
+                for (LauncherMetadata.Thruster thruster : this.metadata.getThrusters()) {
+                    BlockPos thrusterPos = thruster.getPos();
+                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                    this.rotationMatrix.transform(thrusterPoint);
+                    double posX = this.posX + thrusterPoint.x;
+                    double posY = this.posY + thrusterPoint.y;
+                    double posZ = this.posZ + thrusterPoint.z;
+                    for (int i = 0; i < 10; i++) {
+                        double motionX = this.rand.nextDouble() * 2.0 - 1;
+                        double motionY = -acceleration;
+                        double motionZ = this.rand.nextDouble() * 2.0 - 1;
+                        this.world.spawnParticle(EnumParticleTypes.FLAME, posX, posY, posZ, motionX * 0.1, motionY, motionZ * 0.1);
+                    }
                 }
             }
         }
@@ -108,11 +113,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     public AxisAlignedBB getCollisionBoundingBox() {
         return this.calculateEncompassingBounds();
-    }
-
-    @Override
-    public AxisAlignedBB getEntityBoundingBox() {
-        return super.getEntityBoundingBox();
     }
 
     @Override
@@ -166,16 +166,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
         bounds = bounds.offset(pos.getX() - 0.5, pos.getY(), pos.getZ() - 0.5);
-        return this.getRotationMatrix().transform(bounds);
-    }
-
-    @Nonnull
-    private Matrix getRotationMatrix() {
-        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3 || this.recalculateRotation) {
-            this.recalculateRotation();
-        }
-
-        return this.rotationMatrix;
+        return this.rotationMatrix.transform(bounds);
     }
 
     private void recalculateRotation() {
@@ -184,8 +175,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
 
         this.setEntityBoundingBox(this.calculateEncompassingBounds());
-
-        this.recalculateRotation = false;
     }
 
     @Override
@@ -196,10 +185,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
+        this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, compound.getCompoundTag("block_data"));
         this.metadata = LauncherMetadata.deserialize(compound.getCompoundTag("metadata"));
 
-        this.recalculateRotation = true;
+        this.recalculateRotation();
     }
 
     @Override
@@ -216,11 +205,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
+        this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, buffer);
         this.metadata = LauncherMetadata.deserialize(buffer);
         this.model = null;
 
-        this.recalculateRotation = true;
+        this.recalculateRotation();
     }
 
     public SpacecraftBlockAccess getBlockAccess() {

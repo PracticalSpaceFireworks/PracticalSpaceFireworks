@@ -3,17 +3,21 @@ package net.gegy1000.psf.server.satellite;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import java.util.UUID;
 
 public class OrbitingSatellite {
+    private final World world;
+
     private final String name;
     private final UUID uuid;
 
     private final BlockPos position;
     private final SpacecraftBlockAccess blockAccess;
 
-    public OrbitingSatellite(String name, UUID uuid, BlockPos position, SpacecraftBlockAccess blockAccess) {
+    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftBlockAccess blockAccess) {
+        this.world = world;
         this.name = name;
         this.uuid = uuid;
         this.position = position;
@@ -33,14 +37,14 @@ public class OrbitingSatellite {
         return compound;
     }
 
-    public static OrbitingSatellite deserialize(NBTTagCompound compound) {
+    public static OrbitingSatellite deserialize(World world, NBTTagCompound compound) {
         String name = compound.getString("name");
         UUID uuid = compound.getUniqueId("uuid");
 
         BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
-        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(compound);
+        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(world, compound);
 
-        return new OrbitingSatellite(name, uuid, pos, blockAccess);
+        return new OrbitingSatellite(world, name, uuid, pos, blockAccess);
     }
 
     @Override
