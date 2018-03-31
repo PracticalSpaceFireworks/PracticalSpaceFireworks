@@ -1,12 +1,8 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import java.util.Collections;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
 import io.netty.buffer.ByteBuf;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -22,7 +18,16 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.vecmath.Point3d;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
+    private final Matrix rotationMatrix = new Matrix(3);
+
     @SideOnly(Side.CLIENT)
     public SpacecraftModel model;
 
@@ -31,10 +36,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     private boolean testLaunched;
 
+    private boolean resetMatrix = true;
+
     public EntitySpacecraft(World world) {
         this(world, Collections.emptySet(), BlockPos.ORIGIN);
     }
-    
+
     public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin) {
         super(world);
         setSize(1, 1);
@@ -74,40 +81,101 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-        
+
         if (this.posY > 1000) {
             setDead();
+        }
+
+        this.rotationYaw += 1;
+        this.rotationPitch = 0;
+
+        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3 || this.resetMatrix) {
+            this.rotationMatrix.identity();
+            this.rotationMatrix.rotate(this.rotationYaw, 0.0F, 1.0F, 0.0F);
+            this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
+
+            this.setEntityBoundingBox(this.calculateEncompassingBounds());
+
+            this.resetMatrix = false;
         }
     }
 
     @Override
+    public void setPosition(double x, double y, double z) {
+        super.setPosition(x, y, z);
+
+        this.setEntityBoundingBox(this.calculateEncompassingBounds());
+    }
+
+    @Override
     public AxisAlignedBB getCollisionBoundingBox() {
-        return this.getEntityBoundingBox();
+        return this.calculateEncompassingBounds();
+    }
+
+    @Override
+    public AxisAlignedBB getEntityBoundingBox() {
+        return super.getEntityBoundingBox();
+    }
+
+    @Override
+    public @Nonnull AxisAlignedBB getRenderBoundingBox() {
+        return this.calculateEncompassingBounds();
+    }
+
+    private @Nonnull AxisAlignedBB calculateEncompassingBounds() {
+        AxisAlignedBB ret = new AxisAlignedBB(BlockPos.ORIGIN);
+        for (AxisAlignedBB bb : this.collectTransformedBlockBounds()) {
+            ret = ret.union(bb);
+        }
+
+        return ret.offset(posX - 0.5, posY, posZ - 0.5);
+    }
+
+    @Override
+    public void resetPositionToBB() {
+        AxisAlignedBB bounds = this.calculateEncompassingBounds();
+        AxisAlignedBB updatedBounds = this.getEntityBoundingBox();
+        this.posX += updatedBounds.minX - bounds.minX;
+        this.posY += updatedBounds.minY - bounds.minY;
+        this.posZ += updatedBounds.minZ - bounds.minZ;
     }
 
     @Override
     public boolean canBeCollidedWith() {
         return true;
     }
-    
+
     @Override
     public boolean isInRangeToRenderDist(double distance) {
         return super.isInRangeToRenderDist(distance / 8);
     }
 
-    @Override
-    public @Nonnull AxisAlignedBB getRenderBoundingBox() {
-        AxisAlignedBB ret = new AxisAlignedBB(BlockPos.ORIGIN);
-        for (BlockPos pos : BlockPos.getAllInBoxMutable(this.blockAccess.getMinPos(), this.blockAccess.getMaxPos())) {
-            IBlockState state = this.blockAccess.getBlockState(pos);
-            AxisAlignedBB bb = state.getCollisionBoundingBox(blockAccess, pos);
-            if (bb != null) {
-                ret = ret.union(bb.offset(pos));
+    private List<AxisAlignedBB> collectTransformedBlockBounds() {
+        List<AxisAlignedBB> bounds = new ArrayList<>();
+        if (this.blockAccess != null) {
+            for (BlockPos pos : BlockPos.getAllInBoxMutable(this.blockAccess.getMinPos(), this.blockAccess.getMaxPos())) {
+                IBlockState state = this.blockAccess.getBlockState(pos);
+                AxisAlignedBB bb = state.getCollisionBoundingBox(this.blockAccess, pos);
+                if (bb != null) {
+                    bounds.add(this.rotateBoundsEncompassing(bb, pos));
+                }
             }
         }
-        return ret.offset(posX, posY, posZ);
+        return bounds;
     }
-    
+
+    private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
+        bounds = bounds.offset(pos);
+
+        Point3d min = new Point3d(bounds.minX, bounds.minY, bounds.minZ);
+        Point3d max = new Point3d(bounds.maxX, bounds.maxY, bounds.maxZ);
+
+        this.rotationMatrix.transform(min);
+        this.rotationMatrix.transform(max);
+
+        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
+    }
+
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
         this.testLaunched = true;
@@ -118,6 +186,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     protected void readEntityFromNBT(NBTTagCompound compound) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"), getEntityWorld());
         this.metadata = SpacecraftMetadata.deserialize(compound.getCompoundTag("metadata"));
+
+        this.resetMatrix = true;
     }
 
     @Override
@@ -137,6 +207,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.blockAccess = SpacecraftBlockAccess.deserialize(buffer, getEntityWorld());
         this.metadata = SpacecraftMetadata.deserialize(ByteBufUtils.readTag(buffer));
         this.model = null;
+
+        this.resetMatrix = true;
     }
 
     public SpacecraftBlockAccess getBlockAccess() {
