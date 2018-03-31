@@ -63,8 +63,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         super.onUpdate();
 
         if (this.testLaunched) {
-            double acc = 0.05;
-            this.motionY += acc;
+            double acceleration = this.metadata.getTotalAcceleration();
+            this.motionY += acceleration / 20.0;
 
             for (SpacecraftMetadata.Thruster thruster : this.metadata.getThrusters()) {
                 BlockPos thrusterPos = thruster.getPos();
@@ -73,21 +73,22 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 double posZ = this.posZ + thrusterPos.getZ();
                 for (int i = 0; i < 10; i++) {
                     double motionX = this.rand.nextDouble() * 2.0 - 1;
-                    double motionY = -acc;
+                    double motionY = -acceleration;
                     double motionZ = this.rand.nextDouble() * 2.0 - 1;
                     this.world.spawnParticle(EnumParticleTypes.FLAME, posX, posY, posZ, motionX * 0.1, motionY, motionZ * 0.1);
                 }
             }
         }
 
+        this.motionX *= 0.98;
+        this.motionY *= 0.98;
+        this.motionZ *= 0.98;
+
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
         if (this.posY > 1000) {
             setDead();
         }
-
-        this.rotationYaw += 1;
-        this.rotationPitch = 0;
 
         if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3 || this.resetMatrix) {
             this.rotationMatrix.identity();

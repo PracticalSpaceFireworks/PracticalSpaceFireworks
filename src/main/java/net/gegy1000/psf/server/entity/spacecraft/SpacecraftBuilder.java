@@ -6,8 +6,8 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.gegy1000.psf.server.util.MaterialMass;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFence;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
@@ -62,18 +62,21 @@ public class SpacecraftBuilder {
     }
 
     public SpacecraftMetadata buildMetadata() {
+        double mass = 0.0;
         ImmutableList.Builder<SpacecraftMetadata.Thruster> thrusters = ImmutableList.builder();
 
         for (int i = 0; i < this.blockKeys.size(); i++) {
             BlockPos pos = BlockPos.fromLong(this.blockKeys.getLong(i));
             IBlockState state = Block.getStateById(this.blockValues.getInt(i));
 
+            mass += MaterialMass.getMass(state);
+
             // TODO: Thrusters can be defined in a better way
             if (state.getBlock() == PSFBlockRegistry.thruster) {
-                thrusters.add(new SpacecraftMetadata.Thruster(pos));
+                thrusters.add(new SpacecraftMetadata.Thruster(pos, 845000.0));
             }
         }
 
-        return new SpacecraftMetadata(thrusters.build());
+        return new SpacecraftMetadata(thrusters.build(), mass);
     }
 }

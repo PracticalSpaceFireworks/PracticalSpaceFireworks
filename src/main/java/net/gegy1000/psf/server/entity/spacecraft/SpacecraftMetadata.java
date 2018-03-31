@@ -10,9 +10,11 @@ import java.util.List;
 
 public class SpacecraftMetadata {
     private final ImmutableList<Thruster> thrusters;
+    private final double mass;
 
-    public SpacecraftMetadata(ImmutableList<Thruster> thrusters) {
+    public SpacecraftMetadata(ImmutableList<Thruster> thrusters, double mass) {
         this.thrusters = thrusters;
+        this.mass = mass;
     }
 
     public NBTTagCompound serialize(NBTTagCompound compound) {
@@ -23,6 +25,8 @@ public class SpacecraftMetadata {
 
         compound.setTag("thrusters", thrusterList);
 
+        compound.setDouble("mass", this.mass);
+
         return compound;
     }
 
@@ -31,38 +35,64 @@ public class SpacecraftMetadata {
         NBTTagList thrusterList = compound.getTagList("thrusters", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < thrusterList.tagCount(); i++) {
             NBTTagCompound thrusterTag = thrusterList.getCompoundTagAt(i);
-            thrusters.add(new Thruster(new BlockPos(thrusterTag.getInteger("x"), thrusterTag.getInteger("y"), thrusterTag.getInteger("z"))));
+            thrusters.add(Thruster.deserialize(thrusterTag));
         }
 
-        return new SpacecraftMetadata(thrusters.build());
+        double mass = compound.getDouble("mass");
+
+        return new SpacecraftMetadata(thrusters.build(), mass);
     }
 
     public List<Thruster> getThrusters() {
         return this.thrusters;
     }
 
+    public double getTotalForce() {
+        double force = 0.0;
+        for (Thruster thruster : this.thrusters) {
+            force += thruster.force;
+        }
+        return force;
+    }
+
+    public double getTotalAcceleration() {
+        return this.getTotalForce() / this.mass;
+    }
+
+    public double getMass() {
+        return this.mass;
+    }
+
     public static class Thruster {
         private final BlockPos pos;
+        private final double force;
 
-        public Thruster(BlockPos pos) {
+        public Thruster(BlockPos pos, double force) {
             this.pos = pos;
+            this.force = force;
         }
 
         public BlockPos getPos() {
             return this.pos;
         }
 
+        public double getForce() {
+            return this.force;
+        }
+
         public NBTTagCompound serialize(NBTTagCompound compound) {
             compound.setInteger("x", this.pos.getX());
             compound.setInteger("y", this.pos.getY());
             compound.setInteger("z", this.pos.getZ());
+            compound.setDouble("force", this.force);
 
             return compound;
         }
 
         public static Thruster deserialize(NBTTagCompound compound) {
             BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
-            return new Thruster(pos);
+            double force = compound.getDouble("force");
+            return new Thruster(pos, force);
         }
     }
 }
