@@ -6,6 +6,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
@@ -21,9 +22,16 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
 
 @ParametersAreNonnullByDefault
 public class BlockRemoteControlSystem extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
+    
+    static {
+        PSFNetworkHandler.network.registerMessage(PacketModules.Handler.class, PacketModules.class, PSFNetworkHandler.nextID(), Side.CLIENT);
+        PSFNetworkHandler.network.registerMessage(PacketRequestModules.Handler.class, PacketRequestModules.class, PSFNetworkHandler.nextID(), Side.SERVER);
+    }
+    
     public BlockRemoteControlSystem() {
         super(Material.IRON);
         this.setHarvestLevel("pickaxe", 1);

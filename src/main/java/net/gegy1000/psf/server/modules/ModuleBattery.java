@@ -43,12 +43,12 @@ public class ModuleBattery extends EmptyModule implements IModule, IEnergyStorag
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setTag("energy", CapabilityEnergy.ENERGY.getStorage().writeNBT(CapabilityEnergy.ENERGY, this, null));
+        tag.setTag("energy", CapabilityEnergy.ENERGY.getStorage().writeNBT(CapabilityEnergy.ENERGY, storage, null));
         return tag;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
-        CapabilityEnergy.ENERGY.getStorage().readNBT(CapabilityEnergy.ENERGY, this, null, nbt.getTag("energy"));
+        CapabilityEnergy.ENERGY.getStorage().readNBT(CapabilityEnergy.ENERGY, storage, null, nbt.getTag("energy"));
     }
 }

@@ -1,6 +1,8 @@
 package net.gegy1000.psf.server.block.remote;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,12 +12,14 @@ import javax.annotation.Nonnull;
 import org.lwjgl.input.Mouse;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -39,6 +43,10 @@ public class GuiControlSystem extends GuiContainer {
     private int selectedCraft = -1;
     
     private SpacecraftModel model;
+    
+    @Setter
+    @Nonnull
+    private Collection<IModule> modules = new ArrayList<>();
 
     public GuiControlSystem(ContainerControlSystem inventorySlotsIn) {
         super(inventorySlotsIn);
@@ -72,7 +80,6 @@ public class GuiControlSystem extends GuiContainer {
         mc.getTextureManager().bindTexture(TEXTURE_LOC);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
         if (selectedCraft >= 0) {
-            ISatellite craft = container.getTe().getCrafts().get(selectedCraft);
             GlStateManager.pushMatrix();
             GlStateManager.translate(guiLeft + (ySize / 3), guiTop + (ySize / 2), 100);
             GlStateManager.translate(-8,-8,-8);
@@ -101,14 +108,14 @@ public class GuiControlSystem extends GuiContainer {
             mc.fontRenderer.drawString("Modules:", x, y, color);
             x += 10;
             y += 10;
-            Map<ResourceLocation, List<IModule>> grouped = craft.getModules().stream().collect(Collectors.groupingBy(IModule::getRegistryName));
+            Map<ResourceLocation, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getRegistryName));
             for (val e : grouped.entrySet()) {
                 mc.fontRenderer.drawString(e.getKey() + ": " + e.getValue().size(), x, y, color);
                 y += 10;
             }
             x -= 10;
             y += 5;
-            int energy = craft.getModules().stream()
+            int energy = modules.stream()
                     .filter(m -> m instanceof IEnergyStorage)
                     .map(m -> (IEnergyStorage) m)
                     .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
@@ -128,5 +135,6 @@ public class GuiControlSystem extends GuiContainer {
             builder.setBlockState(e.getKey().subtract(origin), e.getValue());
         }
         this.model = SpacecraftModel.build(builder.buildBlockAccess(origin, Minecraft.getMinecraft().world));
+        PSFNetworkHandler.network.sendToServer(new PacketRequestModules(origin));
     }
 }
