@@ -2,9 +2,10 @@ package net.gegy1000.psf.server.block.module;
 
 import javax.annotation.Nonnull;
 
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
-import net.gegy1000.psf.server.modules.ModuleStrut;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -16,6 +17,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 
 public class BlockStrut extends BlockModule implements RegisterItemBlock {
     
@@ -62,9 +64,12 @@ public class BlockStrut extends BlockModule implements RegisterItemBlock {
         meta = Math.abs(meta) % StrutType.values().length;
         return getDefaultState().withProperty(TYPE, StrutType.values()[meta]);
     }
+    
+    @ObjectHolder(PracticalSpaceFireworks.MODID + ":strut")
+    private static final IModuleFactory factory = null;
 
     @Override
     protected IModule createModule(@Nonnull World world, @Nonnull IBlockState state) {
-        return new ModuleStrut();
+        return factory.get();
     }
 }

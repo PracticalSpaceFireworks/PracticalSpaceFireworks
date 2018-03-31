@@ -28,7 +28,7 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public class TileController extends TileEntity {
     
-    private final IModule module = new EmptyModule(){};
+    private final IModule module = new EmptyModule("controller");
     
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
