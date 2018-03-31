@@ -1,19 +1,14 @@
 package net.gegy1000.psf.server.block;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.api.RegisterBlockEntity;
+import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
@@ -23,6 +18,11 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFBlockRegistry {
@@ -34,6 +34,8 @@ public class PSFBlockRegistry {
     public static BlockController basicController;
     public static BlockModule thruster;
 
+    public static BlockRemoteControlSystem remoteControlSystem;
+
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
         register(event, "controller_basic", basicController = new BlockController(ControllerType.BASIC));
@@ -43,6 +45,8 @@ public class PSFBlockRegistry {
         registerModuleBlock(event, "battery_simple");
         thruster = registerModuleBlock(event, "thruster");
         registerModuleBlock(event, "antenna");
+
+        remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
 
         // Register module TE only once
         GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + "." + "module");
@@ -75,9 +79,9 @@ public class PSFBlockRegistry {
         block.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
         REGISTERED_BLOCKS.add(block);
 
-        if (block instanceof RegisterBlockEntity) {
+        if (block instanceof RegisterTileEntity) {
             String blockEntityKey = PracticalSpaceFireworks.MODID + "." + identifier;
-            GameRegistry.registerTileEntity(((RegisterBlockEntity) block).getEntityClass(), blockEntityKey);
+            GameRegistry.registerTileEntity(((RegisterTileEntity) block).getEntityClass(), blockEntityKey);
         }
         
         return block;

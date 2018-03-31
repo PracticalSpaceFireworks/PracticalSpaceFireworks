@@ -1,14 +1,10 @@
 package net.gegy1000.psf.server.block.controller;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.server.api.RegisterBlockEntity;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
+import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.block.Block;
@@ -25,7 +21,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockController extends Block implements RegisterItemBlock, RegisterItemModel, RegisterBlockEntity {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
+
+public class BlockController extends Block implements RegisterItemBlock, RegisterItemModel, RegisterTileEntity {
     
     public static final @Nonnull IProperty<ControllerType> TYPE = PropertyEnum.create("type", ControllerType.class);
     public static final @Nonnull IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
@@ -35,6 +35,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     public BlockController(ControllerType type) {
         super(Material.IRON);
         this.type = type;
+        this.setCreativeTab(PracticalSpaceFireworks.TAB);
     }
     
     @Override

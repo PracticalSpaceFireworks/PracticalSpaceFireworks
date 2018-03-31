@@ -1,8 +1,5 @@
 package net.gegy1000.psf.server.block.module;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
@@ -24,6 +21,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
     
     public static final @Nonnull IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
@@ -35,6 +35,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public BlockModule(Material mat, @Nonnull String module) {
         super(mat);
         this.moduleID = new ResourceLocation(PracticalSpaceFireworks.MODID, module);
+        this.setCreativeTab(PracticalSpaceFireworks.TAB);
     }
     
     protected IModule createModule(@Nonnull World world, @Nonnull IBlockState state) {

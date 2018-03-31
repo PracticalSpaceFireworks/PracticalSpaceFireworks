@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "facing=north": {"model": "psf:remote_control_system"},
+    "facing=west": {"model": "psf:remote_control_system", "y": 270},
+    "facing=south": {"model": "psf:remote_control_system", "y": 180},
+    "facing=east": {"model": "psf:remote_control_system", "y": 90},
+    "inventory": {"model": "psf:remote_control_system"}
+  }
+}
