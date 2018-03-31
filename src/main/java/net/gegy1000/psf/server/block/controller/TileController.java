@@ -201,7 +201,7 @@ public class TileController extends TileEntity {
                 if (ret.getDistance() < CONTIGUOUS_RANGE) {
                     for (EnumFacing face : EnumFacing.VALUES) {
                         BlockPos bp = ret.getPos().offset(face);
-                        if (!seen.contains(bp) && BlockModule.isStructuralModule(world.getBlockState(bp))) {
+                        if (!seen.contains(bp) && BlockModule.isStructural(world.getBlockState(bp))) {
                             search.offer(new Node(bp, ret.getDistance() + 1));
                         }
                         seen.add(bp);

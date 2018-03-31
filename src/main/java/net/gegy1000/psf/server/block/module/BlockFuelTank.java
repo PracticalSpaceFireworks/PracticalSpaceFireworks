@@ -52,12 +52,7 @@ public class BlockFuelTank extends BlockModule {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState state, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, EnumFacing side) {
-        int count = 0;
-        if (this.canConnect(blockAccess, pos, EnumFacing.NORTH)) count++;
-        if (this.canConnect(blockAccess, pos, EnumFacing.SOUTH)) count++;
-        if (this.canConnect(blockAccess, pos, EnumFacing.WEST)) count++;
-        if (this.canConnect(blockAccess, pos, EnumFacing.EAST)) count++;
-        return count == 2 || super.shouldSideBeRendered(state, blockAccess, pos, side);
+        return !canConnect(blockAccess, pos, side) && super.shouldSideBeRendered(state, blockAccess, pos, side);
     }
 
     @Override
@@ -70,13 +65,35 @@ public class BlockFuelTank extends BlockModule {
     }
 
     private boolean canConnect(IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return BlockModule.isStructuralModule(world.getBlockState(pos.offset(side)));
+        IBlockState state = world.getBlockState(pos.offset(side));
+        return state.getBlock() == this || BlockModule.isStructural(state);
     }
 
     @Nonnull
     @Override
     public IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
         return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, EnumFacing.UP);
+    }
+    
+    @Override
+    public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
+        super.onBlockAdded(worldIn, pos, state);
+        updateNeighbors(worldIn, pos);
+    }
+    
+    @Override
+    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+        super.breakBlock(worldIn, pos, state);
+        updateNeighbors(worldIn, pos);
+    }
+
+    private void updateNeighbors(World worldIn, BlockPos pos) {
+        for (EnumFacing dir : EnumFacing.HORIZONTALS) {
+            if (canConnect(worldIn, pos, dir)) {
+                BlockPos pos2 = pos.offset(dir);
+                worldIn.notifyNeighborsOfStateChange(pos2, worldIn.getBlockState(pos2).getBlock(), true);
+            }
+        }
     }
 
     @Override
@@ -91,7 +108,20 @@ public class BlockFuelTank extends BlockModule {
     }
 
     @Override
-    public boolean isStructuralModule() {
+    public boolean isStructuralModule(IBlockState state) {
+        boolean n = state.getValue(NORTH);
+        boolean s = state.getValue(SOUTH);
+        boolean w = state.getValue(WEST);
+        boolean e = state.getValue(EAST);
+        if (n && e) {
+            return w || s;
+        } else if (n && w) {
+            return e || s;
+        } else if (s && e) {
+            return n || w;
+        } else if (s && w) {
+            return n || e;
+        }
         return true;
     }
 }
