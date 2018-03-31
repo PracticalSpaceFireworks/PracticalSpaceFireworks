@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
 import com.google.common.collect.ImmutableList;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
@@ -8,11 +9,11 @@ import net.minecraftforge.common.util.Constants;
 
 import java.util.List;
 
-public class SpacecraftMetadata {
+public class LauncherMetadata {
     private final ImmutableList<Thruster> thrusters;
     private final double mass;
 
-    public SpacecraftMetadata(ImmutableList<Thruster> thrusters, double mass) {
+    public LauncherMetadata(ImmutableList<Thruster> thrusters, double mass) {
         this.thrusters = thrusters;
         this.mass = mass;
     }
@@ -30,7 +31,16 @@ public class SpacecraftMetadata {
         return compound;
     }
 
-    public static SpacecraftMetadata deserialize(NBTTagCompound compound) {
+    public void serialize(ByteBuf buffer) {
+        buffer.writeByte(this.thrusters.size() & 0xFF);
+        for (Thruster thruster : this.thrusters) {
+            thruster.serialize(buffer);
+        }
+
+        buffer.writeDouble(this.mass);
+    }
+
+    public static LauncherMetadata deserialize(NBTTagCompound compound) {
         ImmutableList.Builder<Thruster> thrusters = ImmutableList.builder();
         NBTTagList thrusterList = compound.getTagList("thrusters", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < thrusterList.tagCount(); i++) {
@@ -40,7 +50,20 @@ public class SpacecraftMetadata {
 
         double mass = compound.getDouble("mass");
 
-        return new SpacecraftMetadata(thrusters.build(), mass);
+        return new LauncherMetadata(thrusters.build(), mass);
+    }
+
+    public static LauncherMetadata deserialize(ByteBuf buffer) {
+        ImmutableList.Builder<Thruster> thrusters = ImmutableList.builder();
+
+        int thrusterCount = buffer.readUnsignedByte();
+        for (int i = 0; i < thrusterCount; i++) {
+            thrusters.add(Thruster.deserialize(buffer));
+        }
+
+        double mass = buffer.readDouble();
+
+        return new LauncherMetadata(thrusters.build(), mass);
     }
 
     public List<Thruster> getThrusters() {
@@ -89,9 +112,20 @@ public class SpacecraftMetadata {
             return compound;
         }
 
+        public void serialize(ByteBuf buffer) {
+            buffer.writeLong(this.pos.toLong());
+            buffer.writeFloat((float) this.force);
+        }
+
         public static Thruster deserialize(NBTTagCompound compound) {
             BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
             double force = compound.getDouble("force");
+            return new Thruster(pos, force);
+        }
+
+        public static Thruster deserialize(ByteBuf buffer) {
+            BlockPos pos = BlockPos.fromLong(buffer.readLong());
+            double force = buffer.readFloat();
             return new Thruster(pos, force);
         }
     }
