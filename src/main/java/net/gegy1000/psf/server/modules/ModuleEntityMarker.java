@@ -22,13 +22,12 @@ public class ModuleEntityMarker extends ConnectableModule {
 
     @Override
     public void onSatelliteTick(ISatellite satellite) {
-        if (!satellite.getWorld().isRemote) {
-            Collection<IEntityList> entityLists = satellite.getModuleCaps(CapabilityModuleData.ENTITY_LIST);
-            for (IEntityList entityList : entityLists) {
-                for (EntityLivingBase living : entityList.getEntities()) {
-                    if (!living.isPotionActive(MobEffects.GLOWING)) {
-                        PotionEffect potioneffect = new PotionEffect(MobEffects.GLOWING, 200, 0, false, false);
-                        living.addPotionEffect(potioneffect);
+        Collection<IEntityList> entityLists = satellite.getModuleCaps(CapabilityModuleData.ENTITY_LIST);
+        for (IEntityList entityList : entityLists) {
+            for (EntityLivingBase living : entityList.getEntities()) {
+                if (!living.isPotionActive(MobEffects.GLOWING)) {
+                    if (satellite.tryExtractEnergy(1000)) {
+                        living.addPotionEffect(new PotionEffect(MobEffects.GLOWING, 200, 0, false, false));
                     }
                 }
             }
@@ -38,5 +37,10 @@ public class ModuleEntityMarker extends ConnectableModule {
     @Override
     protected <T extends IModuleData> boolean canConnect(Capability<T> capability, Set<IModule> connected) {
         return capability == CapabilityModuleData.ENTITY_LIST;
+    }
+
+    @Override
+    public int getTickInterval() {
+        return 100;
     }
 }

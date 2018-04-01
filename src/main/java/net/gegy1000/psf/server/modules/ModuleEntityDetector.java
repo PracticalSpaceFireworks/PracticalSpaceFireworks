@@ -51,8 +51,8 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public void onSatelliteTick(ISatellite satellite) {
-        World world = satellite.getWorld();
-        if (!world.isRemote) {
+        if (satellite.tryExtractEnergy(1000)) {
+            World world = satellite.getWorld();
             Collection<EntityLivingBase> entities = world.getEntities(EntityLivingBase.class, e -> {
                 if (e == null || e instanceof EntityPlayer) {
                     return false;
@@ -66,7 +66,7 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public int getTickInterval() {
-        return 40;
+        return 10;
     }
 
     private boolean withinSatelliteRange(ISatellite satellite, BlockPos pos) {

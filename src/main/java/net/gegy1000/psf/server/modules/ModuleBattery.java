@@ -39,7 +39,7 @@ public class ModuleBattery extends EmptyModule implements IModule {
 
     public ModuleBattery(BatteryTier tier, int capacity) {
         super("battery." + tier.getName());
-        this.storage = new EnergyStorage(capacity);
+        this.storage = new EnergyStorage(capacity, capacity, capacity, capacity);
     }
 
     @Override
