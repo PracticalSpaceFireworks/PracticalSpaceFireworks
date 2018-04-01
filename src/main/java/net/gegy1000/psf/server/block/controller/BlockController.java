@@ -39,6 +39,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
         super(Material.IRON);
         this.type = type;
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
+        this.setUnlocalizedName("controller." + type.getName());
     }
     
     @Override

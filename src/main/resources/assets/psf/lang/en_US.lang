@@ -1,0 +1,12 @@
+# Modules
+
+tile.psf.module.fuel_tank.name=Fuel Tank
+tile.psf.module.strut.name=Cubic Strut
+tile.psf.module.thruster.simple.name=Simple Thruster
+tile.psf.module.antenna.name=Antenna
+
+tile.psf.module.battery.simple.name=Simple Battery
+tile.psf.module.battery.advanced.name=Advanced Battery
+tile.psf.module.battery.custom.name=Battery
+
+tile.psf.controller.basic.name=Satellite Controller

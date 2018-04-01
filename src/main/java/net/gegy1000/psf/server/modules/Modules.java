@@ -2,6 +2,7 @@ package net.gegy1000.psf.server.modules;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.server.modules.ModuleBattery.BatteryTier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -28,7 +29,7 @@ public class Modules {
     public static void registerModules(RegistryEvent.Register<IModuleFactory> event) {
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut")).setRegistryName("strut"));
         
-        registry.register(new SimpleModuleFactory(() -> new ModuleBattery(100000)).setRegistryName("battery_simple"));
+        registry.register(new SimpleModuleFactory(() -> new ModuleBattery(BatteryTier.SIMPLE, 100000)).setRegistryName("battery_simple"));
         registry.register(new SimpleModuleFactory(() -> new ModuleThruster(ModuleThruster.ThrusterTier.SIMPLE)).setRegistryName("thruster"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("antenna")).setRegistryName("antenna"));
         registry.register(new SimpleModuleFactory(() -> new ModuleEntityDetector(ModuleEntityDetector.EntityDetectorTier.SIMPLE)).setRegistryName("entity_detector"));

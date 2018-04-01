@@ -32,7 +32,7 @@ public interface IModule extends INBTSerializable<NBTTagCompound>, ICapabilityPr
 
     @SideOnly(Side.CLIENT)
     default String getLocalizedName() {
-        return I18n.format(PracticalSpaceFireworks.MODID + ".module." + getName());
+        return I18n.format(String.format("tile.%s.module.%s.name", PracticalSpaceFireworks.MODID, getName()));
     }
 
     @Nullable

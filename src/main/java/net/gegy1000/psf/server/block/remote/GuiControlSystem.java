@@ -31,11 +31,18 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
 public class GuiControlSystem extends GuiContainer {
+    
+    enum PreviewMode {
+        CRAFT,
+        MAP,
+        ;
+    }
     
     @Nonnull
     private static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
@@ -54,10 +61,12 @@ public class GuiControlSystem extends GuiContainer {
 
     private SpacecraftModel model;
     
+    private PreviewMode mode = PreviewMode.CRAFT;
+    
     @Nonnull
     private Collection<IModule> modules = new ArrayList<>();
     
-    private GuiButton buttonBack;
+    private GuiButton buttonBack, buttonMode;
     
     private GuiTextField tfName;
     
@@ -83,7 +92,11 @@ public class GuiControlSystem extends GuiContainer {
         buttonBack.visible = false;
         addButton(buttonBack);
         
-        tfName = new GuiTextField(1, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
+        buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
+        buttonMode.visible = false;
+        addButton(buttonMode);
+        
+        tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
         IListedSpacecraft craft = getCraft();
         if (craft != null) {
             tfName.setText(craft.getName());
@@ -92,7 +105,6 @@ public class GuiControlSystem extends GuiContainer {
     
     @Override
     public void handleMouseInput() throws IOException {
-        super.handleMouseInput();
         int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
         int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
 
@@ -142,9 +154,13 @@ public class GuiControlSystem extends GuiContainer {
             updateName();
             selectedCraft = -1;
             buttonBack.visible = false;
+            buttonMode.visible = false;
             model = null;
             modules.clear();
             tfName.setText("");
+        } else if (button == buttonMode) {
+            this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
+            buttonMode.displayString = this.mode.name().substring(0, 1);
         }
     }
 
@@ -195,6 +211,22 @@ public class GuiControlSystem extends GuiContainer {
     }
 
     private void renderPreview() {
+        switch (mode) {
+        case CRAFT:
+            renderCraft();
+            break;
+        case MAP:
+            renderMap();
+            break;
+        }
+    }
+
+    private void renderMap() {
+        IListedSpacecraft craft = getCraft();
+        
+    }
+
+    private void renderCraft() {
         BlockPos from = model.getRenderWorld().getMinPos();
         BlockPos to = model.getRenderWorld().getMaxPos();
         AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(from), new Vec3d(to).addVector(1, 1, 1));
@@ -274,18 +306,16 @@ public class GuiControlSystem extends GuiContainer {
         mc.fontRenderer.drawString("Modules:", x, y, color);
         x += 10;
         y += 10;
-        Map<ResourceLocation, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getRegistryName));
+        Map<String, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getLocalizedName));
         for (val e : grouped.entrySet()) {
             mc.fontRenderer.drawString(e.getKey() + ": " + e.getValue().size(), x, y, color);
             y += 10;
         }
         x -= 10;
         y += 5;
-        mc.fontRenderer.drawString(craft.getId().toString(), x, y, color);
-        y += 15;
         int energy = modules.stream()
-                .filter(m -> m instanceof IEnergyStorage)
-                .map(m -> (IEnergyStorage) m)
+                .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
+                .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
                 .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
         mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
         y += 15;
@@ -315,6 +345,7 @@ public class GuiControlSystem extends GuiContainer {
         IListedSpacecraft craft = getCraft();
         craft.requestVisualData();
         buttonBack.visible = true;
+        buttonMode.visible = true;
         tfName.setText(craft.getName());
     }
 
