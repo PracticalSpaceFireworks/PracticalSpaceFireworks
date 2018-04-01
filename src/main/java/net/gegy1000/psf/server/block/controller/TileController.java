@@ -1,19 +1,6 @@
 package net.gegy1000.psf.server.block.controller;
 
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Sets;
-
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Delegate;
@@ -33,6 +20,17 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 
 
 public class TileController extends TileEntity {
@@ -146,7 +144,7 @@ public class TileController extends TileEntity {
         int distance;
     }
     
-    public static final int CONTIGUOUS_RANGE = 10;
+    public static final int CONTIGUOUS_RANGE = 32;
     
     private Iterator<BlockPos> getContiguousIterator(final @Nonnull BlockPos origin) {
         return new Iterator<BlockPos>() {

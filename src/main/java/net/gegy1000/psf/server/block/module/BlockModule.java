@@ -5,6 +5,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
+import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -19,25 +20,24 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.DependsOn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
-    
+
     public static final @Nonnull IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
-    
+
     private final ResourceLocation moduleID;
-    
+
     private IModuleFactory factory; // lazy loaded
-    
+
     public BlockModule(Material mat, @Nonnull String module) {
         super(mat);
         this.moduleID = new ResourceLocation(PracticalSpaceFireworks.MODID, module);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
     }
-    
+
     protected IModule createModule(@Nonnull World world, @Nonnull IBlockState state) {
         IModuleFactory factory = this.factory;
         if (factory == null) {
@@ -49,22 +49,22 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         }
         return factory.get();
     }
-    
+
     @Override
     protected @Nonnull BlockStateContainer createBlockState() {
         return new BlockStateContainer(this, DIRECTION);
     }
-    
+
     @Override
     public boolean isFullCube(@Nonnull IBlockState state) {
         return false;
     }
-    
+
     @Override
     public boolean isOpaqueCube(@Nonnull IBlockState state) {
         return false;
     }
-    
+
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
         if (isStructuralModule(null, getDefaultState())) {
@@ -80,7 +80,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
         return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, facing);
     }
-    
+
     @Override
     @Deprecated
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
@@ -101,18 +101,18 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public boolean hasTileEntity(@Nonnull IBlockState state) {
         return true;
     }
-    
+
     @Override
     @Nullable
     public TileEntity createTileEntity(@Nonnull World world, @Nonnull IBlockState state) {
         return new TileModule(createModule(world, state));
     }
-    
+
     @Override
     public int getMetaFromState(@Nonnull IBlockState state) {
         return state.getValue(DIRECTION).ordinal();
     }
-    
+
     @Override
     public @Nonnull IBlockState getStateFromMeta(int meta) {
         meta = Math.abs(meta) % EnumFacing.values().length;
@@ -124,6 +124,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     }
 
     public static boolean isStructural(@Nullable IBlockState connecting, IBlockState state) {
-        return state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(connecting, state);
+        return state.getBlock() instanceof BlockController ||
+                (state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(connecting, state));
     }
 }
