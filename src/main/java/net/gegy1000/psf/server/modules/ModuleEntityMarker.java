@@ -1,21 +1,17 @@
 package net.gegy1000.psf.server.modules;
 
-import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.data.IEntityList;
-import net.gegy1000.psf.api.data.IModuleData;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
-import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
-import java.util.Set;
 
 @ParametersAreNonnullByDefault
-public class ModuleEntityMarker extends ConnectableModule {
+public class ModuleEntityMarker extends EmptyModule {
     public ModuleEntityMarker() {
         super("entity_marker");
     }
@@ -32,11 +28,6 @@ public class ModuleEntityMarker extends ConnectableModule {
                 }
             }
         }
-    }
-
-    @Override
-    protected <T extends IModuleData> boolean canConnect(Capability<T> capability, Set<IModule> connected) {
-        return capability == CapabilityModuleData.ENTITY_LIST;
     }
 
     @Override
