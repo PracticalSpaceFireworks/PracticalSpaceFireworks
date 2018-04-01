@@ -1,11 +1,13 @@
 package net.gegy1000.psf.server.block.controller;
 
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
@@ -51,9 +53,10 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileController) {
+            ISatellite satellite = te.getCapability(CapabilitySatellite.INSTANCE, null);
+            System.out.println(satellite.getModules().stream().map(IModule::getId).toArray(UUID[]::new));
             if (!worldIn.isRemote) {
                 Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
-                ISatellite satellite = te.getCapability(CapabilitySatellite.INSTANCE, null);
 
                 EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos, satellite.getId());
                 spacecraft.getCapability(CapabilitySatellite.INSTANCE, null).setName(satellite.getName());

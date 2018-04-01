@@ -1,7 +1,20 @@
 package net.gegy1000.psf.server.block.controller;
 
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Sets;
-import lombok.Getter;
+
 import lombok.Value;
 import lombok.experimental.Delegate;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -20,24 +33,13 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
 
-
-public class TileController extends TileEntity {
+public class TileController extends TileEntity implements ITickable {
     
     private final IModule module = new EmptyModule("controller").setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller"));
     
@@ -75,6 +77,13 @@ public class TileController extends TileEntity {
     private boolean converted;
     
     private Map<BlockPos, ScanValue> modules = Collections.emptyMap();
+    
+    @Override
+    public void update() {
+        if (!world.isRemote) {
+            satellite.tickSatellite(getWorld().getTotalWorldTime());
+        }
+    }
     
     @Override
     public void onLoad() {
@@ -162,6 +171,7 @@ public class TileController extends TileEntity {
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
         compound = super.writeToNBT(compound);
         compound.setTag("satellite_data", satellite.serializeNBT());
+        compound.setTag("module_data", controller.serializeNBT());
         return compound;
     }
     
@@ -169,6 +179,7 @@ public class TileController extends TileEntity {
     public void readFromNBT(@Nonnull NBTTagCompound compound) {
         super.readFromNBT(compound);
         satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
+        this.controller.deserializeNBT(compound.getCompoundTag("module_data"));
     }
 
     public Map<BlockPos, ScanValue> scanStructure() {

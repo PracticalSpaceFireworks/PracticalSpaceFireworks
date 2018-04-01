@@ -9,6 +9,7 @@ import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.satellite.UniqueManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -52,5 +53,10 @@ public class ClientProxy extends ServerProxy {
         } else {
             Minecraft.getMinecraft().addScheduledTask(() -> handle.accept(Minecraft.getMinecraft().player));
         }
+    }
+    
+    @Override
+    public World getClientWorld() {
+        return Minecraft.getMinecraft().world;
     }
 }

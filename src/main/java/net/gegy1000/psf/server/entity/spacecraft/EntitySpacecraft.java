@@ -1,8 +1,20 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
@@ -27,15 +39,6 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     private static final double AIR_RESISTANCE = 0.98;
@@ -98,6 +101,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
             this.recalculateRotation();
+        }
+        
+        if (!world.isRemote) {
+            satellite.tickSatellite(ticksExisted);
         }
 
         super.onUpdate();

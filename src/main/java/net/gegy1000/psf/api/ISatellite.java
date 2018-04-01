@@ -1,7 +1,21 @@
 package net.gegy1000.psf.api;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.google.common.base.Functions;
+
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -9,12 +23,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @ParametersAreNonnullByDefault
 public interface ISatellite extends IUnique, INBTSerializable<NBTTagCompound> {
@@ -28,6 +36,10 @@ public interface ISatellite extends IUnique, INBTSerializable<NBTTagCompound> {
     IController getController();
 
     Collection<IModule> getModules();
+    
+    default Map<UUID, IModule> getIndexedModules() {
+        return getModules().stream().collect(Collectors.toMap(IModule::getId, Functions.identity()));
+    }
 
     default boolean tryExtractEnergy(int amount) {
         int extractedAmount = 0;
@@ -69,11 +81,32 @@ public interface ISatellite extends IUnique, INBTSerializable<NBTTagCompound> {
     @Override
     default void deserializeNBT(@Nullable NBTTagCompound tag) {}
 
-    default void tickSatellite(int ticksExisted) {
+    default void tickSatellite(long ticksExisted) {
         for (IModule module : getModules()) {
             if (ticksExisted % module.getTickInterval() == 0) {
                 module.onSatelliteTick(this);
             }
+//            if (module.isDirty()) {
+                sendModulePacket(module, module.getUpdateTag());
+                module.dirty(false);
+//            }
         }
     }
+    
+    default void updateModuleClient(UUID id, NBTTagCompound data) {
+        IModule module = getIndexedModules().get(id);
+        if (module != null) {
+            module.readUpdateTag(data);
+        }
+    }
+    
+    void sendModulePacket(IModule module, NBTTagCompound data);
+    
+    default Collection<EntityPlayerMP> getTrackingPlayers() {
+        return Collections.emptyList();
+    }
+
+    default void track(EntityPlayerMP player) {}
+    
+    default void untrack(EntityPlayerMP player) {}
 }

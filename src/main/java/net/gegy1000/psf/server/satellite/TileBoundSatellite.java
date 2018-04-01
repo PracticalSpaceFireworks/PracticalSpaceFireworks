@@ -1,12 +1,17 @@
 package net.gegy1000.psf.server.satellite;
 
+import java.util.Collection;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.val;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
@@ -18,13 +23,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 @RequiredArgsConstructor
-public class TileBoundSatellite implements ISatellite {
+public class TileBoundSatellite extends AbstractSatellite {
     
     private final TileController controller;
     
@@ -72,12 +72,12 @@ public class TileBoundSatellite implements ISatellite {
 
     @Override
     public String getName() {
-        return name.isEmpty() ? ISatellite.super.getName() : name;
+        return name.isEmpty() ? super.getName() : name;
     }
     
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tag = ISatellite.super.serializeNBT();
+        NBTTagCompound tag = super.serializeNBT();
         tag.setLong("uuid_msb", getId().getMostSignificantBits());
         tag.setLong("uuid_lsb", getId().getLeastSignificantBits());
         tag.setString("name", name);
@@ -86,7 +86,7 @@ public class TileBoundSatellite implements ISatellite {
     
     @Override
     public void deserializeNBT(NBTTagCompound tag) {
-        ISatellite.super.deserializeNBT(tag);
+        super.deserializeNBT(tag);
         this.id = new UUID(tag.getLong("uuid_msb"), tag.getLong("uuid_lsb"));
         this.name = tag.getString("name");
     }

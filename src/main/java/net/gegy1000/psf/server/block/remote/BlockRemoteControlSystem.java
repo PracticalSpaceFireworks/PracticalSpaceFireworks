@@ -39,13 +39,6 @@ import net.minecraftforge.fml.relauncher.Side;
 @ParametersAreNonnullByDefault
 public class BlockRemoteControlSystem extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
 
-    static {
-        PSFNetworkHandler.network.registerMessage(PacketVisualData.Handler.class, PacketVisualData.class, PSFNetworkHandler.nextID(), Side.CLIENT);
-        PSFNetworkHandler.network.registerMessage(PacketOpenRemoteControl.Handler.class, PacketOpenRemoteControl.class, PSFNetworkHandler.nextID(), Side.CLIENT);
-        PSFNetworkHandler.network.registerMessage(PacketRequestVisual.Handler.class, PacketRequestVisual.class, PSFNetworkHandler.nextID(), Side.SERVER);
-        PSFNetworkHandler.network.registerMessage(PacketSetName.Handler.class, PacketSetName.class, PSFNetworkHandler.nextID(), Side.SERVER);
-    }
-
     public BlockRemoteControlSystem() {
         super(Material.IRON);
         this.setHarvestLevel("pickaxe", 1);

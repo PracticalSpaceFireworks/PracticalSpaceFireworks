@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -20,19 +21,21 @@ import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
@@ -137,6 +140,7 @@ public class GuiControlSystem extends GuiContainer {
         super.onGuiClosed();
         if (selectedCraft >= 0) {
             updateName();
+            untrack();
         }
     }
     
@@ -146,12 +150,20 @@ public class GuiControlSystem extends GuiContainer {
             craft.setName(tfName.getText());
         }
     }
+    
+    private void untrack() {
+        IListedSpacecraft craft = getCraft();
+        if (craft != null) {
+            PSFNetworkHandler.network.sendToServer(new PacketTrackCraft(craft.getId(), false));
+        }
+    }
 
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         super.actionPerformed(button);
         if (button == buttonBack) {
             updateName();
+            untrack();
             selectedCraft = -1;
             buttonBack.visible = false;
             buttonMode.visible = false;
@@ -347,10 +359,15 @@ public class GuiControlSystem extends GuiContainer {
         buttonBack.visible = true;
         buttonMode.visible = true;
         tfName.setText(craft.getName());
+        PSFNetworkHandler.network.sendToServer(new PacketTrackCraft(craft.getId(), true));
     }
 
     public void setVisual(IListedSpacecraft.Visual visual) {
         model = SpacecraftModel.build(visual.getBlockAccess());
         modules = visual.getModules();
+    }
+
+    public void updateModule(UUID id, NBTTagCompound tag) {
+        modules.stream().filter(m -> m.getId().equals(id)).findFirst().ifPresent(m -> m.readUpdateTag(tag));
     }
 }

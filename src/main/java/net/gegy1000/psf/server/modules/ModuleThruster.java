@@ -31,13 +31,14 @@ public class ModuleThruster extends EmptyModule {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagCompound tag = super.serializeNBT();
         tag.setByte("tier", (byte) (this.tier.ordinal() & 0xFF));
         return tag;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
+        super.deserializeNBT(nbt);
         int tier = nbt.getByte("tier") & 0xFF;
         this.tier = ThrusterTier.values()[tier % ThrusterTier.values().length];
     }

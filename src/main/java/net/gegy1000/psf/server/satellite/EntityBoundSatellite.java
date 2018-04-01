@@ -1,5 +1,13 @@
 package net.gegy1000.psf.server.satellite;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
@@ -12,14 +20,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
-public class EntityBoundSatellite implements ISatellite {
+public class EntityBoundSatellite extends AbstractSatellite {
+    
     private final EntitySpacecraft spacecraft;
 
     private final List<IModule> modules = new ArrayList<>();
@@ -42,7 +44,7 @@ public class EntityBoundSatellite implements ISatellite {
 
     @Override
     public String getName() {
-        return name.isEmpty() ? ISatellite.super.getName() : name;
+        return name.isEmpty() ? super.getName() : name;
     }
 
     @Override
@@ -92,14 +94,14 @@ public class EntityBoundSatellite implements ISatellite {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tag = ISatellite.super.serializeNBT();
+        NBTTagCompound tag = super.serializeNBT();
         tag.setString("name", name);
         return tag;
     }
 
     @Override
     public void deserializeNBT(@Nullable NBTTagCompound tag) {
-        ISatellite.super.deserializeNBT(tag);
+        super.deserializeNBT(tag);
         if (tag != null) {
             this.name = tag.getString("name");
         }

@@ -32,8 +32,7 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tag = new NBTTagCompound();
-
+        NBTTagCompound tag = super.serializeNBT();
         Capability<IFluidHandler> cap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
         tag.setTag("fluid", cap.getStorage().writeNBT(cap, this.storage, null));
 
@@ -42,6 +41,7 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
+        super.deserializeNBT(nbt);
         Capability<IFluidHandler> cap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
         cap.getStorage().readNBT(cap, this.storage, null, nbt.getTag("fluid"));
     }

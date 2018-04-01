@@ -8,9 +8,11 @@ import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.UniqueManager;
 import net.gegy1000.psf.server.util.BlockMassHandler;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
@@ -29,6 +31,7 @@ public class ServerProxy {
     }
 
     public void onInit() {
+        PSFNetworkHandler.register();
     }
 
     public void onPostInit() {
@@ -40,5 +43,9 @@ public class ServerProxy {
 
     public void handlePacket(MessageContext context, Consumer<EntityPlayer> handle) {
         FMLCommonHandler.instance().getWorldThread(context.netHandler).addScheduledTask(() -> handle.accept(context.getServerHandler().player));
+    }
+
+    public World getClientWorld() {
+        return null;
     }
 }

@@ -39,18 +39,37 @@ public class ModuleBattery extends EmptyModule implements IModule {
 
     public ModuleBattery(BatteryTier tier, int capacity) {
         super("battery." + tier.getName());
-        this.storage = new EnergyStorage(capacity, capacity, capacity, capacity);
+        this.storage = new EnergyStorage(capacity, capacity, capacity, 0) {
+            @Override
+            public int receiveEnergy(int maxReceive, boolean simulate) {
+                int ret = super.receiveEnergy(maxReceive, simulate);
+                if (ret > 0) {
+                    dirty(true);
+                }
+                return ret;
+            }
+            
+            @Override
+            public int extractEnergy(int maxExtract, boolean simulate) {
+                int ret = super.extractEnergy(maxExtract, simulate);
+                if (ret > 0) {
+                    dirty(true);
+                }
+                return ret;
+            }
+        };
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound tag = new NBTTagCompound();
+        NBTTagCompound tag = super.serializeNBT();
         tag.setTag("energy", CapabilityEnergy.ENERGY.getStorage().writeNBT(CapabilityEnergy.ENERGY, storage, null));
         return tag;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
+        super.deserializeNBT(nbt);
         CapabilityEnergy.ENERGY.getStorage().readNBT(CapabilityEnergy.ENERGY, storage, null, nbt.getTag("energy"));
     }
 
@@ -68,5 +87,15 @@ public class ModuleBattery extends EmptyModule implements IModule {
             }
         }
         return super.getCapability(capability, facing);
+    }
+    
+    @Override
+    public NBTTagCompound getUpdateTag() {
+        return serializeNBT();
+    }
+    
+    @Override
+    public void readUpdateTag(NBTTagCompound tag) {
+        deserializeNBT(tag);
     }
 }

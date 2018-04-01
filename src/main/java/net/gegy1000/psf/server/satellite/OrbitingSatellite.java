@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class OrbitingSatellite implements ISatellite {
+public class OrbitingSatellite extends AbstractSatellite {
     private final World world;
 
     @Getter

@@ -1,5 +1,11 @@
 package net.gegy1000.psf.api;
 
+import java.util.Collection;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.data.IModuleData;
 import net.gegy1000.psf.server.capability.CapabilityModule;
@@ -13,13 +19,8 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
-
 @ParametersAreNonnullByDefault
-public interface IModule extends INBTSerializable<NBTTagCompound>, ICapabilityProvider {
+public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICapabilityProvider {
 
     default void onSatelliteTick(ISatellite satellite) {
     }
@@ -59,4 +60,22 @@ public interface IModule extends INBTSerializable<NBTTagCompound>, ICapabilityPr
         }
         return null;
     }
+    
+    /* Client Syncing */
+    
+    default boolean isDirty() {
+        return false;
+    }
+    
+    default void dirty(boolean dirty) {}
+    
+    // TODO override this in most modules!!
+    default NBTTagCompound getUpdateTag() {
+        return serializeNBT();
+    }
+    
+    default void readUpdateTag(NBTTagCompound tag) {
+        deserializeNBT(tag);
+    }
+
 }
