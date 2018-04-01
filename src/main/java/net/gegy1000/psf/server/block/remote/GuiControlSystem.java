@@ -206,9 +206,9 @@ public class GuiControlSystem extends GuiContainer {
 
         double sc = 1;
 
-        if (overW > 0 && overW > overH) {
+        if (overW > 0 && overW >= overH) {
             sc = maxW / (overW + maxW);
-        } else if (overH > 0 && overH > overW) {
+        } else if (overH > 0 && overH >= overW) {
             sc = maxH / (overH + maxH);
         }
 
