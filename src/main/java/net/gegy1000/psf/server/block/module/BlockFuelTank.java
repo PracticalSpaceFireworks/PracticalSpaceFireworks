@@ -53,7 +53,24 @@ public class BlockFuelTank extends BlockModule {
     @Override
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState state, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, EnumFacing side) {
-        return (!canConnect(state, blockAccess, pos, side) || side.getAxis() == EnumFacing.Axis.Y) && super.shouldSideBeRendered(state, blockAccess, pos, side);
+        if (side.getAxis() == EnumFacing.Axis.Y) {
+            BlockPos neighbourPos = pos.offset(side);
+            IBlockState neighbour = blockAccess.getBlockState(neighbourPos);
+            neighbour = neighbour.getActualState(blockAccess, neighbourPos);
+
+            if (neighbour.getBlock() == this) {
+                int count = 0;
+                if (neighbour.getValue(NORTH)) count++;
+                if (neighbour.getValue(SOUTH)) count++;
+                if (neighbour.getValue(EAST)) count++;
+                if (neighbour.getValue(WEST)) count++;
+                if (count == 2) {
+                    return true;
+                }
+            }
+        }
+
+        return !canConnect(state, blockAccess, pos, side) && super.shouldSideBeRendered(state, blockAccess, pos, side);
     }
 
     @Override
