@@ -20,6 +20,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -78,7 +80,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.motionY -= GRAVITY / 20.0;
 
-        this.state.update();
+        this.state = this.state.update();
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
@@ -240,7 +242,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     public interface State {
-        default void update() {
+        default State update() {
+            return this;
         }
 
         default double getCameraShake() {
@@ -260,16 +263,18 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public static class Launch implements State {
         private final EntitySpacecraft entity;
         private final LaunchMetadata metadata;
+        private final IFluidHandler fuelHandler;
 
         private double force;
 
         public Launch(EntitySpacecraft entity) {
             this.entity = entity;
             this.metadata = this.entity.blockAccess.buildLaunchMetadata();
+            this.fuelHandler = this.metadata.buildFuelHandler();
         }
 
         @Override
-        public void update() {
+        public State update() {
             World world = this.entity.getEntityWorld();
 
             if (this.entity.posY > 1000) {
@@ -281,27 +286,35 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 }
             }
 
-            this.force = this.metadata.getTotalForce();
-            double acceleration = this.force / this.metadata.getMass() / 20.0;
-            this.entity.motionY += acceleration;
+            int totalDrain = this.metadata.getTotalFuelDrain() / 20;
+            FluidStack result = this.fuelHandler.drain(totalDrain, true);
+            if (result != null && result.amount > 0) {
+                this.force = this.metadata.getTotalForce();
+                double acceleration = this.force / this.metadata.getMass() / 20.0;
+                this.entity.motionY += acceleration;
 
-            this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
+                this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
-            if (world.isRemote) {
-                for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
-                    BlockPos thrusterPos = thruster.getPos();
-                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
-                    this.entity.rotationMatrix.transform(thrusterPoint);
-                    double posX = this.entity.posX + thrusterPoint.x;
-                    double posY = this.entity.posY + thrusterPoint.y;
-                    double posZ = this.entity.posZ + thrusterPoint.z;
-                    for (int i = 0; i < 30; i++) {
-                        double motionX = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
-                        double motionY = -acceleration;
-                        double motionZ = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
-                        world.spawnParticle(EnumParticleTypes.FLAME, true, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
+                if (world.isRemote) {
+                    for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
+                        BlockPos thrusterPos = thruster.getPos();
+                        Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                        this.entity.rotationMatrix.transform(thrusterPoint);
+                        double posX = this.entity.posX + thrusterPoint.x;
+                        double posY = this.entity.posY + thrusterPoint.y;
+                        double posZ = this.entity.posZ + thrusterPoint.z;
+                        for (int i = 0; i < 30; i++) {
+                            double motionX = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
+                            double motionY = -acceleration;
+                            double motionZ = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
+                            world.spawnParticle(EnumParticleTypes.FLAME, true, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
+                        }
                     }
                 }
+
+                return this;
+            } else {
+                return new Static();
             }
         }
 

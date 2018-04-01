@@ -48,7 +48,7 @@ public class ClientEventHandler {
             for (EntitySpacecraft spacecraft : entities) {
                 double shake = spacecraft.getState().getCameraShake();
                 double distance = MathHelper.clamp(spacecraft.getDistance(MC.player), 10.0, 400.0);
-                totalShake += shake * (1.0 - distance / 400.0);
+                totalShake += shake * (1.0 - distance / 200.0);
             }
 
             if (!MC.player.onGround && !MC.player.collidedVertically && !MC.player.collidedHorizontally) {

@@ -27,6 +27,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import javax.annotation.Nonnull;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SpacecraftBlockAccess implements IBlockAccess {
@@ -147,12 +150,16 @@ public class SpacecraftBlockAccess implements IBlockAccess {
                 IModule module = entity.getCapability(CapabilityModule.INSTANCE, null);
                 if (module instanceof ModuleThruster) {
                     ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
-                    thrusters.add(new LaunchMetadata.Thruster(entity.getPos(), tier.getThrust()));
+                    thrusters.add(new LaunchMetadata.Thruster(entity.getPos(), tier.getThrust(), tier.getDrain()));
                 }
             }
         }
 
-        return new LaunchMetadata(this.findModules(), thrusters.build(), mass);
+        List<IModule> modules = this.findModules();
+        List<IFluidHandler> fuelTanks = modules.stream().filter(module -> module.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                .map(module -> module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                .collect(Collectors.toList());
+        return new LaunchMetadata(modules, fuelTanks, thrusters.build(), mass);
     }
 
     public NBTTagCompound serialize(NBTTagCompound compound) {

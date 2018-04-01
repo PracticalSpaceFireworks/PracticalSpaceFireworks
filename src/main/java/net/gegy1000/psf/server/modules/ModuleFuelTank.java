@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ModuleFuelTank extends EmptyModule implements IModule {
-    private static final int CAPACITY = 1000;
+    private static final int CAPACITY = 500;
 
     private final FluidTank storage;
     private final FluidMass additionalMass;
