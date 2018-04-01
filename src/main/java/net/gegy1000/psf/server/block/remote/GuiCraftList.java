@@ -1,11 +1,10 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.util.List;
-
-import net.gegy1000.psf.api.ISatellite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.client.GuiScrollingList;
+
+import java.util.List;
 
 public class GuiCraftList extends GuiScrollingList {
     
@@ -16,7 +15,7 @@ public class GuiCraftList extends GuiScrollingList {
         this.gui = parent;
     }
     
-    protected List<ISatellite> getCrafts() {
+    protected List<IListedSpacecraft> getCrafts() {
         return gui.getContainer().getTe().getCrafts();
     }
 
@@ -38,7 +37,7 @@ public class GuiCraftList extends GuiScrollingList {
 
     @Override
     protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-        ISatellite craft = getCrafts().get(slotIdx);
+        IListedSpacecraft craft = getCrafts().get(slotIdx);
         boolean hovered = mouseY >= slotTop && mouseY < slotTop + slotHeight && mouseX >= entryRight - listWidth && mouseX < entryRight; 
         gui.mc.fontRenderer.drawSplitString(craft.getName(), left + slotBuffer, slotTop + (slotHeight / 2) - (gui.mc.fontRenderer.FONT_HEIGHT / 2), listWidth - (slotBuffer * 2), hovered ? 0xFFFFFF55 : -1);
     }

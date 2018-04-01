@@ -1,27 +1,10 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
 import lombok.Getter;
-import lombok.Setter;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -38,6 +21,17 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GuiControlSystem extends GuiContainer {
     
@@ -53,10 +47,9 @@ public class GuiControlSystem extends GuiContainer {
     private GuiScrollingList craftList;
     
     private int selectedCraft = -1;
-    
+
     private SpacecraftModel model;
     
-    @Setter
     @Nonnull
     private Collection<IModule> modules = new ArrayList<>();
     
@@ -83,7 +76,7 @@ public class GuiControlSystem extends GuiContainer {
         addButton(buttonBack);
         
         tfName = new GuiTextField(1, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
-        ISatellite craft = getCraft();
+        IListedSpacecraft craft = getCraft();
         if (craft != null) {
             tfName.setText(craft.getName());
         }
@@ -128,10 +121,9 @@ public class GuiControlSystem extends GuiContainer {
     }
     
     private void updateName() {
-        ISatellite craft = getCraft();
+        IListedSpacecraft craft = getCraft();
         if (craft != null) {
             craft.setName(tfName.getText());
-            PSFNetworkHandler.network.sendToServer(new PacketSetName(craft.getPosition(), tfName.getText()));
         }
     }
 
@@ -166,8 +158,8 @@ public class GuiControlSystem extends GuiContainer {
         drawDefaultBackground();
         mc.getTextureManager().bindTexture(TEXTURE_LOC);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
-        if (selectedCraft >= 0) {
-            ISatellite craft = getCraft();
+        if (selectedCraft >= 0 && model != null) {
+            IListedSpacecraft craft = getCraft();
             if (craft == null) {
                 return;
             }
@@ -288,7 +280,7 @@ public class GuiControlSystem extends GuiContainer {
         }
     }
     
-    private @Nullable ISatellite getCraft() {
+    private @Nullable IListedSpacecraft getCraft() {
         if (selectedCraft >= 0) {
             return container.getTe().getCrafts().get(selectedCraft);
         }
@@ -297,11 +289,14 @@ public class GuiControlSystem extends GuiContainer {
 
     public void selectCraft(int index) {
         this.selectedCraft = index;
-        ISatellite craft = getCraft();
-        BlockPos origin = craft.getController().getPosition().orElse(BlockPos.ORIGIN);
-        this.model = SpacecraftModel.build(craft.buildBlockAccess(origin, Minecraft.getMinecraft().world));
-        craft.requestModules();
+        IListedSpacecraft craft = getCraft();
+        craft.requestVisualData();
         buttonBack.visible = true;
         tfName.setText(craft.getName());
+    }
+
+    public void setVisual(IListedSpacecraft.Visual visual) {
+        model = SpacecraftModel.build(visual.getBlockAccess());
+        modules = visual.getModules();
     }
 }

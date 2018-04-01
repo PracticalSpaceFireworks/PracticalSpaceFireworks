@@ -1,13 +1,11 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -20,10 +18,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 @AllArgsConstructor
 @NoArgsConstructor
-public class PacketModules implements IMessage {
-
+public class PacketVisualData implements IMessage {
+    private SpacecraftBlockAccess blockAccess;
     private Collection<IModule> modules = new ArrayList<>();
 
     @Override
@@ -33,6 +34,7 @@ public class PacketModules implements IMessage {
             ByteBufUtils.writeUTF8String(buf, m.getRegistryName().toString());
             ByteBufUtils.writeTag(buf, m.serializeNBT());
         }
+        blockAccess.serialize(buf);
     }
 
     @Override
@@ -48,21 +50,22 @@ public class PacketModules implements IMessage {
                 modules.add(m);
             }
         }
+        blockAccess = SpacecraftBlockAccess.deserialize(buf);
     }
     
-    public static class Handler implements IMessageHandler<PacketModules, IMessage> {
+    public static class Handler implements IMessageHandler<PacketVisualData, IMessage> {
         
         @Override
-        public IMessage onMessage(PacketModules message, MessageContext ctx) {
-            updateModulesClient(message);
+        public IMessage onMessage(PacketVisualData message, MessageContext ctx) {
+            Minecraft.getMinecraft().addScheduledTask(() -> updateVisualClient(message));
             return null;
         }
         
         @SideOnly(Side.CLIENT)
-        private void updateModulesClient(PacketModules message) {
+        private void updateVisualClient(PacketVisualData message) {
             GuiScreen gui = Minecraft.getMinecraft().currentScreen;
             if (gui instanceof GuiControlSystem) {
-                ((GuiControlSystem) gui).setModules(message.modules);
+                ((GuiControlSystem) gui).setVisual(new IListedSpacecraft.Visual(message.blockAccess, message.modules));
             }
         }
     }

@@ -4,11 +4,10 @@ import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.remote.GuiControlSystem;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -67,22 +66,13 @@ public class EntityBoundSatellite implements ISatellite {
     }
 
     @Override
-    public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
+    public SpacecraftBlockAccess buildBlockAccess(World world) {
         return this.spacecraft.getBlockAccess();
     }
 
     @Override
-    public void requestModules() {
-        if (this.spacecraft.getEntityWorld().isRemote) {
-            this.respondModulesClient();
-        }
-    }
-
-    private void respondModulesClient() {
-        GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-        if (gui instanceof GuiControlSystem) {
-            ((GuiControlSystem) gui).setModules(this.getModules());
-        }
+    public IListedSpacecraft toListedCraft() {
+        return new EntityListedSpacecraft(spacecraft);
     }
 
     @Override

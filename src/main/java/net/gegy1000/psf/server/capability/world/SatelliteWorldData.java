@@ -11,10 +11,12 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompound> {
     @Nonnull
@@ -22,7 +24,10 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
 
     void addSatellite(@Nonnull ISatellite satellite);
 
-    void removeSatellite(@Nonnull ISatellite satellite);
+    void removeSatellite(@Nonnull UUID id);
+
+    @Nullable
+    ISatellite getSatellite(UUID uuid);
 
     @Nonnull
     Collection<ISatellite> getSatellites();
@@ -30,7 +35,7 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
     class Impl implements SatelliteWorldData {
         private final World world;
 
-        private final Set<ISatellite> satellites = new HashSet<>();
+        private final Map<UUID, ISatellite> satellites = new HashMap<>();
 
         public Impl(World world) {
             this.world = world;
@@ -57,18 +62,24 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
 
         @Override
         public void addSatellite(@Nonnull ISatellite satellite) {
-            this.satellites.add(satellite);
+            this.satellites.put(satellite.getId(), satellite);
         }
 
         @Override
-        public void removeSatellite(@Nonnull ISatellite satellite) {
-            this.satellites.remove(satellite);
+        public void removeSatellite(@Nonnull UUID id) {
+            this.satellites.remove(id);
+        }
+
+        @Nullable
+        @Override
+        public ISatellite getSatellite(UUID uuid) {
+            return this.satellites.get(uuid);
         }
 
         @Override
         @Nonnull
         public Collection<ISatellite> getSatellites() {
-            return Collections.unmodifiableSet(this.satellites);
+            return Collections.unmodifiableCollection(this.satellites.values());
         }
 
         @Override
@@ -86,7 +97,7 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
         public void deserializeNBT(NBTTagCompound compound) {
             NBTTagList satelliteList = compound.getTagList("satellites", Constants.NBT.TAG_COMPOUND);
             for (int i = 0; i < satelliteList.tagCount(); i++) {
-                this.addSatellite(OrbitingSatellite.deserialize(this.getWorld(), compound));
+                this.addSatellite(OrbitingSatellite.deserialize(this.getWorld(), satelliteList.getCompoundTagAt(i)));
             }
         }
     }

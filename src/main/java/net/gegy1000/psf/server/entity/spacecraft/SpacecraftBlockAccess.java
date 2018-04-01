@@ -24,7 +24,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.Constants;
@@ -39,8 +38,6 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class SpacecraftBlockAccess implements IBlockAccess {
-    private final World world;
-
     private final int[] blockData;
     private final int[] lightData;
     private final Long2ObjectMap<TileEntity> entities;
@@ -184,7 +181,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         return compound;
     }
 
-    public static SpacecraftBlockAccess deserialize(World world, NBTTagCompound compound) {
+    public static SpacecraftBlockAccess deserialize(NBTTagCompound compound) {
         BlockPos minPos = new BlockPos(compound.getInteger("min_x"), compound.getInteger("min_y"), compound.getInteger("min_z"));
         BlockPos maxPos = new BlockPos(compound.getInteger("max_x"), compound.getInteger("max_y"), compound.getInteger("max_z"));
         Biome biome = Biome.REGISTRY.getObject(new ResourceLocation(compound.getString("biome")));
@@ -219,7 +216,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
             entities.put(entity.getPos().toLong(), entity);
         }
 
-        return new SpacecraftBlockAccess(world, blockData, lightData, entities, biome, minPos, maxPos);
+        return new SpacecraftBlockAccess(blockData, lightData, entities, biome, minPos, maxPos);
     }
 
     public void serialize(ByteBuf buffer) {
@@ -241,7 +238,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         }
     }
 
-    public static SpacecraftBlockAccess deserialize(World world, ByteBuf buffer) {
+    public static SpacecraftBlockAccess deserialize(ByteBuf buffer) {
         BlockPos minPos = BlockPos.fromLong(buffer.readLong());
         BlockPos maxPos = BlockPos.fromLong(buffer.readLong());
 
@@ -269,7 +266,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
             entities.put(entity.getPos().toLong(), entity);
         }
 
-        return new SpacecraftBlockAccess(world, blockData, lightData, entities, biome, minPos, maxPos);
+        return new SpacecraftBlockAccess(blockData, lightData, entities, biome, minPos, maxPos);
     }
 
     static int getPosIndex(BlockPos pos, BlockPos minPos, BlockPos maxPos) {

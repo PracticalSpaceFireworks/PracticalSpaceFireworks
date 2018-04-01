@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
@@ -36,6 +37,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private static final double GRAVITY = 1.6;
 
     private final Matrix rotationMatrix = new Matrix(3);
+
+    @Getter
     private final EntityBoundSatellite satellite = new EntityBoundSatellite(this);
 
     @SideOnly(Side.CLIENT)
@@ -206,7 +209,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, compound.getCompoundTag("block_data"));
+        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
         this.metadata = this.blockAccess.buildLaunchMetadata();
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
 
@@ -228,7 +231,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(this.world, buffer);
+        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
         this.metadata = this.blockAccess.buildLaunchMetadata();
         this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;

@@ -7,6 +7,11 @@ import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.util.BlockMassHandler;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.function.Consumer;
 
 public class ServerProxy {
     
@@ -33,5 +38,9 @@ public class ServerProxy {
             throw new IllegalArgumentException("Cannot retrieve client manager from dedicated server!");
         }
         return controllerManager;
+    }
+
+    public void handlePacket(MessageContext context, Consumer<EntityPlayer> handle) {
+        FMLCommonHandler.instance().getWorldThread(context.netHandler).addScheduledTask(() -> handle.accept(context.getServerHandler().player));
     }
 }

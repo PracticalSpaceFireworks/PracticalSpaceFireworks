@@ -103,6 +103,6 @@ public class SpacecraftBuilder {
 
         Biome biome = world.getBiome(origin);
 
-        return new SpacecraftBlockAccess(world, blockData, lightData, this.entities, biome, minPos, maxPos);
+        return new SpacecraftBlockAccess(blockData, lightData, this.entities, biome, minPos, maxPos);
     }
 }

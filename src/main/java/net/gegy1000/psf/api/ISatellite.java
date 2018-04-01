@@ -1,5 +1,6 @@
 package net.gegy1000.psf.api;
 
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -41,9 +42,9 @@ public interface ISatellite extends INBTSerializable<NBTTagCompound> {
 
     BlockPos getPosition();
 
-    SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world);
+    SpacecraftBlockAccess buildBlockAccess(World world);
 
-    void requestModules();
+    IListedSpacecraft toListedCraft();
 
     World getWorld();
 
@@ -51,7 +52,7 @@ public interface ISatellite extends INBTSerializable<NBTTagCompound> {
     default NBTTagCompound serializeNBT() {
         return new NBTTagCompound();
     }
-    
+
     @Override
     default void deserializeNBT(@Nullable NBTTagCompound tag) {}
 

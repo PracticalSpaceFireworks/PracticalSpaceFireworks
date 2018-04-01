@@ -1,13 +1,18 @@
 package net.gegy1000.psf.server.block.remote;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
+import net.gegy1000.psf.server.block.remote.entity.PacketSetNameEntity;
+import net.gegy1000.psf.server.block.remote.orbiting.PacketRequestVisualOrbiting;
+import net.gegy1000.psf.server.block.remote.orbiting.PacketSetNameOrbiting;
+import net.gegy1000.psf.server.block.remote.tile.PacketRequestVisualTile;
+import net.gegy1000.psf.server.block.remote.tile.PacketSetNameTile;
+import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
+import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
-import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -15,6 +20,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -24,15 +30,25 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+
 @ParametersAreNonnullByDefault
 public class BlockRemoteControlSystem extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
-    
+
     static {
-        PSFNetworkHandler.network.registerMessage(PacketModules.Handler.class, PacketModules.class, PSFNetworkHandler.nextID(), Side.CLIENT);
-        PSFNetworkHandler.network.registerMessage(PacketRequestModulesWorld.Handler.class, PacketRequestModulesWorld.class, PSFNetworkHandler.nextID(), Side.SERVER);
-        PSFNetworkHandler.network.registerMessage(PacketSetName.Handler.class, PacketSetName.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketVisualData.Handler.class, PacketVisualData.class, PSFNetworkHandler.nextID(), Side.CLIENT);
+        PSFNetworkHandler.network.registerMessage(PacketOpenRemoteControl.Handler.class, PacketOpenRemoteControl.class, PSFNetworkHandler.nextID(), Side.CLIENT);
+        PSFNetworkHandler.network.registerMessage(PacketRequestVisualTile.Handler.class, PacketRequestVisualTile.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketRequestVisualOrbiting.Handler.class, PacketRequestVisualOrbiting.class, PSFNetworkHandler.nextID(), Side.SERVER);
+
+        PSFNetworkHandler.network.registerMessage(PacketSetNameTile.Handler.class, PacketSetNameTile.class, PSFNetworkHandler.nextID(), Side.CLIENT);
+        PSFNetworkHandler.network.registerMessage(PacketSetNameTile.Handler.class, PacketSetNameTile.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketSetNameEntity.Handler.class, PacketSetNameEntity.class, PSFNetworkHandler.nextID(), Side.CLIENT);
+        PSFNetworkHandler.network.registerMessage(PacketSetNameEntity.Handler.class, PacketSetNameEntity.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketSetNameOrbiting.Handler.class, PacketSetNameOrbiting.class, PSFNetworkHandler.nextID(), Side.SERVER);
     }
-    
+
     public BlockRemoteControlSystem() {
         super(Material.IRON);
         this.setHarvestLevel("pickaxe", 1);
@@ -55,13 +71,18 @@ public class BlockRemoteControlSystem extends BlockHorizontal implements Registe
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te != null && te instanceof TileRemoteControlSystem) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof TileRemoteControlSystem) {
             ((TileRemoteControlSystem) te).rebuildCraftList();
         }
-        if (!worldIn.isRemote) {
-            playerIn.openGui(PracticalSpaceFireworks.instance, PSFGuiHandler.ID_CONTROL_SYSTEM, worldIn, pos.getX(), pos.getY(), pos.getZ());
+        if (!world.isRemote && player instanceof EntityPlayerMP) {
+            SatelliteWorldData cap = player.world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
+            if (cap == null) {
+                return false;
+            }
+            Collection<ISatellite> satellites = cap.getSatellites();
+            PSFNetworkHandler.network.sendTo(new PacketOpenRemoteControl(pos, satellites), (EntityPlayerMP) player);
         }
         return true;
     }

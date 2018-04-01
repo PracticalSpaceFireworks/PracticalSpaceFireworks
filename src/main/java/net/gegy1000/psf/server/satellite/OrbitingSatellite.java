@@ -1,8 +1,12 @@
 package net.gegy1000.psf.server.satellite;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +19,9 @@ import java.util.UUID;
 public class OrbitingSatellite implements ISatellite {
     private final World world;
 
-    private final String name;
+    @Getter
+    @Setter
+    private String name;
     private final UUID uuid;
 
     private final BlockPos position;
@@ -56,13 +62,13 @@ public class OrbitingSatellite implements ISatellite {
     }
 
     @Override
-    public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
+    public SpacecraftBlockAccess buildBlockAccess(World world) {
         return blockAccess;
     }
 
     @Override
-    public void requestModules() {
-        // TODO
+    public IListedSpacecraft toListedCraft() {
+        return new OrbitingListedSpacecraft(this.name, this.position, this.uuid);
     }
 
     @Override
@@ -90,7 +96,7 @@ public class OrbitingSatellite implements ISatellite {
         UUID uuid = compound.getUniqueId("uuid");
 
         BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
-        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(world, compound);
+        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(compound);
 
         return new OrbitingSatellite(world, name, uuid, pos, blockAccess);
     }

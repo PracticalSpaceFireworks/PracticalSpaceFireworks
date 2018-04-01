@@ -1,11 +1,5 @@
 package net.gegy1000.psf.server.satellite;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -15,14 +9,19 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
-import net.gegy1000.psf.server.block.remote.PacketRequestModulesWorld;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class TileBoundSatellite implements ISatellite {
@@ -52,7 +51,8 @@ public class TileBoundSatellite implements ISatellite {
     }
 
     @Override
-    public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
+    public SpacecraftBlockAccess buildBlockAccess(World world) {
+        BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
         for (val e : controller.getModules().entrySet()) {
             builder.setBlockState(e.getKey().subtract(origin), e.getValue().getState());
@@ -61,8 +61,8 @@ public class TileBoundSatellite implements ISatellite {
     }
 
     @Override
-    public void requestModules() {
-        PSFNetworkHandler.network.sendToServer(new PacketRequestModulesWorld(controller.getPos()));
+    public IListedSpacecraft toListedCraft() {
+        return new TileListedSpacecraft(this);
     }
 
     @Override
