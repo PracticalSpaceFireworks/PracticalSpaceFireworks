@@ -19,6 +19,10 @@ public interface IListedSpacecraft {
     BlockPos getPosition();
 
     void requestVisualData();
+    
+    default boolean isOrbiting() {
+        return false;
+    }
 
     class Visual {
         private final SpacecraftBlockAccess blockAccess;

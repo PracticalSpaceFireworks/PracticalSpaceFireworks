@@ -39,4 +39,9 @@ public class OrbitingListedSpacecraft implements IListedSpacecraft  {
     public void requestVisualData() {
         PSFNetworkHandler.network.sendToServer(new PacketRequestVisualOrbiting(this.uuid));
     }
+    
+    @Override
+    public boolean isOrbiting() {
+        return true;
+    }
 }

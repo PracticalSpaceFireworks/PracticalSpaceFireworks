@@ -1,5 +1,20 @@
 package net.gegy1000.psf.server.block.remote;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
 import lombok.Getter;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -7,6 +22,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -18,17 +34,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class GuiControlSystem extends GuiContainer {
     
@@ -38,6 +43,8 @@ public class GuiControlSystem extends GuiContainer {
     @Nonnull
     private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
     
+    private static final boolean scissorAvailable = GLContext.getCapabilities().OpenGL20;
+
     @Getter
     private final ContainerControlSystem container;
     
@@ -53,6 +60,8 @@ public class GuiControlSystem extends GuiContainer {
     private GuiButton buttonBack;
     
     private GuiTextField tfName;
+    
+    private final Rectangle panel;
 
     public GuiControlSystem(ContainerControlSystem inventorySlotsIn) {
         super(inventorySlotsIn);
@@ -60,6 +69,8 @@ public class GuiControlSystem extends GuiContainer {
         
         xSize = 256;
         ySize = 201;
+        
+        panel = new Rectangle(10, 10, (xSize / 2) - 20, ySize - 20);
     }
     
     @Override
@@ -163,7 +174,7 @@ public class GuiControlSystem extends GuiContainer {
     }
 
     private void drawBackground(IListedSpacecraft craft) {
-        drawRect(guiLeft + 9, guiTop + 9, guiLeft + (xSize / 2) - 9, guiTop + ySize - 9, 0xFF8A8A8A);
+        drawRect(guiLeft + panel.getX() - 1, guiTop + panel.getY() - 1, guiLeft + panel.getX() + panel.getWidth() + 1, guiTop + panel.getY() + panel.getHeight() + 1, 0xFF8A8A8A);
         GlStateManager.color(1, 1, 1);
 
         mc.getTextureManager().bindTexture(PREVIEW_BG);
@@ -174,9 +185,9 @@ public class GuiControlSystem extends GuiContainer {
         if (craftY > 256) {
             alpha = Math.min((craftY - 256) / 500f, 1);
         }
-        drawTexturedModalRect(guiLeft + 10, guiTop + 10, 0, 0, (xSize / 2) - 20, ySize - 20);
+        drawTexturedModalRect(guiLeft + panel.getX(), guiTop + panel.getY(), 0, 0, panel.getWidth(), panel.getHeight());
         GlStateManager.color(1, 1, 1, alpha);
-        drawTexturedModalRect(guiLeft + 10, guiTop + 10, 128, 0, (xSize / 2) - 20, ySize - 20);
+        drawTexturedModalRect(guiLeft + panel.getX(), guiTop + panel.getY(), 128, 0, panel.getWidth(), panel.getHeight());
         GlStateManager.color(1, 1, 1);
 
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
@@ -230,6 +241,13 @@ public class GuiControlSystem extends GuiContainer {
 
         GlStateManager.scale(-16, -16, -16);
 
+        if (scissorAvailable) {
+            ScaledResolution sr = new ScaledResolution(mc);
+            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+            GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
+                    panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
+        }
+
         mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         model.render(BlockRenderLayer.SOLID);
 
@@ -242,6 +260,10 @@ public class GuiControlSystem extends GuiContainer {
         GlStateManager.enableBlend();
         model.render(BlockRenderLayer.TRANSLUCENT);
         GlStateManager.disableBlend();
+        
+        if (scissorAvailable) {
+            GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        }
         GlStateManager.popMatrix();
     }
 
@@ -265,13 +287,16 @@ public class GuiControlSystem extends GuiContainer {
                 .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
         mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
         y += 15;
-        mc.fontRenderer.drawString("Position:", x, y, color);
+        boolean orbiting = craft.isOrbiting();
+        mc.fontRenderer.drawString(orbiting ? "Orbiting Over:" : "Position:", x, y, color);
         BlockPos pos = craft.getPosition();
         x += 5;
         y += 10;
         mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
-        y += 10;
-        mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
+        if (!orbiting) {
+            y += 10;
+            mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
+        }
         y += 10;
         mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
     }
