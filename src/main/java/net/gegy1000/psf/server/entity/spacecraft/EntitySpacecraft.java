@@ -1,7 +1,18 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
@@ -27,14 +38,6 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     private static final double AIR_RESISTANCE = 0.98;
     private static final double GRAVITY = 1.6;
@@ -52,11 +55,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Getter
     private State state = new Static();
 
+    private boolean converted;
+
     public EntitySpacecraft(World world) {
-        this(world, Collections.emptySet(), BlockPos.ORIGIN);
+        this(world, Collections.emptySet(), BlockPos.ORIGIN, null);
     }
 
-    public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin) {
+    public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin, @Nullable UUID id) {
         super(world);
         this.setSize(1, 1);
 
@@ -66,6 +71,14 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.satellite.detectModules();
         this.recalculateRotation();
+        
+        if (id != null) {
+            setUniqueId(id);
+        }
+        
+        if (!world.isRemote) {
+            PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
+        }
     }
 
     @Override
@@ -89,6 +102,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         super.onUpdate();
+        
+        if (!isEntityAlive() && !converted && !world.isRemote) {
+            PracticalSpaceFireworks.PROXY.getSatellites().remove(satellite);
+        }
     }
 
     @Override
@@ -283,6 +300,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
                     SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
                     capability.addSatellite(this.entity.satellite.toOrbiting());
+                    this.entity.converted = true;
                 }
             }
 

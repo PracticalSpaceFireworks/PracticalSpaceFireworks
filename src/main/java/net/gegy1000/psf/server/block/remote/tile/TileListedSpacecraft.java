@@ -1,19 +1,28 @@
 package net.gegy1000.psf.server.block.remote.tile;
 
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
-import net.gegy1000.psf.server.satellite.TileBoundSatellite;
-import net.minecraft.util.math.BlockPos;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
+import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.minecraft.util.math.BlockPos;
+
 @ParametersAreNonnullByDefault
 public class TileListedSpacecraft implements IListedSpacecraft {
-    private final TileBoundSatellite satellite;
+    private final ISatellite satellite;
 
-    public TileListedSpacecraft(TileBoundSatellite satellite) {
+    public TileListedSpacecraft(ISatellite satellite) {
         this.satellite = satellite;
+    }
+    
+    @Override
+    public UUID getId() {
+        return this.satellite.getId();
     }
 
     @Nonnull
@@ -24,7 +33,7 @@ public class TileListedSpacecraft implements IListedSpacecraft {
 
     @Override
     public void setName(@Nonnull String name) {
-        PSFNetworkHandler.network.sendToServer(new PacketSetNameTile(satellite.getPosition(), name));
+        PSFNetworkHandler.network.sendToServer(new PacketSetName(satellite.getId(), name));
         satellite.setName(name);
     }
 
@@ -36,6 +45,6 @@ public class TileListedSpacecraft implements IListedSpacecraft {
 
     @Override
     public void requestVisualData() {
-        PSFNetworkHandler.network.sendToServer(new PacketRequestVisualTile(getPosition()));
+        PSFNetworkHandler.network.sendToServer(new PacketRequestVisual(satellite.getId()));
     }
 }

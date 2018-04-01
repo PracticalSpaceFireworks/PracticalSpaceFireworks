@@ -1,25 +1,22 @@
-package net.gegy1000.psf.server.block.remote.orbiting;
+package net.gegy1000.psf.server.block.remote.packet;
+
+import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.remote.PacketVisualData;
-import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
-import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import java.util.UUID;
-
 @NoArgsConstructor
 @AllArgsConstructor
-public class PacketRequestVisualOrbiting implements IMessage {
+public class PacketRequestVisual implements IMessage {
     private UUID uuid;
 
     @Override
@@ -33,20 +30,15 @@ public class PacketRequestVisualOrbiting implements IMessage {
         this.uuid = new UUID(buf.readLong(), buf.readLong());
     }
 
-    public static class Handler implements IMessageHandler<PacketRequestVisualOrbiting, IMessage> {
+    public static class Handler implements IMessageHandler<PacketRequestVisual, IMessage> {
         @Override
-        public IMessage onMessage(PacketRequestVisualOrbiting message, MessageContext ctx) {
+        public IMessage onMessage(PacketRequestVisual message, MessageContext ctx) {
             FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
                 EntityPlayerMP player = ctx.getServerHandler().player;
-                World world = player.world;
+                ISatellite satellite = PracticalSpaceFireworks.PROXY.getSatellites().get(message.uuid);
 
-                SatelliteWorldData worldData = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
-                if (worldData != null) {
-                    ISatellite satellite = worldData.getSatellite(message.uuid);
-
-                    if (satellite != null) {
-                        PSFNetworkHandler.network.sendTo(new PacketVisualData(satellite.buildBlockAccess(world), satellite.getModules()), player);
-                    }
+                if (satellite != null) {
+                    PSFNetworkHandler.network.sendTo(new PacketVisualData(satellite.buildBlockAccess(player.world), satellite.getModules()), player);
                 }
             });
 

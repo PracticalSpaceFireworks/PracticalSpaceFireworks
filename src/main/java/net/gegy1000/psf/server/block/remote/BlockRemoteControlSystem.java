@@ -1,17 +1,23 @@
 package net.gegy1000.psf.server.block.remote;
 
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
-import net.gegy1000.psf.server.block.remote.entity.PacketSetNameEntity;
-import net.gegy1000.psf.server.block.remote.orbiting.PacketRequestVisualOrbiting;
-import net.gegy1000.psf.server.block.remote.orbiting.PacketSetNameOrbiting;
-import net.gegy1000.psf.server.block.remote.tile.PacketRequestVisualTile;
-import net.gegy1000.psf.server.block.remote.tile.PacketSetNameTile;
-import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
-import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
+import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
+import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
+import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
@@ -30,23 +36,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
-
 @ParametersAreNonnullByDefault
 public class BlockRemoteControlSystem extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
 
     static {
         PSFNetworkHandler.network.registerMessage(PacketVisualData.Handler.class, PacketVisualData.class, PSFNetworkHandler.nextID(), Side.CLIENT);
         PSFNetworkHandler.network.registerMessage(PacketOpenRemoteControl.Handler.class, PacketOpenRemoteControl.class, PSFNetworkHandler.nextID(), Side.CLIENT);
-        PSFNetworkHandler.network.registerMessage(PacketRequestVisualTile.Handler.class, PacketRequestVisualTile.class, PSFNetworkHandler.nextID(), Side.SERVER);
-        PSFNetworkHandler.network.registerMessage(PacketRequestVisualOrbiting.Handler.class, PacketRequestVisualOrbiting.class, PSFNetworkHandler.nextID(), Side.SERVER);
-
-        PSFNetworkHandler.network.registerMessage(PacketSetNameTile.Handler.class, PacketSetNameTile.class, PSFNetworkHandler.nextID(), Side.CLIENT);
-        PSFNetworkHandler.network.registerMessage(PacketSetNameTile.Handler.class, PacketSetNameTile.class, PSFNetworkHandler.nextID(), Side.SERVER);
-        PSFNetworkHandler.network.registerMessage(PacketSetNameEntity.Handler.class, PacketSetNameEntity.class, PSFNetworkHandler.nextID(), Side.CLIENT);
-        PSFNetworkHandler.network.registerMessage(PacketSetNameEntity.Handler.class, PacketSetNameEntity.class, PSFNetworkHandler.nextID(), Side.SERVER);
-        PSFNetworkHandler.network.registerMessage(PacketSetNameOrbiting.Handler.class, PacketSetNameOrbiting.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketRequestVisual.Handler.class, PacketRequestVisual.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketSetName.Handler.class, PacketSetName.class, PSFNetworkHandler.nextID(), Side.SERVER);
     }
 
     public BlockRemoteControlSystem() {
@@ -77,11 +74,11 @@ public class BlockRemoteControlSystem extends BlockHorizontal implements Registe
             ((TileRemoteControlSystem) te).rebuildCraftList();
         }
         if (!world.isRemote && player instanceof EntityPlayerMP) {
-            SatelliteWorldData cap = player.world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
-            if (cap == null) {
-                return false;
-            }
-            Collection<ISatellite> satellites = cap.getSatellites();
+            EnumMap<SatelliteState, List<IListedSpacecraft>> satellites = new EnumMap<>(SatelliteState.class);
+            satellites.putAll(PracticalSpaceFireworks.PROXY.getSatellites().getAll().stream()
+                    .filter(s -> s.getWorld() == world)
+                    .map(ISatellite::toListedCraft)
+                    .collect(Collectors.groupingBy(c -> SatelliteState.byClass(c.getClass()))));
             PSFNetworkHandler.network.sendTo(new PacketOpenRemoteControl(pos, satellites), (EntityPlayerMP) player);
         }
         return true;

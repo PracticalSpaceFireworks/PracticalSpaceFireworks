@@ -9,6 +9,8 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -36,6 +38,27 @@ public class TileModule extends TileEntity {
             return module.getCapability(capability, facing);
         }
         return super.getCapability(capability, facing);
+    }
+    
+    @Override
+    @Nullable
+    public SPacketUpdateTileEntity getUpdatePacket() {
+        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    }
+    
+    @Override
+    public NBTTagCompound getUpdateTag() {
+        return writeToNBT(new NBTTagCompound());
+    }
+    
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        handleUpdateTag(pkt.getNbtCompound());
+    }
+    
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+        readFromNBT(tag);
     }
 
     @Override

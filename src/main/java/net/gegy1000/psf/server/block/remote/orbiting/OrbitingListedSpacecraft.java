@@ -1,14 +1,17 @@
 package net.gegy1000.psf.server.block.remote.orbiting;
 
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
+import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nonnull;
-import java.util.UUID;
-
 public class OrbitingListedSpacecraft implements IListedSpacecraft  {
-    private final String name;
+    private String name;
     private final BlockPos position;
     private final UUID uuid;
 
@@ -16,6 +19,11 @@ public class OrbitingListedSpacecraft implements IListedSpacecraft  {
         this.name = name;
         this.position = position;
         this.uuid = uuid;
+    }
+    
+    @Override
+    public UUID getId() {
+        return uuid;
     }
 
     @Nonnull
@@ -26,7 +34,8 @@ public class OrbitingListedSpacecraft implements IListedSpacecraft  {
 
     @Override
     public void setName(@Nonnull String name) {
-        PSFNetworkHandler.network.sendToServer(new PacketSetNameOrbiting(this.uuid, name));
+        PSFNetworkHandler.network.sendToServer(new PacketSetName(this.uuid, name));
+        this.name = name;
     }
 
     @Nonnull
@@ -37,7 +46,7 @@ public class OrbitingListedSpacecraft implements IListedSpacecraft  {
 
     @Override
     public void requestVisualData() {
-        PSFNetworkHandler.network.sendToServer(new PacketRequestVisualOrbiting(this.uuid));
+        PSFNetworkHandler.network.sendToServer(new PacketRequestVisual(this.uuid));
     }
     
     @Override

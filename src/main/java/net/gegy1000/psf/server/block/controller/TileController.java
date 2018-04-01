@@ -16,6 +16,8 @@ import net.gegy1000.psf.server.modules.EmptyModule;
 import net.gegy1000.psf.server.satellite.TileBoundSatellite;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -68,15 +70,18 @@ public class TileController extends TileEntity {
     private final ISatellite satellite = new TileBoundSatellite(this);
     private final IController controller = new Controller();
     
-    private int lastScanTime = Integer.MIN_VALUE;
+    private long lastScanTime = Long.MIN_VALUE;
     
-    @Getter
+    private boolean converted;
+    
     private Map<BlockPos, ScanValue> modules = Collections.emptyMap();
     
     @Override
     public void onLoad() {
         super.onLoad();
-        PracticalSpaceFireworks.PROXY.getControllerManager(getWorld().isRemote).registerController(this);
+        if (!getWorld().isRemote) {
+            PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
+        }
     }
     
     @Override
@@ -92,7 +97,13 @@ public class TileController extends TileEntity {
     }
     
     private void unregister() {
-        PracticalSpaceFireworks.PROXY.getControllerManager(getWorld().isRemote).unregisterController(this);
+        if (!getWorld().isRemote && !converted) {
+            PracticalSpaceFireworks.PROXY.getSatellites().remove(satellite);
+        }
+    }
+    
+    public void converted() {
+        this.converted = true;
     }
     
     @Override
@@ -107,9 +118,6 @@ public class TileController extends TileEntity {
     @Nullable
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilitySatellite.INSTANCE) {
-            if (lastScanTime + 20 <= getWorld().getTotalWorldTime()) {
-                modules = scanStructure();
-            }
             return CapabilitySatellite.INSTANCE.cast(satellite);
         }
         if (capability == CapabilityController.INSTANCE) {
@@ -119,6 +127,35 @@ public class TileController extends TileEntity {
             return CapabilityModule.INSTANCE.cast(module);
         }
         return super.getCapability(capability, facing);
+    }
+    
+    public Map<BlockPos, ScanValue> getModules() {
+        if (lastScanTime + 20 <= getWorld().getTotalWorldTime()) {
+            modules = scanStructure();
+            lastScanTime = getWorld().getTotalWorldTime();
+        }
+        return modules;
+    }
+    
+    @Override
+    @Nullable
+    public SPacketUpdateTileEntity getUpdatePacket() {
+        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    }
+    
+    @Override
+    public NBTTagCompound getUpdateTag() {
+        return writeToNBT(new NBTTagCompound());
+    }
+    
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        handleUpdateTag(pkt.getNbtCompound());
+    }
+    
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+        readFromNBT(tag);
     }
     
     @Override

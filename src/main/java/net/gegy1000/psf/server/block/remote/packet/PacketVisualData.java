@@ -1,10 +1,13 @@
-package net.gegy1000.psf.server.block.remote;
+package net.gegy1000.psf.server.block.remote.packet;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.server.block.remote.GuiControlSystem;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft.Visual;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.client.Minecraft;

@@ -1,7 +1,12 @@
 package net.gegy1000.psf.server.block.remote.entity;
 
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+
 import net.gegy1000.psf.server.block.remote.GuiControlSystem;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
@@ -9,13 +14,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
 
-import javax.annotation.Nonnull;
-
 public class EntityListedSpacecraft implements IListedSpacecraft {
     private final EntitySpacecraft spacecraft;
 
     public EntityListedSpacecraft(EntitySpacecraft spacecraft) {
         this.spacecraft = spacecraft;
+    }
+    
+    @Override
+    public UUID getId() {
+        return spacecraft.getUniqueID();
     }
 
     @Nonnull
@@ -26,7 +34,7 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
 
     @Override
     public void setName(@Nonnull String name) {
-        PSFNetworkHandler.network.sendToServer(new PacketSetNameEntity(spacecraft.getEntityId(), name));
+        PSFNetworkHandler.network.sendToServer(new PacketSetName(spacecraft.getUniqueID(), name));
         spacecraft.getSatellite().setName(name);
     }
 

@@ -281,6 +281,8 @@ public class GuiControlSystem extends GuiContainer {
         }
         x -= 10;
         y += 5;
+        mc.fontRenderer.drawString(craft.getId().toString(), x, y, color);
+        y += 15;
         int energy = modules.stream()
                 .filter(m -> m instanceof IEnergyStorage)
                 .map(m -> (IEnergyStorage) m)

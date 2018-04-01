@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.capability.world;
 
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.satellite.OrbitingSatellite;
 import net.minecraft.nbt.NBTTagCompound;
@@ -63,11 +64,13 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
         @Override
         public void addSatellite(@Nonnull ISatellite satellite) {
             this.satellites.put(satellite.getId(), satellite);
+            PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
         }
 
         @Override
         public void removeSatellite(@Nonnull UUID id) {
             this.satellites.remove(id);
+            PracticalSpaceFireworks.PROXY.getSatellites().remove(id);
         }
 
         @Nullable

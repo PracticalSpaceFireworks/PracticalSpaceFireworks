@@ -1,15 +1,18 @@
 package net.gegy1000.psf.server.block.remote;
 
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
-import net.minecraft.util.math.BlockPos;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
+
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.IUnique;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.minecraft.util.math.BlockPos;
 
 @ParametersAreNonnullByDefault
-public interface IListedSpacecraft {
+public interface IListedSpacecraft extends IUnique {
+    
     @Nonnull
     String getName();
 

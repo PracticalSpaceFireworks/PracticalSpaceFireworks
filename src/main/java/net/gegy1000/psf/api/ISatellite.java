@@ -1,5 +1,12 @@
 package net.gegy1000.psf.api;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,23 +15,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
 @ParametersAreNonnullByDefault
-public interface ISatellite extends INBTSerializable<NBTTagCompound> {
+public interface ISatellite extends IUnique, INBTSerializable<NBTTagCompound> {
 
     default String getName() {
         return "Unnamed Craft #" + hashCode() % 1000;
     }
     
     default void setName(String name) {}
-    
-    UUID getId();
 
     IController getController();
 

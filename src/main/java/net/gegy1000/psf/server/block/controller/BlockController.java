@@ -6,11 +6,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
-import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.block.Block;
@@ -47,19 +47,17 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     }
     
     @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        IBlockState on = world.getBlockState(pos.offset(side.getOpposite()));
-        return BlockModule.isStructural(getDefaultState(), on) && super.canPlaceBlockOnSide(world, pos, side);
-    }
-    
-    @Override
     public boolean onBlockActivated(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileController) {
             if (!worldIn.isRemote) {
                 Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
-                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos);
-                spacecraft.getCapability(CapabilitySatellite.INSTANCE, null).setName(te.getCapability(CapabilitySatellite.INSTANCE, null).getName());
+                ISatellite satellite = te.getCapability(CapabilitySatellite.INSTANCE, null);
+
+                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos, satellite.getId());
+                spacecraft.getCapability(CapabilitySatellite.INSTANCE, null).setName(satellite.getName());
+                
+                ((TileController) te).converted();
 
                 modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
 

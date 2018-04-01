@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import org.apache.logging.log4j.LogManager;
@@ -58,5 +59,10 @@ public class PracticalSpaceFireworks {
     @Mod.EventHandler
     public static void onPostInit(FMLPostInitializationEvent event) {
         PROXY.onPostInit();
+    }
+    
+    @Mod.EventHandler
+    public static void onServerStopped(FMLServerStoppedEvent event) {
+        PROXY.getSatellites().flush();
     }
 }

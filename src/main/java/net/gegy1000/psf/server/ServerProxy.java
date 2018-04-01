@@ -1,21 +1,22 @@
 package net.gegy1000.psf.server;
 
-import net.gegy1000.psf.server.block.controller.ControllerManager;
+import java.util.function.Consumer;
+
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
+import net.gegy1000.psf.server.satellite.UniqueManager;
 import net.gegy1000.psf.server.util.BlockMassHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import java.util.function.Consumer;
-
 public class ServerProxy {
     
-    private final ControllerManager controllerManager = new ControllerManager();
+    private final UniqueManager<ISatellite> satelliteManager = new UniqueManager<>();
     
     public void onPreInit() {
         BlockMassHandler.register();
@@ -33,11 +34,8 @@ public class ServerProxy {
     public void onPostInit() {
     }
     
-    public ControllerManager getControllerManager(boolean remote) {
-        if (remote) {
-            throw new IllegalArgumentException("Cannot retrieve client manager from dedicated server!");
-        }
-        return controllerManager;
+    public UniqueManager<ISatellite> getSatellites() {
+        return satelliteManager;
     }
 
     public void handlePacket(MessageContext context, Consumer<EntityPlayer> handle) {
