@@ -30,10 +30,6 @@ public class LaunchMetadata {
         return force;
     }
 
-    public double getTotalAcceleration() {
-        return this.getTotalForce() / this.getMass();
-    }
-
     public double getMass() {
         double mass = this.mass;
         for (IModule module : this.modules) {

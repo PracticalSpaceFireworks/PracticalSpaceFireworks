@@ -47,6 +47,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     private SpacecraftBlockAccess blockAccess;
 
+    @Getter
     private State state = new Static();
 
     public EntitySpacecraft(World world) {
@@ -238,8 +239,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return super.getCapability(capability, facing);
     }
 
-    private interface State {
+    public interface State {
         default void update() {
+        }
+
+        default double getCameraShake() {
+            return 0.0;
         }
 
         String serializeName();
@@ -255,6 +260,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public static class Launch implements State {
         private final EntitySpacecraft entity;
         private final LaunchMetadata metadata;
+
+        private double force;
 
         public Launch(EntitySpacecraft entity) {
             this.entity = entity;
@@ -274,7 +281,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 }
             }
 
-            double acceleration = this.metadata.getTotalAcceleration() / 20.0;
+            this.force = this.metadata.getTotalForce();
+            double acceleration = this.force / this.metadata.getMass() / 20.0;
             this.entity.motionY += acceleration;
 
             this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
@@ -295,6 +303,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     }
                 }
             }
+        }
+
+        @Override
+        public double getCameraShake() {
+            return this.force * 5e-7;
         }
 
         @Override
