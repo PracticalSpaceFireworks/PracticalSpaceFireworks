@@ -329,11 +329,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         }
                     }
                 }
-
-                return this;
-            } else {
+            } else if (entity.motionY < 0) {
                 return new Static();
             }
+            return this;
         }
 
         @Override
