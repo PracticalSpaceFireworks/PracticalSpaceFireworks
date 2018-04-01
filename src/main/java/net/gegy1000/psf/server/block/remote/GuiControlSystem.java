@@ -8,11 +8,8 @@ import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -139,19 +136,7 @@ public class GuiControlSystem extends GuiContainer {
             tfName.setText("");
         }
     }
-    
-    private void drawAlphaTexturedRect(int x, int y, int tx, int ty, int w, int h, float alpha) {
-        float px = 1 / 256f;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        bufferbuilder.pos(x + 0, y + h, this.zLevel).tex((tx + 0) * px, (ty + h) * px).color(1, 1, 1, alpha).endVertex();
-        bufferbuilder.pos(x + w, y + h, this.zLevel).tex((tx + w) * px, (ty + h) * px).color(1, 1, 1, alpha).endVertex();
-        bufferbuilder.pos(x + w, y + 0, this.zLevel).tex((tx + w) * px, ty * px).color(1, 1, 1, alpha).endVertex();
-        bufferbuilder.pos(x + 0, y + 0, this.zLevel).tex((tx + 0) * px, ty * px).color(1, 1, 1, alpha).endVertex();
-        tessellator.draw();
-    }
-    
+
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GlStateManager.color(1, 1, 1, 1);
@@ -163,123 +148,134 @@ public class GuiControlSystem extends GuiContainer {
             if (craft == null) {
                 return;
             }
-            
-            BlockPos from = model.getRenderWorld().getMinPos();
-            BlockPos to = model.getRenderWorld().getMaxPos();
-            AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(from), new Vec3d(to).addVector(1, 1, 1));
 
-            drawRect(guiLeft + 9, guiTop + 9, guiLeft + (xSize / 2) - 9, guiTop + ySize - 9, 0xFF8A8A8A);
-            GlStateManager.color(1, 1, 1);
-            
-            mc.getTextureManager().bindTexture(PREVIEW_BG);
-            GlStateManager.enableBlend();
-            GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
-            int craftY = craft.getPosition().getY();
-            float alpha = 0;
-            if (craftY > 256) {
-                alpha = Math.min((craftY - 256) / 500f, 1);
-            }
-            drawTexturedModalRect(guiLeft + 10, guiTop + 10, 0, 0, (xSize / 2) - 20, ySize - 20);
-            GlStateManager.color(1, 1, 1, alpha);
-            drawTexturedModalRect(guiLeft + 10, guiTop + 10, 128, 0, (xSize / 2) - 20, ySize - 20);
-            GlStateManager.color(1, 1, 1);
+            drawBackground(craft);
 
-            GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
-            GlStateManager.disableBlend();
-            GlStateManager.pushMatrix();
-            
-            double lengthX = (bb.maxX - bb.minX) * 16;
-            double lengthY = (bb.maxY - bb.minY) * 16;
-            double lengthZ = (bb.maxZ - bb.minZ) * 16;
-
-            double halfX = lengthX / 2;
-            double halfY = lengthY / 2;
-            double halfZ = lengthZ / 2;
-            
-            final double maxW = 6 * 16;
-            final double maxH = 11 * 16;
-            
-            double overW = Math.max(lengthX - maxW, lengthZ - maxW);
-            double overH = lengthY - maxH;
-            
-            double sc = 1;
-            
-            if (overW > 0 && overW > overH) {
-                sc = maxW / (overW + maxW);
-            } else if (overH > 0 && overH > overW) {
-                sc = maxH / (overH + maxH);
-            }
-            
-//            halfX *= sc;
-//            halfY *= sc;
-//            halfZ *= sc;
-            
-            GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
-            GlStateManager.rotate(0, 1, 0, 0);
-            
-            BlockPos min = model.getRenderWorld().getMinPos();
-
-            GlStateManager.translate(-halfX, -halfY, -halfZ);
-            GlStateManager.rotate(mc.world.getTotalWorldTime() + mc.getRenderPartialTicks(), 0, 1, 0);       
-
-            GlStateManager.translate(halfX, halfY, halfZ);
-
-            GlStateManager.translate(min.getX() * 16, min.getY() * 16, min.getZ() * 16);
-
-            GlStateManager.scale(-16, -16, -16);
-            
-            GlStateManager.scale(sc, sc, sc);
-
-            mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            model.render(BlockRenderLayer.SOLID);
-
-            GlStateManager.enableAlpha();
-            model.render(BlockRenderLayer.CUTOUT_MIPPED);
-            mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-            model.render(BlockRenderLayer.CUTOUT);
-            mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-
-            GlStateManager.enableBlend();
-            model.render(BlockRenderLayer.TRANSLUCENT);
-            GlStateManager.disableBlend();
-            GlStateManager.popMatrix();
+            renderPreview();
             
             tfName.drawTextBox();
-            
-            int x = guiLeft + (xSize / 2);
-            int y = guiTop + 35;
-            int color = 0xFF333333;
-            mc.fontRenderer.drawString("Modules:", x, y, color);
-            x += 10;
-            y += 10;
-            Map<ResourceLocation, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getRegistryName));
-            for (val e : grouped.entrySet()) {
-                mc.fontRenderer.drawString(e.getKey() + ": " + e.getValue().size(), x, y, color);
-                y += 10;
-            }
-            x -= 10;
-            y += 5;
-            int energy = modules.stream()
-                    .filter(m -> m instanceof IEnergyStorage)
-                    .map(m -> (IEnergyStorage) m)
-                    .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
-            mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
-            y += 15;
-            mc.fontRenderer.drawString("Position:", x, y, color);
-            BlockPos pos = craft.getPosition();
-            x += 5;
-            y += 10;
-            mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
-            y += 10;
-            mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
-            y += 10;
-            mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
+
+            drawStats(craft);
             
         } else {
             craftList.drawScreen(mouseX, mouseY, partialTicks);
         }
     }
-    
+
+    private void drawBackground(IListedSpacecraft craft) {
+        drawRect(guiLeft + 9, guiTop + 9, guiLeft + (xSize / 2) - 9, guiTop + ySize - 9, 0xFF8A8A8A);
+        GlStateManager.color(1, 1, 1);
+
+        mc.getTextureManager().bindTexture(PREVIEW_BG);
+        GlStateManager.enableBlend();
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
+        int craftY = craft.getPosition().getY();
+        float alpha = 0;
+        if (craftY > 256) {
+            alpha = Math.min((craftY - 256) / 500f, 1);
+        }
+        drawTexturedModalRect(guiLeft + 10, guiTop + 10, 0, 0, (xSize / 2) - 20, ySize - 20);
+        GlStateManager.color(1, 1, 1, alpha);
+        drawTexturedModalRect(guiLeft + 10, guiTop + 10, 128, 0, (xSize / 2) - 20, ySize - 20);
+        GlStateManager.color(1, 1, 1);
+
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
+        GlStateManager.disableBlend();
+    }
+
+    private void renderPreview() {
+        BlockPos from = model.getRenderWorld().getMinPos();
+        BlockPos to = model.getRenderWorld().getMaxPos();
+        AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(from), new Vec3d(to).addVector(1, 1, 1));
+
+        GlStateManager.pushMatrix();
+
+        double lengthX = (bb.maxX - bb.minX) * 16;
+        double lengthY = (bb.maxY - bb.minY) * 16;
+        double lengthZ = (bb.maxZ - bb.minZ) * 16;
+
+        double halfX = lengthX / 2;
+        double halfY = lengthY / 2;
+        double halfZ = lengthZ / 2;
+
+        final double maxW = 6 * 16;
+        final double maxH = 11 * 16;
+
+        double overW = Math.max(lengthX - maxW, lengthZ - maxW);
+        double overH = lengthY - maxH;
+
+        double sc = 1;
+
+        if (overW > 0 && overW > overH) {
+            sc = maxW / (overW + maxW);
+        } else if (overH > 0 && overH > overW) {
+            sc = maxH / (overH + maxH);
+        }
+
+        halfX *= sc;
+        halfY *= sc;
+        halfZ *= sc;
+
+        GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
+
+        BlockPos min = model.getRenderWorld().getMinPos();
+
+        GlStateManager.translate(-halfX, -halfY, -halfZ);
+        GlStateManager.rotate(mc.world.getTotalWorldTime() + mc.getRenderPartialTicks(), 0, 1, 0);
+
+        GlStateManager.translate(halfX, halfY, halfZ);
+
+        GlStateManager.scale(sc, sc, sc);
+        GlStateManager.translate(min.getX() * 16, min.getY() * 16, min.getZ() * 16);
+
+        GlStateManager.scale(-16, -16, -16);
+
+        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        model.render(BlockRenderLayer.SOLID);
+
+        GlStateManager.enableAlpha();
+        model.render(BlockRenderLayer.CUTOUT_MIPPED);
+        mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+        model.render(BlockRenderLayer.CUTOUT);
+        mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+
+        GlStateManager.enableBlend();
+        model.render(BlockRenderLayer.TRANSLUCENT);
+        GlStateManager.disableBlend();
+        GlStateManager.popMatrix();
+    }
+
+    private void drawStats(IListedSpacecraft craft) {
+        int x = guiLeft + (xSize / 2);
+        int y = guiTop + 35;
+        int color = 0xFF333333;
+        mc.fontRenderer.drawString("Modules:", x, y, color);
+        x += 10;
+        y += 10;
+        Map<ResourceLocation, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getRegistryName));
+        for (val e : grouped.entrySet()) {
+            mc.fontRenderer.drawString(e.getKey() + ": " + e.getValue().size(), x, y, color);
+            y += 10;
+        }
+        x -= 10;
+        y += 5;
+        int energy = modules.stream()
+                .filter(m -> m instanceof IEnergyStorage)
+                .map(m -> (IEnergyStorage) m)
+                .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
+        mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
+        y += 15;
+        mc.fontRenderer.drawString("Position:", x, y, color);
+        BlockPos pos = craft.getPosition();
+        x += 5;
+        y += 10;
+        mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
+        y += 10;
+        mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
+        y += 10;
+        mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
+    }
+
     private @Nullable IListedSpacecraft getCraft() {
         if (selectedCraft >= 0) {
             return container.getTe().getCrafts().get(selectedCraft);
