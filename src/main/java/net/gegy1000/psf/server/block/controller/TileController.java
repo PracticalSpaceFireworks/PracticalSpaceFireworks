@@ -1,20 +1,6 @@
 package net.gegy1000.psf.server.block.controller;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Sets;
-
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Delegate;
@@ -35,6 +21,18 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 
 
 public class TileController extends TileEntity {
@@ -177,7 +175,7 @@ public class TileController extends TileEntity {
                 if (ret.getDistance() < CONTIGUOUS_RANGE) {
                     for (EnumFacing face : EnumFacing.VALUES) {
                         BlockPos bp = ret.getPos().offset(face);
-                        TileEntity te = getWorld().getTileEntity(ret.getPos());
+                        TileEntity te = getWorld().getTileEntity(bp);
                         if (!seen.contains(bp) && te != null && te.hasCapability(CapabilityModule.INSTANCE, null)) {
                             search.offer(new Node(bp, ret.getDistance() + 1));
                         }
