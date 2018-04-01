@@ -1,7 +1,6 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -14,17 +13,21 @@ import javax.vecmath.Point3d;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -313,8 +316,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
                 if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
                     SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
-                    capability.addSatellite(this.entity.satellite.toOrbiting());
+                    ISatellite orbiting = this.entity.satellite.toOrbiting();
+                    capability.addSatellite(orbiting);
                     this.entity.converted = true;
+                    for (EntityPlayerMP player : orbiting.getTrackingPlayers()) {
+                        PSFNetworkHandler.network.sendTo(new PacketCraftState(SatelliteState.ORBIT, orbiting.toListedCraft()), player);
+                    }
                 }
             }
 

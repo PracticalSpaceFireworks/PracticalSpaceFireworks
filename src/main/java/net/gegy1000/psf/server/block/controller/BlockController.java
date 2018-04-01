@@ -13,8 +13,11 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
+import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -23,6 +26,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -54,12 +58,13 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileController) {
             ISatellite satellite = te.getCapability(CapabilitySatellite.INSTANCE, null);
-            System.out.println(satellite.getModules().stream().map(IModule::getId).toArray(UUID[]::new));
             if (!worldIn.isRemote) {
                 Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
 
                 EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos, satellite.getId());
-                spacecraft.getCapability(CapabilitySatellite.INSTANCE, null).setName(satellite.getName());
+                ISatellite newsat = spacecraft.getCapability(CapabilitySatellite.INSTANCE, null);
+                newsat.setName(satellite.getName());
+                satellite.getTrackingPlayers().forEach(newsat::track);
                 
                 ((TileController) te).converted();
 
@@ -67,6 +72,10 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
 
                 spacecraft.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0);
                 worldIn.spawnEntity(spacecraft);
+                
+                for (EntityPlayerMP player : newsat.getTrackingPlayers()) {
+                    PSFNetworkHandler.network.sendTo(new PacketCraftState(SatelliteState.ORBIT, newsat.toListedCraft()), player);
+                }
             }
             return true;
         }

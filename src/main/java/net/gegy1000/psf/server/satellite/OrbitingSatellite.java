@@ -8,11 +8,13 @@ import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public class OrbitingSatellite extends AbstractSatellite {
     private final IController controller;
     private final List<IModule> modules;
 
-    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftBlockAccess blockAccess) {
+    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftBlockAccess blockAccess, Collection<EntityPlayerMP> trackingPlayers) {
         this.world = world;
         this.name = name;
         this.uuid = uuid;
@@ -39,6 +41,8 @@ public class OrbitingSatellite extends AbstractSatellite {
 
         this.controller = blockAccess.findController();
         this.modules = blockAccess.findModules();
+
+        trackingPlayers.forEach(this::track);
     }
 
     @Override
@@ -98,7 +102,7 @@ public class OrbitingSatellite extends AbstractSatellite {
         BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
         SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
 
-        return new OrbitingSatellite(world, name, uuid, pos, blockAccess);
+        return new OrbitingSatellite(world, name, uuid, pos, blockAccess, Collections.emptyList());
     }
 
     @Override

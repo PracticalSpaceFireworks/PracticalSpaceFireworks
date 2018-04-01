@@ -11,15 +11,18 @@ import net.minecraft.inventory.Container;
 @RequiredArgsConstructor
 @ParametersAreNonnullByDefault
 public class ContainerControlSystem extends Container {
-    
+
     @Getter
     private final TileRemoteControlSystem te;
-    
+
     private final InventoryPlayer playerInv;
 
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
-        return true;
+        if (te.getWorld().getTileEntity(te.getPos()) != te) {
+            return false;
+        } else {
+            return playerIn.getDistanceSq(te.getPos().getX() + 0.5, te.getPos().getY() + 0.5, te.getPos().getZ() + 0.5) <= 64;
+        }
     }
-
 }

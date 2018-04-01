@@ -108,6 +108,6 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public ISatellite toOrbiting() {
-        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), this.spacecraft.getBlockAccess());
+        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), this.spacecraft.getBlockAccess(), getTrackingPlayers());
     }
 }

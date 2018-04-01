@@ -1,5 +1,14 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+
 import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +33,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 @NoArgsConstructor
 public class PacketOpenRemoteControl implements IMessage {
     
@@ -51,6 +52,37 @@ public class PacketOpenRemoteControl implements IMessage {
                 }
             }
             return ORBIT;
+        }
+        
+        // FIXME
+        public static List<IListedSpacecraft> getAllCrafts(EntityPlayer player, Map<SatelliteState, List<IListedSpacecraft>> raw) {
+            List<IListedSpacecraft> allCrafts = new ArrayList<>();
+            for (val e : raw.entrySet()) {
+                for (IListedSpacecraft craft : e.getValue()) {
+                    allCrafts.add(getCraft(player, e.getKey(), craft));
+                }
+            }
+            return allCrafts;
+        }
+
+        public static IListedSpacecraft getCraft(EntityPlayer player, SatelliteState type, IListedSpacecraft craft) {
+            switch (type) {
+            case TILE:
+                TileEntity te = player.world.getTileEntity(craft.getPosition());
+                if (te != null && te.hasCapability(CapabilitySatellite.INSTANCE, null)) {
+                    return new TileListedSpacecraft(te.getCapability(CapabilitySatellite.INSTANCE, null));
+                }
+                break;
+            case ENTITY:
+                List<EntitySpacecraft> entities = player.world.getEntities(EntitySpacecraft.class, ent -> ent.getUniqueID().equals(craft.getId()));
+                if (!entities.isEmpty()) {
+                    return new EntityListedSpacecraft(entities.get(0));
+                }
+                break;
+            default:
+                break;
+            }
+            return craft;
         }
     }
     
@@ -110,29 +142,7 @@ public class PacketOpenRemoteControl implements IMessage {
                     TileEntity entity = player.world.getTileEntity(pos);
                     if (entity instanceof TileRemoteControlSystem) {
                         TileRemoteControlSystem controlSystem = (TileRemoteControlSystem) entity;
-                        // FIXME
-                        List<IListedSpacecraft> allCrafts = new ArrayList<>();
-                        for (val e : message.byType.entrySet()) {
-                            for (IListedSpacecraft craft : e.getValue()) {
-                                switch(e.getKey()) {
-                                case TILE:
-                                    TileEntity te = player.world.getTileEntity(craft.getPosition());
-                                    if (te != null && te.hasCapability(CapabilitySatellite.INSTANCE, null)) {
-                                        allCrafts.add(new TileListedSpacecraft(te.getCapability(CapabilitySatellite.INSTANCE, null)));
-                                    }
-                                    break;
-                                case ENTITY:
-                                    List<EntitySpacecraft> entities = player.world.getEntities(EntitySpacecraft.class, ent -> ent.getUniqueID().equals(craft.getId()));
-                                    if (!entities.isEmpty()) {
-                                        allCrafts.add(new EntityListedSpacecraft(entities.get(0)));
-                                    }
-                                    break;
-                                default:
-                                    allCrafts.add(craft);
-                                }
-                            }
-                        }
-                        controlSystem.provideServerCrafts(allCrafts);
+                        controlSystem.provideServerCrafts(SatelliteState.getAllCrafts(player, message.byType));
                         Minecraft.getMinecraft().displayGuiScreen(new GuiControlSystem(new ContainerControlSystem(controlSystem, player.inventory)));
                     }
                 }
