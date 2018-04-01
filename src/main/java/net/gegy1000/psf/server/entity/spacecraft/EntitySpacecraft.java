@@ -80,6 +80,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         if (this.posY > 1000) {
             this.setDead();
+
+            if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+                world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).addSatellite(satellite.toOrbiting());
+            }
         }
 
         if (this.testLaunched) {
@@ -116,24 +120,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    public void setDead() {
-        super.setDead();
-        if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
-            world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).addSatellite(satellite.toOrbiting());
-        }
-    }
-
-    @Override
     public void setPosition(double x, double y, double z) {
         super.setPosition(x, y, z);
 
         this.setEntityBoundingBox(this.calculateEncompassingBounds());
     }
-
-//    @Override
-//    public AxisAlignedBB getCollisionBoundingBox() {
-//        return this.calculateEncompassingBounds();
-//    }
 
     @Override
     @Nonnull
