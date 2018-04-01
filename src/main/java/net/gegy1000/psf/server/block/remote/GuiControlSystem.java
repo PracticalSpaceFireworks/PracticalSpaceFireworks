@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +25,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -39,6 +43,9 @@ public class GuiControlSystem extends GuiContainer {
     
     @Nonnull
     private static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
+    
+    @Nonnull
+    private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
     
     @Getter
     private final ContainerControlSystem container;
@@ -141,8 +148,21 @@ public class GuiControlSystem extends GuiContainer {
         }
     }
     
+    private void drawAlphaTexturedRect(int x, int y, int tx, int ty, int w, int h, float alpha) {
+        float px = 1 / 256f;
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        bufferbuilder.pos(x + 0, y + h, this.zLevel).tex((tx + 0) * px, (ty + h) * px).color(1, 1, 1, alpha).endVertex();
+        bufferbuilder.pos(x + w, y + h, this.zLevel).tex((tx + w) * px, (ty + h) * px).color(1, 1, 1, alpha).endVertex();
+        bufferbuilder.pos(x + w, y + 0, this.zLevel).tex((tx + w) * px, ty * px).color(1, 1, 1, alpha).endVertex();
+        bufferbuilder.pos(x + 0, y + 0, this.zLevel).tex((tx + 0) * px, ty * px).color(1, 1, 1, alpha).endVertex();
+        tessellator.draw();
+    }
+    
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+        GlStateManager.color(1, 1, 1, 1);
         drawDefaultBackground();
         mc.getTextureManager().bindTexture(TEXTURE_LOC);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
@@ -157,8 +177,23 @@ public class GuiControlSystem extends GuiContainer {
             AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(from), new Vec3d(to).addVector(1, 1, 1));
 
             drawRect(guiLeft + 9, guiTop + 9, guiLeft + (xSize / 2) - 9, guiTop + ySize - 9, 0xFF8A8A8A);
-            drawRect(guiLeft + 10, guiTop + 10, guiLeft + (xSize / 2) - 10, guiTop + ySize - 10, 0xFF000000);
+            GlStateManager.color(1, 1, 1);
+            
+            mc.getTextureManager().bindTexture(PREVIEW_BG);
+            GlStateManager.enableBlend();
+            GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
+            int craftY = craft.getPosition().getY();
+            float alpha = 0;
+            if (craftY > 256) {
+                alpha = Math.min((craftY - 256) / 500f, 1);
+            }
+            drawTexturedModalRect(guiLeft + 10, guiTop + 10, 0, 0, (xSize / 2) - 20, ySize - 20);
+            GlStateManager.color(1, 1, 1, alpha);
+            drawTexturedModalRect(guiLeft + 10, guiTop + 10, 128, 0, (xSize / 2) - 20, ySize - 20);
+            GlStateManager.color(1, 1, 1);
 
+            GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
+            GlStateManager.disableBlend();
             GlStateManager.pushMatrix();
             
             double lengthX = (bb.maxX - bb.minX) * 16;
