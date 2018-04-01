@@ -44,14 +44,14 @@ public class PSFBlockRegistry {
 
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
-        register(event, "controller_basic", basicController = new BlockController(ControllerType.BASIC));
+        register(event, "controller.simple", basicController = new BlockController(ControllerType.BASIC));
 
         // Modules
         strut = register(event, "strut", new BlockStrut());
-        register(event, "battery_simple", new BlockBattery("battery_simple"));
-        thruster = registerModuleBlock(event, "thruster");
+        register(event, "battery.simple", new BlockBattery("battery_simple"));
+        thruster = registerModuleBlock(event, "thruster.simple");
         registerModuleBlock(event, "antenna");
-        registerModuleBlock(event, "entity_detector");
+        registerModuleBlock(event, "entity_detector.simple");
         registerModuleBlock(event, "entity_marker");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
         payloadAttacher = register(event, "payload_attacher", new BlockPayloadAttacher());
@@ -86,7 +86,7 @@ public class PSFBlockRegistry {
     }
 
     private static <T extends Block> T register(RegistryEvent.Register<Block> event, @Nonnull String identifier, T block) {
-        event.getRegistry().register(block.setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, identifier)));
+        event.getRegistry().register(block.setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, identifier.replace('.', '_'))));
         block.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
         REGISTERED_BLOCKS.add(block);
 

@@ -1,15 +1,19 @@
 # Modules
 
-tile.psf.module.fuel_tank.name=Fuel Tank
-tile.psf.module.strut.name=Cubic Strut
-tile.psf.module.thruster.simple.name=Simple Thruster
-tile.psf.module.antenna.name=Antenna
+tile.psf.fuel_tank.name=Fuel Tank
+tile.psf.strut.name=Cubic Strut
+tile.psf.thruster.simple.name=Simple Thruster
+tile.psf.antenna.name=Antenna
+tile.psf.payload_attacher.name=Payload Attacher
+tile.psf.terrain_scanner.name=Terrain Scanner
 
-tile.psf.module.entity_detector.simple.name=Simple Entity Detector
-tile.psf.module.entity_marker.name=Simple Entity Marker
+tile.psf.entity_detector.simple.name=Simple Entity Detector
+tile.psf.entity_marker.name=Simple Entity Marker
 
-tile.psf.module.battery.simple.name=Simple Battery
-tile.psf.module.battery.advanced.name=Advanced Battery
-tile.psf.module.battery.custom.name=Battery
+tile.psf.battery.simple.name=Simple Battery
+tile.psf.battery.advanced.name=Advanced Battery
+tile.psf.battery.custom.name=Battery
 
-tile.psf.module.controller.name=Satellite Controller
+tile.psf.controller.simple.name=Satellite Controller
+
+tile.psf.remote_control_system.name=Remote Control System
