@@ -69,8 +69,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void onUpdate() {
-        super.onUpdate();
-
         this.motionX *= AIR_RESISTANCE;
         this.motionY *= AIR_RESISTANCE;
         this.motionZ *= AIR_RESISTANCE;
@@ -81,13 +79,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             this.setDead();
         }
 
-        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
-            this.recalculateRotation();
-        }
-
         if (this.testLaunched) {
             double acceleration = this.metadata.getTotalAcceleration() / 20.0;
             this.motionY += acceleration;
+
+            this.rotationYaw += 0.5F;
 
             if (this.world.isRemote) {
                 for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
@@ -108,6 +104,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+
+        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
+            this.recalculateRotation();
+        }
+
+        super.onUpdate();
     }
 
     @Override
@@ -125,10 +127,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.setEntityBoundingBox(this.calculateEncompassingBounds());
     }
 
-    @Override
-    public AxisAlignedBB getCollisionBoundingBox() {
-        return this.calculateEncompassingBounds();
-    }
+//    @Override
+//    public AxisAlignedBB getCollisionBoundingBox() {
+//        return this.calculateEncompassingBounds();
+//    }
 
     @Override
     @Nonnull
@@ -138,12 +140,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Nonnull
     private AxisAlignedBB calculateEncompassingBounds() {
-        AxisAlignedBB ret = new AxisAlignedBB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        for (AxisAlignedBB bb : this.collectTransformedBlockBounds()) {
+        List<AxisAlignedBB> bounds = new ArrayList<>();
+        this.collectTransformedBlockBounds(null, bounds);
+
+        AxisAlignedBB ret = new AxisAlignedBB(this.posX, this.posY, this.posZ, this.posX, this.posY, this.posZ);
+        for (AxisAlignedBB bb : bounds) {
             ret = ret.union(bb);
         }
 
-        return ret.offset(this.posX, this.posY, this.posZ);
+        return ret;
     }
 
     @Override
@@ -165,18 +170,19 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return super.isInRangeToRenderDist(distance / 8);
     }
 
-    private List<AxisAlignedBB> collectTransformedBlockBounds() {
-        List<AxisAlignedBB> bounds = new ArrayList<>();
+    public void collectTransformedBlockBounds(@Nullable AxisAlignedBB reference, @Nonnull List<AxisAlignedBB> bounds) {
         if (this.blockAccess != null) {
             for (BlockPos pos : BlockPos.getAllInBoxMutable(this.blockAccess.getMinPos(), this.blockAccess.getMaxPos())) {
                 IBlockState state = this.blockAccess.getBlockState(pos);
                 AxisAlignedBB bb = state.getCollisionBoundingBox(this.blockAccess, pos);
                 if (bb != null) {
-                    bounds.add(this.rotateBoundsEncompassing(bb, pos));
+                    AxisAlignedBB transformed = this.rotateBoundsEncompassing(bb, pos).offset(this.posX, this.posY, this.posZ);
+                    if (reference == null || reference.intersects(transformed)) {
+                        bounds.add(transformed);
+                    }
                 }
             }
         }
-        return bounds;
     }
 
     private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
