@@ -96,7 +96,7 @@ public class OrbitingSatellite implements ISatellite {
         UUID uuid = compound.getUniqueId("uuid");
 
         BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
-        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(compound);
+        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
 
         return new OrbitingSatellite(world, name, uuid, pos, blockAccess);
     }
