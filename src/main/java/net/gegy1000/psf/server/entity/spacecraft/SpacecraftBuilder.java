@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -77,10 +76,6 @@ public class SpacecraftBuilder {
                 this.setTileEntity(localPos, copiedEntity);
             }
         }
-    }
-    
-    public SpacecraftBlockAccess buildBlockAccess(Entity e) {
-        return buildBlockAccess(e.getPosition(), e.getEntityWorld());
     }
 
     public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {

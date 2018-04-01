@@ -66,7 +66,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, positions);
-        this.blockAccess = builder.buildBlockAccess(this);
+        this.blockAccess = builder.buildBlockAccess(origin, this.world);
 
         this.satellite.detectModules();
         this.recalculateRotation();
