@@ -67,7 +67,6 @@ public class PacketOpenRemoteControl implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeLong(this.pos.toLong());
-        buf.writeByte(this.byType.size() & 0xFF);
         for (SatelliteState state : SatelliteState.values()) {
             List<IListedSpacecraft> group = this.byType.getOrDefault(state, new ArrayList<>());
             buf.writeShort(group.size() & 0xFFFF);
