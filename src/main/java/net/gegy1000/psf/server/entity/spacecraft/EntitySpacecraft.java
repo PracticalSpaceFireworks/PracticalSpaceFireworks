@@ -113,8 +113,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     public void setDead() {
         super.setDead();
-        if (world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
-            world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).addSatellite(satellite);
+        if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+            world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).addSatellite(satellite.toOrbiting());
         }
     }
 

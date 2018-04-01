@@ -1,15 +1,19 @@
 package net.gegy1000.psf.server.satellite;
 
+import com.google.common.collect.ImmutableList;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.capability.CapabilityController;
+import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public class OrbitingSatellite implements ISatellite {
@@ -21,12 +25,28 @@ public class OrbitingSatellite implements ISatellite {
     private final BlockPos position;
     private final SpacecraftBlockAccess blockAccess;
 
+    private final IController controller;
+    private final List<IModule> modules;
+
     public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftBlockAccess blockAccess) {
         this.world = world;
         this.name = name;
         this.uuid = uuid;
         this.position = position;
         this.blockAccess = blockAccess;
+
+        IController controller = null;
+        ImmutableList.Builder<IModule> modules = ImmutableList.builder();
+        for (TileEntity entity : blockAccess.getEntities()) {
+            if (entity.hasCapability(CapabilityController.INSTANCE, null)) {
+                controller = entity.getCapability(CapabilityController.INSTANCE, null);
+            } else if (entity.hasCapability(CapabilityModule.INSTANCE, null)) {
+                modules.add(entity.getCapability(CapabilityModule.INSTANCE, null));
+            }
+        }
+
+        this.controller = controller;
+        this.modules = modules.build();
     }
 
     @Override
@@ -36,13 +56,12 @@ public class OrbitingSatellite implements ISatellite {
 
     @Override
     public IController getController() {
-        // TODO: Hold list of modules and controller
-        return null;
+        return this.controller;
     }
 
     @Override
     public Collection<IModule> getModules() {
-        return Collections.emptyList();
+        return this.modules;
     }
 
     @Override

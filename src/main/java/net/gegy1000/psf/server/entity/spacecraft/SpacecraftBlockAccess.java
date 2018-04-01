@@ -136,6 +136,10 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         BlockPos minPos = new BlockPos(compound.getInteger("min_x"), compound.getInteger("min_y"), compound.getInteger("min_z"));
         BlockPos maxPos = new BlockPos(compound.getInteger("max_x"), compound.getInteger("max_y"), compound.getInteger("max_z"));
         Biome biome = Biome.REGISTRY.getObject(new ResourceLocation(compound.getString("biome")));
+        if (biome == null) {
+            PracticalSpaceFireworks.LOGGER.warn("Failed to load biome with id {}", compound.getString("biome"));
+            biome = Biomes.DEFAULT;
+        }
 
         int expectedLength = getDataSize(minPos, maxPos);
 

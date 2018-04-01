@@ -2,13 +2,12 @@ package net.gegy1000.psf.server.capability.world;
 
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.satellite.OrbitingSatellite;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -17,7 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public interface SatelliteWorldData extends ICapabilityProvider {
+public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompound> {
     @Nonnull
     World getWorld();
 
@@ -71,14 +70,12 @@ public interface SatelliteWorldData extends ICapabilityProvider {
         public Collection<ISatellite> getSatellites() {
             return Collections.unmodifiableSet(this.satellites);
         }
-    }
 
-    class Storage implements Capability.IStorage<SatelliteWorldData> {
         @Override
-        public NBTBase writeNBT(Capability<SatelliteWorldData> capability, SatelliteWorldData instance, EnumFacing side) {
+        public NBTTagCompound serializeNBT() {
             NBTTagCompound compound = new NBTTagCompound();
             NBTTagList satelliteList = new NBTTagList();
-            for (ISatellite satellite : instance.getSatellites()) {
+            for (ISatellite satellite : this.getSatellites()) {
                 satelliteList.appendTag(satellite.serializeNBT());
             }
             compound.setTag("satellites", satelliteList);
@@ -86,11 +83,10 @@ public interface SatelliteWorldData extends ICapabilityProvider {
         }
 
         @Override
-        public void readNBT(Capability<SatelliteWorldData> capability, SatelliteWorldData instance, EnumFacing side, NBTBase nbt) {
-            NBTTagCompound compound = (NBTTagCompound) nbt;
+        public void deserializeNBT(NBTTagCompound compound) {
             NBTTagList satelliteList = compound.getTagList("satellites", Constants.NBT.TAG_COMPOUND);
             for (int i = 0; i < satelliteList.tagCount(); i++) {
-                instance.addSatellite(OrbitingSatellite.deserialize(instance.getWorld(), compound));
+                this.addSatellite(OrbitingSatellite.deserialize(this.getWorld(), compound));
             }
         }
     }

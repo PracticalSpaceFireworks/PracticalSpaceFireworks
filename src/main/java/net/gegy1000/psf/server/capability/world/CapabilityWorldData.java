@@ -3,6 +3,7 @@ package net.gegy1000.psf.server.capability.world;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.server.capability.DelegatedStorage;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
@@ -16,7 +17,7 @@ public class CapabilityWorldData {
     public static Capability<SatelliteWorldData> SATELLITE_INSTANCE;
 
     public static void register() {
-        CapabilityManager.INSTANCE.register(SatelliteWorldData.class, new SatelliteWorldData.Storage(), () -> {
+        CapabilityManager.INSTANCE.register(SatelliteWorldData.class, new DelegatedStorage<>(), () -> {
             throw new IllegalStateException("Cannot construct satellite world data without world reference");
         });
     }

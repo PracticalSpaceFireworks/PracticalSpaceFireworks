@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.satellite;
 
+import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
@@ -15,15 +16,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import lombok.Setter;
 
 public class EntityBoundSatellite implements ISatellite {
     private final EntitySpacecraft spacecraft;
@@ -123,5 +121,9 @@ public class EntityBoundSatellite implements ISatellite {
         if (tag != null) {
             this.name = tag.getString("name");
         }
+    }
+
+    public ISatellite toOrbiting() {
+        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), this.spacecraft.getBlockAccess());
     }
 }
