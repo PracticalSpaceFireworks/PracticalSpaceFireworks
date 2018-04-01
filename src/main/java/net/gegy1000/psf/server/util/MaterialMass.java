@@ -45,7 +45,7 @@ public class MaterialMass {
         if (MATERIAL_MASS.containsKey(material)) {
             throw new IllegalArgumentException("Cannot double-register material mass!");
         }
-        MATERIAL_MASS.put(material, mass);
+        MATERIAL_MASS.put(material, mass * 0.5);
     }
 
     public static double getMass(IBlockState state) {

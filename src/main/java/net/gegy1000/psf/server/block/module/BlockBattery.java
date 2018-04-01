@@ -10,8 +10,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class BlockBattery extends BlockModule {
-    private static final AxisAlignedBB DOWN_BOUNDS = new AxisAlignedBB(0.25, 0.0, 0.125, 0.75, 0.09375, 0.875);
-    private static final AxisAlignedBB UP_BOUNDS = new AxisAlignedBB(0.25, 0.90625, 0.125, 0.75, 1.0, 0.875);
+    private static final AxisAlignedBB UP_BOUNDS = new AxisAlignedBB(0.25, 0.0, 0.125, 0.75, 0.09375, 0.875);
+    private static final AxisAlignedBB DOWN_BOUNDS = new AxisAlignedBB(0.25, 0.90625, 0.125, 0.75, 1.0, 0.875);
     private static final AxisAlignedBB SOUTH_BOUNDS = new AxisAlignedBB(0.25, 0.125, 0.09375, 0.75, 0.875, 0.0);
     private static final AxisAlignedBB NORTH_BOUNDS = new AxisAlignedBB(0.25, 0.125, 0.90625, 0.75, 0.875, 1.0);
     private static final AxisAlignedBB EAST_BOUNDS = new AxisAlignedBB(0.09375, 0.125, 0.25, 0.0, 0.875, 0.75);
