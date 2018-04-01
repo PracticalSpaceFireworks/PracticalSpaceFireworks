@@ -64,7 +64,12 @@ public class TileBoundSatellite implements ISatellite {
     public void requestModules() {
         PSFNetworkHandler.network.sendToServer(new PacketRequestModulesWorld(controller.getPos()));
     }
-    
+
+    @Override
+    public World getWorld() {
+        return controller.getWorld();
+    }
+
     @Override
     public String getName() {
         return name.isEmpty() ? ISatellite.super.getName() : name;

@@ -96,6 +96,11 @@ public class EntityBoundSatellite implements ISatellite {
     }
 
     @Override
+    public World getWorld() {
+        return spacecraft.getEntityWorld();
+    }
+
+    @Override
     public int hashCode() {
         return this.getId().hashCode();
     }

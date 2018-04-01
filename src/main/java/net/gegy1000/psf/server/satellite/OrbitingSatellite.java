@@ -61,6 +61,11 @@ public class OrbitingSatellite implements ISatellite {
     }
 
     @Override
+    public World getWorld() {
+        return world;
+    }
+
+    @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound compound = new NBTTagCompound();
         compound.setString("name", this.name);

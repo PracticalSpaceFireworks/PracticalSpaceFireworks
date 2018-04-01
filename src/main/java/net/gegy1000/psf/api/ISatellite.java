@@ -33,6 +33,8 @@ public interface ISatellite extends INBTSerializable<NBTTagCompound> {
 
     void requestModules();
 
+    World getWorld();
+
     @Override
     default NBTTagCompound serializeNBT() {
         return new NBTTagCompound();
@@ -40,4 +42,10 @@ public interface ISatellite extends INBTSerializable<NBTTagCompound> {
     
     @Override
     default void deserializeNBT(@Nullable NBTTagCompound tag) {}
+
+    default void tickSatellite() {
+        for (IModule module : getModules()) {
+            module.onSatelliteTick(this);
+        }
+    }
 }
