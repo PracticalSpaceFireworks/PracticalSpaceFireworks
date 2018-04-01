@@ -1,11 +1,18 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.server.capability.CapabilityController;
+import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.gegy1000.psf.server.modules.ModuleThruster;
+import net.gegy1000.psf.server.util.BlockMassHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -25,7 +32,9 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
@@ -104,6 +113,49 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     @Nonnull
     public Collection<TileEntity> getEntities() {
         return this.entities.values();
+    }
+
+    @Nullable
+    public IController findController() {
+        for (TileEntity entity : this.getEntities()) {
+            if (entity.hasCapability(CapabilityController.INSTANCE, null)) {
+                return entity.getCapability(CapabilityController.INSTANCE, null);
+            }
+        }
+        return null;
+    }
+
+    @Nonnull
+    public List<IModule> findModules() {
+        List<IModule> modules = new ArrayList<>();
+        for (TileEntity entity : this.getEntities()) {
+            if (entity.hasCapability(CapabilityModule.INSTANCE, null)) {
+                modules.add(entity.getCapability(CapabilityModule.INSTANCE, null));
+            }
+        }
+        return modules;
+    }
+
+    public LaunchMetadata buildLaunchMetadata() {
+        double mass = 0.0;
+        ImmutableList.Builder<LaunchMetadata.Thruster> thrusters = ImmutableList.builder();
+
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(this.minPos, this.maxPos)) {
+            IBlockState state = this.getBlockState(pos);
+            mass += BlockMassHandler.getMass(state);
+        }
+
+        for (TileEntity entity : this.getEntities()) {
+            if (entity.hasCapability(CapabilityModule.INSTANCE, null)) {
+                IModule module = entity.getCapability(CapabilityModule.INSTANCE, null);
+                if (module instanceof ModuleThruster) {
+                    ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
+                    thrusters.add(new LaunchMetadata.Thruster(entity.getPos(), tier.getThrust()));
+                }
+            }
+        }
+
+        return new LaunchMetadata(this.findModules(), thrusters.build(), mass);
     }
 
     public NBTTagCompound serialize(NBTTagCompound compound) {

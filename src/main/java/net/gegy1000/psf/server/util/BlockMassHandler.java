@@ -2,10 +2,11 @@ package net.gegy1000.psf.server.util;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import net.gegy1000.psf.server.api.CustomMass;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 
-public class MaterialMass {
+public class BlockMassHandler {
     private static final Object2DoubleMap<Material> MATERIAL_MASS = new Object2DoubleOpenHashMap<>();
 
     public static void register() {
@@ -45,18 +46,23 @@ public class MaterialMass {
         if (MATERIAL_MASS.containsKey(material)) {
             throw new IllegalArgumentException("Cannot double-register material mass!");
         }
-        MATERIAL_MASS.put(material, mass * 0.5);
+        MATERIAL_MASS.put(material, mass);
     }
 
     public static double getMass(IBlockState state) {
-        double mass = getMass(state.getMaterial());
-        if (state.isFullBlock()) {
-            return mass / 2.0;
+        if (state.getBlock() instanceof CustomMass) {
+            return ((CustomMass) state.getBlock()).getMass(state);
         }
+
+        double mass = getMaterialMass(state.getMaterial());
+        if (state.isFullBlock()) {
+            mass /= 2.0;
+        }
+
         return mass;
     }
 
-    public static double getMass(Material material) {
+    public static double getMaterialMass(Material material) {
         return MATERIAL_MASS.getOrDefault(material, 0.5e+3);
     }
 }

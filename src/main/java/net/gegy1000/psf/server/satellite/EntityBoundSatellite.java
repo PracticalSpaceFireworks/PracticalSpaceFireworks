@@ -5,14 +5,11 @@ import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.GuiControlSystem;
-import net.gegy1000.psf.server.capability.CapabilityController;
-import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -37,18 +34,13 @@ public class EntityBoundSatellite implements ISatellite {
     }
 
     public void detectModules() {
-        this.modules.clear();
-        this.controller = null;
+        SpacecraftBlockAccess blockAccess = this.spacecraft.getBlockAccess();
 
-        for (TileEntity entity : this.spacecraft.getBlockAccess().getEntities()) {
-            if (entity.hasCapability(CapabilityController.INSTANCE, null)) {
-                this.controller = entity.getCapability(CapabilityController.INSTANCE, null);
-            } else if (entity.hasCapability(CapabilityModule.INSTANCE, null)) {
-                this.modules.add(entity.getCapability(CapabilityModule.INSTANCE, null));
-            }
-        }
+        this.modules.clear();
+        this.modules.addAll(blockAccess.findModules());
+        this.controller = blockAccess.findController();
     }
-    
+
     @Override
     public String getName() {
         return name.isEmpty() ? ISatellite.super.getName() : name;
@@ -107,14 +99,14 @@ public class EntityBoundSatellite implements ISatellite {
     public boolean equals(Object obj) {
         return obj instanceof ISatellite && ((ISatellite) obj).getId().equals(this.getId());
     }
-    
+
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tag = ISatellite.super.serializeNBT();
         tag.setString("name", name);
         return tag;
     }
-    
+
     @Override
     public void deserializeNBT(@Nullable NBTTagCompound tag) {
         ISatellite.super.deserializeNBT(tag);

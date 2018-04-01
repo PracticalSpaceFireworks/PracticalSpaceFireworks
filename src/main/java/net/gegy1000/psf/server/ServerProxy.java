@@ -6,14 +6,14 @@ import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
-import net.gegy1000.psf.server.util.MaterialMass;
+import net.gegy1000.psf.server.util.BlockMassHandler;
 
 public class ServerProxy {
     
     private final ControllerManager controllerManager = new ControllerManager();
     
     public void onPreInit() {
-        MaterialMass.register();
+        BlockMassHandler.register();
 
         CapabilityWorldData.register();
         CapabilityController.register();

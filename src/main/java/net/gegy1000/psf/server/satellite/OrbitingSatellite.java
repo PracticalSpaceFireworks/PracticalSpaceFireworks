@@ -1,14 +1,10 @@
 package net.gegy1000.psf.server.satellite;
 
-import com.google.common.collect.ImmutableList;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.capability.CapabilityController;
-import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -35,18 +31,8 @@ public class OrbitingSatellite implements ISatellite {
         this.position = position;
         this.blockAccess = blockAccess;
 
-        IController controller = null;
-        ImmutableList.Builder<IModule> modules = ImmutableList.builder();
-        for (TileEntity entity : blockAccess.getEntities()) {
-            if (entity.hasCapability(CapabilityController.INSTANCE, null)) {
-                controller = entity.getCapability(CapabilityController.INSTANCE, null);
-            } else if (entity.hasCapability(CapabilityModule.INSTANCE, null)) {
-                modules.add(entity.getCapability(CapabilityModule.INSTANCE, null));
-            }
-        }
-
-        this.controller = controller;
-        this.modules = modules.build();
+        this.controller = blockAccess.findController();
+        this.modules = blockAccess.findModules();
     }
 
     @Override

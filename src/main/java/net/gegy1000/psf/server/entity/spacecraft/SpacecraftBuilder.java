@@ -1,6 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import com.google.common.collect.ImmutableList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -8,10 +7,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.server.block.module.TileModule;
-import net.gegy1000.psf.server.modules.ModuleThruster;
-import net.gegy1000.psf.server.util.MaterialMass;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -79,7 +74,7 @@ public class SpacecraftBuilder {
                     continue;
                 }
                 copiedEntity.setPos(localPos);
-                this.setTileEntity(localPos, entity);
+                this.setTileEntity(localPos, copiedEntity);
             }
         }
     }
@@ -109,26 +104,5 @@ public class SpacecraftBuilder {
         Biome biome = world.getBiome(origin);
 
         return new SpacecraftBlockAccess(world, blockData, lightData, this.entities, biome, minPos, maxPos);
-    }
-
-    public LaunchMetadata buildMetadata() {
-        double mass = 0.0;
-        ImmutableList.Builder<LaunchMetadata.Thruster> thrusters = ImmutableList.builder();
-
-        for (int i = 0; i < this.blockKeys.size(); i++) {
-            long posKey = this.blockKeys.getLong(i);
-            BlockPos pos = BlockPos.fromLong(posKey);
-            IBlockState state = Block.getStateById(this.blockValues.getInt(i));
-
-            mass += MaterialMass.getMass(state);
-
-            IModule module = TileModule.getModule(this.entities.get(posKey));
-            if (module instanceof ModuleThruster) {
-                ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
-                thrusters.add(new LaunchMetadata.Thruster(pos, tier.getThrust()));
-            }
-        }
-
-        return new LaunchMetadata(thrusters.build(), mass);
     }
 }
