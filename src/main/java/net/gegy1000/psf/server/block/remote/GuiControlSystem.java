@@ -1,21 +1,5 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
-
 import lombok.Getter;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -38,9 +22,23 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GuiControlSystem extends GuiContainer {
-    
+
     enum PreviewMode {
         CRAFT,
         MAP,
@@ -150,7 +148,7 @@ public class GuiControlSystem extends GuiContainer {
             craft.setName(tfName.getText());
         }
     }
-    
+
     private void untrack() {
         IListedSpacecraft craft = getCraft();
         if (craft != null) {
