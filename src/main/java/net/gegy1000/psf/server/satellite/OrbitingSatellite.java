@@ -79,6 +79,11 @@ public class OrbitingSatellite extends AbstractSatellite {
     public World getWorld() {
         return world;
     }
+    
+    @Override
+    public boolean isOrbiting() {
+        return true;
+    }
 
     @Override
     public NBTTagCompound serializeNBT() {

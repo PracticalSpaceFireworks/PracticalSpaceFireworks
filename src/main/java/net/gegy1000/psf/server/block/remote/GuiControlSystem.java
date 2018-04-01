@@ -314,14 +314,12 @@ public class GuiControlSystem extends GuiContainer {
         int y = guiTop + 35;
         int color = 0xFF333333;
         mc.fontRenderer.drawString("Modules:", x, y, color);
-        x += 10;
         y += 10;
         Map<String, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getLocalizedName));
         for (val e : grouped.entrySet()) {
-            mc.fontRenderer.drawString(e.getKey() + ": " + e.getValue().size(), x, y, color);
+            mc.fontRenderer.drawString(e.getValue().size() + "x " + e.getKey(), x, y, color);
             y += 10;
         }
-        x -= 10;
         y += 5;
         int energy = modules.stream()
                 .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
