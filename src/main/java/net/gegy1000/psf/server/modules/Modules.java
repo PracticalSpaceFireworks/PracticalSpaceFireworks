@@ -32,6 +32,7 @@ public class Modules {
         registry.register(new SimpleModuleFactory(() -> new ModuleThruster(ModuleThruster.ThrusterTier.SIMPLE)).setRegistryName("thruster"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("antenna")).setRegistryName("antenna"));
         registry.register(new SimpleModuleFactory(() -> new ModuleEntityDetector(ModuleEntityDetector.EntityDetectorTier.SIMPLE)).setRegistryName("entity_detector"));
+        registry.register(new SimpleModuleFactory(ModuleEntityMarker::new).setRegistryName("entity_marker"));
         registry.register(new SimpleModuleFactory(ModuleFuelTank::new).setRegistryName("fuel_tank"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("payload_attacher")).setRegistryName("payload_attacher"));
     }

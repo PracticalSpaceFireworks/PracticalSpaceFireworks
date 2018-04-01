@@ -1,6 +1,7 @@
 package net.gegy1000.psf.api;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.data.IModuleData;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,11 +16,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
 
 @ParametersAreNonnullByDefault
 public interface IModule extends INBTSerializable<NBTTagCompound>, ICapabilityProvider {
 
     default void onSatelliteTick(ISatellite satellite) {
+    }
+
+    default int getTickInterval() {
+        return 20;
     }
 
     String getName();
@@ -33,6 +39,10 @@ public interface IModule extends INBTSerializable<NBTTagCompound>, ICapabilityPr
     ResourceLocation getRegistryName();
 
     IModule setRegistryName(@Nullable ResourceLocation registryName);
+
+    default <T extends IModuleData> Collection<T> getConnectedCaps(ISatellite satellite, Capability<T> capability) {
+        return satellite.getModuleCaps(capability);
+    }
 
     @Override
     default boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
