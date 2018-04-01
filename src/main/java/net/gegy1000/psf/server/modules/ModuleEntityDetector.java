@@ -62,7 +62,7 @@ public class ModuleEntityDetector extends EmptyModule{
         BlockPos entityChunk = new BlockPos(pos.getX() >> 4, 0, pos.getZ() >> 4);
         BlockPos diff = sat.subtract(entityChunk);
 
-        if(diff.getX() > range || diff.getZ() > range) {
+        if(Math.abs(diff.getX()) > range || Math.abs(diff.getZ()) > range) {
             return false;
         }
 
