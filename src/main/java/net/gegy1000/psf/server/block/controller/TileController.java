@@ -1,6 +1,20 @@
 package net.gegy1000.psf.server.block.controller;
 
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Sets;
+
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.Delegate;
@@ -8,6 +22,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.data.IModuleData;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
@@ -21,30 +36,28 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-
 
 public class TileController extends TileEntity {
     
     private final IModule module = new EmptyModule("controller").setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller"));
     
+    private interface Exclusions {
+        <T extends IModuleData> Collection<T> getConnectedCaps(ISatellite satellite, Capability<T> capability);
+    }
+    
     private class Controller implements IController {
         
-        @Delegate
+        @Delegate(excludes = Exclusions.class)
         private final IModule delegate = TileController.this.module;
         
         @Override
         public @Nonnull Optional<BlockPos> getPosition() {
             return Optional.of(getPos());
+        }
+        
+        @Override
+        public <T extends IModuleData> Collection<T> getConnectedCaps(@Nonnull ISatellite satellite, @Nonnull Capability<T> capability) {
+            return delegate.getConnectedCaps(satellite, capability);
         }
     }
     
@@ -111,14 +124,14 @@ public class TileController extends TileEntity {
     }
     
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+    public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
         compound = super.writeToNBT(compound);
         compound.setTag("satellite_data", satellite.serializeNBT());
         return compound;
     }
     
     @Override
-    public void readFromNBT(NBTTagCompound compound) {
+    public void readFromNBT(@Nonnull NBTTagCompound compound) {
         super.readFromNBT(compound);
         satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
     }
