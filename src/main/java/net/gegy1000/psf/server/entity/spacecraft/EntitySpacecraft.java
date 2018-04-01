@@ -5,6 +5,7 @@ import lombok.Getter;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
+import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
@@ -45,9 +46,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public SpacecraftModel model;
 
     private SpacecraftBlockAccess blockAccess;
-    private LaunchMetadata metadata;
 
-    private boolean testLaunched;
+    private State state = new Static();
 
     public EntitySpacecraft(World world) {
         this(world, Collections.emptySet(), BlockPos.ORIGIN);
@@ -60,7 +60,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, positions);
         this.blockAccess = builder.buildBlockAccess(this);
-        this.metadata = this.blockAccess.buildLaunchMetadata();
 
         this.satellite.detectModules();
         this.recalculateRotation();
@@ -78,37 +77,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.motionY -= GRAVITY / 20.0;
 
-        if (this.posY > 1000) {
-            this.setDead();
-
-            if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
-                world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).addSatellite(satellite.toOrbiting());
-            }
-        }
-
-        if (this.testLaunched) {
-            double acceleration = this.metadata.getTotalAcceleration() / 20.0;
-            this.motionY += acceleration;
-
-            this.rotationYaw += 0.5F;
-
-            if (this.world.isRemote) {
-                for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
-                    BlockPos thrusterPos = thruster.getPos();
-                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
-                    this.rotationMatrix.transform(thrusterPoint);
-                    double posX = this.posX + thrusterPoint.x;
-                    double posY = this.posY + thrusterPoint.y;
-                    double posZ = this.posZ + thrusterPoint.z;
-                    for (int i = 0; i < 30; i++) {
-                        double motionX = (this.rand.nextDouble() * 2.0 - 1) * 0.3;
-                        double motionY = -acceleration;
-                        double motionZ = (this.rand.nextDouble() * 2.0 - 1) * 0.3;
-                        this.world.spawnParticle(EnumParticleTypes.FLAME, true, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
-                    }
-                }
-            }
-        }
+        this.state.update();
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
@@ -194,15 +163,24 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        this.testLaunched = true;
+        this.state = new Launch(this);
         return true;
     }
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
-        this.metadata = this.blockAccess.buildLaunchMetadata();
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
+
+        String state = compound.getString("state");
+        switch (state) {
+            case "launch":
+                this.state = new Launch(this);
+                break;
+            default:
+                this.state = new Static();
+                break;
+        }
 
         this.satellite.detectModules();
         this.recalculateRotation();
@@ -212,20 +190,29 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     protected void writeEntityToNBT(NBTTagCompound compound) {
         compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
         compound.setTag("satellite", this.satellite.serializeNBT());
+
+        compound.setString("state", this.state.serializeName());
     }
 
     @Override
     public void writeSpawnData(ByteBuf buffer) {
         this.blockAccess.serialize(buffer);
         ByteBufUtils.writeTag(buffer, this.satellite.serializeNBT());
+
+        buffer.writeBoolean(this.state instanceof Launch);
     }
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
-        this.metadata = this.blockAccess.buildLaunchMetadata();
         this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;
+
+        if (buffer.readBoolean()) {
+            this.state = new Launch(this);
+        } else {
+            this.state = new Static();
+        }
 
         this.satellite.detectModules();
 
@@ -246,8 +233,73 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Override
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilitySatellite.INSTANCE) {
-            return CapabilitySatellite.INSTANCE.cast(satellite);
+            return CapabilitySatellite.INSTANCE.cast(this.satellite);
         }
         return super.getCapability(capability, facing);
+    }
+
+    private interface State {
+        default void update() {
+        }
+
+        String serializeName();
+    }
+
+    public static class Static implements State {
+        @Override
+        public String serializeName() {
+            return "static";
+        }
+    }
+
+    public static class Launch implements State {
+        private final EntitySpacecraft entity;
+        private final LaunchMetadata metadata;
+
+        public Launch(EntitySpacecraft entity) {
+            this.entity = entity;
+            this.metadata = this.entity.blockAccess.buildLaunchMetadata();
+        }
+
+        @Override
+        public void update() {
+            World world = this.entity.getEntityWorld();
+
+            if (this.entity.posY > 1000) {
+                this.entity.setDead();
+
+                if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+                    SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
+                    capability.addSatellite(this.entity.satellite.toOrbiting());
+                }
+            }
+
+            double acceleration = this.metadata.getTotalAcceleration() / 20.0;
+            this.entity.motionY += acceleration;
+
+            this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
+
+            if (world.isRemote) {
+                for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
+                    BlockPos thrusterPos = thruster.getPos();
+                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                    this.entity.rotationMatrix.transform(thrusterPoint);
+                    double posX = this.entity.posX + thrusterPoint.x;
+                    double posY = this.entity.posY + thrusterPoint.y;
+                    double posZ = this.entity.posZ + thrusterPoint.z;
+                    for (int i = 0; i < 30; i++) {
+                        double motionX = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
+                        double motionY = -acceleration;
+                        double motionZ = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
+                        world.spawnParticle(EnumParticleTypes.FLAME, true, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public String serializeName() {
+            return "launch";
+        }
     }
 }
