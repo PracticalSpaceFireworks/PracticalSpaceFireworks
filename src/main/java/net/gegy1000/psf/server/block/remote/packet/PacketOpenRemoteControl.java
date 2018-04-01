@@ -1,20 +1,9 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-
 import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.ContainerControlSystem;
 import net.gegy1000.psf.server.block.remote.GuiControlSystem;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
@@ -34,6 +23,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 public class PacketOpenRemoteControl implements IMessage {
@@ -58,7 +55,6 @@ public class PacketOpenRemoteControl implements IMessage {
     }
     
     private BlockPos pos;
-    private Collection<ISatellite> crafts;
 
     @Nonnull
     private Map<SatelliteState, List<IListedSpacecraft>> byType = new HashMap<>();
@@ -71,14 +67,15 @@ public class PacketOpenRemoteControl implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeLong(this.pos.toLong());
-        buf.writeShort(this.byType.size() & 0xFFFF);
-        for (val e : this.byType.entrySet()) {
-            for (IListedSpacecraft satellite : e.getValue()) {
+        buf.writeByte(this.byType.size() & 0xFF);
+        for (SatelliteState state : SatelliteState.values()) {
+            List<IListedSpacecraft> group = this.byType.getOrDefault(state, new ArrayList<>());
+            buf.writeShort(group.size() & 0xFFFF);
+            for (IListedSpacecraft satellite : group) {
                 buf.writeLong(satellite.getId().getMostSignificantBits());
                 buf.writeLong(satellite.getId().getLeastSignificantBits());
                 buf.writeLong(satellite.getPosition().toLong());
                 ByteBufUtils.writeUTF8String(buf, satellite.getName());
-                buf.writeByte(e.getKey().ordinal());
             }
         }
     }
@@ -86,13 +83,14 @@ public class PacketOpenRemoteControl implements IMessage {
     @Override
     public void fromBytes(ByteBuf buf) {
         this.pos = BlockPos.fromLong(buf.readLong());
-        int count = buf.readUnsignedShort();
-        for (int i = 0; i < count; i++) {
-            UUID uuid = new UUID(buf.readLong(), buf.readLong());
-            BlockPos pos = BlockPos.fromLong(buf.readLong());
-            String name = ByteBufUtils.readUTF8String(buf);
-            SatelliteState type = SatelliteState.values()[buf.readByte()];
-            this.byType.computeIfAbsent(type, t -> new ArrayList<>()).add(new OrbitingListedSpacecraft(name, pos, uuid));
+        for (SatelliteState state : SatelliteState.values()) {
+            int count = buf.readUnsignedShort();
+            for (int i = 0; i < count; i++) {
+                UUID uuid = new UUID(buf.readLong(), buf.readLong());
+                BlockPos pos = BlockPos.fromLong(buf.readLong());
+                String name = ByteBufUtils.readUTF8String(buf);
+                this.byType.computeIfAbsent(state, t -> new ArrayList<>()).add(new OrbitingListedSpacecraft(name, pos, uuid));
+            }
         }
     }
 

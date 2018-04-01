@@ -1,15 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -37,6 +27,15 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     private static final double AIR_RESISTANCE = 0.98;
@@ -188,36 +187,31 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
+    protected void writeEntityToNBT(NBTTagCompound compound) {
+        compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
+        compound.setTag("satellite", this.satellite.serializeNBT());
+
+        compound.setString("state", this.state.getType().name());
+    }
+
+    @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
 
         String state = compound.getString("state");
-        switch (state) {
-            case "launch":
-                this.state = new Launch(this);
-                break;
-            default:
-                this.state = new Static();
-                break;
-        }
+        this.state = StateType.valueOf(state).create(this);
 
         this.satellite.detectModules();
         this.recalculateRotation();
     }
 
     @Override
-    protected void writeEntityToNBT(NBTTagCompound compound) {
-        compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
-        compound.setTag("satellite", this.satellite.serializeNBT());
-
-        compound.setString("state", this.state.serializeName());
-    }
-
-    @Override
     public void writeSpawnData(ByteBuf buffer) {
         this.blockAccess.serialize(buffer);
         ByteBufUtils.writeTag(buffer, this.satellite.serializeNBT());
+
+        buffer.writeByte(this.state.getType().ordinal());
 
         buffer.writeBoolean(this.state instanceof Launch);
     }
@@ -228,11 +222,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;
 
-        if (buffer.readBoolean()) {
-            this.state = new Launch(this);
-        } else {
-            this.state = new Static();
-        }
+        this.state = StateType.values()[buffer.readUnsignedByte() % StateType.values().length].create(this);
 
         this.satellite.detectModules();
 
@@ -258,6 +248,23 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return super.getCapability(capability, facing);
     }
 
+    public enum StateType {
+        STATIC {
+            @Override
+            protected State create(EntitySpacecraft entity) {
+                return new Static();
+            }
+        },
+        LAUNCH {
+            @Override
+            protected State create(EntitySpacecraft entity) {
+                return new Launch(entity);
+            }
+        };
+
+        protected abstract State create(EntitySpacecraft entity);
+    }
+
     public interface State {
         default State update() {
             return this;
@@ -267,13 +274,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             return 0.0;
         }
 
-        String serializeName();
+        StateType getType();
     }
 
     public static class Static implements State {
         @Override
-        public String serializeName() {
-            return "static";
+        public StateType getType() {
+            return StateType.STATIC;
         }
     }
 
@@ -341,8 +348,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         @Override
-        public String serializeName() {
-            return "launch";
+        public StateType getType() {
+            return StateType.LAUNCH;
         }
     }
 }
