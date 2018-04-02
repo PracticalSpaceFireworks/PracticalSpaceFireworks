@@ -115,7 +115,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
 
     @Override
     public @Nonnull IBlockState getStateFromMeta(int meta) {
-        meta = Math.abs(meta) % EnumFacing.values().length;
+        meta = Math.abs(meta & 7) % EnumFacing.values().length;
         return getDefaultState().withProperty(DIRECTION, EnumFacing.values()[meta]);
     }
 

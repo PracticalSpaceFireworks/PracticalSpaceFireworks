@@ -5,6 +5,7 @@ import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.block.module.StrutType;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
 import net.minecraft.block.Block;
@@ -61,6 +62,10 @@ public class PSFModelRegistry {
 
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.kerosene, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.liquidOxygen, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
+        
+        IStateMapper dummyMapper = new StateMap.Builder().ignore(BlockMultiblockModule.DUMMY).build();
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.solarPanel, dummyMapper);
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.laser, dummyMapper);
 
         Item strut = Item.getItemFromBlock(PSFBlockRegistry.strut);
         for (StrutType type : StrutType.values()) {

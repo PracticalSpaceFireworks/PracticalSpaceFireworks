@@ -67,21 +67,26 @@ public class TileModule extends TileEntity {
 
     @Override
     public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
-        ResourceLocation moduleID = module.getRegistryName();
-        Preconditions.checkNotNull(moduleID, "Module does not have registry name set!");
-        compound.setString("moduleID", moduleID.toString());
-        compound.setTag("moduleData", module.serializeNBT());
+        IModule module = this.module;
+        if (module != null) {
+            ResourceLocation moduleID = module.getRegistryName();
+            Preconditions.checkNotNull(moduleID, "Module does not have registry name set!");
+            compound.setString("moduleID", moduleID.toString());
+            compound.setTag("moduleData", module.serializeNBT());
+        }
         return super.writeToNBT(compound);
     }
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound compound) {
         super.readFromNBT(compound);
-        String id = Strings.emptyToNull(compound.getString("moduleID"));
-        Preconditions.checkNotNull(id, "No module data found!");
-        IModuleFactory factory = Modules.get().getValue(new ResourceLocation(id));
-        Preconditions.checkNotNull(factory, "Unknown module type!");
-        this.module = factory.get();
-        this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
+        if (compound.hasKey("moduleID")) {
+            String id = Strings.emptyToNull(compound.getString("moduleID"));
+            Preconditions.checkNotNull(id, "No module data found!");
+            IModuleFactory factory = Modules.get().getValue(new ResourceLocation(id));
+            Preconditions.checkNotNull(factory, "Unknown module type!");
+            this.module = factory.get();
+            this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
+        }
     }
 }

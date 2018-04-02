@@ -8,8 +8,10 @@ import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.module.BlockBattery;
 import net.gegy1000.psf.server.block.module.BlockFuelTank;
 import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.block.module.BlockPayloadAttacher;
 import net.gegy1000.psf.server.block.module.BlockStrut;
+import net.gegy1000.psf.server.block.module.TileDummyModule;
 import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
@@ -46,6 +48,8 @@ public class PSFBlockRegistry {
 
     public static BlockFuelTank fuelTank;
     public static BlockPayloadAttacher payloadAttacher;
+    public static BlockMultiblockModule solarPanel;
+    public static BlockMultiblockModule laser;
 
     @SubscribeEvent
     public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
@@ -61,8 +65,14 @@ public class PSFBlockRegistry {
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
         payloadAttacher = register(event, "payload_attacher", new BlockPayloadAttacher());
         registerModuleBlock(event, "terrain_scanner");
-        registerModuleBlock(event, "solar_panel");
-        registerModuleBlock(event, "laser");
+        solarPanel = register(event, "solar_panel", new BlockMultiblockModule(Material.IRON, "solar_panel"));
+        laser = register(event, "laser", new BlockMultiblockModule(Material.IRON, "laser") {
+            
+            @Override
+            protected int getHeight() {
+                return 2;
+            }
+        });
 
         kerosene = register(event, "kerosene", new BlockPSFFluid(PSFFluidRegistry.KEROSENE, Material.WATER));
         liquidOxygen = register(event, "liquid_oxygen", new BlockPSFFluid(PSFFluidRegistry.LIQUID_OXYGEN, Material.WATER));
@@ -70,7 +80,8 @@ public class PSFBlockRegistry {
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
 
         // Register module TE only once
-        GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + "." + "module");
+        GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + ":" + "module");
+        GameRegistry.registerTileEntity(TileDummyModule.class, PracticalSpaceFireworks.MODID + ":" + "dummy_module");
     }
 
     @SubscribeEvent
