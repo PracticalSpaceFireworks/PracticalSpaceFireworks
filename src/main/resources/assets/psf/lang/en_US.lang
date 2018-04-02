@@ -17,3 +17,8 @@ tile.psf.battery.custom.name=Battery
 tile.psf.controller.simple.name=Satellite Controller
 
 tile.psf.remote_control_system.name=Remote Control System
+
+# Fluids
+
+fluid.psf.kerosene=Kerosene
+fluid.psf.liquid_oxygen=Liquid Oxygen

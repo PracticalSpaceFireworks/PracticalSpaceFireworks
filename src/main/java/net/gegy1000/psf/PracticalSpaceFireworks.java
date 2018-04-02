@@ -5,6 +5,7 @@ import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -44,6 +45,10 @@ public class PracticalSpaceFireworks {
             return new ItemStack(PSFBlockRegistry.strut);
         }
     };
+
+    static {
+        FluidRegistry.enableUniversalBucket();
+    }
 
     @Mod.EventHandler
     public static void onPreInit(FMLPreInitializationEvent event) {

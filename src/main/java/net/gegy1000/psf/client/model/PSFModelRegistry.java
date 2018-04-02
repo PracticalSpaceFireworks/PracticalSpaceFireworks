@@ -16,6 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,7 +58,10 @@ public class PSFModelRegistry {
         
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.strut, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.fuelTank, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
-        
+
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.kerosene, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.liquidOxygen, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
+
         Item strut = Item.getItemFromBlock(PSFBlockRegistry.strut);
         for (StrutType type : StrutType.values()) {
             ModelLoader.setCustomModelResourceLocation(strut, type.ordinal(), new ModelResourceLocation(PSFBlockRegistry.strut.getRegistryName(), "type=" + type.getName()));

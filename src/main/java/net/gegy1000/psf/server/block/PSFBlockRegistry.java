@@ -12,12 +12,14 @@ import net.gegy1000.psf.server.block.module.BlockPayloadAttacher;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
+import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -31,6 +33,9 @@ import java.util.Set;
 public class PSFBlockRegistry {
     private static final Set<Block> REGISTERED_BLOCKS = new LinkedHashSet<>();
     private static final Set<ItemBlock> REGISTERED_ITEM_BLOCKS = new LinkedHashSet<>();
+
+    public static BlockFluidFinite kerosene;
+    public static BlockFluidFinite liquidOxygen;
 
     public static BlockStrut strut;
 
@@ -58,6 +63,9 @@ public class PSFBlockRegistry {
         registerModuleBlock(event, "terrain_scanner");
         registerModuleBlock(event, "solar_panel");
         registerModuleBlock(event, "laser");
+
+        kerosene = register(event, "kerosene", new BlockPSFFluid(PSFFluidRegistry.KEROSENE, Material.WATER));
+        liquidOxygen = register(event, "liquid_oxygen", new BlockPSFFluid(PSFFluidRegistry.LIQUID_OXYGEN, Material.WATER));
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
 

@@ -1,15 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -20,6 +10,7 @@ import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.Satel
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
+import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
@@ -42,6 +33,15 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     private static final double AIR_RESISTANCE = 0.98;
@@ -336,8 +336,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
 
             int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
-            FluidStack result = this.fuelHandler.drain(totalDrain, true);
-            if (result != null && result.amount > 0) {
+            FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.KEROSENE, totalDrain), true);
+            FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, totalDrain), true);
+            if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
                 this.force = entity.metadata.getTotalForce();
                 double acceleration = this.force / entity.metadata.getMass() / 20.0;
                 this.entity.motionY += acceleration;
