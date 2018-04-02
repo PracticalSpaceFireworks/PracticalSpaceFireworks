@@ -36,6 +36,8 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         super(mat);
         this.moduleID = new ResourceLocation(PracticalSpaceFireworks.MODID, module);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
+        this.setHardness(2);
+        this.setHarvestLevel("pickaxe", 1);
     }
 
     protected IModule createModule(@Nonnull World world, @Nonnull IBlockState state) {

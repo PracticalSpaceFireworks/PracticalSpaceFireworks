@@ -47,7 +47,7 @@ public class BlockMultiblockModule extends BlockModule {
     @Override
     @Deprecated
     public @Nonnull EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
-        return state.getValue(DUMMY) ? EnumBlockRenderType.INVISIBLE : super.getRenderType(state);
+        return state.getValue(DUMMY) ? EnumBlockRenderType.ENTITYBLOCK_ANIMATED : super.getRenderType(state);
     }
     
     @Override
@@ -105,7 +105,7 @@ public class BlockMultiblockModule extends BlockModule {
                 return false;
             }
         }
-        return super.canPlaceBlockAt(worldIn, pos);
+        return super.canPlaceBlockOnSide(worldIn, pos, side);
     }
     
     @Override
