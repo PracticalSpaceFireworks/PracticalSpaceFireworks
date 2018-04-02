@@ -77,7 +77,7 @@ public class GuiControlSystem extends GuiContainer {
     @Nonnull
     private Collection<IModule> terrainScannerModules = new ArrayList<>();
     
-    private GuiButton buttonBack, buttonMode;
+    private GuiButton buttonBack, buttonMode, buttonLaunch;
     
     private GuiTextField tfName;
     
@@ -100,17 +100,22 @@ public class GuiControlSystem extends GuiContainer {
         super.initGui();
 
         craftList = new GuiCraftList(this, mc, xSize - 20, ySize - 10, guiTop + 10, guiTop + ySize - 10, guiLeft + 10, 20, width, height);
-        
+
+        IListedSpacecraft craft = getCraft();
+
         buttonBack = new GuiButtonExt(0, guiLeft + xSize - 50 - 10, guiTop + ySize - 20 - 10, 50, 20, "Back");
-        buttonBack.visible = getCraft() != null;
+        buttonBack.visible = craft != null;
         addButton(buttonBack);
         
         buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
-        buttonMode.visible = getCraft() != null;
+        buttonMode.visible = craft != null;
         addButton(buttonMode);
+
+        buttonLaunch = new GuiButtonExt(2, guiLeft + panel.getX() + panel.getWidth() + 10, guiTop + ySize - 20 - 10, 50, 20, "Launch");
+        buttonLaunch.visible = craft != null && craft.canLaunch();
+        addButton(buttonLaunch);
         
         tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
-        IListedSpacecraft craft = getCraft();
         if (craft != null) {
             tfName.setText(craft.getName());
         }
@@ -174,12 +179,14 @@ public class GuiControlSystem extends GuiContainer {
     @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         super.actionPerformed(button);
+        IListedSpacecraft craft = getCraft();
         if (button == buttonBack) {
             updateName();
             untrack();
             selectedCraft = -1;
             buttonBack.visible = false;
             buttonMode.visible = false;
+            buttonLaunch.visible = false;
             model = null;
             modules.clear();
             terrainScannerModules.clear();
@@ -187,6 +194,8 @@ public class GuiControlSystem extends GuiContainer {
         } else if (button == buttonMode) {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
             buttonMode.displayString = this.mode.name().substring(0, 1);
+        } else if (button == buttonLaunch && craft != null) {
+            craft.launch();
         }
     }
 
@@ -415,6 +424,7 @@ public class GuiControlSystem extends GuiContainer {
         craft.requestVisualData();
         buttonBack.visible = true;
         buttonMode.visible = true;
+        buttonLaunch.visible = craft.canLaunch();
         tfName.setText(craft.getName());
         PSFNetworkHandler.network.sendToServer(new PacketTrackCraft(craft.getId(), true));
     }

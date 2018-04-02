@@ -1,13 +1,5 @@
 package net.gegy1000.psf.server.satellite;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
@@ -15,10 +7,19 @@ import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
+import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 public class EntityBoundSatellite extends AbstractSatellite {
     
@@ -80,6 +81,16 @@ public class EntityBoundSatellite extends AbstractSatellite {
     @Override
     public World getWorld() {
         return spacecraft.getEntityWorld();
+    }
+
+    @Override
+    public boolean canLaunch() {
+        return true;
+    }
+
+    @Override
+    public void launch() {
+        PSFNetworkHandler.network.sendToServer(new PacketLaunchCraft(spacecraft.getEntityId()));
     }
 
     @Override

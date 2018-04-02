@@ -6,7 +6,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
-import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
@@ -17,11 +17,12 @@ import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -47,7 +48,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private static final double AIR_RESISTANCE = 0.98;
     private static final double GRAVITY = 1.6;
 
+    private static final DataParameter<Byte> STATE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.BYTE);
+    private static final DataParameter<Float> ACCELERATION = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
+    private static final DataParameter<Float> FORCE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
+
     private final Matrix rotationMatrix = new Matrix(3);
+
+    static {
+        PSFNetworkHandler.network.registerMessage(PacketLaunchCraft.Handler.class, PacketLaunchCraft.class, PSFNetworkHandler.nextID(), Side.SERVER);
+    }
 
     @Getter
     private final EntityBoundSatellite satellite = new EntityBoundSatellite(this);
@@ -58,7 +67,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private SpacecraftBlockAccess blockAccess;
 
     @Getter
-    private State state = new Static();
+    private State state = new Static(this);
 
     private boolean converted;
     private LaunchMetadata metadata;
@@ -78,11 +87,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.satellite.detectModules();
         this.recalculateRotation();
         this.metadata = this.blockAccess.buildLaunchMetadata();
-        
+
         if (id != null) {
             setUniqueId(id);
         }
-        
+
         if (!world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
         }
@@ -90,6 +99,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void entityInit() {
+        this.dataManager.register(STATE, (byte) StateType.STATIC.ordinal());
+        this.dataManager.register(FORCE, 0.0F);
+        this.dataManager.register(ACCELERATION, 0.0F);
     }
 
     @Override
@@ -100,32 +112,60 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.motionY -= GRAVITY / 20.0;
 
-        this.state = this.state.update();
+        State newState = this.state.update();
 
-        double prevMotionY = this.motionY;
-        
-        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
-        
-        if (prevMotionY <= -1 && this.collidedVertically) {
-            world.createExplosion(this, posX, posY, posZ, (float) Math.log10(-prevMotionY * metadata.getMass()) + 1, true);
+        if (!this.world.isRemote) {
+            if (this.state.getType() != newState.getType()) {
+                this.state = newState;
+                this.dataManager.set(STATE, (byte) newState.getType().ordinal());
+            }
+        } else {
+            StateType syncedStateType = StateType.values()[this.dataManager.get(STATE) % StateType.values().length];
+            if (syncedStateType != this.state.getType()) {
+                this.state = syncedStateType.create(this);
+            }
+        }
+
+        if (motionY <= -1 && this.collidedVertically) {
+            if (!world.isRemote) {
+                world.createExplosion(this, posX, getEntityBoundingBox().minY, posZ, (float) Math.log10(-motionY * metadata.getMass()) + 1, true);
+            }
             setDead();
         }
+
+        if (posY > 1000) {
+            setDead();
+
+            if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+                SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
+                ISatellite orbiting = satellite.toOrbiting();
+                capability.addSatellite(orbiting);
+                converted = true;
+                for (EntityPlayerMP player : orbiting.getTrackingPlayers()) {
+                    PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, orbiting.toListedCraft()), player);
+                }
+            }
+        }
+
+        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
         if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
             this.recalculateRotation();
         }
-        
+
         if (!world.isRemote) {
             satellite.tickSatellite(ticksExisted);
         }
-        
+
         super.onUpdate();
-        
-        if (!isEntityAlive() && !converted && !world.isRemote) {
+    }
+
+    @Override
+    public void setDead() {
+        super.setDead();
+        if (!converted && !world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().remove(satellite);
         }
-        
-
     }
 
     @Override
@@ -202,12 +242,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Override
-    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        this.state = new Launch(this);
-        return true;
-    }
-
-    @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
         compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
         compound.setTag("satellite", this.satellite.serializeNBT());
@@ -219,6 +253,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     protected void readEntityFromNBT(NBTTagCompound compound) {
         this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
+        this.metadata = this.blockAccess.buildLaunchMetadata();
 
         String state = compound.getString("state");
         this.state = StateType.valueOf(state).create(this);
@@ -232,8 +267,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.blockAccess.serialize(buffer);
         ByteBufUtils.writeTag(buffer, this.satellite.serializeNBT());
 
-        buffer.writeByte(this.state.getType().ordinal());
-
         buffer.writeBoolean(this.state instanceof Launch);
     }
 
@@ -243,12 +276,17 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;
 
-        this.state = StateType.values()[buffer.readUnsignedByte() % StateType.values().length].create(this);
-
         this.satellite.detectModules();
 
         this.recalculateRotation();
         this.metadata = this.blockAccess.buildLaunchMetadata();
+    }
+
+    public void setState(StateType state) {
+        this.state = state.create(this);
+        if (!world.isRemote) {
+            this.dataManager.set(STATE, (byte) state.ordinal());
+        }
     }
 
     public SpacecraftBlockAccess getBlockAccess() {
@@ -274,7 +312,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         STATIC {
             @Override
             protected State create(EntitySpacecraft entity) {
-                return new Static();
+                return new Static(entity);
             }
         },
         LAUNCH {
@@ -300,6 +338,20 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     public static class Static implements State {
+        private final EntitySpacecraft entity;
+
+        public Static(EntitySpacecraft entity) {
+            this.entity = entity;
+        }
+
+        @Override
+        public State update() {
+            if (!entity.world.isRemote) {
+                this.entity.dataManager.set(ACCELERATION, 0.0F);
+            }
+            return this;
+        }
+
         @Override
         public StateType getType() {
             return StateType.STATIC;
@@ -310,7 +362,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         private final EntitySpacecraft entity;
         private final IFluidHandler fuelHandler;
 
-        private double force;
+        private double lastForce;
 
         public Launch(EntitySpacecraft entity) {
             this.entity = entity;
@@ -321,28 +373,28 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         public State update() {
             World world = this.entity.getEntityWorld();
 
-            if (this.entity.posY > 1000) {
-                this.entity.setDead();
-
-                if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
-                    SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
-                    ISatellite orbiting = this.entity.satellite.toOrbiting();
-                    capability.addSatellite(orbiting);
-                    this.entity.converted = true;
-                    for (EntityPlayerMP player : orbiting.getTrackingPlayers()) {
-                        PSFNetworkHandler.network.sendTo(new PacketCraftState(SatelliteState.ORBIT, orbiting.toListedCraft()), player);
-                    }
+            double acceleration = 0.0;
+            double force = 0.0;
+            if (world.isRemote) {
+                acceleration = entity.dataManager.get(ACCELERATION);
+                force = entity.dataManager.get(FORCE);
+            } else {
+                int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
+                FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.KEROSENE, totalDrain), true);
+                FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, totalDrain), true);
+                if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
+                    force = entity.metadata.getTotalForce();
+                    acceleration = force / entity.metadata.getMass() / 20.0;
                 }
+
+                entity.dataManager.set(ACCELERATION, (float) acceleration);
+                entity.dataManager.set(FORCE, (float) force);
             }
 
-            int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
-            FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.KEROSENE, totalDrain), true);
-            FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, totalDrain), true);
-            if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
-                this.force = entity.metadata.getTotalForce();
-                double acceleration = this.force / entity.metadata.getMass() / 20.0;
-                this.entity.motionY += acceleration;
+            this.lastForce = force;
 
+            if (acceleration > 1e-4) {
+                this.entity.motionY += acceleration;
                 this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
                 if (world.isRemote) {
@@ -361,15 +413,16 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         }
                     }
                 }
-            } else if (entity.motionY < 0) {
-                return new Static();
+
+                return this;
+            } else {
+                return StateType.STATIC.create(entity);
             }
-            return this;
         }
 
         @Override
         public double getCameraShake() {
-            return this.force * 5e-7;
+            return this.lastForce * 5e-7;
         }
 
         @Override
