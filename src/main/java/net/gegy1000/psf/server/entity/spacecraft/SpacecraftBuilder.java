@@ -11,6 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
@@ -91,6 +92,7 @@ public class SpacecraftBuilder {
         }
 
         int[] lightData = new int[SpacecraftBlockAccess.getDataSize(minPos, maxPos)];
+        if (world.isRemote)
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
             BlockPos pos2 = origin.add(pos);
             lightData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = world.getCombinedLight(pos2, 0);

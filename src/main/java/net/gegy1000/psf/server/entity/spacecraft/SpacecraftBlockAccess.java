@@ -30,6 +30,8 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -80,6 +82,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public int getCombinedLight(BlockPos pos, int lightValue) {
         int posIndex = getPosIndex(pos, this.minPos, this.maxPos);
         if (posIndex > -1) {
