@@ -7,6 +7,7 @@ import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
+import net.gegy1000.psf.server.modules.data.PacketLaserState;
 import net.gegy1000.psf.server.satellite.PacketModule;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -33,5 +34,6 @@ public class PSFNetworkHandler {
     
         /* Module Syncing */
         network.registerMessage(PacketModule.Handler.class, PacketModule.class, nextID(), Side.CLIENT);
+        network.registerMessage(PacketLaserState.Handler.class, PacketLaserState.class, nextID(), Side.CLIENT);
     }
 }

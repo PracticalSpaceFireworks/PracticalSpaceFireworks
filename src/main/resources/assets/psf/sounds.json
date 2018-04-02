@@ -1,0 +1,9 @@
+{
+   "laser.fire":{
+      "category":"blocks",
+      "subtitle":"subtitle.psf.laser.fire",
+      "sounds":[
+         "psf:laser"
+      ]
+   }
+}

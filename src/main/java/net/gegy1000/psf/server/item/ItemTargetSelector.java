@@ -41,6 +41,7 @@ public class ItemTargetSelector extends Item {
                 ISatellite closest = PracticalSpaceFireworks.PROXY.getSatellites().getAll().stream()
                     .filter(ISatellite::isOrbiting)
                     .filter(s -> s.getWorld() == worldIn)
+                    .filter(s -> !s.getModuleCaps(CapabilityModuleData.SPACE_LASER).isEmpty())
                     .sorted((s1, s2) -> Double.compare(s1.getPosition().distanceSq(p), s2.getPosition().distanceSq(p)))
                     .findFirst()
                     .orElse(null);
