@@ -25,17 +25,20 @@ import net.minecraftforge.common.capabilities.Capability;
 public class TileModule extends TileEntity {
 
     @Getter
+    @Nullable
     private IModule module;
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return super.hasCapability(capability, facing) || module.hasCapability(capability, facing);
+        IModule module = getModule();
+        return super.hasCapability(capability, facing) || (module != null && module.hasCapability(capability, facing));
     }
 
     @Override
     @Nullable
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (module.hasCapability(capability, facing)) {
+        IModule module = getModule();
+        if (module != null && module.hasCapability(capability, facing)) {
             return module.getCapability(capability, facing);
         }
         return super.getCapability(capability, facing);
@@ -80,13 +83,5 @@ public class TileModule extends TileEntity {
         Preconditions.checkNotNull(factory, "Unknown module type!");
         this.module = factory.get();
         this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
-    }
-
-    @Nullable
-    public static IModule getModule(TileEntity entity) {
-        if (entity instanceof TileModule) {
-            return ((TileModule) entity).getModule();
-        }
-        return null;
     }
 }

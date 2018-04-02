@@ -56,6 +56,8 @@ public class PSFBlockRegistry {
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
         payloadAttacher = register(event, "payload_attacher", new BlockPayloadAttacher());
         registerModuleBlock(event, "terrain_scanner");
+        registerModuleBlock(event, "solar_panel");
+        registerModuleBlock(event, "laser");
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
 

@@ -37,6 +37,8 @@ public class Modules {
         registry.register(new SimpleModuleFactory(ModuleFuelTank::new).setRegistryName("fuel_tank"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("payload_attacher")).setRegistryName("payload_attacher"));
         registry.register(new SimpleModuleFactory(ModuleTerrainScanner::new).setRegistryName("terrain_scanner"));
+        registry.register(new SimpleModuleFactory(() -> new EmptyModule("solar_panel")).setRegistryName("solar_panel"));
+        registry.register(new SimpleModuleFactory(() -> new EmptyModule("laser")).setRegistryName("laser"));
     }
 
     public static @Nonnull IForgeRegistry<IModuleFactory> get() {
