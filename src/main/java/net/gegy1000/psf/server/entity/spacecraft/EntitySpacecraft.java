@@ -126,9 +126,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
         }
 
-        if (motionY <= -1 && this.collidedVertically) {
+        double lastMotionY = motionY;
+
+        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+
+        if (lastMotionY <= -1 && this.collidedVertically) {
             if (!world.isRemote) {
-                world.createExplosion(this, posX, getEntityBoundingBox().minY, posZ, (float) Math.log10(-motionY * metadata.getMass()) + 1, true);
+                world.createExplosion(this, posX, getEntityBoundingBox().minY, posZ, (float) Math.log10(-lastMotionY * metadata.getMass()) + 1, true);
             }
             setDead();
         }
@@ -146,8 +150,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 }
             }
         }
-
-        this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
 
         if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
             this.recalculateRotation();

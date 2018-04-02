@@ -10,8 +10,8 @@ public class ModuleThruster extends EmptyModule {
     @RequiredArgsConstructor
     public enum ThrusterTier implements IStringSerializable {
         // TODO: Different names for thrusters
-        SIMPLE("simple", 420000.0, 150),
-        ADVANCED("advanced", 1260000.0, 350);
+        SIMPLE("simple", 420000.0, 100),
+        ADVANCED("advanced", 1260000.0, 300);
 
         @Getter
         private final String name;

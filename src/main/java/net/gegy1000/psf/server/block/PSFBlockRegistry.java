@@ -66,7 +66,7 @@ public class PSFBlockRegistry {
                 return side == EnumFacing.DOWN;
             }
         });
-        registerModuleBlock(event, "antenna");
+//        registerModuleBlock(event, "antenna");
         registerModuleBlock(event, "entity_detector.simple");
         registerModuleBlock(event, "entity_marker");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
