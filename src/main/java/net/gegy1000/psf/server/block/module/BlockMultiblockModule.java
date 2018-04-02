@@ -52,7 +52,7 @@ public class BlockMultiblockModule extends BlockModule {
     
     @Override
     public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
-        return super.isStructuralModule(connecting, state) || (connecting != null && connecting.getBlock() == this);
+        return super.isStructuralModule(connecting, state) || (connecting != null && connecting.getBlock() == this && connecting.getValue(DUMMY));
     }
     
     protected int getHeight() {

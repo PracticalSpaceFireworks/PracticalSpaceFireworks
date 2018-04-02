@@ -66,15 +66,24 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public boolean isOpaqueCube(@Nonnull IBlockState state) {
         return false;
     }
+    
+    protected boolean canAttachOnSide(IBlockState state, IBlockState on, EnumFacing side) {
+        return true;
+    }
 
     @Override
     public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+        BlockPos pos2 = pos.offset(side.getOpposite());
+        IBlockState on = world.getBlockState(pos2).getActualState(world, pos2);
+        
+        if (!canAttachOnSide(getDefaultState().withProperty(DIRECTION, side), on, side)) {
+            return false;
+        }
+        
         if (isStructuralModule(null, getDefaultState())) {
             return canPlaceBlockAt(world, pos);
         }
 
-        BlockPos pos2 = pos.offset(side.getOpposite());
-        IBlockState on = world.getBlockState(pos2).getActualState(world, pos2);
         return isStructural(getDefaultState(), on) && super.canPlaceBlockOnSide(world, pos, side);
     }
 

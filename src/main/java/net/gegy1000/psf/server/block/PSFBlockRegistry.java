@@ -17,8 +17,10 @@ import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.BlockFluidFinite;
@@ -58,7 +60,12 @@ public class PSFBlockRegistry {
         // Modules
         strut = register(event, "strut", new BlockStrut());
         register(event, "battery.simple", new BlockBattery("battery_simple"));
-        thruster = registerModuleBlock(event, "thruster.simple");
+        thruster = register(event, "thruster.simple", new BlockModule(Material.IRON, "thruster_simple") {
+            @Override
+            protected boolean canAttachOnSide(IBlockState state, IBlockState on, EnumFacing side) {
+                return side == EnumFacing.DOWN;
+            }
+        });
         registerModuleBlock(event, "antenna");
         registerModuleBlock(event, "entity_detector.simple");
         registerModuleBlock(event, "entity_marker");
