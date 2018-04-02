@@ -4,14 +4,17 @@ import lombok.Getter;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
+import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
@@ -34,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -72,6 +76,8 @@ public class GuiControlSystem extends GuiContainer {
     private GuiTextField tfName;
     
     private final Rectangle panel;
+
+    private MapRenderer mapRenderer;
 
     public GuiControlSystem(ContainerControlSystem inventorySlotsIn) {
         super(inventorySlotsIn);
@@ -139,6 +145,9 @@ public class GuiControlSystem extends GuiContainer {
         if (selectedCraft >= 0) {
             updateName();
             untrack();
+        }
+        if (mapRenderer != null) {
+            mapRenderer.delete();
         }
     }
     
@@ -232,8 +241,39 @@ public class GuiControlSystem extends GuiContainer {
     }
 
     private void renderMap() {
-        IListedSpacecraft craft = getCraft();
-        
+        if (mapRenderer == null) {
+            Optional<ITerrainScan> terrainScan = modules.stream()
+                    .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
+                    .map(module -> module.getCapability(CapabilityModuleData.TERRAIN_SCAN, null)).findAny();
+            if (!terrainScan.isPresent()) {
+                return;
+            }
+            mapRenderer = new MapRenderer(terrainScan.get());
+        }
+
+        GlStateManager.pushMatrix();
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableDepth();
+        GlStateManager.disableCull();
+        RenderHelper.enableGUIStandardItemLighting();
+
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.translate(guiLeft + xSize / 2, guiTop + ySize / 2, 500);
+
+        GlStateManager.scale(2, -2, -2);
+        GlStateManager.rotate(15.0F, 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotate(mc.world.getTotalWorldTime() + mc.getRenderPartialTicks(), 0, 1, 0);
+
+        mapRenderer.performUploads();
+        mapRenderer.render();
+
+        GlStateManager.enableCull();
+        GlStateManager.disableDepth();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableLighting();
+        GlStateManager.popMatrix();
     }
 
     private void renderCraft() {
