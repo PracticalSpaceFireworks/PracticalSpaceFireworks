@@ -82,7 +82,7 @@ public class PSFBlockRegistry {
     }
 
     private static BlockModule registerModuleBlock(RegistryEvent.Register<Block> event, Material material, @Nonnull String identifier) {
-        return register(event, identifier, new BlockModule(material, identifier));
+        return register(event, identifier, new BlockModule(material, identifier.replace('.', '_')));
     }
 
     private static <T extends Block> T register(RegistryEvent.Register<Block> event, @Nonnull String identifier, T block) {

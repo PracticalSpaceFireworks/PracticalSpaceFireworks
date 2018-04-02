@@ -61,6 +61,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private State state = new Static();
 
     private boolean converted;
+    private LaunchMetadata metadata;
 
     public EntitySpacecraft(World world) {
         this(world, Collections.emptySet(), BlockPos.ORIGIN, null);
@@ -76,6 +77,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.satellite.detectModules();
         this.recalculateRotation();
+        this.metadata = this.blockAccess.buildLaunchMetadata();
         
         if (id != null) {
             setUniqueId(id);
@@ -100,7 +102,14 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.state = this.state.update();
 
+        double prevMotionY = this.motionY;
+        
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
+        
+        if (prevMotionY <= -1 && this.collidedVertically) {
+            world.createExplosion(this, posX, posY, posZ, (float) Math.log10(-prevMotionY * metadata.getMass()) + 1, true);
+            setDead();
+        }
 
         if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
             this.recalculateRotation();
@@ -109,12 +118,14 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         if (!world.isRemote) {
             satellite.tickSatellite(ticksExisted);
         }
-
+        
         super.onUpdate();
         
         if (!isEntityAlive() && !converted && !world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().remove(satellite);
         }
+        
+
     }
 
     @Override
@@ -237,6 +248,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.satellite.detectModules();
 
         this.recalculateRotation();
+        this.metadata = this.blockAccess.buildLaunchMetadata();
     }
 
     public SpacecraftBlockAccess getBlockAccess() {
@@ -296,15 +308,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     public static class Launch implements State {
         private final EntitySpacecraft entity;
-        private final LaunchMetadata metadata;
         private final IFluidHandler fuelHandler;
 
         private double force;
 
         public Launch(EntitySpacecraft entity) {
             this.entity = entity;
-            this.metadata = this.entity.blockAccess.buildLaunchMetadata();
-            this.fuelHandler = this.metadata.buildFuelHandler();
+            this.fuelHandler = entity.metadata.buildFuelHandler();
         }
 
         @Override
@@ -325,17 +335,17 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 }
             }
 
-            int totalDrain = this.metadata.getTotalFuelDrain() / 20;
+            int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
             FluidStack result = this.fuelHandler.drain(totalDrain, true);
             if (result != null && result.amount > 0) {
-                this.force = this.metadata.getTotalForce();
-                double acceleration = this.force / this.metadata.getMass() / 20.0;
+                this.force = entity.metadata.getTotalForce();
+                double acceleration = this.force / entity.metadata.getMass() / 20.0;
                 this.entity.motionY += acceleration;
 
                 this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
                 if (world.isRemote) {
-                    for (LaunchMetadata.Thruster thruster : this.metadata.getThrusters()) {
+                    for (LaunchMetadata.Thruster thruster : entity.metadata.getThrusters()) {
                         BlockPos thrusterPos = thruster.getPos();
                         Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
                         this.entity.rotationMatrix.transform(thrusterPoint);
