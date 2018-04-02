@@ -41,7 +41,7 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public class TileController extends TileEntity implements ITickable {
     
-    private final IModule module = new EmptyModule("controller").setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller"));
+    private final IModule module = new EmptyModule("controller.simple").setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller_simple"));
     
     private interface Exclusions {
         <T extends IModuleData> Collection<T> getConnectedCaps(ISatellite satellite, Capability<T> capability);
