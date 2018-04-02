@@ -14,6 +14,7 @@ import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ServerEventHandler {
 
     @SubscribeEvent
     public static void onWorldUpdate(TickEvent.WorldTickEvent event) {
-        if (!event.world.isRemote && event.world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+        if (event.phase == Phase.END && !event.world.isRemote && event.world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
             Collection<ISatellite> satellites = event.world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).getSatellites();
             satellites.forEach(satellite -> satellite.tickSatellite(event.world.getTotalWorldTime()));
         }

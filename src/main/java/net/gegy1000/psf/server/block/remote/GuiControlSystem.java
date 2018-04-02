@@ -342,8 +342,10 @@ public class GuiControlSystem extends GuiContainer {
         GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
 
         BlockPos min = model.getRenderWorld().getMinPos();
+        
 
         GlStateManager.translate(-halfX, -halfY, -halfZ);
+        GlStateManager.rotate(-10, 1, 0, 0);
         GlStateManager.rotate(mc.player.ticksExisted + mc.getRenderPartialTicks(), 0, 1, 0);
 
         GlStateManager.translate(halfX, halfY, halfZ);
