@@ -1,0 +1,20 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "model": "psf:terrain_scanner.obj",
+		"transform": "forge:default-block",
+        "custom": { "flip-v": true }
+    },
+    "variants": {
+        "normal": [{}],
+        "inventory": [{}],
+        "facing": {
+        	"down": {},
+        	"up": {},
+        	"north": {},
+        	"south": {},
+        	"east": {},
+        	"west": {}
+        }
+    }
+}
