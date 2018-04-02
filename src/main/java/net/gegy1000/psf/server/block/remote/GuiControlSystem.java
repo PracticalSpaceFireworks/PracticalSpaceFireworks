@@ -102,11 +102,11 @@ public class GuiControlSystem extends GuiContainer {
         craftList = new GuiCraftList(this, mc, xSize - 20, ySize - 10, guiTop + 10, guiTop + ySize - 10, guiLeft + 10, 20, width, height);
         
         buttonBack = new GuiButtonExt(0, guiLeft + xSize - 50 - 10, guiTop + ySize - 20 - 10, 50, 20, "Back");
-        buttonBack.visible = false;
+        buttonBack.visible = getCraft() != null;
         addButton(buttonBack);
         
         buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
-        buttonMode.visible = false;
+        buttonMode.visible = getCraft() != null;
         addButton(buttonMode);
         
         tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);

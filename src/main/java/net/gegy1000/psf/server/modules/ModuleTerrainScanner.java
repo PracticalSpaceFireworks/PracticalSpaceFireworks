@@ -87,7 +87,7 @@ public class ModuleTerrainScanner extends EmptyModule {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound compound = new NBTTagCompound();
+        NBTTagCompound compound = super.serializeNBT();
         if (this.scanData != null) {
             compound.setTag("scan_data", this.scanData.serializeNBT());
         }
@@ -96,6 +96,7 @@ public class ModuleTerrainScanner extends EmptyModule {
 
     @Override
     public void deserializeNBT(NBTTagCompound compound) {
+        super.deserializeNBT(compound);
         if (compound.hasKey("scan_data")) {
             this.scanData = new TerrainScanData();
             this.scanData.deserializeNBT(compound.getCompoundTag("scan_data"));

@@ -1,7 +1,5 @@
 package net.gegy1000.psf.server.modules;
 
-import java.util.UUID;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -13,6 +11,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class EmptyModule implements IModule {
@@ -40,15 +40,14 @@ public class EmptyModule implements IModule {
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound ret = new NBTTagCompound();
-        ret.setLong("id_msb", id.getMostSignificantBits());
-        ret.setLong("id_lsb", id.getLeastSignificantBits());
+        ret.setUniqueId("id", id);
         return ret;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
-        if (nbt.hasKey("id_msb")) {
-            this.id = new UUID(nbt.getLong("id_msb"), nbt.getLong("id_lsb"));
+        if (nbt.hasKey("idMost")) {
+            this.id = nbt.getUniqueId("id");
         }
     }
     
