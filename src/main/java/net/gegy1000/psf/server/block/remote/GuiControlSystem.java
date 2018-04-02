@@ -8,6 +8,8 @@ import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
+import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -70,6 +73,9 @@ public class GuiControlSystem extends GuiContainer {
     
     @Nonnull
     private Collection<IModule> modules = new ArrayList<>();
+
+    @Nonnull
+    private Collection<IModule> terrainScannerModules = new ArrayList<>();
     
     private GuiButton buttonBack, buttonMode;
     
@@ -176,6 +182,7 @@ public class GuiControlSystem extends GuiContainer {
             buttonMode.visible = false;
             model = null;
             modules.clear();
+            terrainScannerModules.clear();
             tfName.setText("");
         } else if (button == buttonMode) {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
@@ -241,34 +248,48 @@ public class GuiControlSystem extends GuiContainer {
     }
 
     private void renderMap() {
-        if (mapRenderer == null) {
-            Optional<ITerrainScan> terrainScan = modules.stream()
-                    .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
-                    .map(module -> module.getCapability(CapabilityModuleData.TERRAIN_SCAN, null)).findAny();
-            if (!terrainScan.isPresent()) {
-                return;
+        Optional<ITerrainScan> terrainScan = terrainScannerModules.stream()
+                .map(module -> module.getCapability(CapabilityModuleData.TERRAIN_SCAN, null))
+                .filter(Objects::nonNull)
+                .findFirst();
+
+        ITerrainScan buildScan = terrainScan.orElseGet(() -> new EmptyTerrainScan(ModuleTerrainScanner.SCAN_RANGE));
+        if (mapRenderer == null || mapRenderer.shouldUpdate(buildScan)) {
+            if (mapRenderer != null) {
+                mapRenderer.delete();
             }
-            mapRenderer = new MapRenderer(terrainScan.get());
+            mapRenderer = new MapRenderer(buildScan);
         }
 
         GlStateManager.pushMatrix();
         GlStateManager.disableTexture2D();
         GlStateManager.enableRescaleNormal();
         GlStateManager.enableDepth();
-        GlStateManager.disableCull();
-        RenderHelper.enableGUIStandardItemLighting();
+
+        if (scissorAvailable) {
+            ScaledResolution sr = new ScaledResolution(mc);
+            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+            GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
+                    panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
+        }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.translate(guiLeft + xSize / 2, guiTop + ySize / 2, 500);
+        GlStateManager.translate(guiLeft + (xSize / 4), guiTop + ySize / 2, 500);
 
-        GlStateManager.scale(2, -2, -2);
-        GlStateManager.rotate(15.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(mc.world.getTotalWorldTime() + mc.getRenderPartialTicks(), 0, 1, 0);
+        GlStateManager.rotate(-45.0F, 1.0F, 0.0F, 0.0F);
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.rotate(mc.player.ticksExisted + mc.getRenderPartialTicks(), 0, 1, 0);
+        GlStateManager.scale(-1.8, -1.8, -1.8);
+
+        GlStateManager.translate(-8.0, 0.0, -8.0);
 
         mapRenderer.performUploads();
         mapRenderer.render();
 
-        GlStateManager.enableCull();
+        if (scissorAvailable) {
+            GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        }
+
         GlStateManager.disableDepth();
         GlStateManager.disableRescaleNormal();
         GlStateManager.enableTexture2D();
@@ -314,7 +335,7 @@ public class GuiControlSystem extends GuiContainer {
         BlockPos min = model.getRenderWorld().getMinPos();
 
         GlStateManager.translate(-halfX, -halfY, -halfZ);
-        GlStateManager.rotate(mc.world.getTotalWorldTime() + mc.getRenderPartialTicks(), 0, 1, 0);
+        GlStateManager.rotate(mc.player.ticksExisted + mc.getRenderPartialTicks(), 0, 1, 0);
 
         GlStateManager.translate(halfX, halfY, halfZ);
 
@@ -401,6 +422,9 @@ public class GuiControlSystem extends GuiContainer {
     public void setVisual(IListedSpacecraft.Visual visual) {
         model = SpacecraftModel.build(visual.getBlockAccess());
         modules = visual.getModules();
+        terrainScannerModules = modules.stream()
+                .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
+                .collect(Collectors.toList());
     }
 
     public void updateModule(UUID id, NBTTagCompound tag) {

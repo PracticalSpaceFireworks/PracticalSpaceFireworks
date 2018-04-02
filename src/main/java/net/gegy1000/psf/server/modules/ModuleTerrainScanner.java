@@ -1,7 +1,9 @@
 package net.gegy1000.psf.server.modules;
 
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.modules.data.TerrainScanData;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,7 +18,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ModuleTerrainScanner extends EmptyModule {
-    private static final int SCAN_RANGE = 2;
+    public static final int SCAN_RANGE = 2;
 
     private TerrainScanData scanData;
     private boolean scanned;
@@ -31,17 +33,32 @@ public class ModuleTerrainScanner extends EmptyModule {
         BlockPos position = satellite.getPosition();
         if (world.isBlockLoaded(position)) {
             this.scanData = this.scan(world, new ChunkPos(position.getX() >> 4, position.getZ() >> 4));
+            this.dirty(true);
         }
     }
 
     private TerrainScanData scan(World world, ChunkPos origin) {
+        int minHeight = 256;
+        int maxHeight = 0;
+
         TerrainScanData scanData = new TerrainScanData();
         for (int chunkZ = -SCAN_RANGE; chunkZ <= SCAN_RANGE; chunkZ++) {
             for (int chunkX = -SCAN_RANGE; chunkX <= SCAN_RANGE; chunkX++) {
                 Chunk chunk = world.getChunkFromChunkCoords(origin.x + chunkX, origin.z + chunkZ);
                 scanData.addChunk(this.scanChunk(new ChunkPos(chunkX, chunkZ), chunk));
+
+                int height = chunk.getTopFilledSegment() + 8;
+                if (height > maxHeight) {
+                    maxHeight = height;
+                }
+                if (height < minHeight) {
+                    minHeight = height;
+                }
             }
         }
+
+        scanData.setMinHeight(minHeight);
+        scanData.setMaxHeight(maxHeight);
 
         this.scanned = true;
         return scanData;
@@ -88,7 +105,7 @@ public class ModuleTerrainScanner extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.TERRAIN_SCAN && this.scanData != null) {
+        if (capability == CapabilityModuleData.TERRAIN_SCAN) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -97,8 +114,9 @@ public class ModuleTerrainScanner extends EmptyModule {
     @Nullable
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.TERRAIN_SCAN && this.scanData != null) {
-            return CapabilityModuleData.TERRAIN_SCAN.cast(this.scanData);
+        if (capability == CapabilityModuleData.TERRAIN_SCAN) {
+            ITerrainScan terrainScan = this.scanData != null ? this.scanData : new EmptyTerrainScan(SCAN_RANGE);
+            return CapabilityModuleData.TERRAIN_SCAN.cast(terrainScan);
         }
         return super.getCapability(capability, facing);
     }

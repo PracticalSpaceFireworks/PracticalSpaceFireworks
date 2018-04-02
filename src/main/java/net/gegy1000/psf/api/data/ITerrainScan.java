@@ -12,4 +12,8 @@ public interface ITerrainScan extends IModuleData {
 
     @Nonnull
     Collection<IScannedChunk> getChunks();
+
+    int getMinHeight();
+
+    int getMaxHeight();
 }

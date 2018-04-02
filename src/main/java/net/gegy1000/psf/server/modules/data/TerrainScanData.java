@@ -1,7 +1,9 @@
 package net.gegy1000.psf.server.modules.data;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.gegy1000.psf.api.data.IScannedChunk;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.minecraft.block.material.MapColor;
@@ -16,9 +18,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@NoArgsConstructor
 public class TerrainScanData implements ITerrainScan {
     private final Map<ChunkPos, IScannedChunk> scannedChunks = new HashMap<>();
+
+    @Getter
+    @Setter
+    private int minHeight;
+
+    @Getter
+    @Setter
+    private int maxHeight;
 
     public void addChunk(ChunkData chunkData) {
         this.scannedChunks.put(chunkData.chunkPos, chunkData);
@@ -32,6 +41,8 @@ public class TerrainScanData implements ITerrainScan {
             chunkList.appendTag(scannedChunk.serializeNBT());
         }
         compound.setTag("chunks", chunkList);
+        compound.setShort("min_height", (short) this.minHeight);
+        compound.setShort("max_height", (short) this.maxHeight);
         return compound;
     }
 
@@ -43,6 +54,8 @@ public class TerrainScanData implements ITerrainScan {
             chunk.deserializeNBT(chunkList.getCompoundTagAt(i));
             this.scannedChunks.put(chunk.chunkPos, chunk);
         }
+        this.minHeight = compound.getShort("min_height");
+        this.maxHeight = compound.getShort("max_height");
     }
 
     @Nullable

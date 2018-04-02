@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.block.remote;
 
+import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.data.IScannedChunk;
 import net.gegy1000.psf.api.data.ITerrainScan;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -41,6 +43,7 @@ public class MapRenderer extends Gui {
 
     private static final EnumFacing[] RENDER_FACES = new EnumFacing[] { EnumFacing.UP, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST };
 
+    @Getter
     private final ITerrainScan terrainScan;
     private final List<ChunkRenderer> chunkRenderers;
 
@@ -62,7 +65,12 @@ public class MapRenderer extends Gui {
     }
 
     public void render() {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0, -this.terrainScan.getMaxHeight(), 0);
+
         this.chunkRenderers.forEach(ChunkRenderer::render);
+
+        GlStateManager.popMatrix();
     }
 
     public void delete() {
@@ -74,6 +82,10 @@ public class MapRenderer extends Gui {
     protected void finalize() throws Throwable {
         this.delete();
         super.finalize();
+    }
+
+    public boolean shouldUpdate(ITerrainScan scan) {
+        return !scan.equals(this.terrainScan);
     }
 
     private class ChunkRenderer {
@@ -118,12 +130,44 @@ public class MapRenderer extends Gui {
         }
 
         private void render() {
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(this.globalX, 0, this.globalZ);
+
             if (this.displayList != -1) {
-                GlStateManager.pushMatrix();
-                GlStateManager.translate(this.globalX, 0, this.globalZ);
                 GlStateManager.callList(this.displayList);
-                GlStateManager.popMatrix();
+            } else {
+                GlStateManager.color(0.4F, 0.6F, 0.8F, 1.0F);
+                GlStateManager.disableLighting();
+                for (int i = 0; i < 4; i++) {
+                    this.drawGrid(16, 16 >> i);
+                }
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                GlStateManager.enableLighting();
             }
+
+            GlStateManager.popMatrix();
+        }
+
+        private void drawGrid(int size, int blockSize) {
+            int blockCount = size / blockSize;
+
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder builder = tessellator.getBuffer();
+            builder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
+
+            for (int x = 0; x <= blockCount; x++) {
+                int lineX = x * blockSize;
+                builder.pos(lineX, 62.0, 0.0).endVertex();
+                builder.pos(lineX, 62.0, size).endVertex();
+            }
+
+            for (int z = 0; z <= blockCount; z++) {
+                int lineZ = z * blockSize;
+                builder.pos(0.0, 62.0, lineZ).endVertex();
+                builder.pos(size, 62.0, lineZ).endVertex();
+            }
+
+            tessellator.draw();
         }
 
         private void delete() {
