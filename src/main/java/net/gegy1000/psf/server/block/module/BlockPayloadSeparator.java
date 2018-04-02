@@ -13,9 +13,9 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlockPayloadAttacher extends BlockModule {
-    public BlockPayloadAttacher() {
-        super(Material.IRON, "payload_attacher");
+public class BlockPayloadSeparator extends BlockModule {
+    public BlockPayloadSeparator() {
+        super(Material.IRON, "payload_separator");
         this.setSoundType(SoundType.METAL);
         this.setHardness(3.0F);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);

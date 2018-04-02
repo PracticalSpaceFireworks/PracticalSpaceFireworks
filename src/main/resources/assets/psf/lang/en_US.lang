@@ -1,11 +1,15 @@
+itemGroup.psf=Practical Space Fireworks
+
 # Modules
 
 tile.psf.fuel_tank.name=Fuel Tank
 tile.psf.strut.name=Cubic Strut
 tile.psf.thruster.simple.name=Simple Thruster
 tile.psf.antenna.name=Antenna
-tile.psf.payload_attacher.name=Payload Attacher
+tile.psf.payload_separator.name=Payload Separator
 tile.psf.terrain_scanner.name=Terrain Scanner
+tile.psf.laser.name=Laser
+tile.psf.solar_panel.name=Solar Panel
 
 tile.psf.entity_detector.simple.name=Simple Entity Detector
 tile.psf.entity_marker.name=Simple Entity Marker
@@ -15,6 +19,8 @@ tile.psf.battery.advanced.name=Advanced Battery
 tile.psf.battery.custom.name=Battery
 
 tile.psf.controller.simple.name=Satellite Controller
+
+# Blocks
 
 tile.psf.remote_control_system.name=Remote Control System
 
