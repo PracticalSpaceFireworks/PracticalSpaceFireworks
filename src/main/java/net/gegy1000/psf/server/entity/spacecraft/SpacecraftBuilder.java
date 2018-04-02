@@ -92,14 +92,42 @@ public class SpacecraftBuilder {
         }
 
         int[] lightData = new int[SpacecraftBlockAccess.getDataSize(minPos, maxPos)];
-        if (world.isRemote)
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
-            BlockPos pos2 = origin.add(pos);
-            lightData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = world.getCombinedLight(pos2, 0);
+            lightData[SpacecraftBlockAccess.getPosIndex(pos, minPos, maxPos)] = getCombinedLight(world, origin.add(pos));
         }
 
         Biome biome = world.getBiome(origin);
 
         return new SpacecraftBlockAccess(blockData, lightData, this.entities, biome, minPos, maxPos);
+    }
+
+    private int getCombinedLight(World world, BlockPos pos) {
+        int skyLight = this.getLightFromNeighborsFor(world, EnumSkyBlock.SKY, pos);
+        int blockLight = this.getLightFromNeighborsFor(world, EnumSkyBlock.BLOCK, pos);
+        return skyLight << 20 | blockLight << 4;
+    }
+
+    private int getLightFromNeighborsFor(World world, EnumSkyBlock type, BlockPos pos) {
+        if (!world.provider.hasSkyLight() && type == EnumSkyBlock.SKY) {
+            return 0;
+        } else {
+            if (pos.getY() < 0) {
+                pos = new BlockPos(pos.getX(), 0, pos.getZ());
+            }
+            if (!world.isValid(pos)) {
+                return type.defaultLightValue;
+            } else if (!world.isBlockLoaded(pos)) {
+                return type.defaultLightValue;
+            } else if (world.getBlockState(pos).useNeighborBrightness()) {
+                int lightUp = world.getLightFor(type, pos.up());
+                int lightEast = world.getLightFor(type, pos.east());
+                int lightWest = world.getLightFor(type, pos.west());
+                int lightSouth = world.getLightFor(type, pos.south());
+                int lightNorth = world.getLightFor(type, pos.north());
+                return Math.max(lightUp, Math.max(lightEast, Math.max(lightWest, Math.max(lightSouth, lightNorth))));
+            } else {
+                return world.getChunkFromBlockCoords(pos).getLightFor(type, pos);
+            }
+        }
     }
 }
