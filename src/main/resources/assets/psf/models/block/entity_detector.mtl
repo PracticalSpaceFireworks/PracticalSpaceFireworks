@@ -1,0 +1,7 @@
+# Blender MTL File: 'entity_detector.blend'
+# Material Count: 1
+
+newmtl Material
+
+Kd 1.0 1.0 1.0
+map_Kd psf:blocks/entity_detector
