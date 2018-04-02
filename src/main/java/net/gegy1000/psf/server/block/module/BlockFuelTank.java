@@ -129,6 +129,8 @@ public class BlockFuelTank extends BlockModule {
     public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
         if (connecting != null && connecting.getBlock() == this) {
             return true;
+        } else if (connecting == null) {
+            return true;
         }
         boolean n = state.getValue(NORTH);
         boolean s = state.getValue(SOUTH);
