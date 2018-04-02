@@ -1,0 +1,11 @@
+{
+	"parent": "block/cube",
+	"textures": {
+		"down": "psf:blocks/remote_control_system_side",
+        "up": "psf:blocks/remote_control_system_side",
+        "east": "psf:blocks/remote_control_system_side",
+        "west": "psf:blocks/remote_control_system_side",
+        "north": "psf:blocks/remote_control_system_front",
+        "south": "psf:blocks/remote_control_system_side"
+	}
+}
