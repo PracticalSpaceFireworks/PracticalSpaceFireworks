@@ -4,17 +4,17 @@
         "model": "psf:entity_detector.obj",
 		"transform": "forge:default-block",
         "custom": { "flip-v": true }
-    },
-    "variants": {
-        "normal": [{}],
-        "inventory": [{}],
-        "facing": {
-        	"down": {},
-        	"up": {},
-        	"north": {},
-        	"south": {},
-        	"east": {},
-        	"west": {}
-        }
-    }
+	},
+	"variants": {
+		"normal": [{}],
+	    "inventory": [{}],
+	    "facing": {
+	     	"down": {"x": 180},
+	      	"up": {},
+	      	"north": {"x": 90},
+	      	"south": {"x": 90, "y": 180},
+	      	"east": {"x": 90, "y": 90},
+	      	"west": {"x": 90, "y": 270}
+	    }
+	}
 }
