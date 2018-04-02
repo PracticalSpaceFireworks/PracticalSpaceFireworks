@@ -17,13 +17,17 @@ import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -41,6 +45,8 @@ import javax.vecmath.Point3d;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -125,6 +131,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 this.state = syncedStateType.create(this);
             }
         }
+        rotationYaw -= 1;
 
         double lastMotionY = motionY;
 
@@ -241,6 +248,48 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
 
         this.setEntityBoundingBox(this.calculateEncompassingBounds());
+    }
+
+    @Override
+    public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+        if (!world.isRemote) {
+            float prevRotationYaw = this.rotationYaw;
+            float prevRotationPitch = this.rotationPitch;
+
+            int yaw = Math.round((this.rotationYaw % 360) / 90.0F) * 90;
+            while (yaw < 0) {
+                yaw += 360;
+            }
+
+            this.rotationYaw = yaw;
+            this.rotationPitch = Math.round(this.rotationPitch / 90.0F) * 90.0F;
+            this.recalculateRotation();
+
+            Rotation rotation = Rotation.values()[(yaw / 90 + 2) % 4];
+
+            Optional<SpacecraftDeconstructor.Result> result = SpacecraftDeconstructor.deconstruct(world, blockAccess, posX, posY, posZ, rotationMatrix);
+            if (result.isPresent()) {
+                Map<BlockPos, IBlockState> blocks = result.get().getBlocks();
+                Map<BlockPos, TileEntity> entities = result.get().getEntities();
+
+                for (Map.Entry<BlockPos, IBlockState> entry : blocks.entrySet()) {
+                    world.setBlockState(entry.getKey(), entry.getValue().withRotation(rotation), 10);
+                }
+
+                for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
+                    world.setTileEntity(entry.getKey(), entry.getValue());
+                }
+
+                setDead();
+            } else {
+                this.rotationYaw = prevRotationYaw;
+                this.rotationPitch = prevRotationPitch;
+                this.recalculateRotation();
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

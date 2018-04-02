@@ -17,7 +17,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -128,6 +130,16 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public @Nonnull IBlockState getStateFromMeta(int meta) {
         meta = Math.abs(meta & 7) % EnumFacing.values().length;
         return getDefaultState().withProperty(DIRECTION, EnumFacing.values()[meta]);
+    }
+
+    @Override
+    public IBlockState withRotation(IBlockState state, Rotation rot) {
+        return state.withProperty(DIRECTION, rot.rotate(state.getValue(DIRECTION)));
+    }
+
+    @Override
+    public IBlockState withMirror(IBlockState state, Mirror mirror) {
+        return state.withProperty(DIRECTION, mirror.mirror(state.getValue(DIRECTION)));
     }
 
     public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
