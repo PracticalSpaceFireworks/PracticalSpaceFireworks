@@ -3,12 +3,15 @@ package net.gegy1000.psf.server.block.remote;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
+@ParametersAreNonnullByDefault
 public abstract class AbstractScrollingList<T> extends GuiScrollingList {
     
     private final List<T> elements;
@@ -18,7 +21,6 @@ public abstract class AbstractScrollingList<T> extends GuiScrollingList {
         this.elements = elements;
     }
     
-    @Nonnull
     protected abstract String getText(T element);
     
     protected T getElement(int index) {
@@ -43,7 +45,7 @@ public abstract class AbstractScrollingList<T> extends GuiScrollingList {
     }
 
     @Override
-    protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
+    protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, @Nullable Tessellator tess) {
         T ele = getElement(slotIdx);
         boolean hovered = isHovering(slotTop, entryRight);
         FontRenderer fr = Minecraft.getMinecraft().fontRenderer;

@@ -11,7 +11,7 @@ public class GuiSelectCraft extends GuiRemoteControl {
     private GuiScrollingList craftList;
  
     public GuiSelectCraft(TileRemoteControlSystem te) {
-        super(te);
+        super(null, te);
     }
     
     @Override

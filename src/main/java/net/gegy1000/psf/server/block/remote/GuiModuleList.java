@@ -5,13 +5,18 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.google.common.collect.Lists;
 
 import net.gegy1000.psf.api.IModule;
 import net.minecraft.client.Minecraft;
 
+@ParametersAreNonnullByDefault
 public class GuiModuleList extends AbstractScrollingList<List<IModule>> {
     
     private static List<List<IModule>> groupModules(List<IModule> modules) {
+        modules = Lists.newArrayList(modules); // shallow copy
         List<List<IModule>> ret = new ArrayList<>();
         while (!modules.isEmpty()) {
             List<IModule> bucket = new ArrayList<>();

@@ -55,8 +55,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     private static final boolean scissorAvailable = GLContext.getCapabilities().OpenGL20;
 
-    private final GuiSelectCraft parent;
-
     private final int selectedCraft;
 
     private PreviewMode mode = PreviewMode.CRAFT;
@@ -73,8 +71,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     private MapRenderer mapRenderer;
 
     protected GuiCraftDetails(GuiSelectCraft parent, int selected, TileRemoteControlSystem te) {
-        super(te);
-        this.parent = parent;
+        super(parent, te);
         this.selectedCraft = selected;
 
         xSize = 256;
@@ -157,7 +154,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         } else if (button == buttonBack) {
             updateName();
             untrack();
-            mc.displayGuiScreen(parent);
+            mc.displayGuiScreen(getParent());
         } else if (button == buttonMode) {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
             buttonMode.displayString = this.mode.name().substring(0, 1);

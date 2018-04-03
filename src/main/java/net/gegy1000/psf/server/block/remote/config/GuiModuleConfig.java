@@ -29,7 +29,7 @@ public class GuiModuleConfig extends GuiRemoteControl {
     private List<IModuleConfigButton<?>> buttons = new ArrayList<>();
     
     public GuiModuleConfig(GuiSelectModule parent, int craftIndex, List<IModule> moduleGroup, TileRemoteControlSystem te) {
-        super(te);
+        super(parent, te);
         this.parent = parent;
         this.craftIndex = craftIndex;
         this.moduleGroup = moduleGroup;

@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.block.remote;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -10,6 +11,8 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,11 +24,15 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
     
     @Nonnull
     protected static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
+    
+    @Getter
+    @Nullable
+    private final GuiScreen parent;
 
     @Getter
     private final TileRemoteControlSystem te;
 
-    protected GuiRemoteControl(TileRemoteControlSystem te) {
+    protected GuiRemoteControl(@Nullable GuiScreen parent, TileRemoteControlSystem te) {
         super(new Container() {
 
             @Override
@@ -37,6 +44,7 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
                 }
             }
         });
+        this.parent = parent;
         this.te = te;
         
         xSize = 256;
@@ -51,6 +59,16 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
         if (craft != null) {
             PSFNetworkHandler.network.sendToServer(new PacketTrackCraft(craft.getId(), true));
         }
+    }
+    
+    @Override
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+        GuiScreen parent = getParent();
+        if (parent != null && mouseButton == 1) {
+            Minecraft.getMinecraft().displayGuiScreen(parent);
+            return;
+        }
+        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
     
     @Override
