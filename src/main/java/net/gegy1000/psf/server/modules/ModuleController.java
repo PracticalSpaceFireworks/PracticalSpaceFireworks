@@ -1,9 +1,5 @@
 package net.gegy1000.psf.server.modules;
 
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-
 import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.ISatellite;
@@ -16,6 +12,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
 public class ModuleController extends EmptyModule implements IController {
     
@@ -53,7 +52,7 @@ public class ModuleController extends EmptyModule implements IController {
     public void onSatelliteTick(ISatellite satellite) {
         super.onSatelliteTick(satellite);
         
-        if (deorbiting) {
+        if (deorbiting && satellite.isOrbiting()) {
             deorbiting = false;
             
             EntitySpacecraft entity = new EntitySpacecraft(satellite);
