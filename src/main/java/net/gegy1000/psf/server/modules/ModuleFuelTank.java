@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.modules;
 
+import com.google.common.collect.Lists;
 import net.gegy1000.psf.api.IAdditionalMass;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
@@ -17,6 +18,7 @@ import net.minecraftforge.fluids.capability.templates.FluidHandlerFluidMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 
 public class ModuleFuelTank extends EmptyModule implements IModule {
@@ -73,6 +75,52 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
     }
 
     private class FuelFluidHandler extends FluidHandlerFluidMap implements IAdditionalMass {
+        @Override
+        public IFluidTankProperties[] getTankProperties() {
+            List<IFluidTankProperties> tanks = Lists.newArrayList();
+            for (Map.Entry<Fluid, IFluidHandler> entry : handlers.entrySet()) {
+                IFluidTankProperties[] tankProperties = entry.getValue().getTankProperties();
+                for (IFluidTankProperties properties : tankProperties) {
+                    if (properties.getContents() != null) {
+                        tanks.add(properties);
+                    } else {
+                        tanks.add(new IFluidTankProperties() {
+                            @Override
+                            public FluidStack getContents() {
+                                return new FluidStack(entry.getKey(), 0);
+                            }
+
+                            @Override
+                            public int getCapacity() {
+                                return properties.getCapacity();
+                            }
+
+                            @Override
+                            public boolean canFill() {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean canDrain() {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean canFillFluidType(FluidStack fluidStack) {
+                                return fluidStack.getFluid() == entry.getKey();
+                            }
+
+                            @Override
+                            public boolean canDrainFluidType(FluidStack fluidStack) {
+                                return fluidStack.getFluid() == entry.getKey();
+                            }
+                        });
+                    }
+                }
+            }
+            return tanks.toArray(new IFluidTankProperties[0]);
+        }
+
         @Override
         public int fill(FluidStack resource, boolean doFill) {
             int fill = super.fill(resource, doFill);
