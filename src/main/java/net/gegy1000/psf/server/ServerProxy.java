@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server;
 
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
@@ -10,9 +11,11 @@ import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.UniqueManager;
 import net.gegy1000.psf.server.util.BlockMassHandler;
+import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.function.Consumer;
@@ -30,6 +33,8 @@ public class ServerProxy {
         CapabilityModuleData.register();
         CapabilityModule.register();
         CapabilitySatellite.register();
+
+        NetworkRegistry.INSTANCE.registerGuiHandler(PracticalSpaceFireworks.MODID, new PSFGuiHandler());
     }
 
     public void onInit() {

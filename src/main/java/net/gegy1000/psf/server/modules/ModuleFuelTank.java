@@ -31,8 +31,8 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
     public ModuleFuelTank() {
         super("fuel_tank");
 
-        this.keroseneTank = new FluidTank(PSFFluidRegistry.KEROSENE, CAPACITY, CAPACITY);
-        this.liquidOxygenTank = new FluidTank(PSFFluidRegistry.LIQUID_OXYGEN, CAPACITY, CAPACITY);
+        this.keroseneTank = new FluidTank(PSFFluidRegistry.KEROSENE, 0, CAPACITY);
+        this.liquidOxygenTank = new FluidTank(PSFFluidRegistry.LIQUID_OXYGEN, 0, CAPACITY);
         this.storage = new FuelFluidHandler();
         this.storage.addHandler(PSFFluidRegistry.KEROSENE, this.keroseneTank);
         this.storage.addHandler(PSFFluidRegistry.LIQUID_OXYGEN, this.liquidOxygenTank);

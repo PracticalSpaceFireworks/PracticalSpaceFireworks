@@ -5,6 +5,7 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
+import net.gegy1000.psf.server.block.fueler.BlockFuelLoader;
 import net.gegy1000.psf.server.block.module.BlockBattery;
 import net.gegy1000.psf.server.block.module.BlockFuelTank;
 import net.gegy1000.psf.server.block.module.BlockModule;
@@ -47,6 +48,7 @@ public class PSFBlockRegistry {
     public static BlockModule thruster;
 
     public static BlockRemoteControlSystem remoteControlSystem;
+    public static BlockFuelLoader fuelLoader;
 
     public static BlockFuelTank fuelTank;
     public static BlockPayloadSeparator payloadSeparator;
@@ -85,6 +87,7 @@ public class PSFBlockRegistry {
         liquidOxygen = register(event, "liquid_oxygen", new BlockPSFFluid(PSFFluidRegistry.LIQUID_OXYGEN, Material.WATER));
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
+        fuelLoader = register(event, "fuel_loader", new BlockFuelLoader());
 
         // Register module TE only once
         GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + ":" + "module");
