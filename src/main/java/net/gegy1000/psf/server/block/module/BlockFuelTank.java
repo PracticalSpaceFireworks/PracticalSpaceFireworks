@@ -99,7 +99,9 @@ public class BlockFuelTank extends BlockModule {
     @Override
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
         super.onBlockAdded(worldIn, pos, state);
-        updateNeighbors(state, worldIn, pos);
+        if (!CONVERTING.get()) {
+            updateNeighbors(state, worldIn, pos);
+        }    
     }
 
     @Override
@@ -115,7 +117,9 @@ public class BlockFuelTank extends BlockModule {
     @Override
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         super.breakBlock(worldIn, pos, state);
-        updateNeighbors(state, worldIn, pos);
+        if (!CONVERTING.get()) {
+            updateNeighbors(state, worldIn, pos);
+        }
     }
 
     private void updateNeighbors(IBlockState state, World worldIn, BlockPos pos) {
