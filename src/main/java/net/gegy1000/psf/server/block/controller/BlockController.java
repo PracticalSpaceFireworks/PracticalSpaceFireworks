@@ -13,12 +13,14 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
+import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockMobSpawner;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -67,7 +69,12 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
                 
                 ((TileController) te).converted();
 
-                modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
+                BlockModule.CONVERTING.set(true);
+                try {
+                    modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
+                } finally {
+                    BlockModule.CONVERTING.set(false);
+                }
 
                 spacecraft.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0);
                 worldIn.spawnEntity(spacecraft);

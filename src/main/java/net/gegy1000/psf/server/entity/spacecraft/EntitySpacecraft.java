@@ -5,6 +5,7 @@ import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
@@ -280,12 +281,17 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 Map<BlockPos, IBlockState> blocks = result.get().getBlocks();
                 Map<BlockPos, TileEntity> entities = result.get().getEntities();
 
-                for (Map.Entry<BlockPos, IBlockState> entry : blocks.entrySet()) {
-                    world.setBlockState(entry.getKey(), entry.getValue().withRotation(rotation), 10);
-                }
-
-                for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
-                    world.setTileEntity(entry.getKey(), entry.getValue());
+                BlockModule.CONVERTING.set(true);
+                try {
+                    for (Map.Entry<BlockPos, IBlockState> entry : blocks.entrySet()) {
+                        world.setBlockState(entry.getKey(), entry.getValue().withRotation(rotation), 10);
+                    }
+    
+                    for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
+                        world.setTileEntity(entry.getKey(), entry.getValue());
+                    }
+                } finally {
+                    BlockModule.CONVERTING.set(false);
                 }
                 
                 this.converted = true;

@@ -28,6 +28,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
+    
+    public static final ThreadLocal<Boolean> CONVERTING = ThreadLocal.withInitial(() -> false);
 
     public static final @Nonnull IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
 
