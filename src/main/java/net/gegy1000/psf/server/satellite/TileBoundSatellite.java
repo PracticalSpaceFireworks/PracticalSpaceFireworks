@@ -54,9 +54,7 @@ public class TileBoundSatellite extends AbstractSatellite {
     public SpacecraftBlockAccess buildBlockAccess(World world) {
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
-        for (val e : controller.getModules().entrySet()) {
-            builder.setBlockState(e.getKey().subtract(origin), e.getValue().getState());
-        }
+        builder.copyFrom(world, origin, controller.getModules().keySet());
         return builder.buildBlockAccess(origin, world);
     }
 

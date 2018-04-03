@@ -5,6 +5,10 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
+import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft.Launch;
+import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.entity.spacecraft.LaunchMetadata;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.minecraft.client.gui.GuiButton;
@@ -33,8 +37,11 @@ import org.lwjgl.util.Rectangle;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +74,9 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Nullable
     private SyncedData synced;
+    
+    @Nonnull
+    private Map<Fluid, ResourceAmount> fluidData = new HashMap<>();
 
     private MapRenderer mapRenderer;
 
@@ -105,6 +115,31 @@ public class GuiCraftDetails extends GuiRemoteControl {
         if (craft != null) {
             tfName.setText(craft.getName());
             buttonLaunch.visible = craft.canLaunch();
+        }
+    }
+    
+    @Override
+    public void updateScreen() {
+        super.updateScreen();
+        
+        SyncedData synced = this.synced;
+        if (synced != null) {
+            List<IFluidTankProperties> tanks = synced.tankModules.stream()
+                    .map(m -> m.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                    .filter(Objects::nonNull)
+                    .flatMap(handler -> Arrays.stream(handler.getTankProperties()))
+                    .collect(Collectors.toList());
+    
+            Map<Fluid, ResourceAmount> totalFluid = new HashMap<>();
+            for (IFluidTankProperties tank : tanks) {
+                FluidStack contents = tank.getContents();
+                if (contents != null) {
+                    ResourceAmount amount = totalFluid.computeIfAbsent(contents.getFluid(), fluid -> new ResourceAmount());
+                    amount.add(contents.amount, tank.getCapacity());
+                }
+            }
+            
+            this.fluidData = totalFluid;
         }
     }
 
@@ -175,6 +210,61 @@ public class GuiCraftDetails extends GuiRemoteControl {
             tfName.drawTextBox();
             drawStats(synced, craft);
         }
+    }
+    
+    @Override
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
+        IListedSpacecraft craft = getCraft();
+        SyncedData synced = this.synced;
+        if (craft != null && !craft.isOrbiting() && synced != null) {
+            LaunchMetadata metadata = synced.metadata;
+            
+            int x = panel.getX() + 4;
+            int y = panel.getY() + panel.getHeight() - 4;
+            
+            int width = panel.getWidth() - 8;
+            if (metadata.getThrusters().isEmpty()) {
+                y -= drawWarning(x, y, width, Collections.singletonList("No Thrusters!"), mouseX, mouseY);
+            } else if (metadata.getTotalForce() / metadata.getMass() < (EntitySpacecraft.GRAVITY * 1.25)) {
+                y -= drawWarning(x, y, width, Collections.singletonList("Low Thrust!"), mouseX, mouseY);
+            }
+            
+            ResourceAmount kerosene = fluidData.get(PSFFluidRegistry.KEROSENE);
+            if (kerosene != null) {
+                if ((float) kerosene.amount / kerosene.capacity < 0.25f) {
+                    y -= drawWarning(x, y, width, Collections.singletonList("Low Kerosene!"), mouseX, mouseY);
+                }
+            }
+            
+            ResourceAmount lox = fluidData.get(PSFFluidRegistry.LIQUID_OXYGEN);
+            if (lox != null) {
+                if ((float) lox.amount / lox.capacity < 0.25f) {
+                    y -= drawWarning(x, y, width, Collections.singletonList("Low LOX!"), mouseX, mouseY);
+                }
+            }
+        }
+    }
+    
+    private int drawWarning(int x, int y, int width, List<String> strings, int mx, int my) {
+        GlStateManager.enableBlend();
+        mx -= guiLeft;
+        my -= guiTop;
+        int height = strings.size() * (mc.fontRenderer.FONT_HEIGHT + 2) + 6;
+        int alpha = (mx >= x && my <= y && mx <= x + width && my >= y - height ? 0x55 : 0xFF) << 24;
+        drawRect(x, y, x + width, y - height, alpha | 0x333333);
+        drawRect(x + 1, y - 1, x + width - 1, y - height + 1, alpha | 0xC1AD00);
+        mc.getTextureManager().bindTexture(TEXTURE_LOC);
+        GlStateManager.enableBlend();
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
+        GlStateManager.color(1, 1, 1, (alpha >>> 24) / 255f);
+        drawTexturedModalRect(x + 3, y - (int) Math.ceil(height / 2f) - 4, 115, 202, 9, 9);
+        int sy = (y - height) + 5;
+        for (String s : strings) {
+            mc.fontRenderer.drawString(s, x + 15, sy, alpha | 0x333333);
+            sy += (mc.fontRenderer.FONT_HEIGHT + 2);
+        }
+        return height + 2;
     }
 
     private void drawBackground(@Nullable IListedSpacecraft craft) {
@@ -350,22 +440,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             drawBar(x, y, amount.amount, amount.capacity, 0xFFFFCD4F);
             y += 12;
         } else {
-            List<IFluidTankProperties> tanks = synced.tankModules.stream()
-                    .map(m -> m.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
-                    .filter(Objects::nonNull)
-                    .flatMap(handler -> Arrays.stream(handler.getTankProperties()))
-                    .collect(Collectors.toList());
-
-            Map<Fluid, ResourceAmount> totalFluid = new HashMap<>();
-            for (IFluidTankProperties tank : tanks) {
-                FluidStack contents = tank.getContents();
-                if (contents != null) {
-                    ResourceAmount amount = totalFluid.computeIfAbsent(contents.getFluid(), fluid -> new ResourceAmount());
-                    amount.add(contents.amount, tank.getCapacity());
-                }
-            }
-
-            for (Map.Entry<Fluid, ResourceAmount> entry : totalFluid.entrySet()) {
+            for (Map.Entry<Fluid, ResourceAmount> entry : fluidData.entrySet()) {
                 String localizedName = I18n.format(entry.getKey().getUnlocalizedName());
                 mc.fontRenderer.drawString(localizedName, x, y, color);
                 y += 12;
@@ -385,6 +460,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
         }
         y += 10;
         mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
+        x -= 5;
+        y += 15;
+        
+        LaunchMetadata metadata = synced.metadata;
+        mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(metadata.getMass()) + "kg", x, y, color);
     }
 
     private void drawBar(int x, int y, int value, int max, int color) {
@@ -425,10 +505,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     private class SyncedData {
-        private final Collection<IModule> modules;
-        private final Collection<IModule> terrainScannerModules;
-        private final Collection<IModule> tankModules;
-        private final SpacecraftModel model;
+        final Collection<IModule> modules;
+        final Collection<IModule> terrainScannerModules;
+        final Collection<IModule> tankModules;
+        final SpacecraftModel model;
+        final LaunchMetadata metadata; 
 
         public SyncedData(IVisual visual) {
             model = SpacecraftModel.build(visual.getBlockAccess());
@@ -439,6 +520,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             tankModules = modules.stream()
                     .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
                     .collect(Collectors.toList());
+            metadata = visual.getBlockAccess().buildLaunchMetadata();
         }
     }
 

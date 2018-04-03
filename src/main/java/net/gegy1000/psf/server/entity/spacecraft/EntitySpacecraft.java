@@ -52,7 +52,7 @@ import java.util.UUID;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     private static final double AIR_RESISTANCE = 0.98;
-    private static final double GRAVITY = 1.6;
+    public static final double GRAVITY = 1.6;
 
     private static final DataParameter<Byte> STATE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.BYTE);
     private static final DataParameter<Float> ACCELERATION = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
