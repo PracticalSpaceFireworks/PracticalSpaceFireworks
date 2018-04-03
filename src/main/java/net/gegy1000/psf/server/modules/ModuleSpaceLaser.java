@@ -94,7 +94,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     }
     
     @Override
-    public void activate(ISatellite craft, BlockPos target) {
+    public boolean activate(ISatellite craft, BlockPos target) {
         BlockPos oldTarget = this.target;
         if (oldTarget != null) {
             sendState(craft, oldTarget, LaserState.COMPLETE);
@@ -102,7 +102,9 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
         if (craft.getWorld().getHeight(craft.getPosition()).distanceSq(target) <= 4096) {
             this.target = target;
             sendState(craft, LaserState.CHARGING);
+            return true;
         }
+        return false;
     }
     
     private void sendState(ISatellite craft, BlockPos target, LaserState state) {

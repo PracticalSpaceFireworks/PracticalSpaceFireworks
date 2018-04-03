@@ -1,14 +1,14 @@
 package net.gegy1000.psf.server.item;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFItemRegistry {
@@ -20,6 +20,7 @@ public class PSFItemRegistry {
     }
 
     private static void register(RegistryEvent.Register<Item> event, String identifier, Item item) {
+        item.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
         event.getRegistry().register(item.setRegistryName(identifier));
         REGISTERED_ITEMS.add(item);
     }
