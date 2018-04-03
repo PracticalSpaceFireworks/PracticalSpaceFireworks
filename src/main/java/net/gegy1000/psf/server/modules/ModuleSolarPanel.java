@@ -22,7 +22,7 @@ public class ModuleSolarPanel extends EmptyModule {
 
         if (satellite.getWorld().isDaytime()) {
             int powerToProvide = POWER_PER_TICK;
-            powerToProvide = (int)((-1/300000.0) * Math.pow(satellite.getWorld().getWorldTime() - 6000, 2) + powerToProvide);
+            powerToProvide = -(int)((powerToProvide / (36000000.0)) * satellite.getWorld().getWorldTime() * (satellite.getWorld().getWorldTime() - 12000)) + 1;
             for (IEnergyStorage source : powerSources) {
                 powerToProvide -= source.receiveEnergy(powerToProvide, false);
                 if (powerToProvide <= 0) {
