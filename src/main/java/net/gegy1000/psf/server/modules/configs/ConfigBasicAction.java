@@ -10,7 +10,7 @@ public class ConfigBasicAction extends AbstractConfig {
     
     private final String content;
 
-    protected ConfigBasicAction(String key, String content) {
+    public ConfigBasicAction(String key, String content) {
         super(key);
         this.content = content;
     }
