@@ -30,8 +30,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
-@EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
+@EventBusSubscriber(modid = PracticalSpaceFireworks.MODID, value = Side.CLIENT)
 public class LaserRenderer {
 
     public enum LaserState {
