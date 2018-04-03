@@ -1,9 +1,17 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "model": "psf:fuel_loader",
+    "transform": "forge:default-block"
+  },
   "variants": {
-    "facing=north": {"model": "psf:fuel_loader"},
-    "facing=west": {"model": "psf:fuel_loader", "y": 270},
-    "facing=south": {"model": "psf:fuel_loader", "y": 180},
-    "facing=east": {"model": "psf:fuel_loader", "y": 90},
-    "inventory": {"model": "psf:fuel_loader"}
+    "normal": [{}],
+    "inventory": [{}],
+    "facing": {
+      "north": {},
+      "west": {"y": 270},
+      "south": {"y": 180},
+      "east": {"y": 90}
+    }
   }
 }

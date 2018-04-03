@@ -110,4 +110,14 @@ public class BlockFuelLoader extends BlockHorizontal implements RegisterItemMode
     public IBlockState withMirror(IBlockState state, Mirror mirror) {
         return state.withRotation(mirror.toRotation(state.getValue(FACING)));
     }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState state) {
+        return false;
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state) {
+        return false;
+    }
 }
