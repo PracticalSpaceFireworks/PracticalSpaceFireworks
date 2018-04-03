@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "normal": {"model": "psf:payload_separator"},
+    "inventory": {"model": "psf:payload_separator"}
+  }
+}

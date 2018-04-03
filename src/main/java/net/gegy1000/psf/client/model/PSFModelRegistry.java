@@ -56,7 +56,8 @@ public class PSFModelRegistry {
         
         IStateMapper controllerMapper = new StateMap.Builder().ignore(BlockController.TYPE).build();
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.basicController, controllerMapper);
-        
+
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.payloadSeparator, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.strut, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.fuelTank, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
 

@@ -66,7 +66,7 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public int getTickInterval() {
-        return 10;
+        return 200;
     }
 
     private boolean withinSatelliteRange(ISatellite satellite, BlockPos pos) {

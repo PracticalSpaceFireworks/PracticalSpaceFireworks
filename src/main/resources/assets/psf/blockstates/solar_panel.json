@@ -3,8 +3,7 @@
   "defaults": {
     "model": "psf:solar_panel.obj",
     "transform": "forge:default-block",
-    "custom": { "flip-v": true },
-    "textures": {"particle": "psf:blocks/solar_panel_particle"}
+    "custom": { "flip-v": true }
   },
   "variants": {
     "normal": [{}],

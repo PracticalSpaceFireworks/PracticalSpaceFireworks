@@ -131,7 +131,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 this.state = syncedStateType.create(this);
             }
         }
-        rotationYaw -= 1;
 
         double lastMotionY = motionY;
 

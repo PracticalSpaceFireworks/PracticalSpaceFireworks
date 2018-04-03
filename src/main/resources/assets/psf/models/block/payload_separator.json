@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "psf:blocks/payload_separator_side",
+    "down": "psf:blocks/payload_separator_bottom",
+    "up": "psf:blocks/payload_separator_top",
+    "north": "psf:blocks/payload_separator_side",
+    "east": "psf:blocks/payload_separator_side",
+    "south": "psf:blocks/payload_separator_side",
+    "west": "psf:blocks/payload_separator_side"
+  }
+}
