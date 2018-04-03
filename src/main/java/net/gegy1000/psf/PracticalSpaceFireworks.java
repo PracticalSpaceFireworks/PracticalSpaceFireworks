@@ -1,25 +1,23 @@
 package net.gegy1000.psf;
 
-import net.gegy1000.psf.server.ServerProxy;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
-import net.gegy1000.psf.server.util.PSFGuiHandler;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
+import net.gegy1000.psf.server.ServerProxy;
+import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 @Mod(modid = PracticalSpaceFireworks.MODID, name = "Practical Space Fireworks", version = PracticalSpaceFireworks.VERSION, acceptedMinecraftVersions = "[1.12]")
 @ParametersAreNonnullByDefault
@@ -53,7 +51,6 @@ public class PracticalSpaceFireworks {
     @Mod.EventHandler
     public static void onPreInit(FMLPreInitializationEvent event) {
         PROXY.onPreInit();
-        NetworkRegistry.INSTANCE.registerGuiHandler(instance, new PSFGuiHandler());
     }
 
     @Mod.EventHandler

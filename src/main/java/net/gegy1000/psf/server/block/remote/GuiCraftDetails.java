@@ -1,6 +1,22 @@
 package net.gegy1000.psf.server.block.remote;
 
-import lombok.Getter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
@@ -14,7 +30,6 @@ import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -25,47 +40,24 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.fml.client.GuiScrollingList;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-public class GuiControlSystem extends GuiContainer {
+public class GuiCraftDetails extends GuiRemoteControl {
 
     enum PreviewMode {
         CRAFT,
         MAP,
         ;
     }
-    
-    @Nonnull
-    private static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
-    
+
     @Nonnull
     private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
     
     private static final boolean scissorAvailable = GLContext.getCapabilities().OpenGL20;
-
-    @Getter
-    private final ContainerControlSystem container;
     
-    private GuiScrollingList craftList;
+    private final GuiSelectCraft parent;
     
-    private int selectedCraft = -1;
+    private final int selectedCraft;
 
     private SpacecraftModel model;
     
@@ -77,58 +69,53 @@ public class GuiControlSystem extends GuiContainer {
     @Nonnull
     private Collection<IModule> terrainScannerModules = new ArrayList<>();
     
-    private GuiButton buttonBack, buttonMode, buttonLaunch;
+    private GuiButton buttonModules, buttonBack, buttonMode, buttonLaunch;
     
     private GuiTextField tfName;
     
     private final Rectangle panel;
 
     private MapRenderer mapRenderer;
-
-    public GuiControlSystem(ContainerControlSystem inventorySlotsIn) {
-        super(inventorySlotsIn);
-        this.container = inventorySlotsIn;
+    
+    protected GuiCraftDetails(GuiSelectCraft parent, int selected, TileRemoteControlSystem te) {
+        super(te);
+        this.parent = parent;
+        this.selectedCraft = selected;
         
         xSize = 256;
-        ySize = 201;
-        
+        ySize = 201;        
+
         panel = new Rectangle(10, 10, (xSize / 2) - 20, ySize - 20);
+        
+        IListedSpacecraft craft = getCraft();
+        if (craft != null) {
+            craft.requestVisualData();
+        }
     }
-    
+
     @Override
     public void initGui() {
         super.initGui();
-
-        craftList = new GuiCraftList(this, mc, xSize - 20, ySize - 10, guiTop + 10, guiTop + ySize - 10, guiLeft + 10, 20, width, height);
-
+        
         IListedSpacecraft craft = getCraft();
+        
+        buttonModules = new GuiButtonExt(-1, guiLeft + (xSize / 2), guiTop + 34, 115, 20, "Modules");
+        addButton(buttonModules);
 
         buttonBack = new GuiButtonExt(0, guiLeft + xSize - 50 - 10, guiTop + ySize - 20 - 10, 50, 20, "Back");
-        buttonBack.visible = craft != null;
         addButton(buttonBack);
         
         buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
-        buttonMode.visible = craft != null;
         addButton(buttonMode);
 
         buttonLaunch = new GuiButtonExt(2, guiLeft + panel.getX() + panel.getWidth() + 10, guiTop + ySize - 20 - 10, 50, 20, "Launch");
-        buttonLaunch.visible = craft != null && craft.canLaunch();
         addButton(buttonLaunch);
         
         tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
         if (craft != null) {
             tfName.setText(craft.getName());
+            buttonLaunch.visible = craft.canLaunch();
         }
-    }
-    
-    @Override
-    public void handleMouseInput() throws IOException {
-        int mouseX = Mouse.getEventX() * this.width / this.mc.displayWidth;
-        int mouseY = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
-
-        super.handleMouseInput();
-        if (this.craftList != null)
-            this.craftList.handleMouseInput(mouseX, mouseY);
     }
     
     @Override
@@ -155,7 +142,6 @@ public class GuiControlSystem extends GuiContainer {
         super.onGuiClosed();
         if (selectedCraft >= 0) {
             updateName();
-            untrack();
         }
         if (mapRenderer != null) {
             mapRenderer.delete();
@@ -169,28 +155,16 @@ public class GuiControlSystem extends GuiContainer {
         }
     }
 
-    private void untrack() {
-        IListedSpacecraft craft = getCraft();
-        if (craft != null) {
-            PSFNetworkHandler.network.sendToServer(new PacketTrackCraft(craft.getId(), false));
-        }
-    }
-
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
         super.actionPerformed(button);
         IListedSpacecraft craft = getCraft();
-        if (button == buttonBack) {
+        if (button == buttonModules) {
+            mc.displayGuiScreen(new GuiSelectModule(this, selectedCraft, modules, getTe()));
+        } else if (button == buttonBack) {
             updateName();
             untrack();
-            selectedCraft = -1;
-            buttonBack.visible = false;
-            buttonMode.visible = false;
-            buttonLaunch.visible = false;
-            model = null;
-            modules.clear();
-            terrainScannerModules.clear();
-            tfName.setText("");
+            mc.displayGuiScreen(parent);
         } else if (button == buttonMode) {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
             buttonMode.displayString = this.mode.name().substring(0, 1);
@@ -201,37 +175,26 @@ public class GuiControlSystem extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        GlStateManager.color(1, 1, 1, 1);
-        drawDefaultBackground();
-        mc.getTextureManager().bindTexture(TEXTURE_LOC);
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
-        if (selectedCraft >= 0 && model != null) {
-            IListedSpacecraft craft = getCraft();
-            if (craft == null) {
-                return;
-            }
+        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+        IListedSpacecraft craft = getCraft();
 
-            drawBackground(craft);
+        drawBackground(craft);
 
+        if (craft != null) {
             renderPreview();
-            
             tfName.drawTextBox();
-
             drawStats(craft);
-            
-        } else {
-            craftList.drawScreen(mouseX, mouseY, partialTicks);
         }
     }
 
-    private void drawBackground(IListedSpacecraft craft) {
+    private void drawBackground(@Nullable IListedSpacecraft craft) {
         drawRect(guiLeft + panel.getX() - 1, guiTop + panel.getY() - 1, guiLeft + panel.getX() + panel.getWidth() + 1, guiTop + panel.getY() + panel.getHeight() + 1, 0xFF8A8A8A);
         GlStateManager.color(1, 1, 1);
 
         mc.getTextureManager().bindTexture(PREVIEW_BG);
         GlStateManager.enableBlend();
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
-        int craftY = craft.getPosition().getY();
+        int craftY = craft == null ? 0 : craft.getPosition().getY();
         float alpha = 0;
         if (craftY > 256) {
             alpha = Math.min((craftY - 256) / 500f, 1);
@@ -248,7 +211,9 @@ public class GuiControlSystem extends GuiContainer {
     private void renderPreview() {
         switch (mode) {
         case CRAFT:
-            renderCraft();
+            if (model != null) {
+                renderCraft();
+            }
             break;
         case MAP:
             renderMap();
@@ -383,16 +348,8 @@ public class GuiControlSystem extends GuiContainer {
 
     private void drawStats(IListedSpacecraft craft) {
         int x = guiLeft + (xSize / 2);
-        int y = guiTop + 35;
+        int y = guiTop + 62;
         int color = 0xFF333333;
-        mc.fontRenderer.drawString("Modules:", x, y, color);
-        y += 10;
-        Map<String, List<IModule>> grouped = modules.stream().collect(Collectors.groupingBy(IModule::getLocalizedName));
-        for (val e : grouped.entrySet()) {
-            mc.fontRenderer.drawString(e.getValue().size() + "x " + e.getKey(), x, y, color);
-            y += 10;
-        }
-        y += 5;
         int energy = modules.stream()
                 .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
                 .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
@@ -413,25 +370,17 @@ public class GuiControlSystem extends GuiContainer {
         mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
     }
 
-    private @Nullable IListedSpacecraft getCraft() {
+    @Nullable
+    @Override
+    public IListedSpacecraft getCraft() {
         if (selectedCraft >= 0) {
-            return container.getTe().getCrafts().get(selectedCraft);
+            return getTe().getCrafts().get(selectedCraft);
         }
         return null;
     }
 
-    public void selectCraft(int index) {
-        this.selectedCraft = index;
-        IListedSpacecraft craft = getCraft();
-        craft.requestVisualData();
-        buttonBack.visible = true;
-        buttonMode.visible = true;
-        buttonLaunch.visible = craft.canLaunch();
-        tfName.setText(craft.getName());
-        PSFNetworkHandler.network.sendToServer(new PacketTrackCraft(craft.getId(), true));
-    }
-
-    public void setVisual(IListedSpacecraft.Visual visual) {
+    @Override
+    public void setVisual(@Nonnull IVisual visual) {
         model = SpacecraftModel.build(visual.getBlockAccess());
         modules = visual.getModules();
         terrainScannerModules = modules.stream()
@@ -439,7 +388,9 @@ public class GuiControlSystem extends GuiContainer {
                 .collect(Collectors.toList());
     }
 
-    public void updateModule(UUID id, NBTTagCompound tag) {
+    @Override
+    public void updateModule(@Nonnull UUID id, @Nonnull NBTTagCompound tag) {
         modules.stream().filter(m -> m.getId().equals(id)).findFirst().ifPresent(m -> m.readUpdateTag(tag));
     }
+
 }

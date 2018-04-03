@@ -1,6 +1,10 @@
 package net.gegy1000.psf.server.block.remote.entity;
 
-import net.gegy1000.psf.server.block.remote.GuiControlSystem;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+
+import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
@@ -10,9 +14,6 @@ import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
-
-import javax.annotation.Nonnull;
-import java.util.UUID;
 
 public class EntityListedSpacecraft implements IListedSpacecraft {
     private final EntitySpacecraft spacecraft;
@@ -53,10 +54,10 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
 
     private void respondVisualData() {
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if (currentScreen instanceof GuiControlSystem) {
+        if (currentScreen instanceof IVisualReceiver) {
             EntityBoundSatellite satellite = this.spacecraft.getSatellite();
             Visual visual = new Visual(satellite.buildBlockAccess(this.spacecraft.getEntityWorld()), satellite.getModules());
-            ((GuiControlSystem) currentScreen).setVisual(visual);
+            ((IVisualReceiver) currentScreen).setVisual(visual);
         }
     }
 

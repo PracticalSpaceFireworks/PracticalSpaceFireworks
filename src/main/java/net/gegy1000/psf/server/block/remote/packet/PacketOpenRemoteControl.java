@@ -13,8 +13,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import net.gegy1000.psf.server.block.remote.ContainerControlSystem;
-import net.gegy1000.psf.server.block.remote.GuiControlSystem;
+import net.gegy1000.psf.server.block.remote.GuiSelectCraft;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
@@ -143,7 +142,7 @@ public class PacketOpenRemoteControl implements IMessage {
                     if (entity instanceof TileRemoteControlSystem) {
                         TileRemoteControlSystem controlSystem = (TileRemoteControlSystem) entity;
                         controlSystem.provideServerCrafts(SatelliteState.getAllCrafts(player, message.byType));
-                        Minecraft.getMinecraft().displayGuiScreen(new GuiControlSystem(new ContainerControlSystem(controlSystem, player.inventory)));
+                        Minecraft.getMinecraft().displayGuiScreen(new GuiSelectCraft(controlSystem));
                     }
                 }
             });

@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.block.remote.GuiControlSystem;
+import net.gegy1000.psf.client.IVisualReceiver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
@@ -54,12 +54,11 @@ public class PacketModule implements IMessage {
             return null;
         }
         
-        
         @SideOnly(Side.CLIENT)
         private void updateModuleClient(PacketModule message) {
             GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-            if (gui instanceof GuiControlSystem) {
-                ((GuiControlSystem) gui).updateModule(message.getId(), message.getTag());
+            if (gui instanceof IVisualReceiver) {
+                ((IVisualReceiver) gui).updateModule(message.getId(), message.getTag());
             }
         }
     }

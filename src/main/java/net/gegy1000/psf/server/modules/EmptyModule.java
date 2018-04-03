@@ -1,22 +1,33 @@
 package net.gegy1000.psf.server.modules;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.IModuleConfig;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.UUID;
-
 @RequiredArgsConstructor
 public class EmptyModule implements IModule {
     
+    private final Map<String, IModuleConfig> configs = new HashMap<>();
+    
+    @Nonnull
     @Getter
     private UUID id = UUID.randomUUID();
     
@@ -25,6 +36,7 @@ public class EmptyModule implements IModule {
     @Accessors(chain = true)
     private ResourceLocation registryName;
     
+    @Nonnull
     @Getter
     private final String name;
     
@@ -33,7 +45,7 @@ public class EmptyModule implements IModule {
     
     @SideOnly(Side.CLIENT)
     @Override
-    public String getLocalizedName() {
+    public @Nonnull String getLocalizedName() {
         return I18n.format(String.format("tile.%s.%s.name", PracticalSpaceFireworks.MODID, getName()));
     }
     
@@ -54,5 +66,22 @@ public class EmptyModule implements IModule {
     @Override
     public void dirty(boolean dirty) {
         this.dirty = dirty;
+    }
+    
+    protected final void registerConfigs(IModuleConfig... cfgs) {
+        for (IModuleConfig cfg : cfgs) {
+            this.configs.put(cfg.getKey(), cfg);
+        }
+    }
+    
+    @Override
+    @Nullable
+    public IModuleConfig getConfig(String key) {
+        return this.configs.get(key);
+    }
+    
+    @Override
+    public @Nonnull Collection<IModuleConfig> getConfigs() {
+        return this.configs.values();
     }
 }

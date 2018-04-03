@@ -2,6 +2,7 @@ package net.gegy1000.psf.server.block.remote;
 
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IUnique;
+import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.util.math.BlockPos;
 
@@ -34,7 +35,7 @@ public interface IListedSpacecraft extends IUnique {
         throw new UnsupportedOperationException();
     }
 
-    class Visual {
+    class Visual implements IVisualReceiver.IVisual {
         private final SpacecraftBlockAccess blockAccess;
         private final Collection<IModule> modules;
 
@@ -44,11 +45,13 @@ public interface IListedSpacecraft extends IUnique {
         }
 
         @Nonnull
+        @Override
         public SpacecraftBlockAccess getBlockAccess() {
             return this.blockAccess;
         }
 
         @Nonnull
+        @Override
         public Collection<IModule> getModules() {
             return this.modules;
         }

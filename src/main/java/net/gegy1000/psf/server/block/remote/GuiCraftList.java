@@ -1,22 +1,29 @@
 package net.gegy1000.psf.server.block.remote;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraftforge.fml.client.GuiScrollingList;
-
+import java.util.Collections;
 import java.util.List;
 
-public class GuiCraftList extends GuiScrollingList {
-    
-    private GuiControlSystem gui;
+import javax.annotation.Nonnull;
 
-    public GuiCraftList(GuiControlSystem parent, Minecraft client, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
-        super(client, width, height, top, bottom, left, entryHeight, screenWidth, screenHeight);
+import net.minecraft.client.Minecraft;
+
+public class GuiCraftList extends AbstractScrollingList<IListedSpacecraft> {
+    
+    private GuiSelectCraft gui;
+
+    public GuiCraftList(GuiSelectCraft parent, Minecraft client, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
+        super(Collections.emptyList(), client, width, height, top, bottom, left, entryHeight, screenWidth, screenHeight);
         this.gui = parent;
     }
     
+    @Override
+    @Nonnull
+    protected String getText(IListedSpacecraft element) {
+        return element.getName();
+    }
+    
     protected List<IListedSpacecraft> getCrafts() {
-        return gui.getContainer().getTe().getCrafts();
+        return gui.getTe().getCrafts();
     }
 
     @Override
@@ -25,20 +32,12 @@ public class GuiCraftList extends GuiScrollingList {
     }
 
     @Override
+    protected IListedSpacecraft getElement(int index) {
+        return getCrafts().get(index);
+    }
+    
+    @Override
     protected void elementClicked(int index, boolean doubleClick) {
         gui.selectCraft(index);
-    }
-
-    @Override
-    protected boolean isSelected(int index) { return false; }
-
-    @Override
-    protected void drawBackground() {}
-
-    @Override
-    protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-        IListedSpacecraft craft = getCrafts().get(slotIdx);
-        boolean hovered = mouseY >= slotTop && mouseY < slotTop + slotHeight && mouseX >= entryRight - listWidth && mouseX < entryRight; 
-        gui.mc.fontRenderer.drawSplitString(craft.getName(), left + slotBuffer, slotTop + (slotHeight / 2) - (gui.mc.fontRenderer.FONT_HEIGHT / 2), listWidth - (slotBuffer * 2), hovered ? 0xFFFFFF55 : -1);
     }
 }

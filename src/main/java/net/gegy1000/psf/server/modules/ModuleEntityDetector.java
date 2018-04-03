@@ -2,8 +2,11 @@ package net.gegy1000.psf.server.modules;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.gegy1000.psf.api.IModuleConfig;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.server.modules.configs.ConfigBasicToggle;
+import net.gegy1000.psf.server.modules.configs.ConfigBooleanToggle;
 import net.gegy1000.psf.server.modules.data.EntityListData;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,6 +19,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
+import java.util.Collections;
 
 @ParametersAreNonnullByDefault
 public class ModuleEntityDetector extends EmptyModule {
@@ -31,6 +35,8 @@ public class ModuleEntityDetector extends EmptyModule {
         @Getter
         private final int chunkRange;
     }
+    
+    private final ConfigBooleanToggle enabled = new ConfigBooleanToggle("enabled", "Enabled", "Disabled");
 
     private final int chunkRange;
 
@@ -47,11 +53,13 @@ public class ModuleEntityDetector extends EmptyModule {
     public ModuleEntityDetector(EntityDetectorTier tier, int chunkRange) {
         super("entity_detector." + tier.getName());
         this.chunkRange = chunkRange;
+        enabled.modified(null); // Flip to enabled by default
+        registerConfigs(enabled);
     }
 
     @Override
     public void onSatelliteTick(ISatellite satellite) {
-        if (satellite.tryExtractEnergy(1000)) {
+        if (enabled.value() && satellite.tryExtractEnergy(1000)) {
             World world = satellite.getWorld();
             Collection<EntityLivingBase> entities = world.getEntities(EntityLivingBase.class, e -> {
                 if (e == null || e instanceof EntityPlayer) {
@@ -61,6 +69,8 @@ public class ModuleEntityDetector extends EmptyModule {
             });
 
             this.listData.updateEntities(entities);
+        } else {
+            this.listData.updateEntities(Collections.emptyList());
         }
     }
 

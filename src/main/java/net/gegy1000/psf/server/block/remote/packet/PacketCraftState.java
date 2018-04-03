@@ -6,15 +6,12 @@ import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.block.remote.GuiControlSystem;
+import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiControls;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -52,8 +49,8 @@ public class PacketCraftState implements IMessage {
         public IMessage onMessage(PacketCraftState message, MessageContext ctx) {
             PracticalSpaceFireworks.PROXY.handlePacket(ctx, player -> {
                 GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-                if (currentScreen instanceof GuiControlSystem) {
-                    ((GuiControlSystem) currentScreen).getContainer().getTe().provideSingleCraft(SatelliteState.getCraft(player, message.type, message.craft));
+                if (currentScreen instanceof IVisualReceiver) {
+                    ((IVisualReceiver) currentScreen).updateCraft(SatelliteState.getCraft(player, message.type, message.craft));
                 }
             });
             return null;

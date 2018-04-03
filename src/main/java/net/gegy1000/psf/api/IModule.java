@@ -1,6 +1,8 @@
 package net.gegy1000.psf.api;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @ParametersAreNonnullByDefault
 public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICapabilityProvider {
-
+    
     default void onSatelliteTick(ISatellite satellite) {
     }
 
@@ -61,6 +63,33 @@ public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICap
         return null;
     }
     
+    /* Module Settings */
+    
+    /**
+     * Treat this similarly to equals(), except for fuzzy grouping of modules that can be listed as one.
+     * <p>
+     * Therefore, this must always be symmetric, so <code>a.groupWith(b) == b.groupWitih(a)</code> 
+     */
+    default boolean groupWith(IModule other) {
+        return other.getClass() == getClass();
+    }
+    
+    default Collection<IModuleConfig> getConfigs() {
+        return Collections.emptyList();
+    }
+            
+    @Nullable
+    default IModuleConfig getConfig(String key) {
+        return null;
+    }
+    
+    /**
+     * Updates will be reflected instantly, but the size of the list should be consistent for this instance.
+     */
+    default List<String> getSummary() {
+        return Collections.emptyList();
+    }
+
     /* Client Syncing */
     
     default boolean isDirty() {
