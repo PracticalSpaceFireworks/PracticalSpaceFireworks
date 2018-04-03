@@ -6,6 +6,7 @@
     },
     "variants": {
         "normal": [{}],
+        "inventory": [{}],
         "type": {
         	"cube": { "textures": { "all": "psf:blocks/strut_cube" }}
         }

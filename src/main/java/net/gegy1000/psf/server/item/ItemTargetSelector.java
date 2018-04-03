@@ -3,7 +3,9 @@ package net.gegy1000.psf.server.item;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.data.ILaser;
+import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,17 +15,25 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 
-public class ItemTargetSelector extends Item {
+public class ItemTargetSelector extends Item implements RegisterItemModel {
 
     public ItemTargetSelector() {
         super();
         setCreativeTab(PracticalSpaceFireworks.TAB);
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
+        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + "I heard you liked dev textures...");
     }
 
     @Override

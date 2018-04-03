@@ -25,6 +25,9 @@ tile.psf.controller.simple.name=Satellite Controller
 tile.psf.remote_control_system.name=Remote Control System
 tile.psf.fuel_loader.name=Fuel Loader
 
+# Items
+item.psf.target_selector.name=Target Selector
+
 # Fluids
 
 fluid.psf.kerosene=Kerosene
