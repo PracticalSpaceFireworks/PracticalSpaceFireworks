@@ -33,7 +33,7 @@ public class SpacecraftDeconstructor {
 
                 blocks.put(transformedPos, state);
 
-                TileEntity entity = blockAccess.getTileEntity(transformedPos);
+                TileEntity entity = blockAccess.getTileEntity(pos);
                 if (entity != null) {
                     TileEntity copiedEntity = TileEntity.create(world, entity.serializeNBT());
                     if (copiedEntity == null) {
