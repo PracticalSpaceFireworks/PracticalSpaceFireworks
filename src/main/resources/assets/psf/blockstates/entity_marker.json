@@ -9,12 +9,12 @@
         "normal": [{}],
         "inventory": [{}],
         "facing": {
-        	"down": {},
-        	"up": {},
-        	"north": {},
-        	"south": {},
-        	"east": {},
-        	"west": {}
+        	"down": {"x": 180},
+	      	"up": {},
+	      	"north": {"x": 90},
+	      	"south": {"x": 90, "y": 180},
+	      	"east": {"x": 90, "y": 90},
+	      	"west": {"x": 90, "y": 270}
         }
     }
 }
