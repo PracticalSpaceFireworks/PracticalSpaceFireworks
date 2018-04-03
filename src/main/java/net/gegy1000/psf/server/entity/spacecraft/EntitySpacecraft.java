@@ -275,7 +275,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
                     world.setTileEntity(entry.getKey(), entry.getValue());
                 }
-
+                
+                this.converted = true;
+                for (EntityPlayerMP p : satellite.getTrackingPlayers()) {
+                    PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.TILE, satellite.toListedCraft()), p);
+                }
+                
                 setDead();
             } else {
                 this.rotationYaw = prevRotationYaw;
