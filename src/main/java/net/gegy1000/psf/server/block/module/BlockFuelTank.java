@@ -1,12 +1,16 @@
 package net.gegy1000.psf.server.block.module;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.server.modules.ModuleFuelTank;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -97,7 +101,17 @@ public class BlockFuelTank extends BlockModule {
         super.onBlockAdded(worldIn, pos, state);
         updateNeighbors(state, worldIn, pos);
     }
-    
+
+    @Override
+    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+        if (placer instanceof EntityPlayer && ((EntityPlayer) placer).capabilities.isCreativeMode) {
+            IModule module = TileModule.getModule(world.getTileEntity(pos));
+            if (module instanceof ModuleFuelTank) {
+                ((ModuleFuelTank) module).setFull();
+            }
+        }
+    }
+
     @Override
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
         super.breakBlock(worldIn, pos, state);

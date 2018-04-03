@@ -1,16 +1,13 @@
 package net.gegy1000.psf.server.block.module;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -19,6 +16,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -43,30 +43,31 @@ public class TileModule extends TileEntity {
         }
         return super.getCapability(capability, facing);
     }
-    
+
     @Override
     @Nullable
     public SPacketUpdateTileEntity getUpdatePacket() {
         return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
     }
-    
+
     @Override
     public NBTTagCompound getUpdateTag() {
         return writeToNBT(new NBTTagCompound());
     }
-    
+
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         handleUpdateTag(pkt.getNbtCompound());
     }
-    
+
     @Override
     public void handleUpdateTag(NBTTagCompound tag) {
         readFromNBT(tag);
     }
 
     @Override
-    public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
+    public @Nonnull
+    NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
         IModule module = this.module;
         if (module != null) {
             ResourceLocation moduleID = module.getRegistryName();
@@ -88,5 +89,13 @@ public class TileModule extends TileEntity {
             this.module = factory.get();
             this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
         }
+    }
+
+    @Nullable
+    public static IModule getModule(TileEntity entity) {
+        if (entity != null && entity.hasCapability(CapabilityModule.INSTANCE, null)) {
+            return entity.getCapability(CapabilityModule.INSTANCE, null);
+        }
+        return null;
     }
 }

@@ -38,6 +38,11 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
         this.storage.addHandler(PSFFluidRegistry.LIQUID_OXYGEN, this.liquidOxygenTank);
     }
 
+    public void setFull() {
+        this.keroseneTank.fill(new FluidStack(PSFFluidRegistry.KEROSENE, CAPACITY), true);
+        this.liquidOxygenTank.fill(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, CAPACITY), true);
+    }
+
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tag = super.serializeNBT();
