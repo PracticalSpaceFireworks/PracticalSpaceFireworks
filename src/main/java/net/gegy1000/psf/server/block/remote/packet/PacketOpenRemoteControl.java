@@ -1,14 +1,5 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-
 import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +22,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @NoArgsConstructor
 public class PacketOpenRemoteControl implements IMessage {
@@ -73,9 +72,10 @@ public class PacketOpenRemoteControl implements IMessage {
                 }
                 break;
             case ENTITY:
-                List<EntitySpacecraft> entities = player.world.getEntities(EntitySpacecraft.class, ent -> ent.getUniqueID().equals(craft.getId()));
+                List<EntitySpacecraft> entities = player.world.getEntities(EntitySpacecraft.class, ent -> ent.getSatellite().getId().equals(craft.getId()));
                 if (!entities.isEmpty()) {
-                    return new EntityListedSpacecraft(entities.get(0));
+                    EntitySpacecraft spacecraft = entities.get(0);
+                    return new EntityListedSpacecraft(spacecraft, spacecraft.getSatellite().getId());
                 }
                 break;
             default:

@@ -24,6 +24,7 @@ import java.util.UUID;
 public class EntityBoundSatellite extends AbstractSatellite {
     
     private final EntitySpacecraft spacecraft;
+    private UUID uuid;
 
     private final List<IModule> modules = new ArrayList<>();
     private IController controller;
@@ -31,8 +32,9 @@ public class EntityBoundSatellite extends AbstractSatellite {
     @Nonnull
     private String name = "";
 
-    public EntityBoundSatellite(EntitySpacecraft spacecraft) {
+    public EntityBoundSatellite(EntitySpacecraft spacecraft, UUID uuid) {
         this.spacecraft = spacecraft;
+        this.uuid = uuid;
     }
 
     public void detectModules() {
@@ -50,7 +52,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
 
     @Override
     public UUID getId() {
-        return this.spacecraft.getUniqueID();
+        return this.uuid;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
 
     @Override
     public IListedSpacecraft toListedCraft() {
-        return new EntityListedSpacecraft(spacecraft);
+        return new EntityListedSpacecraft(spacecraft, uuid);
     }
 
     @Override
@@ -107,6 +109,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tag = super.serializeNBT();
         tag.setString("name", name);
+        tag.setUniqueId("uuid", uuid);
         return tag;
     }
 
@@ -115,6 +118,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
         super.deserializeNBT(tag);
         if (tag != null) {
             this.name = tag.getString("name");
+            this.uuid = tag.getUniqueId("uuid");
         }
     }
 

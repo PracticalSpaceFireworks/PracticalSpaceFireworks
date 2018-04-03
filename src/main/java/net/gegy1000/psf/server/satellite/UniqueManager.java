@@ -1,5 +1,13 @@
 package net.gegy1000.psf.server.satellite;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalNotification;
+import lombok.val;
+import net.gegy1000.psf.api.IUnique;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -7,16 +15,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalNotification;
-
-import lombok.val;
-import net.gegy1000.psf.api.IUnique;
 
 public class UniqueManager<T extends IUnique> {
     

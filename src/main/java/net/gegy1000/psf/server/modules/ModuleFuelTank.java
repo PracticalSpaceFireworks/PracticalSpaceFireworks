@@ -74,6 +74,33 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
 
     private class FuelFluidHandler extends FluidHandlerFluidMap implements IAdditionalMass {
         @Override
+        public int fill(FluidStack resource, boolean doFill) {
+            int fill = super.fill(resource, doFill);
+            if (fill > 0) {
+                dirty(true);
+            }
+            return fill;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, boolean doDrain) {
+            FluidStack drain = super.drain(resource, doDrain);
+            if (drain != null && drain.amount > 0) {
+                dirty(true);
+            }
+            return drain;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, boolean doDrain) {
+            FluidStack drain = super.drain(maxDrain, doDrain);
+            if (drain != null && drain.amount > 0) {
+                dirty(true);
+            }
+            return drain;
+        }
+
+        @Override
         public double getAdditionalMass() {
             double additonalMass = 0.0;
             for (Map.Entry<Fluid, IFluidHandler> handler : handlers.entrySet()) {

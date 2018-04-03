@@ -65,7 +65,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     @Getter
-    private final EntityBoundSatellite satellite = new EntityBoundSatellite(this);
+    private final EntityBoundSatellite satellite;
 
     @SideOnly(Side.CLIENT)
     public SpacecraftModel model;
@@ -90,13 +90,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         builder.copyFrom(world, origin, positions);
         this.blockAccess = builder.buildBlockAccess(origin, this.world);
 
+        this.satellite = new EntityBoundSatellite(this, id);
         this.satellite.detectModules();
         this.recalculateRotation();
         this.metadata = this.blockAccess.buildLaunchMetadata();
-
-        if (id != null) {
-            setUniqueId(id);
-        }
 
         if (!world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);

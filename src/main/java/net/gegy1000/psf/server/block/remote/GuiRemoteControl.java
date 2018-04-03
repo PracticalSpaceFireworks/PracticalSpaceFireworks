@@ -20,7 +20,7 @@ import net.minecraft.util.ResourceLocation;
 public abstract class GuiRemoteControl extends GuiContainer implements IVisualReceiver {
     
     @Nonnull
-    private static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
+    protected static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
 
     @Getter
     private final TileRemoteControlSystem te;

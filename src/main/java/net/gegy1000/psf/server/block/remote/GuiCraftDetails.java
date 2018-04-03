@@ -1,38 +1,19 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
-
-import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
-import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
@@ -40,93 +21,105 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GuiCraftDetails extends GuiRemoteControl {
 
     enum PreviewMode {
         CRAFT,
-        MAP,
-        ;
+        MAP,;
     }
 
     @Nonnull
     private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
-    
+
     private static final boolean scissorAvailable = GLContext.getCapabilities().OpenGL20;
-    
+
     private final GuiSelectCraft parent;
-    
+
     private final int selectedCraft;
 
-    private SpacecraftModel model;
-    
     private PreviewMode mode = PreviewMode.CRAFT;
-    
-    @Nonnull
-    private Collection<IModule> modules = new ArrayList<>();
 
-    @Nonnull
-    private Collection<IModule> terrainScannerModules = new ArrayList<>();
-    
     private GuiButton buttonModules, buttonBack, buttonMode, buttonLaunch;
-    
+
     private GuiTextField tfName;
-    
+
     private final Rectangle panel;
 
+    @Nullable
+    private SyncedData synced;
+
     private MapRenderer mapRenderer;
-    
+
     protected GuiCraftDetails(GuiSelectCraft parent, int selected, TileRemoteControlSystem te) {
         super(te);
         this.parent = parent;
         this.selectedCraft = selected;
-        
+
         xSize = 256;
-        ySize = 201;        
+        ySize = 201;
 
         panel = new Rectangle(10, 10, (xSize / 2) - 20, ySize - 20);
-        
-        IListedSpacecraft craft = getCraft();
-        if (craft != null) {
-            craft.requestVisualData();
-        }
     }
 
     @Override
     public void initGui() {
         super.initGui();
-        
+
         IListedSpacecraft craft = getCraft();
-        
+        if (craft != null && synced == null) {
+            craft.requestVisualData();
+        }
+
         buttonModules = new GuiButtonExt(-1, guiLeft + (xSize / 2), guiTop + 34, 115, 20, "Modules");
         addButton(buttonModules);
 
         buttonBack = new GuiButtonExt(0, guiLeft + xSize - 50 - 10, guiTop + ySize - 20 - 10, 50, 20, "Back");
         addButton(buttonBack);
-        
+
         buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
         addButton(buttonMode);
 
         buttonLaunch = new GuiButtonExt(2, guiLeft + panel.getX() + panel.getWidth() + 10, guiTop + ySize - 20 - 10, 50, 20, "Launch");
         addButton(buttonLaunch);
-        
+
         tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
         if (craft != null) {
             tfName.setText(craft.getName());
             buttonLaunch.visible = craft.canLaunch();
         }
     }
-    
+
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        
+
         if (this.tfName != null) {
             this.tfName.mouseClicked(mouseX, mouseY, mouseButton);
         }
     }
-    
+
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         if (this.tfName != null) {
@@ -136,7 +129,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         }
         super.keyTyped(typedChar, keyCode);
     }
-    
+
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
@@ -147,7 +140,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             mapRenderer.delete();
         }
     }
-    
+
     private void updateName() {
         IListedSpacecraft craft = getCraft();
         if (craft != null) {
@@ -159,8 +152,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
     protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
         super.actionPerformed(button);
         IListedSpacecraft craft = getCraft();
-        if (button == buttonModules) {
-            mc.displayGuiScreen(new GuiSelectModule(this, selectedCraft, modules, getTe()));
+        if (button == buttonModules && synced != null) {
+            mc.displayGuiScreen(new GuiSelectModule(this, selectedCraft, synced.modules, getTe()));
         } else if (button == buttonBack) {
             updateName();
             untrack();
@@ -180,10 +173,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
         drawBackground(craft);
 
-        if (craft != null) {
-            renderPreview();
+        if (craft != null && synced != null) {
+            renderPreview(synced);
             tfName.drawTextBox();
-            drawStats(craft);
+            drawStats(synced, craft);
         }
     }
 
@@ -208,21 +201,19 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.disableBlend();
     }
 
-    private void renderPreview() {
+    private void renderPreview(SyncedData synced) {
         switch (mode) {
-        case CRAFT:
-            if (model != null) {
-                renderCraft();
-            }
-            break;
-        case MAP:
-            renderMap();
-            break;
+            case CRAFT:
+                renderCraft(synced.model);
+                break;
+            case MAP:
+                renderMap(synced);
+                break;
         }
     }
 
-    private void renderMap() {
-        Optional<ITerrainScan> terrainScan = terrainScannerModules.stream()
+    private void renderMap(SyncedData syncedData) {
+        Optional<ITerrainScan> terrainScan = syncedData.terrainScannerModules.stream()
                 .map(module -> module.getCapability(CapabilityModuleData.TERRAIN_SCAN, null))
                 .filter(Objects::nonNull)
                 .findFirst();
@@ -271,7 +262,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.popMatrix();
     }
 
-    private void renderCraft() {
+    private void renderCraft(SpacecraftModel model) {
         BlockPos from = model.getRenderWorld().getMinPos();
         BlockPos to = model.getRenderWorld().getMaxPos();
         AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(from), new Vec3d(to).addVector(1, 1, 1));
@@ -307,7 +298,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
 
         BlockPos min = model.getRenderWorld().getMinPos();
-        
 
         GlStateManager.translate(-halfX, -halfY, -halfZ);
         GlStateManager.rotate(-10, 1, 0, 0);
@@ -339,24 +329,54 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.enableBlend();
         model.render(BlockRenderLayer.TRANSLUCENT);
         GlStateManager.disableBlend();
-        
+
         if (scissorAvailable) {
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
         }
         GlStateManager.popMatrix();
     }
 
-    private void drawStats(IListedSpacecraft craft) {
+    private void drawStats(SyncedData synced, IListedSpacecraft craft) {
         int x = guiLeft + (xSize / 2);
         int y = guiTop + 62;
         int color = 0xFF333333;
-        int energy = modules.stream()
-                .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
-                .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
-                .reduce(0, (e, m) -> e + m.getEnergyStored(), (a, b) -> a + b);
-        mc.fontRenderer.drawString("Energy Stored: " + energy, x, y, color);
-        y += 15;
+
         boolean orbiting = craft.isOrbiting();
+        if (orbiting) {
+            ResourceAmount amount = new ResourceAmount();
+            synced.modules.stream()
+                    .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
+                    .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
+                    .forEach(storage -> amount.add(storage.getEnergyStored(), storage.getMaxEnergyStored()));
+            mc.fontRenderer.drawString("Energy", x, y, color);
+            y += 12;
+            drawBar(x, y, amount.amount, amount.capacity, 0xFFFFCD4F);
+            y += 12;
+        } else {
+            List<IFluidTankProperties> tanks = synced.tankModules.stream()
+                    .map(m -> m.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                    .filter(Objects::nonNull)
+                    .flatMap(handler -> Arrays.stream(handler.getTankProperties()))
+                    .collect(Collectors.toList());
+
+            Map<Fluid, ResourceAmount> totalFluid = new HashMap<>();
+            for (IFluidTankProperties tank : tanks) {
+                FluidStack contents = tank.getContents();
+                if (contents != null) {
+                    ResourceAmount amount = totalFluid.computeIfAbsent(contents.getFluid(), fluid -> new ResourceAmount());
+                    amount.add(contents.amount, tank.getCapacity());
+                }
+            }
+
+            for (Map.Entry<Fluid, ResourceAmount> entry : totalFluid.entrySet()) {
+                String localizedName = I18n.format(entry.getKey().getUnlocalizedName());
+                mc.fontRenderer.drawString(localizedName, x, y, color);
+                y += 12;
+                drawBar(x, y, entry.getValue().amount, entry.getValue().capacity, entry.getKey().getColor());
+                y += 12;
+            }
+        }
+
         mc.fontRenderer.drawString(orbiting ? "Orbiting Over:" : "Position:", x, y, color);
         BlockPos pos = craft.getPosition();
         x += 5;
@@ -370,6 +390,22 @@ public class GuiCraftDetails extends GuiRemoteControl {
         mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
     }
 
+    private void drawBar(int x, int y, int value, int max, int color) {
+        mc.getTextureManager().bindTexture(TEXTURE_LOC);
+
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+
+        float valueScale = (float) value / max;
+
+        drawTexturedModalRect(x, y, 0, 202, 115, 5);
+        GlStateManager.color(red / 255.0F, green / 255.0F, blue / 255.0F, 1.0F);
+        drawTexturedModalRect(x, y, 0, 207, (int) (valueScale * 115), 5);
+
+        GlStateManager.color(1, 1, 1, 1);
+    }
+
     @Nullable
     @Override
     public IListedSpacecraft getCraft() {
@@ -381,16 +417,41 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Override
     public void setVisual(@Nonnull IVisual visual) {
-        model = SpacecraftModel.build(visual.getBlockAccess());
-        modules = visual.getModules();
-        terrainScannerModules = modules.stream()
-                .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
-                .collect(Collectors.toList());
+        synced = new SyncedData(visual);
     }
 
     @Override
     public void updateModule(@Nonnull UUID id, @Nonnull NBTTagCompound tag) {
-        modules.stream().filter(m -> m.getId().equals(id)).findFirst().ifPresent(m -> m.readUpdateTag(tag));
+        if (synced != null) {
+            synced.modules.stream().filter(m -> m.getId().equals(id)).findFirst().ifPresent(m -> m.readUpdateTag(tag));
+        }
     }
 
+    private class SyncedData {
+        private final Collection<IModule> modules;
+        private final Collection<IModule> terrainScannerModules;
+        private final Collection<IModule> tankModules;
+        private final SpacecraftModel model;
+
+        public SyncedData(IVisual visual) {
+            model = SpacecraftModel.build(visual.getBlockAccess());
+            modules = visual.getModules();
+            terrainScannerModules = modules.stream()
+                    .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
+                    .collect(Collectors.toList());
+            tankModules = modules.stream()
+                    .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    private class ResourceAmount {
+        private int capacity;
+        private int amount;
+
+        public void add(int amount, int capacity) {
+            this.amount += amount;
+            this.capacity += capacity;
+        }
+    }
 }
