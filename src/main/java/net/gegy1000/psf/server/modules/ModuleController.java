@@ -21,8 +21,7 @@ public class ModuleController extends EmptyModule implements IController {
     private final ConfigBasicAction deorbit = new ConfigBasicAction("deorbit", TextFormatting.RED + "DEORBIT") {
       
         @Override
-        public void deserializeNBT(NBTTagCompound nbt) {
-            super.deserializeNBT(nbt);
+        public void modified() {
             deorbiting = true;
         }
     };

@@ -23,18 +23,18 @@ public interface IModuleConfig extends INBTSerializable<NBTTagCompound> {
     String getValue();
     
     /**
-     * Called when the value is changed.
+     * Called when the value is changed on the client. Use this method to update your internal state for syncing to the server.
      * @param newValue An object (generally a string, or a number for slider) representing the new value, if applicable.
      */
     default void modified(@Nullable Object newValue) {}
+    
+    /**
+     * Called after deserializing this config on the server. Use this to perform any actions based on the new state.
+     */
+    default void modified() {}
 
     ConfigType getType();
 
-    /**
-     * Only called on the server, when the value has changed clientside.
-     * <p>
-     * This should probably call {@link #modified(Object)} in your implementation.
-     */
     @Override
     void deserializeNBT(@Nullable NBTTagCompound tag);
 

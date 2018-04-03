@@ -58,7 +58,10 @@ public class PacketConfigChange implements IMessage {
                         .map(ISatellite::getIndexedModules)
                         .map(map -> map.get(message.moduleId))
                         .map(m -> m.getConfig(message.cfgKey))
-                        .ifPresent(cfg -> cfg.deserializeNBT(message.cfgData));
+                        .ifPresent(cfg -> {
+                            cfg.deserializeNBT(message.cfgData);
+                            cfg.modified();
+                        });
             });
             return null;
         }

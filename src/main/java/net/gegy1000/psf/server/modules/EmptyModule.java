@@ -2,7 +2,6 @@ package net.gegy1000.psf.server.modules;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,6 +11,7 @@ import javax.annotation.Nullable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.val;
 import lombok.experimental.Accessors;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
@@ -53,6 +53,11 @@ public class EmptyModule implements IModule {
     public NBTTagCompound serializeNBT() {
         NBTTagCompound ret = new NBTTagCompound();
         ret.setUniqueId("id", id);
+        NBTTagCompound configTag = new NBTTagCompound();
+        for (val e : configs.entrySet()) {
+            configTag.setTag(e.getKey(), e.getValue().serializeNBT());
+        }
+        ret.setTag("configs", configTag);
         return ret;
     }
 
@@ -60,6 +65,13 @@ public class EmptyModule implements IModule {
     public void deserializeNBT(NBTTagCompound nbt) {
         if (nbt.hasKey("idMost")) {
             this.id = nbt.getUniqueId("id");
+        }
+        NBTTagCompound configTag = nbt.getCompoundTag("configs");
+        for (val e : configs.entrySet()) {
+            IModuleConfig cfg = getConfig(e.getKey());
+            if (cfg != null) {
+                cfg.deserializeNBT(configTag.getCompoundTag(e.getKey()));
+            }
         }
     }
     
