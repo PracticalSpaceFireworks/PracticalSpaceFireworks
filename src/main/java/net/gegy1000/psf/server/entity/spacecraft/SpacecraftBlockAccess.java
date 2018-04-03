@@ -13,6 +13,7 @@ import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.modules.ModuleThruster;
 import net.gegy1000.psf.server.util.BlockMassHandler;
+import net.gegy1000.psf.server.util.PointUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -159,9 +160,19 @@ public class SpacecraftBlockAccess implements IBlockAccess {
     }
 
     private SpacecraftBlockAccess splitSection(World world, int startY, int endY) {
-        BlockPos origin = new BlockPos(0, startY, 0);
-        BlockPos minPos = new BlockPos(this.minPos.getX(), 0, this.minPos.getZ());
-        BlockPos maxPos = new BlockPos(this.maxPos.getX(), endY - startY, this.maxPos.getZ());
+        BlockPos fittedMinPos = this.maxPos;
+        BlockPos fittedMaxPos = this.minPos;
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(this.minPos.getX(), startY, this.minPos.getZ(), this.maxPos.getX(), endY, this.maxPos.getZ())) {
+            if (!isAirBlock(pos)) {
+                fittedMinPos = PointUtils.min(fittedMinPos, pos);
+                fittedMaxPos = PointUtils.max(fittedMaxPos, pos);
+            }
+        }
+
+        BlockPos minPos = fittedMinPos.down(startY);
+        BlockPos maxPos = fittedMaxPos.down(startY);
+
+        BlockPos offset = minPos.subtract(new BlockPos(this.minPos.getX(), startY, this.minPos.getZ()));
 
         int dataSize = getDataSize(minPos, maxPos);
         int[] blockData = new int[dataSize];
@@ -169,7 +180,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
 
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
             int localIndex = getPosIndex(pos, minPos, maxPos);
-            int globalIndex = getPosIndex(pos.add(origin), this.minPos, this.maxPos);
+            int globalIndex = getPosIndex(pos.subtract(offset), this.minPos, this.maxPos);
             blockData[localIndex] = this.blockData[globalIndex];
             lightData[localIndex] = this.lightData[globalIndex];
         }
@@ -178,7 +189,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         for (TileEntity entity : this.getEntities()) {
             int entityY = entity.getPos().getY();
             if (entityY >= startY && entityY <= endY) {
-                BlockPos localPos = entity.getPos().subtract(origin);
+                BlockPos localPos = entity.getPos().add(offset);
                 TileEntity copiedEntity = TileEntity.create(world, entity.serializeNBT());
                 if (copiedEntity == null) {
                     PracticalSpaceFireworks.LOGGER.warn("Failed to copy TE for spacecraft");

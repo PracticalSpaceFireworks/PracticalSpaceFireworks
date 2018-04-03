@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.server.util.PointUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
@@ -22,8 +23,8 @@ public class SpacecraftBuilder {
     private final IntList blockValues = new IntArrayList();
     private final Long2ObjectMap<TileEntity> entities = new Long2ObjectOpenHashMap<>();
 
-    private int minX, minY, minZ;
-    private int maxX, maxY, maxZ;
+    private BlockPos minPos = BlockPos.ORIGIN;
+    private BlockPos maxPos = BlockPos.ORIGIN;
 
     public void setBlockState(BlockPos pos, IBlockState state) {
         this.updateBounds(pos);
@@ -39,26 +40,8 @@ public class SpacecraftBuilder {
     }
 
     private void updateBounds(BlockPos pos) {
-        if (pos.getX() < this.minX) {
-            this.minX = pos.getX();
-        }
-        if (pos.getX() > this.maxX) {
-            this.maxX = pos.getX();
-        }
-
-        if (pos.getY() < this.minY) {
-            this.minY = pos.getY();
-        }
-        if (pos.getY() > this.maxY) {
-            this.maxY = pos.getY();
-        }
-
-        if (pos.getZ() < this.minZ) {
-            this.minZ = pos.getZ();
-        }
-        if (pos.getZ() > this.maxZ) {
-            this.maxZ = pos.getZ();
-        }
+        this.minPos = PointUtils.min(pos, this.minPos);
+        this.maxPos = PointUtils.max(pos, this.maxPos);
     }
 
     public void copyFrom(World world, BlockPos origin, Set<BlockPos> positions) {
@@ -80,9 +63,6 @@ public class SpacecraftBuilder {
     }
 
     public SpacecraftBlockAccess buildBlockAccess(BlockPos origin, World world) {
-        BlockPos minPos = new BlockPos(this.minX, this.minY, this.minZ);
-        BlockPos maxPos = new BlockPos(this.maxX, this.maxY, this.maxZ);
-
         int[] blockData = new int[SpacecraftBlockAccess.getDataSize(minPos, maxPos)];
         for (int i = 0; i < this.blockKeys.size(); i++) {
             BlockPos pos = BlockPos.fromLong(this.blockKeys.getLong(i));
