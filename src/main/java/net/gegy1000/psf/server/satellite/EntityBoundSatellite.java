@@ -4,6 +4,7 @@ import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class EntityBoundSatellite extends AbstractSatellite {
-    
+
     private final EntitySpacecraft spacecraft;
     private UUID uuid;
 
@@ -123,6 +124,9 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public ISatellite toOrbiting() {
-        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), this.spacecraft.getBlockAccess(), getTrackingPlayers());
+        SpacecraftBlockAccess blockAccess = this.spacecraft.getBlockAccess();
+        SpacecraftBlockAccess[] split = blockAccess.splitVertically(getWorld(), PSFBlockRegistry.payloadSeparator);
+        SpacecraftBlockAccess topPart = split[split.length - 1];
+        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), topPart, getTrackingPlayers());
     }
 }

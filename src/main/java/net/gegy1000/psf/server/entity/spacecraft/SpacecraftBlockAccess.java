@@ -140,6 +140,58 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         return modules;
     }
 
+    public SpacecraftBlockAccess[] splitVertically(World world, Block separator) {
+        List<SpacecraftBlockAccess> split = new ArrayList<>();
+        int startY = minPos.getY();
+        for (int y = minPos.getY(); y <= maxPos.getY(); y++) {
+            for (BlockPos pos : BlockPos.getAllInBox(minPos.getX(), y, minPos.getZ(), maxPos.getX(), y, maxPos.getZ())) {
+                if (getBlockState(pos).getBlock() == separator) {
+                    split.add(splitSection(world, startY, y));
+                    startY = y + 1;
+                    break;
+                }
+            }
+        }
+        if (maxPos.getY() - startY > 0) {
+            split.add(splitSection(world, startY, maxPos.getY()));
+        }
+        return split.toArray(new SpacecraftBlockAccess[0]);
+    }
+
+    private SpacecraftBlockAccess splitSection(World world, int startY, int endY) {
+        BlockPos origin = new BlockPos(0, startY, 0);
+        BlockPos minPos = new BlockPos(this.minPos.getX(), 0, this.minPos.getZ());
+        BlockPos maxPos = new BlockPos(this.maxPos.getX(), endY - startY, this.maxPos.getZ());
+
+        int dataSize = getDataSize(minPos, maxPos);
+        int[] blockData = new int[dataSize];
+        int[] lightData = new int[dataSize];
+
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
+            int localIndex = getPosIndex(pos, minPos, maxPos);
+            int globalIndex = getPosIndex(pos.add(origin), this.minPos, this.maxPos);
+            blockData[localIndex] = this.blockData[globalIndex];
+            lightData[localIndex] = this.lightData[globalIndex];
+        }
+
+        Long2ObjectMap<TileEntity> entities = new Long2ObjectOpenHashMap<>();
+        for (TileEntity entity : this.getEntities()) {
+            int entityY = entity.getPos().getY();
+            if (entityY >= startY && entityY <= endY) {
+                BlockPos localPos = entity.getPos().subtract(origin);
+                TileEntity copiedEntity = TileEntity.create(world, entity.serializeNBT());
+                if (copiedEntity == null) {
+                    PracticalSpaceFireworks.LOGGER.warn("Failed to copy TE for spacecraft");
+                    continue;
+                }
+                copiedEntity.setPos(localPos);
+                entities.put(localPos.toLong(), copiedEntity);
+            }
+        }
+
+        return new SpacecraftBlockAccess(blockData, lightData, entities, biome, minPos, maxPos);
+    }
+
     public LaunchMetadata buildLaunchMetadata() {
         double mass = 0.0;
         ImmutableList.Builder<LaunchMetadata.Thruster> thrusters = ImmutableList.builder();
