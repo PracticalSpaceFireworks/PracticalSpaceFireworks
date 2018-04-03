@@ -27,6 +27,8 @@ public class Modules {
     
     @SubscribeEvent
     public static void registerModules(RegistryEvent.Register<IModuleFactory> event) {
+        registry.register(new SimpleModuleFactory(ModuleController::new).setRegistryName("controller_simple"));
+        
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut")).setRegistryName("strut"));
         
         registry.register(new SimpleModuleFactory(() -> new ModuleBattery(BatteryTier.SIMPLE, 100000)).setRegistryName("battery_simple"));

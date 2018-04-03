@@ -26,6 +26,8 @@ import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.modules.EmptyModule;
+import net.gegy1000.psf.server.modules.ModuleController;
+import net.gegy1000.psf.server.modules.Modules;
 import net.gegy1000.psf.server.satellite.TileBoundSatellite;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
@@ -40,27 +42,9 @@ import net.minecraftforge.common.capabilities.Capability;
 
 
 public class TileController extends TileEntity implements ITickable {
-    
-    private final IModule module = new EmptyModule("controller.simple").setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller_simple"));
-    
+        
     private interface Exclusions {
         <T extends IModuleData> Collection<T> getConnectedCaps(ISatellite satellite, Capability<T> capability);
-    }
-    
-    private class Controller implements IController {
-        
-        @Delegate(excludes = Exclusions.class)
-        private final IModule delegate = TileController.this.module;
-        
-        @Override
-        public @Nonnull Optional<BlockPos> getPosition() {
-            return Optional.of(getPos());
-        }
-        
-        @Override
-        public <T extends IModuleData> Collection<T> getConnectedCaps(@Nonnull ISatellite satellite, @Nonnull Capability<T> capability) {
-            return delegate.getConnectedCaps(satellite, capability);
-        }
     }
     
     @Value
@@ -70,7 +54,7 @@ public class TileController extends TileEntity implements ITickable {
     }
     
     private final ISatellite satellite = new TileBoundSatellite(this);
-    private final IController controller = new Controller();
+    private final ModuleController controller = (ModuleController) Modules.get().getValue(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller_simple")).get();
     
     private long lastScanTime = Long.MIN_VALUE;
     
@@ -91,6 +75,7 @@ public class TileController extends TileEntity implements ITickable {
         if (!getWorld().isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
         }
+        controller.setPos(getPos());
     }
     
     @Override
@@ -133,7 +118,7 @@ public class TileController extends TileEntity implements ITickable {
             return CapabilityController.INSTANCE.cast(controller);
         }
         if (capability == CapabilityModule.INSTANCE) {
-            return CapabilityModule.INSTANCE.cast(module);
+            return CapabilityModule.INSTANCE.cast(controller);
         }
         return super.getCapability(capability, facing);
     }
@@ -193,6 +178,7 @@ public class TileController extends TileEntity implements ITickable {
                 ret.put(pos, new ScanValue(getWorld().getBlockState(pos), module));
             }
         }
+        ret.put(getPos(), new ScanValue(getWorld().getBlockState(getPos()), controller));
         
         return ret;
     }
