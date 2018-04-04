@@ -34,6 +34,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Rectangle;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -77,6 +80,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
     
     @Nonnull
     private Map<Fluid, ResourceAmount> fluidData = new HashMap<>();
+    @Nonnull
+    private ResourceAmount energyData = new ResourceAmount(1, 1); // Avoid energy warnings before data is synced
 
     private MapRenderer mapRenderer;
 
@@ -140,6 +145,12 @@ public class GuiCraftDetails extends GuiRemoteControl {
             }
             
             this.fluidData = totalFluid;
+            
+            energyData = new ResourceAmount();
+            synced.modules.stream()
+                    .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
+                    .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
+                    .forEach(storage -> energyData.add(storage.getEnergyStored(), storage.getMaxEnergyStored()));
         }
     }
 
@@ -230,15 +241,21 @@ public class GuiCraftDetails extends GuiRemoteControl {
                 y -= drawWarning(x, y, width, Collections.singletonList("Low Thrust!"), mouseX, mouseY);
             }
             
+            if (energyData.capacity == 0) {
+                y -= drawWarning(x, y, width, Collections.singletonList("No Batteries!"), mouseX, mouseY);
+            } else if ((float) energyData.amount / energyData.capacity < 0.25f){
+                y -= drawWarning(x, y, width, Collections.singletonList("Low Energy!"), mouseX, mouseY);
+            }
+            
             ResourceAmount kerosene = fluidData.get(PSFFluidRegistry.KEROSENE);
-            if (kerosene != null) {
+            if (kerosene != null && kerosene.capacity > 0) {
                 if ((float) kerosene.amount / kerosene.capacity < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low Kerosene!"), mouseX, mouseY);
                 }
             }
             
             ResourceAmount lox = fluidData.get(PSFFluidRegistry.LIQUID_OXYGEN);
-            if (lox != null) {
+            if (lox != null && lox.capacity > 0) {
                 if ((float) lox.amount / lox.capacity < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low LOX!"), mouseX, mouseY);
                 }
@@ -430,14 +447,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
         boolean orbiting = craft.isOrbiting();
         if (orbiting) {
-            ResourceAmount amount = new ResourceAmount();
-            synced.modules.stream()
-                    .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
-                    .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
-                    .forEach(storage -> amount.add(storage.getEnergyStored(), storage.getMaxEnergyStored()));
+
             mc.fontRenderer.drawString("Energy", x, y, color);
             y += 12;
-            drawBar(x, y, amount.amount, amount.capacity, 0xFFFFCD4F);
+            drawBar(x, y, energyData.amount, energyData.capacity, 0xFFFFCD4F);
             y += 12;
         } else {
             for (Map.Entry<Fluid, ResourceAmount> entry : fluidData.entrySet()) {
@@ -524,6 +537,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
         }
     }
 
+    @NoArgsConstructor
+    @AllArgsConstructor
     private class ResourceAmount {
         private int capacity;
         private int amount;
