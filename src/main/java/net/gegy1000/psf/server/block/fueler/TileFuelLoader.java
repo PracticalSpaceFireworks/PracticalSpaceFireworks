@@ -71,13 +71,15 @@ public class TileFuelLoader extends TileEntity {
         Set<IFluidHandler> handlers = new HashSet<>();
 
         BlockPos origin = getPos().offset(facing);
-        Iterator<BlockPos> tankIterator = getContiguousTankIterator(origin);
-        while (tankIterator.hasNext()) {
-            BlockPos pos = tankIterator.next();
+        if (getFuelTank(origin) != null) {
+            Iterator<BlockPos> tankIterator = getContiguousTankIterator(origin);
+            while (tankIterator.hasNext()) {
+                BlockPos pos = tankIterator.next();
 
-            IFluidHandler fuelTank = getFuelTank(pos);
-            if (fuelTank != null) {
-                handlers.add(fuelTank);
+                IFluidHandler fuelTank = getFuelTank(pos);
+                if (fuelTank != null) {
+                    handlers.add(fuelTank);
+                }
             }
         }
 

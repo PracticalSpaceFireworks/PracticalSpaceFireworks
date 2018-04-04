@@ -201,7 +201,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         } else if (button == buttonMode) {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
             buttonMode.displayString = this.mode.name().substring(0, 1);
-        } else if (button == buttonLaunch && craft != null) {
+        } else if (button == buttonLaunch && craft != null && craft.canLaunch()) {
             craft.launch();
         }
     }
@@ -507,6 +507,12 @@ public class GuiCraftDetails extends GuiRemoteControl {
     @Override
     public void setVisual(@Nonnull IVisual visual) {
         synced = new SyncedData(visual);
+    }
+
+    @Override
+    public void updateCraft(@Nonnull IListedSpacecraft craft) {
+        tfName.setText(craft.getName());
+        buttonLaunch.visible = craft.canLaunch();
     }
 
     @Override
