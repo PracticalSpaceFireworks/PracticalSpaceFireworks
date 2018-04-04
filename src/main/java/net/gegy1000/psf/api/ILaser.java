@@ -1,6 +1,5 @@
-package net.gegy1000.psf.api.data;
+package net.gegy1000.psf.api;
 
-import net.gegy1000.psf.api.ISatellite;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -2,7 +2,7 @@ package net.gegy1000.psf.server.item;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.data.ILaser;
+import net.gegy1000.psf.api.ILaser;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.minecraft.client.util.ITooltipFlag;
@@ -17,6 +17,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,6 +34,7 @@ public class ItemTargetSelector extends Item implements RegisterItemModel {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
         tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + "I heard you liked dev textures...");
     }

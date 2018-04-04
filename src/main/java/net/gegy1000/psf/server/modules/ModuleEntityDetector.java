@@ -2,10 +2,10 @@ package net.gegy1000.psf.server.modules;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.IEnergyHandler;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.gegy1000.psf.server.modules.configs.ConfigBasicToggle;
+import net.gegy1000.psf.server.modules.cap.EnergyHandler;
 import net.gegy1000.psf.server.modules.configs.ConfigBooleanToggle;
 import net.gegy1000.psf.server.modules.data.EntityListData;
 import net.minecraft.entity.EntityLivingBase;
@@ -35,7 +35,11 @@ public class ModuleEntityDetector extends EmptyModule {
         @Getter
         private final int chunkRange;
     }
-    
+
+    private static final int POWER_PER_TICK = 6000;
+    private static final int TICK_INTERVAL = 200;
+    private static final IEnergyHandler ENERGY_HANDLER = new EnergyHandler(POWER_PER_TICK, 0, TICK_INTERVAL);
+
     private final ConfigBooleanToggle enabled = new ConfigBooleanToggle("enabled", "Enabled", "Disabled");
 
     private final int chunkRange;
@@ -59,7 +63,7 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public void onSatelliteTick(ISatellite satellite) {
-        if (enabled.value() && satellite.tryExtractEnergy(1000)) {
+        if (enabled.value() && satellite.tryExtractEnergy(POWER_PER_TICK)) {
             World world = satellite.getWorld();
             Collection<EntityLivingBase> entities = world.getEntities(EntityLivingBase.class, e -> {
                 if (e == null || e instanceof EntityPlayer) {
@@ -76,7 +80,7 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public int getTickInterval() {
-        return 200;
+        return TICK_INTERVAL;
     }
 
     private boolean withinSatelliteRange(ISatellite satellite, BlockPos pos) {
@@ -89,7 +93,9 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityModuleData.ENTITY_LIST || super.hasCapability(capability, facing);
+        return capability == CapabilityModuleData.ENTITY_LIST
+                || capability == CapabilityModuleData.ENERGY_HANDLER
+                || super.hasCapability(capability, facing);
     }
 
     @Nullable
@@ -97,6 +103,8 @@ public class ModuleEntityDetector extends EmptyModule {
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityModuleData.ENTITY_LIST) {
             return CapabilityModuleData.ENTITY_LIST.cast(this.listData);
+        } else if (capability == CapabilityModuleData.ENERGY_HANDLER) {
+            return CapabilityModuleData.ENERGY_HANDLER.cast(ENERGY_HANDLER);
         }
         return super.getCapability(capability, facing);
     }

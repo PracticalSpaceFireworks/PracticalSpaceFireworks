@@ -1,23 +1,21 @@
 package net.gegy1000.psf.server.modules;
 
-import java.util.Collection;
-import java.util.Random;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import net.gegy1000.psf.api.IEnergyHandler;
+import net.gegy1000.psf.api.ILaser;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.data.ILaser;
 import net.gegy1000.psf.client.render.laser.LaserRenderer.LaserState;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.server.modules.cap.EnergyHandler;
 import net.gegy1000.psf.server.modules.data.PacketLaserState;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Random;
 
 @ParametersAreNonnullByDefault
 public class ModuleSpaceLaser extends EmptyModule implements ILaser {
@@ -26,7 +24,9 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     private static final int POWER_PER_TICK = 100;
     
     private static final int DELAY_TIME = 5 * 20;
-    
+
+    private static final IEnergyHandler ENERGY_HANDLER = new EnergyHandler(POWER_PER_TICK, 0);
+
     @Nullable
     private BlockPos target;
     
@@ -44,16 +44,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
 
         if (isActive()) {
             if (powerUsed < POWER_REQ) {
-                Collection<IEnergyStorage> powerSources = satellite.getModuleCaps(CapabilityEnergy.ENERGY);
-
-                int powerToUse = POWER_PER_TICK;
-                for (IEnergyStorage source : powerSources) {
-                    powerToUse -= source.extractEnergy(powerToUse, false);
-                    if (powerToUse <= 0) {
-                        break;
-                    }
-                }
-                powerUsed += POWER_PER_TICK - powerToUse;
+                powerUsed += satellite.extractEnergy(POWER_PER_TICK);
             }
             
             if (powerUsed >= POWER_REQ) {
@@ -120,7 +111,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.SPACE_LASER) {
+        if (capability == CapabilityModuleData.SPACE_LASER || capability == CapabilityModuleData.ENERGY_HANDLER) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -131,6 +122,8 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityModuleData.SPACE_LASER) {
             return CapabilityModuleData.SPACE_LASER.cast(this);
+        } else if (capability == CapabilityModuleData.ENERGY_HANDLER) {
+            return CapabilityModuleData.ENERGY_HANDLER.cast(ENERGY_HANDLER);
         }
         return super.getCapability(capability, facing);
     }

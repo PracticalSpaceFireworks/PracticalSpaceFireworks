@@ -1,18 +1,6 @@
 package net.gegy1000.psf.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.google.common.base.Functions;
-
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -22,6 +10,16 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
 public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable<NBTTagCompound> {
@@ -43,17 +41,21 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
     }
 
     default boolean tryExtractEnergy(int amount) {
+        return extractEnergy(amount) == amount;
+    }
+
+    default int extractEnergy(int amount) {
         int extractedAmount = 0;
         for (IEnergyStorage storage : this.getModuleCaps(CapabilityEnergy.ENERGY)) {
             if (storage.canExtract()) {
                 int extracted = storage.extractEnergy(amount - extractedAmount, false);
                 extractedAmount += extracted;
                 if (extractedAmount == amount) {
-                    return true;
+                    break;
                 }
             }
         }
-        return false;
+        return extractedAmount;
     }
 
     default <T> Collection<T> getModuleCaps(Capability<T> capability) {

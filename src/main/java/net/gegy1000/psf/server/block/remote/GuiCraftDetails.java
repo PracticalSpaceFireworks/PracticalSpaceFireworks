@@ -1,14 +1,15 @@
 package net.gegy1000.psf.server.block.remote;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft.Launch;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.entity.spacecraft.LaunchMetadata;
+import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.minecraft.client.gui.GuiButton;
@@ -34,14 +35,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Rectangle;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -245,8 +242,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
                 y -= drawWarning(x, y, width, Collections.singletonList("No Batteries!"), mouseX, mouseY);
             } else if ((float) energyData.amount / energyData.capacity < 0.25f){
                 y -= drawWarning(x, y, width, Collections.singletonList("Low Energy!"), mouseX, mouseY);
+            } else if (synced.energyNetUsage < 0) {
+                y -= drawWarning(x, y, width, Collections.singletonList("Needs Solar!"), mouseX, mouseY);
             }
-            
+
             ResourceAmount kerosene = fluidData.get(PSFFluidRegistry.KEROSENE);
             if (kerosene != null && kerosene.capacity > 0) {
                 if ((float) kerosene.amount / kerosene.capacity < 0.25f) {
@@ -522,7 +521,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
         final Collection<IModule> terrainScannerModules;
         final Collection<IModule> tankModules;
         final SpacecraftModel model;
-        final LaunchMetadata metadata; 
+        final LaunchMetadata metadata;
+        final int energyNetUsage;
 
         public SyncedData(IVisual visual) {
             model = SpacecraftModel.build(visual.getBlockAccess());
@@ -534,6 +534,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
                     .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
                     .collect(Collectors.toList());
             metadata = visual.getBlockAccess().buildLaunchMetadata();
+
+            energyNetUsage = modules.stream()
+                    .filter(m -> m.hasCapability(CapabilityModuleData.ENERGY_HANDLER, null))
+                    .map(m -> m.getCapability(CapabilityModuleData.ENERGY_HANDLER, null))
+                    .reduce(0, (val, handler) -> val + handler.getMaxFill() - handler.getMaxDrain(), (a, b) -> a + b);
         }
     }
 
