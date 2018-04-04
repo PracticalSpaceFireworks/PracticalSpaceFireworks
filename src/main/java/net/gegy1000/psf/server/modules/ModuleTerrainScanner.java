@@ -1,10 +1,9 @@
 package net.gegy1000.psf.server.modules;
 
-import net.gegy1000.psf.api.IEnergyHandler;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.gegy1000.psf.server.modules.cap.EnergyHandler;
+import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.modules.data.TerrainScanData;
 import net.minecraft.block.material.MapColor;
@@ -25,7 +24,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     private static final int SCAN_INTERVAL = 1200;
     private static final int POWER_PER_TICK = 288000;
 
-    private static final IEnergyHandler ENERGY_HANDLER = new EnergyHandler(POWER_PER_TICK, 0, SCAN_INTERVAL);
+    private static final EnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, SCAN_INTERVAL);
 
     private TerrainScanData scanData;
     private boolean scanned;
@@ -113,7 +112,7 @@ public class ModuleTerrainScanner extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.TERRAIN_SCAN || capability == CapabilityModuleData.ENERGY_HANDLER) {
+        if (capability == CapabilityModuleData.TERRAIN_SCAN || capability == CapabilityModuleData.ENERGY_STATS) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -125,8 +124,8 @@ public class ModuleTerrainScanner extends EmptyModule {
         if (capability == CapabilityModuleData.TERRAIN_SCAN) {
             ITerrainScan terrainScan = this.scanData != null ? this.scanData : new EmptyTerrainScan(SCAN_RANGE);
             return CapabilityModuleData.TERRAIN_SCAN.cast(terrainScan);
-        } else if (capability == CapabilityModuleData.ENERGY_HANDLER) {
-            return CapabilityModuleData.ENERGY_HANDLER.cast(ENERGY_HANDLER);
+        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
+            return CapabilityModuleData.ENERGY_STATS.cast(ENERGY_STATS);
         }
         return super.getCapability(capability, facing);
     }

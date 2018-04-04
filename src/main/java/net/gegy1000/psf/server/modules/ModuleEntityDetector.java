@@ -2,10 +2,9 @@ package net.gegy1000.psf.server.modules;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.IEnergyHandler;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.gegy1000.psf.server.modules.cap.EnergyHandler;
+import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.configs.ConfigBooleanToggle;
 import net.gegy1000.psf.server.modules.data.EntityListData;
 import net.minecraft.entity.EntityLivingBase;
@@ -38,7 +37,7 @@ public class ModuleEntityDetector extends EmptyModule {
 
     private static final int POWER_PER_TICK = 6000;
     private static final int TICK_INTERVAL = 200;
-    private static final IEnergyHandler ENERGY_HANDLER = new EnergyHandler(POWER_PER_TICK, 0, TICK_INTERVAL);
+    private static final EnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, TICK_INTERVAL);
 
     private final ConfigBooleanToggle enabled = new ConfigBooleanToggle("enabled", "Enabled", "Disabled");
 
@@ -94,7 +93,7 @@ public class ModuleEntityDetector extends EmptyModule {
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
         return capability == CapabilityModuleData.ENTITY_LIST
-                || capability == CapabilityModuleData.ENERGY_HANDLER
+                || capability == CapabilityModuleData.ENERGY_STATS
                 || super.hasCapability(capability, facing);
     }
 
@@ -103,8 +102,8 @@ public class ModuleEntityDetector extends EmptyModule {
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityModuleData.ENTITY_LIST) {
             return CapabilityModuleData.ENTITY_LIST.cast(this.listData);
-        } else if (capability == CapabilityModuleData.ENERGY_HANDLER) {
-            return CapabilityModuleData.ENERGY_HANDLER.cast(ENERGY_HANDLER);
+        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
+            return CapabilityModuleData.ENERGY_STATS.cast(ENERGY_STATS);
         }
         return super.getCapability(capability, facing);
     }

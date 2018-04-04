@@ -1,11 +1,10 @@
 package net.gegy1000.psf.server.modules;
 
-import net.gegy1000.psf.api.IEnergyHandler;
 import net.gegy1000.psf.api.ILaser;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.laser.LaserRenderer.LaserState;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.gegy1000.psf.server.modules.cap.EnergyHandler;
+import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.data.PacketLaserState;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.EnumFacing;
@@ -25,7 +24,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
     private static final int DELAY_TIME = 5 * 20;
 
-    private static final IEnergyHandler ENERGY_HANDLER = new EnergyHandler(POWER_PER_TICK, 0);
+    private static final EnergyStats USAGE_STATS = new EnergyStats(POWER_PER_TICK, 0);
 
     @Nullable
     private BlockPos target;
@@ -111,7 +110,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.SPACE_LASER || capability == CapabilityModuleData.ENERGY_HANDLER) {
+        if (capability == CapabilityModuleData.SPACE_LASER || capability == CapabilityModuleData.ENERGY_STATS) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -122,8 +121,8 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityModuleData.SPACE_LASER) {
             return CapabilityModuleData.SPACE_LASER.cast(this);
-        } else if (capability == CapabilityModuleData.ENERGY_HANDLER) {
-            return CapabilityModuleData.ENERGY_HANDLER.cast(ENERGY_HANDLER);
+        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
+            return CapabilityModuleData.ENERGY_STATS.cast(USAGE_STATS);
         }
         return super.getCapability(capability, facing);
     }

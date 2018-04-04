@@ -536,8 +536,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
             metadata = visual.getBlockAccess().buildLaunchMetadata();
 
             energyNetUsage = modules.stream()
-                    .filter(m -> m.hasCapability(CapabilityModuleData.ENERGY_HANDLER, null))
-                    .map(m -> m.getCapability(CapabilityModuleData.ENERGY_HANDLER, null))
+                    .filter(m -> m.hasCapability(CapabilityModuleData.ENERGY_STATS, null))
+                    .map(m -> m.getCapability(CapabilityModuleData.ENERGY_STATS, null))
                     .reduce(0, (val, handler) -> val + handler.getMaxFill() - handler.getMaxDrain(), (a, b) -> a + b);
         }
     }
