@@ -190,12 +190,17 @@ public class SpacecraftBlockAccess implements IBlockAccess {
             int entityY = entity.getPos().getY();
             if (entityY >= startY && entityY <= endY) {
                 BlockPos localPos = entity.getPos().add(offset);
-                TileEntity copiedEntity = TileEntity.create(world, entity.serializeNBT());
+                NBTTagCompound tag = entity.serializeNBT();
+                // TE must get the proper position during readFromNBT
+                // TODO unify with SpacecraftBuilder.deconstruct
+                tag.setInteger("x", localPos.getX());
+                tag.setInteger("y", localPos.getY());
+                tag.setInteger("z", localPos.getZ());
+                TileEntity copiedEntity = TileEntity.create(world, tag);
                 if (copiedEntity == null) {
                     PracticalSpaceFireworks.LOGGER.warn("Failed to copy TE for spacecraft");
                     continue;
                 }
-                copiedEntity.setPos(localPos);
                 entities.put(localPos.toLong(), copiedEntity);
             }
         }
