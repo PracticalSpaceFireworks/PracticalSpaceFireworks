@@ -6,6 +6,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -35,12 +36,16 @@ public class SpacecraftDeconstructor {
 
                 TileEntity entity = blockAccess.getTileEntity(pos);
                 if (entity != null) {
-                    TileEntity copiedEntity = TileEntity.create(world, entity.serializeNBT());
+                    NBTTagCompound tag = entity.serializeNBT();
+                    // TE must get the proper position during readFromNBT
+                    tag.setInteger("x", transformedPos.getX());
+                    tag.setInteger("y", transformedPos.getY());
+                    tag.setInteger("z", transformedPos.getZ());
+                    TileEntity copiedEntity = TileEntity.create(world, tag);
                     if (copiedEntity == null) {
                         PracticalSpaceFireworks.LOGGER.warn("Failed to copy TE when building spacecraft");
                         continue;
                     }
-                    copiedEntity.setPos(transformedPos);
                     entities.put(transformedPos, copiedEntity);
                 }
             }
