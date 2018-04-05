@@ -3,11 +3,10 @@ package net.gegy1000.psf.server.block.fueler;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
-import net.gegy1000.psf.server.block.controller.TileController;
-import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
-import net.gegy1000.psf.server.util.ContiguousBlockIterator;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -30,9 +29,9 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
 public class TileFuelLoader extends TileEntity {
@@ -45,20 +44,7 @@ public class TileFuelLoader extends TileEntity {
                 if (handler == null) {
                     return;
                 }
-                IFluidTankProperties[] tankProperties = handler.getTankProperties();
-                for (IFluidTankProperties properties : tankProperties) {
-                    FluidStack contents = properties.getContents();
-                    if (contents != null) {
-                        if (fluidHandler == null) {
-                            rebuildTankList();
-                        }
-                        int filled = fluidHandler.fill(handler.drain(contents, true), true);
-                        if (filled < contents.amount) {
-                            handler.fill(new FluidStack(contents.getFluid(), filled), true);
-                        }
-                        this.stacks.set(slot, handler.getContainer());
-                    }
-                }
+                this.stacks.set(slot, fillFromItem(handler));
             }
         }
     };
@@ -66,20 +52,20 @@ public class TileFuelLoader extends TileEntity {
     private IFluidHandler fluidHandler = null;
 
     public void rebuildTankList() {
-        EnumFacing facing = PSFBlockRegistry.fuelLoader.getStateFromMeta(getBlockMetadata()).getValue(BlockHorizontal.FACING);
+        EnumFacing facing = world.getBlockState(pos).getValue(BlockHorizontal.FACING);
 
         Set<IFluidHandler> handlers = new HashSet<>();
 
         BlockPos origin = getPos().offset(facing);
-        if (getFuelTank(origin) != null) {
-            Iterator<BlockPos> tankIterator = getContiguousTankIterator(origin);
-            while (tankIterator.hasNext()) {
-                BlockPos pos = tankIterator.next();
-
-                IFluidHandler fuelTank = getFuelTank(pos);
-                if (fuelTank != null) {
-                    handlers.add(fuelTank);
-                }
+        IModule module = TileModule.getModule(world.getTileEntity(origin));
+        if (module != null) {
+            ISatellite owner = module.getOwner();
+            if (owner != null) {
+                handlers.addAll(owner.getModules().stream()
+                        .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                        .map(m -> m.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                        .filter(this::isFuelTank)
+                        .collect(Collectors.toList()));
             }
         }
 
@@ -102,24 +88,34 @@ public class TileFuelLoader extends TileEntity {
         return amounts;
     }
 
-    private Iterator<BlockPos> getContiguousTankIterator(BlockPos origin) {
-        return new ContiguousBlockIterator(origin, TileController.CONTIGUOUS_RANGE, pos -> getFuelTank(pos) != null);
-    }
+    private ItemStack fillFromItem(IFluidHandlerItem handler) {
+        if (fluidHandler == null) {
+            rebuildTankList();
+        }
 
-    @Nullable
-    private IFluidHandler getFuelTank(BlockPos pos) {
-        TileEntity entity = world.getTileEntity(pos);
-        if (entity != null && entity.hasCapability(CapabilityModule.INSTANCE, null) && entity.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)) {
-            IFluidHandler fluidHandler = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-            IFluidTankProperties[] tankProperties = fluidHandler.getTankProperties();
-            for (IFluidTankProperties properties : tankProperties) {
-                FluidStack contents = properties.getContents();
-                if (isAcceptableFluid(contents)) {
-                    return fluidHandler;
+        IFluidTankProperties[] tankProperties = handler.getTankProperties();
+        for (IFluidTankProperties properties : tankProperties) {
+            FluidStack contents = properties.getContents();
+            if (contents != null) {
+                int filled = fluidHandler.fill(handler.drain(contents, true), true);
+                if (filled < contents.amount) {
+                    handler.fill(new FluidStack(contents.getFluid(), filled), true);
                 }
             }
         }
-        return null;
+
+        return handler.getContainer();
+    }
+
+    private boolean isFuelTank(IFluidHandler handler) {
+        IFluidTankProperties[] tankProperties = handler.getTankProperties();
+        for (IFluidTankProperties properties : tankProperties) {
+            FluidStack contents = properties.getContents();
+            if (isAcceptableFluid(contents)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isAcceptableFluid(@Nullable FluidStack stack) {
