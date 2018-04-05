@@ -1,28 +1,18 @@
 package net.gegy1000.psf.client.render.spacecraft.model;
 
+import lombok.Getter;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
-
-import lombok.Getter;
 
 import java.util.EnumMap;
 import java.util.Map;
 
 public class VboSpacecraftModel implements SpacecraftModel {
-    private static final BlockRendererDispatcher BLOCK_RENDERER = Minecraft.getMinecraft().getBlockRendererDispatcher();
-    private static final BufferBuilder BUILDER = new BufferBuilder(0x20000);
-
     @Getter
     private final SpacecraftBlockAccess renderWorld;
     private final Map<BlockRenderLayer, VertexBuffer> buffers = new EnumMap<>(BlockRenderLayer.class);
@@ -36,19 +26,8 @@ public class VboSpacecraftModel implements SpacecraftModel {
             buffer.bindBuffer();
             this.bindAttributes();
 
-            BufferBuilder builder = BUILDER;
-
-            builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-
-            for (BlockPos pos : BlockPos.getAllInBoxMutable(blockAccess.getMinPos(), blockAccess.getMaxPos())) {
-                IBlockState state = blockAccess.getBlockState(pos);
-                if (state.getBlock() != Blocks.AIR && state.getBlock().canRenderInLayer(state, layer)) {
-                    BLOCK_RENDERER.renderBlock(state, pos, blockAccess, builder);
-                }
-            }
-
-            builder.finishDrawing();
-            buffer.bufferData(builder.getByteBuffer());
+            drawBlocks(blockAccess, layer, BUILDER);
+            buffer.bufferData(BUILDER.getByteBuffer());
 
             buffer.unbindBuffer();
 
