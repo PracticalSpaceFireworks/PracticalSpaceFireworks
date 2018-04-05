@@ -153,7 +153,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
                 }
             }
         }
-        if (maxPos.getY() - startY > 0) {
+        if (maxPos.getY() >= startY) {
             split.add(splitSection(world, startY, maxPos.getY()));
         }
         return split.toArray(new SpacecraftBlockAccess[0]);
@@ -172,7 +172,11 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         BlockPos minPos = fittedMinPos.down(startY);
         BlockPos maxPos = fittedMaxPos.down(startY);
 
-        BlockPos offset = minPos.subtract(new BlockPos(this.minPos.getX(), startY, this.minPos.getZ()));
+        BlockPos offset = new BlockPos(
+                (this.minPos.getX() + this.maxPos.getX() - (minPos.getX()  + maxPos.getX())) / 2,
+                0,
+                (this.minPos.getZ() + this.maxPos.getZ() - (minPos.getZ() + maxPos.getZ())) / 2
+        );
 
         int dataSize = getDataSize(minPos, maxPos);
         int[] blockData = new int[dataSize];
@@ -181,8 +185,10 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
             int localIndex = getPosIndex(pos, minPos, maxPos);
             int globalIndex = getPosIndex(pos.subtract(offset), this.minPos, this.maxPos);
-            blockData[localIndex] = this.blockData[globalIndex];
-            lightData[localIndex] = this.lightData[globalIndex];
+            if (localIndex != -1 && globalIndex != -1) {
+                blockData[localIndex] = this.blockData[globalIndex];
+                lightData[localIndex] = this.lightData[globalIndex];
+            }
         }
 
         Long2ObjectMap<TileEntity> entities = new Long2ObjectOpenHashMap<>();
