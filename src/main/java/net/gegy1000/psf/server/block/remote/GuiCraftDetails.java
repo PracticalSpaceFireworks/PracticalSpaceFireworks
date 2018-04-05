@@ -8,7 +8,7 @@ import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.LaunchMetadata;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
@@ -226,7 +226,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         IListedSpacecraft craft = getCraft();
         SyncedData synced = this.synced;
         if (craft != null && !craft.isOrbiting() && synced != null) {
-            LaunchMetadata metadata = synced.metadata;
+            SpacecraftMetadata metadata = synced.metadata;
             
             int x = panel.getX() + 4;
             int y = panel.getY() + panel.getHeight() - 4;
@@ -475,7 +475,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         x -= 5;
         y += 15;
         
-        LaunchMetadata metadata = synced.metadata;
+        SpacecraftMetadata metadata = synced.metadata;
         mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(metadata.getMass()) + "kg", x, y, color);
     }
 
@@ -527,7 +527,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         final Collection<IModule> terrainScannerModules;
         final Collection<IModule> tankModules;
         final SpacecraftModel model;
-        final LaunchMetadata metadata;
+        final SpacecraftMetadata metadata;
         final int energyNetUsage;
 
         public SyncedData(IVisual visual) {

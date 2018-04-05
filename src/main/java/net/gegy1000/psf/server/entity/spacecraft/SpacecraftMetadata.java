@@ -7,22 +7,25 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 
+import javax.vecmath.Point3d;
 import java.util.List;
 
-public class LaunchMetadata {
+public class SpacecraftMetadata {
     private final ImmutableList<IModule> modules;
     private final ImmutableList<IFluidHandler> fuelTanks;
     private final ImmutableList<Thruster> thrusters;
     private final double mass;
+    private final Point3d com;
 
     private final double totalForce;
     private final int totalDrain;
 
-    public LaunchMetadata(List<IModule> modules, List<IFluidHandler> fuelTanks, ImmutableList<Thruster> thrusters, double mass) {
+    public SpacecraftMetadata(List<IModule> modules, List<IFluidHandler> fuelTanks, ImmutableList<Thruster> thrusters, double mass, Point3d com) {
         this.modules = ImmutableList.copyOf(modules);
         this.fuelTanks = ImmutableList.copyOf(fuelTanks);
         this.thrusters = thrusters;
         this.mass = mass;
+        this.com = com;
 
         double totalForce = 0.0;
         for (Thruster thruster : this.thrusters) {
@@ -58,6 +61,10 @@ public class LaunchMetadata {
             }
         }
         return mass;
+    }
+
+    public Point3d getCoM() {
+        return com;
     }
 
     public IFluidHandler buildFuelHandler() {

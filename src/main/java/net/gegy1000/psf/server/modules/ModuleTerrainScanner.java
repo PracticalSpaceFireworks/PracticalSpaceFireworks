@@ -37,7 +37,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     public void onSatelliteTick(ISatellite satellite) {
         World world = satellite.getWorld();
         BlockPos position = satellite.getPosition();
-        if (world.isBlockLoaded(position)) {
+        if (world.isBlockLoaded(position) || this.scanData == null) {
             this.scanData = this.scan(world, new ChunkPos(position.getX() >> 4, position.getZ() >> 4));
             this.dirty(true);
         }

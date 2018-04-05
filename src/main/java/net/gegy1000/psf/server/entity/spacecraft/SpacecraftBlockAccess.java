@@ -37,6 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -214,21 +215,31 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         return new SpacecraftBlockAccess(blockData, lightData, entities, biome, minPos, maxPos);
     }
 
-    public LaunchMetadata buildLaunchMetadata() {
+    public SpacecraftMetadata buildLaunchMetadata() {
         double mass = 0.0;
-        ImmutableList.Builder<LaunchMetadata.Thruster> thrusters = ImmutableList.builder();
+        Point3d com = new Point3d(0.0, 0.0, 0.0);
+
+        ImmutableList.Builder<SpacecraftMetadata.Thruster> thrusters = ImmutableList.builder();
 
         for (BlockPos pos : BlockPos.getAllInBoxMutable(this.minPos, this.maxPos)) {
-            IBlockState state = this.getBlockState(pos);
-            mass += BlockMassHandler.getMass(state);
+            double blockMass = BlockMassHandler.getMass(this.getBlockState(pos));
+            mass += blockMass;
+
+            com.x += (pos.getX() + 0.5) * blockMass;
+            com.y += (pos.getY() + 0.5) * blockMass;
+            com.z += (pos.getZ() + 0.5) * blockMass;
         }
+
+        com.x /= mass;
+        com.y /= mass;
+        com.z /= mass;
 
         for (TileEntity entity : this.getEntities()) {
             if (entity.hasCapability(CapabilityModule.INSTANCE, null)) {
                 IModule module = entity.getCapability(CapabilityModule.INSTANCE, null);
                 if (module instanceof ModuleThruster) {
                     ModuleThruster.ThrusterTier tier = ((ModuleThruster) module).getTier();
-                    thrusters.add(new LaunchMetadata.Thruster(entity.getPos(), tier.getThrust(), tier.getDrain()));
+                    thrusters.add(new SpacecraftMetadata.Thruster(entity.getPos(), tier.getThrust(), tier.getDrain()));
                 }
             }
         }
@@ -237,7 +248,7 @@ public class SpacecraftBlockAccess implements IBlockAccess {
         List<IFluidHandler> fuelTanks = modules.stream().filter(module -> module.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
                 .map(module -> module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
                 .collect(Collectors.toList());
-        return new LaunchMetadata(modules, fuelTanks, thrusters.build(), mass);
+        return new SpacecraftMetadata(modules, fuelTanks, thrusters.build(), mass, com);
     }
 
     public NBTTagCompound serialize(NBTTagCompound compound) {

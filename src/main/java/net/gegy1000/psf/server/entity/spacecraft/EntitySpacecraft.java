@@ -85,7 +85,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private State state = new Static(this);
 
     private boolean converted;
-    private LaunchMetadata metadata;
+    private SpacecraftMetadata metadata;
 
     public EntitySpacecraft(World world) {
         this(world, Collections.emptySet(), BlockPos.ORIGIN, null);
@@ -484,7 +484,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
                 if (world.isRemote) {
-                    for (LaunchMetadata.Thruster thruster : entity.metadata.getThrusters()) {
+                    for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
                         BlockPos thrusterPos = thruster.getPos();
                         Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
                         this.entity.rotationMatrix.transform(thrusterPoint);
