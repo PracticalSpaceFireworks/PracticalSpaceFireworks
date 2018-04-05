@@ -1,13 +1,5 @@
 package net.gegy1000.psf.api;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.data.IModuleData;
 import net.gegy1000.psf.server.capability.CapabilityModule;
@@ -21,9 +13,21 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 @ParametersAreNonnullByDefault
 public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICapabilityProvider {
-    
+
+    void setOwner(ISatellite satellite);
+
+    @Nullable
+    ISatellite getOwner();
+
     default void onSatelliteTick(ISatellite satellite) {
     }
 

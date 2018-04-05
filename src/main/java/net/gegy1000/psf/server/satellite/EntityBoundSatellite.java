@@ -43,6 +43,8 @@ public class EntityBoundSatellite extends AbstractSatellite {
 
         this.modules.clear();
         this.modules.addAll(blockAccess.findModules());
+        this.modules.forEach(module -> module.setOwner(this));
+
         this.controller = blockAccess.findController();
     }
 

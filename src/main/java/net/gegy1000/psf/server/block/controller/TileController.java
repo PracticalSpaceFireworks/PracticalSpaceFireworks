@@ -155,6 +155,7 @@ public class TileController extends TileEntity implements ITickable {
         super.readFromNBT(compound);
         satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
         this.controller.deserializeNBT(compound.getCompoundTag("module_data"));
+        this.controller.setOwner(satellite);
     }
 
     public Map<BlockPos, ScanValue> scanStructure() {
@@ -165,6 +166,7 @@ public class TileController extends TileEntity implements ITickable {
             TileEntity te = getWorld().getTileEntity(pos);
             if (te != null && te.hasCapability(CapabilityModule.INSTANCE, null)) {
                 IModule module = te.getCapability(CapabilityModule.INSTANCE, null);
+                module.setOwner(satellite);
                 ret.put(pos, new ScanValue(getWorld().getBlockState(pos), module));
             }
         }
@@ -178,7 +180,11 @@ public class TileController extends TileEntity implements ITickable {
     private Iterator<BlockPos> getContiguousIterator(final @Nonnull BlockPos origin) {
         return new ContiguousBlockIterator(origin, CONTIGUOUS_RANGE, pos -> {
             TileEntity entity = world.getTileEntity(pos);
-            return entity != null && entity.hasCapability(CapabilityModule.INSTANCE, null);
+            if (entity != null && entity.hasCapability(CapabilityModule.INSTANCE, null)) {
+                IModule module = entity.getCapability(CapabilityModule.INSTANCE, null);
+                return module.getOwner() == null || module.getOwner().equals(satellite);
+            }
+            return false;
         });
     }
 }

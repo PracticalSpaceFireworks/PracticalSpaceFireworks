@@ -1,28 +1,30 @@
 package net.gegy1000.psf.server.modules;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.val;
 import lombok.experimental.Accessors;
+import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.ISatellite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 @RequiredArgsConstructor
+@ParametersAreNonnullByDefault
 public class EmptyModule implements IModule {
     
     private final Map<String, IModuleConfig> configs = new HashMap<>();
@@ -42,7 +44,12 @@ public class EmptyModule implements IModule {
     
     @Getter
     private boolean dirty = true;
-    
+
+    @Nullable
+    @Getter
+    @Setter
+    private ISatellite owner;
+
     @SideOnly(Side.CLIENT)
     @Override
     public @Nonnull String getLocalizedName() {

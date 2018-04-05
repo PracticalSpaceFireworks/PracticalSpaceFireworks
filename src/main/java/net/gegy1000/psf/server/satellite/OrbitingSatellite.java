@@ -42,6 +42,7 @@ public class OrbitingSatellite extends AbstractSatellite {
         this.controller = blockAccess.findController();
         this.modules = blockAccess.findModules();
 
+        modules.forEach(module -> module.setOwner(this));
         trackingPlayers.forEach(this::track);
     }
 
