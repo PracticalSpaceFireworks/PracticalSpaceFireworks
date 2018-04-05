@@ -31,6 +31,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
@@ -100,7 +101,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.satellite = new EntityBoundSatellite(this, id);
         initSpacecraft();
     }
-    
+
     public EntitySpacecraft(ISatellite craft) {
         super(craft.getWorld());
         this.setSize(1, 1);
@@ -109,7 +110,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.satellite = new EntityBoundSatellite(this, craft.getId());
         initSpacecraft();
     }
-    
+
     private void initSpacecraft() {
         this.satellite.detectModules();
         this.recalculateRotation();
@@ -293,19 +294,19 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     for (Map.Entry<BlockPos, IBlockState> entry : blocks.entrySet()) {
                         world.setBlockState(entry.getKey(), entry.getValue().withRotation(rotation), 10);
                     }
-    
+
                     for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
                         world.setTileEntity(entry.getKey(), entry.getValue());
                     }
                 } finally {
                     BlockModule.CONVERTING.set(false);
                 }
-                
+
                 this.converted = true;
                 for (EntityPlayerMP p : satellite.getTrackingPlayers()) {
                     PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.TILE, satellite.toListedCraft()), p);
                 }
-                
+
                 setDead();
             } else {
                 this.rotationYaw = prevRotationYaw;
@@ -438,8 +439,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     public static class Launch implements State {
+        private static final int ENGINE_WARMUP = 80;
+        private static final int MIN_ACC = ENGINE_WARMUP / 4;
+
         private final EntitySpacecraft entity;
         private final IFluidHandler fuelHandler;
+
+        private int stateTicks;
 
         private double lastForce;
 
@@ -462,7 +468,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.KEROSENE, totalDrain), true);
                 FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, totalDrain), true);
                 if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
-                    force = entity.metadata.getTotalForce();
+                    double totalForce = entity.metadata.getTotalForce();
+                    force = (totalForce - MIN_ACC) * Math.pow((double) MathHelper.clamp(stateTicks, 0, ENGINE_WARMUP) / ENGINE_WARMUP, 0.5) + MIN_ACC;
                     acceleration = force / entity.metadata.getMass() / 20.0;
                 }
 
@@ -472,7 +479,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
             this.lastForce = force;
 
-            if (acceleration > 1e-4) {
+            if (acceleration > 1e-4 || stateTicks < ENGINE_WARMUP) {
                 this.entity.motionY += acceleration;
                 this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
@@ -492,6 +499,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         }
                     }
                 }
+
+                this.stateTicks++;
 
                 return this;
             } else {
