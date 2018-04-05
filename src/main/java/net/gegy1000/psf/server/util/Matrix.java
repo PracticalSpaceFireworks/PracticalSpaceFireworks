@@ -7,6 +7,8 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Point3d;
 import javax.vecmath.Quat4d;
 import javax.vecmath.Vector3d;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class Matrix {
@@ -42,6 +44,25 @@ public class Matrix {
         rotation.set(new AxisAngle4d(x, y, z, Math.toRadians(angle)));
         matrix.setRotation(rotation);
 
+        this.updateMatrix();
+    }
+
+    public void multiply(Matrix mul) {
+        Matrix4d matrix = this.matrices.push(this.takePool());
+        matrix.mul(mul.matrix);
+        this.updateMatrix();
+    }
+
+    public void inverse() {
+        List<Matrix4d> take = new ArrayList<>(this.matrices.size());
+        while (!this.matrices.isEmpty()) {
+            Matrix4d pop = this.matrices.pop();
+            pop.invert();
+            take.add(pop);
+        }
+        for (Matrix4d matrix : take) {
+            this.matrices.push(matrix);
+        }
         this.updateMatrix();
     }
 

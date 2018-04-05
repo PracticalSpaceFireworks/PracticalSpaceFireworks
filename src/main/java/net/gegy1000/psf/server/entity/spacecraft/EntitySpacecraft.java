@@ -59,7 +59,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private static final DataParameter<Float> ACCELERATION = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
     private static final DataParameter<Float> FORCE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
 
+    @Getter
     private final Matrix rotationMatrix = new Matrix(3);
+
+    @Getter
+    private final Matrix inverseMatrix = new Matrix(3);
 
     static {
         PSFNetworkHandler.network.registerMessage(PacketLaunchCraft.Handler.class, PacketLaunchCraft.class, PSFNetworkHandler.nextID(), Side.SERVER);
@@ -256,6 +260,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.rotationMatrix.rotate(180.0F - this.rotationYaw, 0.0F, 1.0F, 0.0F);
         this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
 
+        this.inverseMatrix.identity();
+        this.inverseMatrix.multiply(this.rotationMatrix);
+        this.inverseMatrix.inverse();
+
         this.setEntityBoundingBox(this.calculateEncompassingBounds());
     }
 
@@ -350,6 +358,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.recalculateRotation();
         this.metadata = this.blockAccess.buildLaunchMetadata();
+
+        prevRotationYaw = rotationYaw;
     }
 
     public void setState(StateType state) {
