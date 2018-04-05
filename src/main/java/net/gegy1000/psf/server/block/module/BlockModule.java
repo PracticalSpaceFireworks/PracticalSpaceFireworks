@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
     
@@ -82,19 +83,23 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     }
 
     @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        BlockPos pos2 = pos.offset(side.getOpposite());
-        IBlockState on = world.getBlockState(pos2).getActualState(world, pos2);
-        
+    public boolean canPlaceBlockAt(World world, @Nonnull BlockPos pos) {
+        return Arrays.stream(EnumFacing.VALUES).anyMatch(side -> isSideValid(world, pos, side));
+    }
+
+    private boolean isSideValid(World world, @Nonnull BlockPos pos, EnumFacing side) {
+        BlockPos offsetPos = pos.offset(side.getOpposite());
+        IBlockState on = world.getBlockState(offsetPos).getActualState(world, offsetPos);
+
         if (!canAttachOnSide(getDefaultState().withProperty(DIRECTION, side), on, side)) {
             return false;
         }
-        
-        if (isStructuralModule(null, getDefaultState())) {
-            return canPlaceBlockAt(world, pos);
+
+        if (isStructuralModule(null, getDefaultState()) || isStructural(getDefaultState(), on)) {
+            return super.canPlaceBlockAt(world, pos);
         }
 
-        return isStructural(getDefaultState(), on) && super.canPlaceBlockOnSide(world, pos, side);
+        return false;
     }
 
     @Override
