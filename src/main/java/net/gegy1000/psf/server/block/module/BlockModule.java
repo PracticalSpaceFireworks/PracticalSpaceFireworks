@@ -104,7 +104,11 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
 
     @Override
     public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
-        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, facing);
+        EnumFacing direction = facing;
+        if (!isSideValid(world, pos, direction)) {
+            direction = Arrays.stream(EnumFacing.VALUES).filter(s -> isSideValid(world, pos, s)).findFirst().orElse(EnumFacing.UP);
+        }
+        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, direction);
     }
 
     @Override
