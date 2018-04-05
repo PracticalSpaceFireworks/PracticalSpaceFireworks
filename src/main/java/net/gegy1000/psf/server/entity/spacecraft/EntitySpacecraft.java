@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
@@ -27,7 +28,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
-    private static final double AIR_RESISTANCE = 0.98;
+    public static final double AIR_RESISTANCE = 0.98;
     public static final double GRAVITY = 1.6;
 
     private static final DataParameter<Byte> STATE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.BYTE);
@@ -491,11 +491,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         double posX = this.entity.posX + thrusterPoint.x;
                         double posY = this.entity.posY + thrusterPoint.y;
                         double posZ = this.entity.posZ + thrusterPoint.z;
-                        for (int i = 0; i < 30; i++) {
-                            double motionX = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
-                            double motionY = -acceleration;
-                            double motionZ = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.3;
-                            world.spawnParticle(EnumParticleTypes.FLAME, true, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
+                        for (int i = 0; i < 20; i++) {
+                            double motionX = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.5;
+                            double motionY = Math.min(-force / 1e+3, 40.0);
+                            double motionZ = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.5;
+                            PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
                         }
                     }
                 }

@@ -1,13 +1,6 @@
 package net.gegy1000.psf.server.block.controller;
 
-import java.util.Map;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
@@ -20,7 +13,6 @@ import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockMobSpawner;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -31,10 +23,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
 
 public class BlockController extends Block implements RegisterItemBlock, RegisterItemModel, RegisterTileEntity {
     
@@ -113,6 +110,11 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     public @Nonnull IBlockState getStateFromMeta(int meta) {
         meta = Math.abs(meta) % EnumFacing.values().length;
         return getDefaultState().withProperty(DIRECTION, EnumFacing.values()[meta]);
+    }
+
+    @Override
+    public BlockRenderLayer getBlockLayer() {
+        return BlockRenderLayer.CUTOUT;
     }
 
     @Override
