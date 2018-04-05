@@ -1,15 +1,8 @@
 package net.gegy1000.psf.server.satellite;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.val;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.block.controller.TileController;
@@ -22,6 +15,11 @@ import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class TileBoundSatellite extends AbstractSatellite {
@@ -43,6 +41,11 @@ public class TileBoundSatellite extends AbstractSatellite {
     @Override
     public Collection<IModule> getModules() {
         return controller.getModules().values().stream().map(ScanValue::getModule).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isInvalid() {
+        return controller.isInvalid();
     }
 
     @Override

@@ -69,6 +69,11 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
+    public boolean isInvalid() {
+        return !spacecraft.isEntityAlive();
+    }
+
+    @Override
     public BlockPos getPosition() {
         return this.spacecraft.getPosition();
     }

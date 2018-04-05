@@ -35,6 +35,8 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
     IController getController();
 
     Collection<IModule> getModules();
+
+    boolean isInvalid();
     
     default Map<UUID, IModule> getIndexedModules() {
         return getModules().stream().collect(Collectors.toMap(IModule::getId, Functions.identity()));

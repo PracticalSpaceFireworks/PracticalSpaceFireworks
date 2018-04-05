@@ -65,6 +65,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @Getter
     private final Matrix inverseMatrix = new Matrix(3);
 
+    private float lastRecalcYaw = Float.MAX_VALUE;
+    private float lastRecalcPitch = Float.MAX_VALUE;
+
     static {
         PSFNetworkHandler.network.registerMessage(PacketLaunchCraft.Handler.class, PacketLaunchCraft.class, PSFNetworkHandler.nextID(), Side.SERVER);
     }
@@ -171,8 +174,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
         }
 
-        if (Math.abs(this.rotationYaw - this.prevRotationYaw) > 1e-3 || Math.abs(this.rotationPitch - this.prevRotationPitch) > 1e-3) {
+        if (Math.abs(this.rotationYaw - this.lastRecalcYaw) > 1e-3 || Math.abs(this.rotationPitch - this.lastRecalcPitch) > 1e-3) {
             this.recalculateRotation();
+            this.lastRecalcYaw = this.rotationYaw;
+            this.lastRecalcPitch = this.rotationPitch;
         }
 
         if (!world.isRemote) {
@@ -195,12 +200,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         super.setPosition(x, y, z);
 
         this.setEntityBoundingBox(this.calculateEncompassingBounds());
-    }
-
-    @Override
-    @Nonnull
-    public AxisAlignedBB getRenderBoundingBox() {
-        return this.calculateEncompassingBounds();
     }
 
     @Nonnull

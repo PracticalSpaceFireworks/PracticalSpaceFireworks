@@ -182,7 +182,7 @@ public class TileController extends TileEntity implements ITickable {
             TileEntity entity = world.getTileEntity(pos);
             if (entity != null && entity.hasCapability(CapabilityModule.INSTANCE, null)) {
                 IModule module = entity.getCapability(CapabilityModule.INSTANCE, null);
-                return module.getOwner() == null || module.getOwner().equals(satellite);
+                return module.getOwner() == null || module.getOwner().isInvalid() || module.getOwner().equals(satellite);
             }
             return false;
         });

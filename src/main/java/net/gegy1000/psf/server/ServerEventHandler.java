@@ -37,7 +37,7 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void onCollide(GetCollisionBoxesEvent event) {
         Entity entity = event.getEntity();
-        if (entity != null) {
+        if (entity != null && !(entity instanceof EntitySpacecraft)) {
             World world = entity.getEntityWorld();
 
             int radius = TileController.CONTIGUOUS_RANGE;

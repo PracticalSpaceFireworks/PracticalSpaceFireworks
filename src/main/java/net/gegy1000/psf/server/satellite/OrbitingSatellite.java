@@ -62,6 +62,11 @@ public class OrbitingSatellite extends AbstractSatellite {
     }
 
     @Override
+    public boolean isInvalid() {
+        return false;
+    }
+
+    @Override
     public BlockPos getPosition() {
         return this.position;
     }
