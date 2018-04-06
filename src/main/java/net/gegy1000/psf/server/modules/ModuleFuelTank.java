@@ -129,7 +129,7 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
         @Override
         public int fill(FluidStack resource, boolean doFill) {
             int fill = super.fill(resource, doFill);
-            if (fill > 0) {
+            if (doFill) {
                 dirty(true);
             }
             return fill;
@@ -138,7 +138,7 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
         @Override
         public FluidStack drain(FluidStack resource, boolean doDrain) {
             FluidStack drain = super.drain(resource, doDrain);
-            if (drain != null && drain.amount > 0) {
+            if (doDrain) {
                 dirty(true);
             }
             return drain;
@@ -147,7 +147,7 @@ public class ModuleFuelTank extends EmptyModule implements IModule {
         @Override
         public FluidStack drain(int maxDrain, boolean doDrain) {
             FluidStack drain = super.drain(maxDrain, doDrain);
-            if (drain != null && drain.amount > 0) {
+            if (doDrain) {
                 dirty(true);
             }
             return drain;

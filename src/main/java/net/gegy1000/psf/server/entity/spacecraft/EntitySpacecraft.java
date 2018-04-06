@@ -278,7 +278,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private void recalculateRotation() {
         this.rotationMatrix.identity();
         this.rotationMatrix.rotate(180.0F - this.rotationYaw, 0.0F, 1.0F, 0.0F);
-//        this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
+        this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
 
         this.inverseMatrix.identity();
         this.inverseMatrix.multiply(this.rotationMatrix);
