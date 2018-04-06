@@ -21,7 +21,10 @@ public enum PSFParticles {
     }
 
     public void spawn(World world, double x, double y, double z, double motionX, double motionY, double motionZ, int... parameters) {
-        Particle particle = this.create(world, x, y, z, motionX, motionY, motionZ, parameters);
-        Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+        double distance = Minecraft.getMinecraft().player.getDistanceSq(x, y, z);
+        if (distance < 128 * 128) {
+            Particle particle = this.create(world, x, y, z, motionX, motionY, motionZ, parameters);
+            Minecraft.getMinecraft().effectRenderer.addEffect(particle);
+        }
     }
 }

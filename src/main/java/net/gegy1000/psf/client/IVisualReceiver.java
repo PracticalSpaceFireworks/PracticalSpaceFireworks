@@ -1,23 +1,22 @@
 package net.gegy1000.psf.client;
 
-import java.util.Collection;
-import java.util.UUID;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.minecraft.nbt.NBTTagCompound;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public interface IVisualReceiver {
     
-    public interface IVisual {
+    interface IVisual {
 
-        public SpacecraftBlockAccess getBlockAccess();
+        SpacecraftWorldHandler getWorldHandler();
 
-        public Collection<IModule> getModules();
+        Collection<IModule> getModules();
     }
     
     void setVisual(IVisual visual);

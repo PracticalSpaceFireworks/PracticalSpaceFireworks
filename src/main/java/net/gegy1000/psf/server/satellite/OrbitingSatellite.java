@@ -7,7 +7,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -27,20 +27,20 @@ public class OrbitingSatellite extends AbstractSatellite {
     private final UUID uuid;
 
     private final BlockPos position;
-    private final SpacecraftBlockAccess blockAccess;
+    private final SpacecraftWorldHandler worldHandler;
 
     private final IController controller;
     private final List<IModule> modules;
 
-    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftBlockAccess blockAccess, Collection<EntityPlayerMP> trackingPlayers) {
+    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftWorldHandler worldHandler, Collection<EntityPlayerMP> trackingPlayers) {
         this.world = world;
         this.name = name;
         this.uuid = uuid;
         this.position = position;
-        this.blockAccess = blockAccess;
+        this.worldHandler = worldHandler;
 
-        this.controller = blockAccess.findController();
-        this.modules = blockAccess.findModules();
+        this.controller = worldHandler.findController();
+        this.modules = worldHandler.findModules();
 
         modules.forEach(module -> module.setOwner(this));
         trackingPlayers.forEach(this::track);
@@ -72,8 +72,8 @@ public class OrbitingSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftBlockAccess buildBlockAccess(World world) {
-        return blockAccess;
+    public SpacecraftWorldHandler buildWorldHandler(World world) {
+        return worldHandler;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class OrbitingSatellite extends AbstractSatellite {
         compound.setInteger("y", this.position.getY());
         compound.setInteger("z", this.position.getZ());
 
-        compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
+        compound.setTag("block_data", this.worldHandler.serialize(new NBTTagCompound()));
 
         return compound;
     }
@@ -111,9 +111,9 @@ public class OrbitingSatellite extends AbstractSatellite {
         UUID uuid = compound.getUniqueId("uuid");
 
         BlockPos pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
-        SpacecraftBlockAccess blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
+        SpacecraftWorldHandler worldHandler = SpacecraftWorldHandler.deserializeCraft(compound.getCompoundTag("block_data"));
 
-        return new OrbitingSatellite(world, name, uuid, pos, blockAccess, Collections.emptyList());
+        return new OrbitingSatellite(world, name, uuid, pos, worldHandler, Collections.emptyList());
     }
 
     @Override

@@ -18,6 +18,11 @@ public class ParticleRocketPlume extends Particle {
 
     public ParticleRocketPlume(World world, double posX, double posY, double posZ, double motionX, double motionY, double motionZ) {
         super(world, posX, posY, posZ, motionX, motionY, motionZ);
+
+        this.motionX = motionX;
+        this.motionY = motionY;
+        this.motionZ = motionZ;
+
         this.canCollide = true;
 
         this.scale = (float) (Math.random() * 0.5F + 5.5F);
@@ -37,21 +42,17 @@ public class ParticleRocketPlume extends Particle {
             this.setExpired();
         }
 
+        this.motionY *= 0.99;
+
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         this.move(this.motionX, this.motionY, this.motionZ);
-
-        this.motionY *= 0.9999F;
-
-        if (this.particleAge > BASE_LIFETIME * 0.7) {
-            this.canCollide = false;
-        }
 
         if (this.onGround) {
             this.particleAge *= 4;
             this.canCollide = false;
-            this.motionY = -this.motionY * 0.5F;
-            this.motionX += (Math.random() - 0.5) * 0.5;
-            this.motionZ += (Math.random() - 0.5) * 0.5;
+            this.motionY = 0.025F + Math.random() * 0.05;
+            this.motionX += (Math.random() - 0.5) * 0.15;
+            this.motionZ += (Math.random() - 0.5) * 0.15;
         }
     }
 

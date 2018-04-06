@@ -12,6 +12,7 @@ import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
+import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
@@ -21,6 +22,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -49,6 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -79,7 +82,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     @SideOnly(Side.CLIENT)
     public SpacecraftModel model;
 
-    private SpacecraftBlockAccess blockAccess;
+    private DelegatedWorld delegatedWorld;
+    private SpacecraftWorldHandler worldHandler;
 
     @Getter
     private State state = new Static(this);
@@ -97,16 +101,23 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, positions);
-        this.blockAccess = builder.buildBlockAccess(origin, this.world);
+        this.worldHandler = builder.buildWorldHandler(origin, this.world);
+        this.delegatedWorld = new DelegatedWorld(this.world, this.worldHandler);
+
         this.satellite = new EntityBoundSatellite(this, id);
-        initSpacecraft();
+
+        if (id != null && !world.isRemote) {
+            initSpacecraft();
+        }
     }
 
     public EntitySpacecraft(ISatellite craft) {
         super(craft.getWorld());
         this.setSize(1, 1);
 
-        this.blockAccess = craft.buildBlockAccess(craft.getWorld());
+        this.worldHandler = craft.buildWorldHandler(craft.getWorld());
+        this.delegatedWorld = new DelegatedWorld(this.world, this.worldHandler);
+
         this.satellite = new EntityBoundSatellite(this, craft.getId());
         initSpacecraft();
     }
@@ -114,7 +125,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private void initSpacecraft() {
         this.satellite.detectModules();
         this.recalculateRotation();
-        this.metadata = this.blockAccess.buildLaunchMetadata();
+        this.metadata = this.worldHandler.buildSpacecraftMetadata();
 
         if (!world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
@@ -150,6 +161,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
         }
 
+        if (Math.abs(this.rotationYaw - this.lastRecalcYaw) > 1e-3 || Math.abs(this.rotationPitch - this.lastRecalcPitch) > 1e-3) {
+            this.recalculateRotation();
+            this.lastRecalcYaw = this.rotationYaw;
+            this.lastRecalcPitch = this.rotationPitch;
+        }
+
         double lastMotionY = motionY;
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
@@ -173,12 +190,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, orbiting.toListedCraft()), player);
                 }
             }
-        }
-
-        if (Math.abs(this.rotationYaw - this.lastRecalcYaw) > 1e-3 || Math.abs(this.rotationPitch - this.lastRecalcPitch) > 1e-3) {
-            this.recalculateRotation();
-            this.lastRecalcYaw = this.rotationYaw;
-            this.lastRecalcPitch = this.rotationPitch;
         }
 
         if (!world.isRemote) {
@@ -236,14 +247,23 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     public void collectTransformedBlockBounds(@Nullable AxisAlignedBB reference, @Nonnull List<AxisAlignedBB> bounds) {
-        if (this.blockAccess != null) {
-            for (BlockPos pos : BlockPos.getAllInBoxMutable(this.blockAccess.getMinPos(), this.blockAccess.getMaxPos())) {
-                IBlockState state = this.blockAccess.getBlockState(pos);
-                AxisAlignedBB bb = state.getCollisionBoundingBox(this.blockAccess, pos);
-                if (bb != null) {
-                    AxisAlignedBB transformed = this.rotateBoundsEncompassing(bb, pos).offset(this.posX, this.posY, this.posZ);
-                    if (reference == null || reference.intersects(transformed)) {
-                        bounds.add(transformed);
+        if (worldHandler != null) {
+            if (reference == null) {
+                reference = TileEntity.INFINITE_EXTENT_AABB;
+            }
+            for (BlockPos pos : BlockPos.getAllInBoxMutable(worldHandler.getMinPos(), worldHandler.getMaxPos())) {
+                IBlockState state = worldHandler.getBlockState(pos);
+                if (state.getBlock() != Blocks.AIR) {
+                    List<AxisAlignedBB> collisionBounds = new ArrayList<>();
+                    state.addCollisionBoxToList(delegatedWorld, pos, TileEntity.INFINITE_EXTENT_AABB, collisionBounds, null, false);
+                    for (AxisAlignedBB bb : collisionBounds) {
+                        if (bb == null) {
+                            continue;
+                        }
+                        AxisAlignedBB transformed = this.rotateBoundsEncompassing(bb, pos).offset(this.posX, this.posY, this.posZ);
+                        if (reference.intersects(transformed)) {
+                            bounds.add(transformed);
+                        }
                     }
                 }
             }
@@ -251,14 +271,14 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
-        bounds = bounds.offset(pos.getX() - 0.5, pos.getY(), pos.getZ() - 0.5);
+        bounds = bounds.offset(-0.5, 0, -0.5);
         return this.rotationMatrix.transform(bounds);
     }
 
     private void recalculateRotation() {
         this.rotationMatrix.identity();
         this.rotationMatrix.rotate(180.0F - this.rotationYaw, 0.0F, 1.0F, 0.0F);
-        this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
+//        this.rotationMatrix.rotate(this.rotationPitch, 1.0F, 0.0F, 0.0F);
 
         this.inverseMatrix.identity();
         this.inverseMatrix.multiply(this.rotationMatrix);
@@ -284,7 +304,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
             Rotation rotation = Rotation.values()[(yaw / 90 + 2) % 4];
 
-            Optional<SpacecraftDeconstructor.Result> result = SpacecraftDeconstructor.deconstruct(world, blockAccess, posX, posY, posZ, rotationMatrix);
+            Optional<SpacecraftDeconstructor.Result> result = SpacecraftDeconstructor.deconstruct(world, worldHandler, posX, posY, posZ, rotationMatrix);
             if (result.isPresent()) {
                 Map<BlockPos, IBlockState> blocks = result.get().getBlocks();
                 Map<BlockPos, TileEntity> entities = result.get().getEntities();
@@ -321,7 +341,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound compound) {
-        compound.setTag("block_data", this.blockAccess.serialize(new NBTTagCompound()));
+        compound.setTag("block_data", worldHandler.serialize(new NBTTagCompound()));
         compound.setTag("satellite", this.satellite.serializeNBT());
 
         compound.setString("state", this.state.getType().name());
@@ -329,20 +349,20 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(compound.getCompoundTag("block_data"));
+        this.worldHandler = SpacecraftWorldHandler.deserializeCraft(compound.getCompoundTag("block_data"));
+        this.delegatedWorld = new DelegatedWorld(this.world, worldHandler);
+
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
-        this.metadata = this.blockAccess.buildLaunchMetadata();
 
         String state = compound.getString("state");
         this.state = StateType.valueOf(state).create(this);
 
-        this.satellite.detectModules();
-        this.recalculateRotation();
+        initSpacecraft();
     }
 
     @Override
     public void writeSpawnData(ByteBuf buffer) {
-        this.blockAccess.serialize(buffer);
+        this.worldHandler.serialize(buffer);
         ByteBufUtils.writeTag(buffer, this.satellite.serializeNBT());
 
         buffer.writeBoolean(this.state instanceof Launch);
@@ -350,14 +370,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
-        this.blockAccess = SpacecraftBlockAccess.deserialize(buffer);
+        this.worldHandler = SpacecraftWorldHandler.deserializeCraft(buffer);
+        this.delegatedWorld = new DelegatedWorld(this.world, worldHandler);
+
         this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;
 
-        this.satellite.detectModules();
-
-        this.recalculateRotation();
-        this.metadata = this.blockAccess.buildLaunchMetadata();
+        initSpacecraft();
 
         prevRotationYaw = rotationYaw;
     }
@@ -369,8 +388,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
     }
 
-    public SpacecraftBlockAccess getBlockAccess() {
-        return this.blockAccess;
+    public DelegatedWorld getDelegatedWorld() {
+        return delegatedWorld;
+    }
+
+    public SpacecraftWorldHandler getWorldHandler() {
+        return worldHandler;
     }
 
     @Override
@@ -484,6 +507,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
                 if (world.isRemote) {
+                    Random rand = this.entity.rand;
                     for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
                         BlockPos thrusterPos = thruster.getPos();
                         Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
@@ -491,11 +515,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         double posX = this.entity.posX + thrusterPoint.x;
                         double posY = this.entity.posY + thrusterPoint.y;
                         double posZ = this.entity.posZ + thrusterPoint.z;
-                        for (int i = 0; i < 20; i++) {
-                            double motionX = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.5;
-                            double motionY = Math.min(-force / 1e+3, 40.0);
-                            double motionZ = (this.entity.rand.nextDouble() * 2.0 - 1) * 0.5;
-                            PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY, posZ + motionZ, motionX, motionY, motionZ);
+                        for (int i = 0; i < 30; i++) {
+                            double motionX = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                            double motionY = -Math.min(force / 1e+3, 1.0) - rand.nextDouble() * 0.1;
+                            double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                            PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY + rand.nextDouble() * motionY, posZ + motionZ, motionX, motionY, motionZ);
                         }
                     }
                 }

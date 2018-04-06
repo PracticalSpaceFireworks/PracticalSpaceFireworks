@@ -9,7 +9,7 @@ import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -39,13 +39,13 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public void detectModules() {
-        SpacecraftBlockAccess blockAccess = this.spacecraft.getBlockAccess();
+        SpacecraftWorldHandler worldHandler = this.spacecraft.getWorldHandler();
 
         this.modules.clear();
-        this.modules.addAll(blockAccess.findModules());
+        this.modules.addAll(worldHandler.findModules());
         this.modules.forEach(module -> module.setOwner(this));
 
-        this.controller = blockAccess.findController();
+        this.controller = worldHandler.findController();
     }
 
     @Override
@@ -79,8 +79,8 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftBlockAccess buildBlockAccess(World world) {
-        return this.spacecraft.getBlockAccess();
+    public SpacecraftWorldHandler buildWorldHandler(World world) {
+        return this.spacecraft.getWorldHandler();
     }
 
     @Override
@@ -131,9 +131,9 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public ISatellite toOrbiting() {
-        SpacecraftBlockAccess blockAccess = this.spacecraft.getBlockAccess();
-        SpacecraftBlockAccess[] split = blockAccess.splitVertically(getWorld(), PSFBlockRegistry.payloadSeparator);
-        SpacecraftBlockAccess topPart = split[split.length - 1];
+        SpacecraftWorldHandler blockAccess = this.spacecraft.getWorldHandler();
+        SpacecraftWorldHandler[] split = blockAccess.splitVertically(getWorld(), PSFBlockRegistry.payloadSeparator);
+        SpacecraftWorldHandler topPart = split[split.length - 1];
         return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), topPart, getTrackingPlayers());
     }
 }

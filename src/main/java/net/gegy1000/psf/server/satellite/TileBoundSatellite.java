@@ -10,8 +10,8 @@ import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilityController;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -54,11 +54,11 @@ public class TileBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftBlockAccess buildBlockAccess(World world) {
+    public SpacecraftWorldHandler buildWorldHandler(World world) {
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, controller.getModules().keySet());
-        return builder.buildBlockAccess(origin, world);
+        return builder.buildWorldHandler(origin, world);
     }
 
     @Override

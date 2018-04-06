@@ -1,7 +1,5 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
-import java.util.UUID;
-
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -13,6 +11,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,7 +38,7 @@ public class PacketRequestVisual implements IMessage {
                 ISatellite satellite = PracticalSpaceFireworks.PROXY.getSatellites().get(message.uuid);
 
                 if (satellite != null) {
-                    PSFNetworkHandler.network.sendTo(new PacketVisualData(satellite.buildBlockAccess(player.world), satellite.getModules()), player);
+                    PSFNetworkHandler.network.sendTo(new PacketVisualData(satellite.buildWorldHandler(player.world), satellite.getModules()), player);
                 }
             });
 

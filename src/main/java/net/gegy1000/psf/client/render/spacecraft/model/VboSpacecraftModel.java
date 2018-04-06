@@ -1,7 +1,9 @@
 package net.gegy1000.psf.client.render.spacecraft.model;
 
 import lombok.Getter;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import mcp.MethodsReturnNonnullByDefault;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -9,24 +11,32 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumMap;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class VboSpacecraftModel implements SpacecraftModel {
     @Getter
-    private final SpacecraftBlockAccess renderWorld;
+    private final DelegatedWorld renderWorld;
+    @Getter
+    private final SpacecraftWorldHandler worldHandler;
+
     private final Map<BlockRenderLayer, VertexBuffer> buffers = new EnumMap<>(BlockRenderLayer.class);
 
     private boolean available = true;
 
-    VboSpacecraftModel(SpacecraftBlockAccess blockAccess) {
-        this.renderWorld = blockAccess;
+    VboSpacecraftModel(DelegatedWorld world, SpacecraftWorldHandler worldHandler) {
+        this.renderWorld = world;
+        this.worldHandler = worldHandler;
+
         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
             VertexBuffer buffer = new VertexBuffer(DefaultVertexFormats.BLOCK);
             buffer.bindBuffer();
             this.bindAttributes();
 
-            drawBlocks(blockAccess, layer, BUILDER);
+            drawBlocks(world, worldHandler, layer, BUILDER);
             buffer.bufferData(BUILDER.getByteBuffer());
 
             buffer.unbindBuffer();

@@ -1,8 +1,5 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,7 +7,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -23,10 +20,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 @AllArgsConstructor
 @NoArgsConstructor
 public class PacketVisualData implements IMessage {
-    private SpacecraftBlockAccess blockAccess;
+    private SpacecraftWorldHandler worldHandler;
     private Collection<IModule> modules = new ArrayList<>();
 
     @Override
@@ -36,7 +36,7 @@ public class PacketVisualData implements IMessage {
             ByteBufUtils.writeUTF8String(buf, m.getRegistryName().toString());
             ByteBufUtils.writeTag(buf, m.serializeNBT());
         }
-        blockAccess.serialize(buf);
+        worldHandler.serialize(buf);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class PacketVisualData implements IMessage {
                 modules.add(m);
             }
         }
-        blockAccess = SpacecraftBlockAccess.deserialize(buf);
+        worldHandler = SpacecraftWorldHandler.deserializeCraft(buf);
     }
     
     public static class Handler implements IMessageHandler<PacketVisualData, IMessage> {
@@ -67,7 +67,7 @@ public class PacketVisualData implements IMessage {
         private void updateVisualClient(PacketVisualData message) {
             GuiScreen gui = Minecraft.getMinecraft().currentScreen;
             if (gui instanceof IVisualReceiver) {
-                ((IVisualReceiver) gui).setVisual(new IListedSpacecraft.Visual(message.blockAccess, message.modules));
+                ((IVisualReceiver) gui).setVisual(new IListedSpacecraft.Visual(message.worldHandler, message.modules));
             }
         }
     }

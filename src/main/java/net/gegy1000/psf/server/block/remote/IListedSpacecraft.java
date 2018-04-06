@@ -3,7 +3,7 @@ package net.gegy1000.psf.server.block.remote;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IUnique;
 import net.gegy1000.psf.client.IVisualReceiver;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBlockAccess;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
@@ -36,18 +36,18 @@ public interface IListedSpacecraft extends IUnique {
     }
 
     class Visual implements IVisualReceiver.IVisual {
-        private final SpacecraftBlockAccess blockAccess;
+        private final SpacecraftWorldHandler worldHandler;
         private final Collection<IModule> modules;
 
-        public Visual(SpacecraftBlockAccess blockAccess, Collection<IModule> modules) {
-            this.blockAccess = blockAccess;
+        public Visual(SpacecraftWorldHandler worldHandler, Collection<IModule> modules) {
+            this.worldHandler = worldHandler;
             this.modules = modules;
         }
 
         @Nonnull
         @Override
-        public SpacecraftBlockAccess getBlockAccess() {
-            return this.blockAccess;
+        public SpacecraftWorldHandler getWorldHandler() {
+            return this.worldHandler;
         }
 
         @Nonnull

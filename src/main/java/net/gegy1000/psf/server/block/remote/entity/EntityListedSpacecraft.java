@@ -57,7 +57,7 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
         GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
         if (currentScreen instanceof IVisualReceiver) {
             EntityBoundSatellite satellite = this.spacecraft.getSatellite();
-            Visual visual = new Visual(satellite.buildBlockAccess(this.spacecraft.getEntityWorld()), satellite.getModules());
+            Visual visual = new Visual(satellite.buildWorldHandler(this.spacecraft.getEntityWorld()), satellite.getModules());
             ((IVisualReceiver) currentScreen).setVisual(visual);
         }
     }
