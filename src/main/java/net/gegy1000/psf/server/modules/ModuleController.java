@@ -5,6 +5,8 @@ import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
+import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
+import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.modules.configs.ConfigBasicAction;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
@@ -58,6 +60,12 @@ public class ModuleController extends EmptyModule implements IController {
             BlockPos pos = getPosition().get();
             entity.setPosition(pos.getX() + 0.5, 1000, pos.getZ() + 0.5);
             satellite.getWorld().spawnEntity(entity);
+            
+            SatelliteWorldData data = satellite.getWorld().getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
+            if (data != null) {
+                data.removeSatellite(getId());
+            }
+            
             for (EntityPlayerMP player : satellite.getTrackingPlayers()) {
                 PSFNetworkHandler.network.sendTo(new PacketCraftState(SatelliteState.ENTITY, satellite.toListedCraft()), player);
             }
