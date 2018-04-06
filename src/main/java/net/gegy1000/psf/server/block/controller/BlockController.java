@@ -13,6 +13,7 @@ import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -44,6 +45,9 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
         super(Material.IRON);
         this.type = type;
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
+        this.setSoundType(SoundType.METAL);
+        this.setHardness(2);
+        this.setHarvestLevel("pickaxe", 1);
     }
     
     @Override
