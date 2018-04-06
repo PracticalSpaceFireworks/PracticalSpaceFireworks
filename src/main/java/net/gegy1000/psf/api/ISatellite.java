@@ -11,6 +11,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -25,10 +26,9 @@ import java.util.stream.Collectors;
 public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable<NBTTagCompound> {
 
     @Override
-    default String getName() {
-        return "Unnamed Craft #" + hashCode() % 1000;
-    }
-    
+    @Nonnull
+    String getName();
+
     @Override
     default void requestVisualData() {}
     

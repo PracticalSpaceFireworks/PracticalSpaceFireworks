@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     public static final double AIR_RESISTANCE = 0.98;
@@ -95,7 +94,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this(world, Collections.emptySet(), BlockPos.ORIGIN, null);
     }
 
-    public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin, @Nullable UUID id) {
+    public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin, @Nullable ISatellite parent) {
         super(world);
         this.setSize(1, 1);
 
@@ -104,10 +103,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.worldHandler = builder.buildWorldHandler(origin, this.world);
         this.delegatedWorld = new DelegatedWorld(this.world, this.worldHandler);
 
-        this.satellite = new EntityBoundSatellite(this, id);
+        if (parent != null) {
+            this.satellite = new EntityBoundSatellite(this, parent.getId(), parent.getName());
+            parent.getTrackingPlayers().forEach(satellite::track);
 
-        if (id != null && !world.isRemote) {
-            initSpacecraft();
+            if (!world.isRemote) {
+                initSpacecraft();
+            }
+        } else {
+            this.satellite = new EntityBoundSatellite(this, getUniqueID(), "Unnamed Craft #" + getUniqueID().hashCode() % 1000);
         }
     }
 
@@ -118,7 +122,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.worldHandler = craft.buildWorldHandler(craft.getWorld());
         this.delegatedWorld = new DelegatedWorld(this.world, this.worldHandler);
 
-        this.satellite = new EntityBoundSatellite(this, craft.getId());
+        this.satellite = new EntityBoundSatellite(this, craft.getId(), craft.getName());
         initSpacecraft();
     }
 

@@ -63,9 +63,8 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
             if (!worldIn.isRemote) {
                 Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
 
-                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos, satellite.getId());
+                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos, satellite);
                 ISatellite newsat = spacecraft.getCapability(CapabilitySatellite.INSTANCE, null);
-                newsat.setName(satellite.getName());
                 satellite.getTrackingPlayers().forEach(newsat::track);
                 
                 ((TileController) te).converted();

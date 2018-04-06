@@ -31,11 +31,12 @@ public class EntityBoundSatellite extends AbstractSatellite {
     private IController controller;
     @Setter
     @Nonnull
-    private String name = "";
+    private String name;
 
-    public EntityBoundSatellite(EntitySpacecraft spacecraft, UUID uuid) {
+    public EntityBoundSatellite(EntitySpacecraft spacecraft, UUID uuid, @Nonnull String name) {
         this.spacecraft = spacecraft;
         this.uuid = uuid;
+        this.name = name;
     }
 
     public void detectModules() {
@@ -48,9 +49,10 @@ public class EntityBoundSatellite extends AbstractSatellite {
         this.controller = worldHandler.findController();
     }
 
+    @Nonnull
     @Override
     public String getName() {
-        return name.isEmpty() ? super.getName() : name;
+        return name;
     }
 
     @Override

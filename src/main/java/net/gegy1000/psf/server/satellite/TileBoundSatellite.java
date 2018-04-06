@@ -31,7 +31,7 @@ public class TileBoundSatellite extends AbstractSatellite {
     
     @Setter
     @Nonnull
-    private String name = "";
+    private String name;
 
     @Override
     public IController getController() {
@@ -71,9 +71,10 @@ public class TileBoundSatellite extends AbstractSatellite {
         return controller.getWorld();
     }
 
+    @Nonnull
     @Override
     public String getName() {
-        return name.isEmpty() ? super.getName() : name;
+        return name;
     }
     
     @Override

@@ -4,7 +4,6 @@ import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.data.IModuleData;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
@@ -25,7 +24,6 @@ import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,17 +31,13 @@ import java.util.Map;
 
 public class TileController extends TileEntity implements ITickable {
 
-    private interface Exclusions {
-        <T extends IModuleData> Collection<T> getConnectedCaps(ISatellite satellite, Capability<T> capability);
-    }
-
     @Value
     public class ScanValue {
         IBlockState state;
         IModule module;
     }
 
-    private final ISatellite satellite = new TileBoundSatellite(this);
+    private final ISatellite satellite = new TileBoundSatellite(this, "Unnamed Craft #" + hashCode() % 1000);
     private final ModuleController controller = (ModuleController) Modules.get().getValue(new ResourceLocation(PracticalSpaceFireworks.MODID, "controller_simple")).get();
 
     private long lastScanTime = Long.MIN_VALUE;
