@@ -8,12 +8,12 @@ import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.block.module.StrutType;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.renderer.block.statemap.StateMap;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
@@ -23,6 +23,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Objects;
 import java.util.Set;
 
 @SideOnly(Side.CLIENT)
@@ -41,19 +42,13 @@ public class PSFModelRegistry {
             }
         }
 
-        Set<Block> registeredBlocks = PSFBlockRegistry.getRegisteredBlocks();
-        for (Block block : registeredBlocks) {
-            if (block instanceof RegisterItemModel) {
-                String location = ((RegisterItemModel) block).getResource(block.getRegistryName());
-                Item itemBlock = Item.getItemFromBlock(block);
-                if (itemBlock != Items.AIR) {
-                    ModelLoader.setCustomModelResourceLocation(itemBlock, 0, new ModelResourceLocation(location, "inventory"));
-                } else {
-                    PracticalSpaceFireworks.LOGGER.error("Tried to register item model for block without item!");
-                }
-            }
+        Set<ItemBlock> registeredItemBlocks = PSFBlockRegistry.getRegisteredItemBlocks();
+
+        for (ItemBlock item : registeredItemBlocks) {
+            ResourceLocation name = Objects.requireNonNull(item.getRegistryName());
+            ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(name, "inventory"));
         }
-        
+
         IStateMapper controllerMapper = new StateMap.Builder().ignore(BlockController.TYPE).build();
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.basicController, controllerMapper);
 

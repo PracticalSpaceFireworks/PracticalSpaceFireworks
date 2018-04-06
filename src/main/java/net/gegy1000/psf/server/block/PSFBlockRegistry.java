@@ -104,6 +104,7 @@ public class PSFBlockRegistry {
                 }
                 ItemBlock itemBlock = ((RegisterItemBlock) block).createItemBlock(block);
                 event.getRegistry().register(itemBlock.setRegistryName(block.getRegistryName()));
+                REGISTERED_ITEM_BLOCKS.add(itemBlock);
             }
         }
     }
