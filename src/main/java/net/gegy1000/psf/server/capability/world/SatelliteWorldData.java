@@ -1,16 +1,5 @@
 package net.gegy1000.psf.server.capability.world;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.satellite.OrbitingSatellite;
@@ -21,6 +10,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.Constants;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
 
 public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompound> {
 
@@ -72,10 +71,10 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
         @Override
         public void tick(long worldTime) {
             for (UUID id : craftsToRemove) {
-                this.satellites.remove(id);
+                ISatellite removed = this.satellites.remove(id);
                 ISatellite inCache = PracticalSpaceFireworks.PROXY.getSatellites().get(id);
                 // Don't remove converted satellites
-                if (inCache != null && inCache == this) {
+                if (inCache != null && inCache == removed) {
                     PracticalSpaceFireworks.PROXY.getSatellites().remove(id);
                 }
             }
