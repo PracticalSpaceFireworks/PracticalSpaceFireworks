@@ -1,8 +1,12 @@
 package net.gegy1000.psf.server.block.controller;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -11,8 +15,6 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.base.Predicates;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -84,7 +86,11 @@ public class CraftGraph implements Iterable<IModule> {
     @Getter
     private final ISatellite satellite;
     
-    private final Multimap<Vertex, Vertex> adjacencies = HashMultimap.create();
+    private final Map<Vertex, List<Vertex>> adjacencies = new HashMap<>();
+    
+    private List<Vertex> getAdjacent(Vertex vertex) {
+        return adjacencies.computeIfAbsent(vertex, v -> new ArrayList<>());
+    }
     
     public void scan(BlockPos root, World world) {
         scan(root, world, Predicates.alwaysTrue());
@@ -92,7 +98,7 @@ public class CraftGraph implements Iterable<IModule> {
     
     public void scan(BlockPos root, World world, Predicate<IBlockState> filter) {
         // Clear owners
-        adjacencies.values().forEach(v -> {
+        adjacencies.values().stream().flatMap(List::stream).forEach(v -> {
             IModule m = TileModule.getModule(world.getTileEntity(v.getPos()));
             if (m != null) {
                 m.setOwner(null);
@@ -108,7 +114,10 @@ public class CraftGraph implements Iterable<IModule> {
 
         IModule module = TileModule.getModule(world.getTileEntity(root));
         Queue<SearchNode> search = new ArrayDeque<>();
-        search.add(new SearchNode(new Vertex(module, root), 0));
+        
+        Vertex rootVertex = new Vertex(module, root);
+        search.add(new SearchNode(rootVertex, 0));
+        getAdjacent(rootVertex); // Add empty mapping for root so it's in the keyset
         
         // Find all modules
         while (!search.isEmpty()) {
@@ -128,7 +137,7 @@ public class CraftGraph implements Iterable<IModule> {
                             search.offer(new SearchNode(newVertex, ret.getDistance() + 1));
                             cap.setOwner(getSatellite());
                         }
-                        adjacencies.get(ret.getVertex()).add(newVertex);
+                        getAdjacent(ret.getVertex()).add(newVertex);
                     }
                     seen.add(bp);
                 }
