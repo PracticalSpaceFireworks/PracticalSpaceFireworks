@@ -1,7 +1,6 @@
 package net.gegy1000.psf.server.util;
 
 import com.google.common.collect.Maps;
-import net.minecraft.block.Block;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
@@ -50,7 +49,6 @@ public class AxisDirectionalBB extends AxisAlignedBB {
     }
 
     public AxisAlignedBB withFacing(@Nonnull EnumFacing facing) {
-        if (facing == EnumFacing.NORTH) return this;
-        return aabbMap.getOrDefault(facing, Block.FULL_BLOCK_AABB);
+        return aabbMap.getOrDefault(facing, this);
     }
 }
