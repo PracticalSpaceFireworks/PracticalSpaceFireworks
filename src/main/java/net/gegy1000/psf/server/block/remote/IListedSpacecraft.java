@@ -4,6 +4,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IUnique;
 import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
@@ -11,8 +12,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 
 @ParametersAreNonnullByDefault
-public interface IListedSpacecraft extends IUnique {
+public interface IListedSpacecraft extends IUnique, IStringSerializable {
     
+    @Override
     @Nonnull
     String getName();
 
