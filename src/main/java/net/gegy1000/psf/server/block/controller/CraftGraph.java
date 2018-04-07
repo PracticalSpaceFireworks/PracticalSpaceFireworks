@@ -1,6 +1,5 @@
 package net.gegy1000.psf.server.block.controller;
 
-import com.google.common.base.Predicates;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -90,7 +89,7 @@ public class CraftGraph implements Iterable<IModule> {
     }
     
     public void scan(BlockPos root, World world) {
-        scan(root, world, Predicates.alwaysTrue());
+        scan(root, world, v -> true);
     }
     
     public void scan(BlockPos root, World world, Predicate<Vertex> filter) {

@@ -63,9 +63,9 @@ public class TileController extends TileEntity implements ITickable {
         super.onLoad();
         if (!getWorld().isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
+            scanStructure();
         }
         controller.setPos(getPos());
-        scanStructure();
         structureLimits = null;
     }
 
