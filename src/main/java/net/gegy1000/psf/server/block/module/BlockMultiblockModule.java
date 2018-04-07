@@ -1,17 +1,11 @@
 package net.gegy1000.psf.server.block.module;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -19,11 +13,17 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 public class BlockMultiblockModule extends BlockModule {
 
     @Nonnull
     public static final IProperty<Boolean> DUMMY = PropertyBool.create("dummy");
-    
+
     public BlockMultiblockModule(Material mat, @Nonnull String module) {
         super(mat, module);
         setDefaultState(getDefaultState().withProperty(DUMMY, false));
@@ -132,10 +132,11 @@ public class BlockMultiblockModule extends BlockModule {
                 pos = ((TileDummyModule) te).getMaster();
             }
         }
+        int flags = BlockModule.CONVERTING.get() ? 10 : 3;
         for (BlockPos dummy : getDummyPositions(state, pos)) {
-            worldIn.setBlockToAir(dummy);
+            worldIn.setBlockState(dummy, Blocks.AIR.getDefaultState(), flags);
         }
-        worldIn.setBlockToAir(pos);
+        worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), flags);
         super.breakBlock(worldIn, pos, state);
     }
 }
