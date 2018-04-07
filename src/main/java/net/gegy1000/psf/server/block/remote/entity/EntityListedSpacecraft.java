@@ -44,7 +44,7 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
 
     @Override
     public boolean canLaunch() {
-        return true;
+        return this.spacecraft.getState().getType() == EntitySpacecraft.StateType.STATIC;
     }
 
     @Override

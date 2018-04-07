@@ -139,7 +139,7 @@ public class SpacecraftWorldHandler extends FixedSizeWorldHandler {
         Point3d com = new Point3d(0.0, 0.0, 0.0);
 
         for (BlockPos pos : BlockPos.getAllInBoxMutable(this.minPos, this.maxPos)) {
-            double blockMass = BlockMassHandler.getMass(this.getBlockState(pos));
+            double blockMass = BlockMassHandler.getMass(parent, pos, this.getBlockState(pos));
             mass += blockMass;
 
             com.x += (pos.getX() + 0.5) * blockMass;

@@ -84,6 +84,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     private Map<Fluid, ResourceAmount> fluidData = new HashMap<>();
     @Nonnull
     private ResourceAmount energyData = new ResourceAmount(1, 1); // Avoid energy warnings before data is synced
+    private double mass;
 
     private MapRenderer mapRenderer;
 
@@ -153,6 +154,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
                     .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
                     .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
                     .forEach(storage -> energyData.add(storage.getEnergyStored(), storage.getMaxEnergyStored()));
+
+            mass = synced.metadata.getMass();
         }
     }
 
@@ -208,6 +211,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             buttonMode.displayString = this.mode.name().substring(0, 1);
         } else if (button == buttonLaunch && craft != null && craft.canLaunch()) {
             craft.launch();
+            buttonLaunch.visible = craft.canLaunch();
         }
     }
 
@@ -221,7 +225,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         if (craft != null && synced != null) {
             renderPreview(synced);
             tfName.drawTextBox();
-            drawStats(synced, craft);
+            drawStats(craft);
         }
     }
     
@@ -443,7 +447,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.popMatrix();
     }
 
-    private void drawStats(SyncedData synced, IListedSpacecraft craft) {
+    private void drawStats(IListedSpacecraft craft) {
         int x = guiLeft + (xSize / 2);
         int y = guiTop + 62;
         int color = 0xFF333333;
@@ -479,8 +483,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         x -= 5;
         y += 15;
         
-        SpacecraftMetadata metadata = synced.metadata;
-        mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(metadata.getMass()) + "kg", x, y, color);
+        mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(mass) + "kg", x, y, color);
     }
 
     private void drawBar(int x, int y, int value, int max, int color) {

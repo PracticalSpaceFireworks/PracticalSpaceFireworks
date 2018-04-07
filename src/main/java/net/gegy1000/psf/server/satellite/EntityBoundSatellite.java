@@ -97,7 +97,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
 
     @Override
     public boolean canLaunch() {
-        return true;
+        return this.spacecraft.getState().getType() == EntitySpacecraft.StateType.STATIC;
     }
 
     @Override

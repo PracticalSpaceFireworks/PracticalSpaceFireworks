@@ -2,7 +2,6 @@ package net.gegy1000.psf.server.modules;
 
 import com.google.common.collect.Lists;
 import net.gegy1000.psf.api.IAdditionalMass;
-import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.nbt.NBTTagCompound;
@@ -65,7 +64,7 @@ public class ModuleFuelTank extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return super.hasCapability(capability, facing) || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+        return super.hasCapability(capability, facing) || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || capability == CapabilityModuleData.ADDITIONAL_MASS;
     }
 
     @Nullable
@@ -157,7 +156,7 @@ public class ModuleFuelTank extends EmptyModule {
         public double getAdditionalMass() {
             double additonalMass = 0.0;
             for (Map.Entry<Fluid, IFluidHandler> handler : handlers.entrySet()) {
-                int density = handler.getKey().getDensity() * 1000;
+                double density = handler.getKey().getDensity() * 0.8;
 
                 IFluidTankProperties properties = handler.getValue().getTankProperties()[0];
                 FluidStack contents = properties.getContents();

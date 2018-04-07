@@ -1,13 +1,20 @@
 package net.gegy1000.psf.server.util;
 
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import net.gegy1000.psf.server.api.CustomMass;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 
 public class BlockMassHandler {
     private static final Object2DoubleMap<Material> MATERIAL_MASS = new Object2DoubleOpenHashMap<>();
+    private static final Int2DoubleMap CACHED_STATE_MASS = new Int2DoubleOpenHashMap();
 
     public static void register() {
         registerMass(Material.AIR, 0.0);
@@ -49,15 +56,24 @@ public class BlockMassHandler {
         MATERIAL_MASS.put(material, mass);
     }
 
-    public static double getMass(IBlockState state) {
+    public static double getMass(IBlockAccess world, BlockPos pos, IBlockState state) {
+        int stateId = Block.getStateId(state);
+        if (CACHED_STATE_MASS.containsKey(stateId)) {
+            return CACHED_STATE_MASS.get(stateId);
+        }
+
         if (state.getBlock() instanceof CustomMass) {
             return ((CustomMass) state.getBlock()).getMass(state);
         }
 
         double mass = getMaterialMass(state.getMaterial());
-        if (state.isFullBlock()) {
-            mass /= 2.0;
+        if (!state.isFullBlock()) {
+            AxisAlignedBB bounds = state.getBoundingBox(world, pos);
+            double volume = (bounds.maxX - bounds.minX) * (bounds.maxY - bounds.minY) * (bounds.maxZ - bounds.minZ);
+            mass *= volume * 0.8;
         }
+
+        CACHED_STATE_MASS.put(stateId, mass);
 
         return mass;
     }
