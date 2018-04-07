@@ -37,7 +37,7 @@ public class CraftGraph implements Iterable<IModule> {
     @ToString
     @RequiredArgsConstructor
     @Getter
-    private static class Vertex {
+    public static class Vertex {
         private final IModule module;
         private final BlockPos pos;
 
@@ -96,7 +96,7 @@ public class CraftGraph implements Iterable<IModule> {
         scan(root, world, Predicates.alwaysTrue());
     }
     
-    public void scan(BlockPos root, World world, Predicate<IBlockState> filter) {
+    public void scan(BlockPos root, World world, Predicate<Vertex> filter) {
         // Clear owners
         adjacencies.values().stream().flatMap(List::stream).forEach(v -> {
             IModule m = TileModule.getModule(world.getTileEntity(v.getPos()));
@@ -125,19 +125,19 @@ public class CraftGraph implements Iterable<IModule> {
             if (ret.getDistance() < 10) {
                 for (EnumFacing face : EnumFacing.VALUES) {
                     BlockPos bp = ret.getVertex().getPos().offset(face);
-                    IBlockState state = world.getBlockState(bp);
                     TileEntity te = world.getTileEntity(bp);
                     IModule cap = te != null ? te.getCapability(CapabilityModule.INSTANCE, null) : null;
                     ISatellite owner = cap == null ? null : cap.getOwner();
                     boolean haveSeen = seen.contains(bp);
-                    if (cap != null && (haveSeen || ((owner == null || owner.isInvalid() || owner.equals(getSatellite())) && filter.test(state)))) {
+                    if (cap != null) {
                         Vertex newVertex = new Vertex(cap, bp);
-                        if (!haveSeen) {
+                        if (haveSeen) {
+                            getAdjacent(ret.getVertex()).add(newVertex);
+                        } else if ((owner == null || owner.isInvalid() || owner.equals(getSatellite())) && filter.test(newVertex)) {
                             // Only search through this node if it's not been seen before
                             search.offer(new SearchNode(newVertex, ret.getDistance() + 1));
                             cap.setOwner(getSatellite());
                         }
-                        getAdjacent(ret.getVertex()).add(newVertex);
                     }
                     seen.add(bp);
                 }

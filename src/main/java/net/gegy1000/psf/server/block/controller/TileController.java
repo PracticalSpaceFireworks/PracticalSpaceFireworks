@@ -1,9 +1,12 @@
 package net.gegy1000.psf.server.block.controller;
 
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.google.common.base.Predicates;
 
 import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -16,14 +19,20 @@ import net.gegy1000.psf.server.modules.ModuleController;
 import net.gegy1000.psf.server.modules.Modules;
 import net.gegy1000.psf.server.satellite.TileBoundSatellite;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.Constants;
 
 public class TileController extends TileEntity implements ITickable {
 
@@ -40,6 +49,11 @@ public class TileController extends TileEntity implements ITickable {
     private boolean converted;
 
     private CraftGraph craft = new CraftGraph(satellite);
+    
+    // A cache of the saved positions of the graph
+    // Used to make sure the controller doesn't scan beyond its saved state during world load
+    // Always null after onLoad()
+    private Set<BlockPos> structureLimits;
 
     @Override
     public void update() {
@@ -56,6 +70,7 @@ public class TileController extends TileEntity implements ITickable {
         }
         controller.setPos(getPos());
         scanStructure();
+        structureLimits = null;
     }
 
     @Override
@@ -133,6 +148,12 @@ public class TileController extends TileEntity implements ITickable {
         compound = super.writeToNBT(compound);
         compound.setTag("satellite_data", satellite.serializeNBT());
         compound.setTag("module_data", controller.serializeNBT());
+        
+        NBTTagList connectedTag = new NBTTagList();
+        for (BlockPos pos : craft.getPositions()) {
+            connectedTag.appendTag(new NBTTagLong(pos.toLong()));
+        }
+        compound.setTag("connected_blocks", connectedTag);
         return compound;
     }
 
@@ -142,9 +163,19 @@ public class TileController extends TileEntity implements ITickable {
         satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
         this.controller.deserializeNBT(compound.getCompoundTag("module_data"));
         this.controller.setOwner(satellite);
+        
+        // TODO is getWorld()==null reliable for this? We need to avoid setting the structure limits when syncing NBT
+        if (compound.hasKey("connected_blocks") && getWorld() == null) {
+            NBTTagList list = compound.getTagList("connected_blocks", Constants.NBT.TAG_LONG);
+            structureLimits = new HashSet<>();
+            for (NBTBase tag : list) {
+                structureLimits.add(BlockPos.fromLong(((NBTTagLong)tag).getLong()));
+            }
+        }
     }
 
     public void scanStructure() {
-        craft.scan(getPos(), getWorld());
+        craft.scan(getPos(), getWorld(), structureLimits == null ? Predicates.alwaysTrue() : v -> structureLimits.contains(v.getPos()));
+        markDirty();
     }
 }
