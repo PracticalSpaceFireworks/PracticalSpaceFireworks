@@ -23,7 +23,7 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICapabilityProvider {
 
-    void setOwner(ISatellite satellite);
+    void setOwner(@Nullable ISatellite satellite);
 
     @Nullable
     ISatellite getOwner();

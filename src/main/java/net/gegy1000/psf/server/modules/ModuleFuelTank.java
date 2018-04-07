@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class ModuleFuelTank extends EmptyModule implements IModule {
+public class ModuleFuelTank extends EmptyModule {
     private static final int CAPACITY = 250;
 
     private final FluidTank keroseneTank;

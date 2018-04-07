@@ -37,7 +37,6 @@ public class EmptyModule implements IModule {
     @Accessors(chain = true)
     private ResourceLocation registryName;
     
-    @Nonnull
     @Getter
     private final String name;
     

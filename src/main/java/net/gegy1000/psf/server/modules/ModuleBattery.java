@@ -21,7 +21,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
-public class ModuleBattery extends EmptyModule implements IModule {
+public class ModuleBattery extends EmptyModule {
 
     @RequiredArgsConstructor
     public enum BatteryTier implements IStringSerializable {
