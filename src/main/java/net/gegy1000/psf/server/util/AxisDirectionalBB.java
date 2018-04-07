@@ -19,9 +19,8 @@ public class AxisDirectionalBB extends AxisAlignedBB {
                     case UP: return new AxisAlignedBB(minX, 1 - maxZ, minY, maxX, 1 - minZ, maxY);
                     case SOUTH: return new AxisAlignedBB(1 - maxX, minY, 1 - maxZ, 1 - minX, maxY, 1 - minZ);
                     case WEST: return new AxisAlignedBB(minZ, minY, 1 - maxX, maxZ, maxY, 1 - minX);
-                    case EAST: return new AxisAlignedBB(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX);
+                    default: return new AxisAlignedBB(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX);
                 }
-                return null;
             }));
 
     private AxisDirectionalBB(double x1, double y1, double z1, double x2, double y2, double z2) {
