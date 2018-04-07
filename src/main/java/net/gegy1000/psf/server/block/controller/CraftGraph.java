@@ -1,5 +1,21 @@
 package net.gegy1000.psf.server.block.controller;
 
+import com.google.common.base.Predicates;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.Value;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,25 +26,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.google.common.base.Predicates;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.Value;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.module.TileModule;
-import net.gegy1000.psf.server.capability.CapabilityModule;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 @RequiredArgsConstructor
 @ParametersAreNonnullByDefault
@@ -122,7 +119,7 @@ public class CraftGraph implements Iterable<IModule> {
         // Find all modules
         while (!search.isEmpty()) {
             SearchNode ret = search.poll();
-            if (ret.getDistance() < 10) {
+            if (ret.getDistance() < RANGE) {
                 for (EnumFacing face : EnumFacing.VALUES) {
                     BlockPos bp = ret.getVertex().getPos().offset(face);
                     TileEntity te = world.getTileEntity(bp);

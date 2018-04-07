@@ -1,13 +1,5 @@
 package net.gegy1000.psf.server.block.controller;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Predicates;
-
 import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
@@ -30,9 +22,13 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TileController extends TileEntity implements ITickable {
 
@@ -130,7 +126,7 @@ public class TileController extends TileEntity implements ITickable {
 
     @Override
     public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
+        return writeSyncData(new NBTTagCompound());
     }
 
     @Override
@@ -140,15 +136,13 @@ public class TileController extends TileEntity implements ITickable {
 
     @Override
     public void handleUpdateTag(NBTTagCompound tag) {
-        readFromNBT(tag);
+        readSyncData(tag);
     }
 
     @Override
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
-        compound = super.writeToNBT(compound);
-        compound.setTag("satellite_data", satellite.serializeNBT());
-        compound.setTag("module_data", controller.serializeNBT());
-        
+        compound = writeSyncData(compound);
+
         NBTTagList connectedTag = new NBTTagList();
         for (BlockPos pos : craft.getPositions()) {
             connectedTag.appendTag(new NBTTagLong(pos.toLong()));
@@ -159,13 +153,9 @@ public class TileController extends TileEntity implements ITickable {
 
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound compound) {
-        super.readFromNBT(compound);
-        satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
-        this.controller.deserializeNBT(compound.getCompoundTag("module_data"));
-        this.controller.setOwner(satellite);
-        
-        // TODO is getWorld()==null reliable for this? We need to avoid setting the structure limits when syncing NBT
-        if (compound.hasKey("connected_blocks") && getWorld() == null) {
+        readSyncData(compound);
+
+        if (compound.hasKey("connected_blocks")) {
             NBTTagList list = compound.getTagList("connected_blocks", Constants.NBT.TAG_LONG);
             structureLimits = new HashSet<>();
             for (NBTBase tag : list) {
@@ -174,8 +164,24 @@ public class TileController extends TileEntity implements ITickable {
         }
     }
 
+    private NBTTagCompound writeSyncData(@Nonnull NBTTagCompound compound) {
+        compound = super.writeToNBT(compound);
+
+        compound.setTag("satellite_data", satellite.serializeNBT());
+        compound.setTag("module_data", controller.serializeNBT());
+
+        return compound;
+    }
+
+    private void readSyncData(@Nonnull NBTTagCompound compound) {
+        super.readFromNBT(compound);
+        satellite.deserializeNBT(compound.getCompoundTag("satellite_data"));
+        controller.deserializeNBT(compound.getCompoundTag("module_data"));
+        controller.setOwner(satellite);
+    }
+
     public void scanStructure() {
-        craft.scan(getPos(), getWorld(), structureLimits == null ? Predicates.alwaysTrue() : v -> structureLimits.contains(v.getPos()));
+        craft.scan(getPos(), getWorld(), structureLimits == null ? v -> true : v -> structureLimits.contains(v.getPos()));
         markDirty();
     }
 }
