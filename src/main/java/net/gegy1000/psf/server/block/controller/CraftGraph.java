@@ -149,4 +149,8 @@ public class CraftGraph implements Iterable<IModule> {
     public Iterator<IModule> iterator() {
         return adjacencies.keySet().stream().map(Vertex::getModule).iterator();
     }
+
+    public boolean isEmpty() {
+        return adjacencies.isEmpty();
+    }
 }

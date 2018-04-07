@@ -48,12 +48,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.vecmath.Point3d;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     public static final double AIR_RESISTANCE = 0.98;
@@ -294,7 +292,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        if (!world.isRemote) {
+        if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
             float prevRotationYaw = this.rotationYaw;
             float prevRotationPitch = this.rotationPitch;
 

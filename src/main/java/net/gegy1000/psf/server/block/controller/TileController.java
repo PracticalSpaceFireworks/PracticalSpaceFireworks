@@ -143,11 +143,15 @@ public class TileController extends TileEntity implements ITickable {
     public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
         compound = writeSyncData(compound);
 
-        NBTTagList connectedTag = new NBTTagList();
-        for (BlockPos pos : craft.getPositions()) {
-            connectedTag.appendTag(new NBTTagLong(pos.toLong()));
+        // Adjacencies are not serialized, so when the controller is converted to entity and back, the list becomes
+        // empty. We still aren't scanning for them as we are in entity form, so they remain so until deconstruction.
+        if (!craft.isEmpty()) {
+            NBTTagList connectedTag = new NBTTagList();
+            for (BlockPos pos : craft.getPositions()) {
+                connectedTag.appendTag(new NBTTagLong(pos.toLong()));
+            }
+            compound.setTag("connected_blocks", connectedTag);
         }
-        compound.setTag("connected_blocks", connectedTag);
         return compound;
     }
 

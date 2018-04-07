@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -11,18 +12,15 @@ import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.util.PointUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
-import java.util.List;
-import java.util.Set;
-
 import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
+import java.util.List;
 
 public class SpacecraftBuilder {
     private final LongList blockKeys = new LongArrayList();
@@ -58,16 +56,19 @@ public class SpacecraftBuilder {
         for (BlockPos pos : locations) {
             BlockPos localPos = pos.subtract(origin);
             IBlockState state = world.getBlockState(pos);
-            this.setBlockState(localPos, world.getBlockState(pos));
+            this.setBlockState(localPos, state);
 
             TileEntity entity = world.getTileEntity(pos);
             if (entity != null) {
-                TileEntity copiedEntity = TileEntity.create(world, entity.serializeNBT());
+                NBTTagCompound tag = entity.serializeNBT();
+                tag.setInteger("x", localPos.getX());
+                tag.setInteger("y", localPos.getY());
+                tag.setInteger("z", localPos.getZ());
+                TileEntity copiedEntity = TileEntity.create(world, tag);
                 if (copiedEntity == null) {
                     PracticalSpaceFireworks.LOGGER.warn("Failed to copy TE when building spacecraft");
                     continue;
                 }
-                copiedEntity.setPos(localPos);
                 this.setTileEntity(localPos, copiedEntity);
             }
         }
