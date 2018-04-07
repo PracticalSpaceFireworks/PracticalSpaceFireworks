@@ -1,5 +1,16 @@
 package net.gegy1000.psf.server.capability.world;
 
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.UUID;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.satellite.OrbitingSatellite;
@@ -11,15 +22,10 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.Constants;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompound> {
+
+    void tick(long worldTime);
+
     @Nonnull
     World getWorld();
 
@@ -37,6 +43,8 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
         private final World world;
 
         private final Map<UUID, ISatellite> satellites = new HashMap<>();
+        
+        private final Queue<UUID> craftsToRemove = new ArrayDeque<>();
 
         public Impl(World world) {
             this.world = world;
@@ -60,6 +68,21 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
         public World getWorld() {
             return this.world;
         }
+        
+        @Override
+        public void tick(long worldTime) {
+            for (UUID id : craftsToRemove) {
+                this.satellites.remove(id);
+                ISatellite inCache = PracticalSpaceFireworks.PROXY.getSatellites().get(id);
+                // Don't remove converted satellites
+                if (inCache != null && inCache == this) {
+                    PracticalSpaceFireworks.PROXY.getSatellites().remove(id);
+                }
+            }
+            for (ISatellite satellite : satellites.values()) {
+                satellite.tickSatellite(worldTime);
+            }
+        }
 
         @Override
         public void addSatellite(@Nonnull ISatellite satellite) {
@@ -69,8 +92,8 @@ public interface SatelliteWorldData extends ICapabilitySerializable<NBTTagCompou
 
         @Override
         public void removeSatellite(@Nonnull UUID id) {
-            this.satellites.remove(id);
-            PracticalSpaceFireworks.PROXY.getSatellites().remove(id);
+            // Delay removal to next tick to avoid CME
+            craftsToRemove.add(id);
         }
 
         @Nullable

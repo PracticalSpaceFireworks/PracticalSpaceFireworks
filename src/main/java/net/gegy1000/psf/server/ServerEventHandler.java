@@ -30,8 +30,10 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void onWorldUpdate(TickEvent.WorldTickEvent event) {
         if (event.phase == Phase.END && !event.world.isRemote && event.world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
-            Collection<ISatellite> satellites = event.world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null).getSatellites();
-            satellites.forEach(satellite -> satellite.tickSatellite(event.world.getTotalWorldTime()));
+            SatelliteWorldData satellites = event.world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
+            if (satellites != null) {
+                satellites.tick(event.world.getTotalWorldTime());
+            }
         }
     }
 
