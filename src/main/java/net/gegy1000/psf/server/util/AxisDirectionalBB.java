@@ -22,7 +22,7 @@ public class AxisDirectionalBB extends AxisAlignedBB {
                     case WEST: return new AxisAlignedBB(minZ, minY, 1 - maxX, maxZ, maxY, 1 - minX);
                     case EAST: return new AxisAlignedBB(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX);
                 }
-                return this;
+                return null;
             }));
 
     private AxisDirectionalBB(double x1, double y1, double z1, double x2, double y2, double z2) {
