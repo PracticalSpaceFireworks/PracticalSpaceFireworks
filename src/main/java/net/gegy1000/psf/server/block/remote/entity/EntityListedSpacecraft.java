@@ -1,14 +1,10 @@
 package net.gegy1000.psf.server.block.remote.entity;
 
-import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
-import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
@@ -22,7 +18,7 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
         this.spacecraft = spacecraft;
         this.uuid = uuid;
     }
-    
+
     @Override
     public UUID getId() {
         return uuid;
@@ -44,22 +40,6 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
     @Override
     public BlockPos getPosition() {
         return this.spacecraft.getPosition();
-    }
-
-    @Override
-    public void requestVisualData() {
-        if (this.spacecraft.getEntityWorld().isRemote) {
-            this.respondVisualData();
-        }
-    }
-
-    private void respondVisualData() {
-        GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-        if (currentScreen instanceof IVisualReceiver) {
-            EntityBoundSatellite satellite = this.spacecraft.getSatellite();
-            Visual visual = new Visual(satellite.buildWorldHandler(this.spacecraft.getEntityWorld()), satellite.getModules());
-            ((IVisualReceiver) currentScreen).setVisual(visual);
-        }
     }
 
     @Override

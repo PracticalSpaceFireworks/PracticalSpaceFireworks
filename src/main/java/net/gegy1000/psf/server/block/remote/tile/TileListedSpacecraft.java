@@ -1,16 +1,14 @@
 package net.gegy1000.psf.server.block.remote.tile;
 
-import java.util.UUID;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.math.BlockPos;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public class TileListedSpacecraft implements IListedSpacecraft {
@@ -41,10 +39,5 @@ public class TileListedSpacecraft implements IListedSpacecraft {
     @Override
     public BlockPos getPosition() {
         return satellite.getPosition();
-    }
-
-    @Override
-    public void requestVisualData() {
-        PSFNetworkHandler.network.sendToServer(new PacketRequestVisual(satellite.getId()));
     }
 }

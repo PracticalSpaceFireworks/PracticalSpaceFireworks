@@ -21,8 +21,6 @@ public interface IListedSpacecraft extends IUnique {
     @Nonnull
     BlockPos getPosition();
 
-    void requestVisualData();
-    
     default boolean isOrbiting() {
         return false;
     }

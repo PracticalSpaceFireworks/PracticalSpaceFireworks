@@ -29,9 +29,6 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
     @Nonnull
     String getName();
 
-    @Override
-    default void requestVisualData() {}
-    
     IController getController();
 
     Collection<IModule> getModules();

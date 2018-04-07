@@ -6,6 +6,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
@@ -14,6 +15,7 @@ import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -101,7 +103,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
         IListedSpacecraft craft = getCraft();
         if (craft != null && synced == null) {
-            craft.requestVisualData();
+            PSFNetworkHandler.network.sendToServer(new PacketRequestVisual(craft.getId()));
         }
 
         buttonModules = new GuiButtonExt(-1, guiLeft + (xSize / 2), guiTop + 34, 115, 20, "Modules");
