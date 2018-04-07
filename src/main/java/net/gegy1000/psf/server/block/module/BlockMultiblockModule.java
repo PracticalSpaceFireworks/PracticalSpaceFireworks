@@ -99,13 +99,13 @@ public class BlockMultiblockModule extends BlockModule {
     }
     
     @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+    protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, @Nonnull EnumFacing side) {
         for (BlockPos check : getDummyPositions(getDefaultState().withProperty(DIRECTION, side), pos)) {
-            if (!worldIn.getBlockState(check).getBlock().isReplaceable(worldIn, check)) {
+            if (!world.getBlockState(check).getBlock().isReplaceable(world, check)) {
                 return false;
             }
         }
-        return super.canPlaceBlockOnSide(worldIn, pos, side);
+        return super.canAttachOnSide(world, pos, state, on, side);
     }
     
     @Override

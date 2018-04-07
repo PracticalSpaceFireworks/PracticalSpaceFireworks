@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
@@ -31,17 +32,19 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+@ParametersAreNonnullByDefault
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
     
     public static final ThreadLocal<Boolean> CONVERTING = ThreadLocal.withInitial(() -> false);
 
-    public static final @Nonnull IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
+    public static final IProperty<EnumFacing> DIRECTION = PropertyEnum.create("facing", EnumFacing.class);
 
     private final ResourceLocation moduleID;
 
+    @Nullable
     private IModuleFactory factory; // lazy loaded
 
-    public BlockModule(Material mat, @Nonnull String module) {
+    public BlockModule(Material mat, String module) {
         super(mat);
         this.moduleID = new ResourceLocation(PracticalSpaceFireworks.MODID, module);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
@@ -49,7 +52,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         this.setHarvestLevel("pickaxe", 1);
     }
 
-    protected IModule createModule(@Nonnull World world, @Nonnull IBlockState state) {
+    protected IModule createModule(World world, IBlockState state) {
         IModuleFactory factory = this.factory;
         if (factory == null) {
             factory = Modules.get().getValue(moduleID);
@@ -81,20 +84,20 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         return BlockRenderLayer.CUTOUT;
     }
     
-    protected boolean canAttachOnSide(IBlockState state, IBlockState on, EnumFacing side) {
+    protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, EnumFacing side) {
         return true;
     }
 
     @Override
-    public boolean canPlaceBlockAt(World world, @Nonnull BlockPos pos) {
+    public boolean canPlaceBlockAt(@Nonnull World world, @Nonnull BlockPos pos) {
         return Arrays.stream(EnumFacing.VALUES).anyMatch(side -> isSideValid(world, pos, side));
     }
 
-    private boolean isSideValid(World world, @Nonnull BlockPos pos, EnumFacing side) {
+    private boolean isSideValid(World world, BlockPos pos, EnumFacing side) {
         BlockPos offsetPos = pos.offset(side.getOpposite());
         IBlockState on = world.getBlockState(offsetPos).getActualState(world, offsetPos);
 
-        if (!canAttachOnSide(getDefaultState().withProperty(DIRECTION, side), on, side)) {
+        if (!canAttachOnSide(world, pos, getDefaultState().withProperty(DIRECTION, side), on, side)) {
             return false;
         }
 

@@ -1,6 +1,7 @@
 package net.gegy1000.psf;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.apache.logging.log4j.LogManager;
@@ -37,9 +38,10 @@ public class PracticalSpaceFireworks {
     @Instance
     public static PracticalSpaceFireworks instance;
 
+    @Nonnull
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
-        public ItemStack getTabIconItem() {
+        public @Nonnull ItemStack getTabIconItem() {
             return new ItemStack(PSFBlockRegistry.strut);
         }
     };

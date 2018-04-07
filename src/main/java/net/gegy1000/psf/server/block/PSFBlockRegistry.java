@@ -1,5 +1,11 @@
 package net.gegy1000.psf.server.block;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.annotation.Nonnull;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
@@ -23,16 +29,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFBlockRegistry {
@@ -64,7 +67,7 @@ public class PSFBlockRegistry {
         register(event, "battery.simple", new BlockBattery("battery_simple"));
         thruster = register(event, "thruster.simple", new BlockModule(Material.IRON, "thruster_simple") {
             @Override
-            protected boolean canAttachOnSide(IBlockState state, IBlockState on, EnumFacing side) {
+            protected boolean canAttachOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull IBlockState on, @Nonnull EnumFacing side) {
                 return side == EnumFacing.DOWN;
             }
         });
