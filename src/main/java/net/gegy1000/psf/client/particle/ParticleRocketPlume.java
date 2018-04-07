@@ -16,6 +16,8 @@ public class ParticleRocketPlume extends Particle {
     private final float baseYellow;
     private final float baseBrightness;
 
+    private final float rotSpeed;
+
     public ParticleRocketPlume(World world, double posX, double posY, double posZ, double motionX, double motionY, double motionZ) {
         super(world, posX, posY, posZ, motionX, motionY, motionZ);
 
@@ -30,6 +32,9 @@ public class ParticleRocketPlume extends Particle {
 
         this.baseYellow = (float) (Math.random() * 0.3 + 0.7);
         this.baseBrightness = (float) (Math.random() * 0.2 + 0.8);
+
+        this.rotSpeed = (float) (Math.random() - 0.5F) * 0.01F;
+        this.particleAngle = (float) (Math.random() * (2 * Math.PI));
     }
 
     @Override
@@ -43,6 +48,9 @@ public class ParticleRocketPlume extends Particle {
         }
 
         this.motionY *= 0.99;
+
+        this.prevParticleAngle = this.particleAngle;
+        this.particleAngle += (float) Math.PI * this.rotSpeed * 2.0F;
 
         this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         this.move(this.motionX, this.motionY, this.motionZ);

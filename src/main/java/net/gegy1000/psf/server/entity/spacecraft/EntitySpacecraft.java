@@ -357,10 +357,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
 
+        initSpacecraft();
+
         String state = compound.getString("state");
         this.state = StateType.valueOf(state).create(this);
-
-        initSpacecraft();
     }
 
     @Override
