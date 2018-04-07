@@ -113,4 +113,6 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
     default void track(EntityPlayerMP player) {}
     
     default void untrack(EntityPlayerMP player) {}
+
+    default void markDirty() {} // For TE
 }

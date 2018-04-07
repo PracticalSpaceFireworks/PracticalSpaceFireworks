@@ -100,7 +100,14 @@ public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICap
         return false;
     }
     
-    default void dirty(boolean dirty) {}
+    default void dirty(boolean dirty) {
+        if (dirty) {
+            ISatellite owner = getOwner();
+            if (owner != null && !owner.isInvalid()) {
+                owner.markDirty();
+            }
+        }
+    }
     
     // TODO override this in most modules!!
     default NBTTagCompound getUpdateTag() {

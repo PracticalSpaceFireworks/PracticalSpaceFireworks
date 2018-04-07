@@ -55,6 +55,12 @@ public class TileBoundSatellite extends AbstractSatellite {
     public BlockPos getPosition() {
         return controller.getPos();
     }
+    
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        controller.markDirty();
+    }
 
     @Override
     public SpacecraftWorldHandler buildWorldHandler(World world) {
