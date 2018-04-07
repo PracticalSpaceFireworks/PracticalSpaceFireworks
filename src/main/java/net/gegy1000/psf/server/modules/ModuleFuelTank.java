@@ -54,7 +54,7 @@ public class ModuleFuelTank extends EmptyModule {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(@Nonnull NBTTagCompound nbt) {
         super.deserializeNBT(nbt);
 
         Capability<IFluidHandler> cap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;

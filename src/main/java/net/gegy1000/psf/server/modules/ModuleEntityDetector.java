@@ -15,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
@@ -61,7 +62,7 @@ public class ModuleEntityDetector extends EmptyModule {
     }
 
     @Override
-    public void onSatelliteTick(ISatellite satellite) {
+    public void onSatelliteTick(@Nonnull ISatellite satellite) {
         if (enabled.value() && satellite.tryExtractEnergy(POWER_PER_TICK)) {
             World world = satellite.getWorld();
             Collection<EntityLivingBase> entities = world.getEntities(EntityLivingBase.class, e -> {

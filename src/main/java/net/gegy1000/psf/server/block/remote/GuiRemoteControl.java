@@ -81,10 +81,10 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
     }
     
     @Override
-    public void setVisual(IVisual visual) {}
+    public void setVisual(@Nonnull IVisual visual) {}
 
     @Override
-    public void updateModule(UUID id, NBTTagCompound tag) {}
+    public void updateModule(@Nonnull UUID id, @Nonnull NBTTagCompound tag) {}
     
     @Override
     public void updateCraft(@Nonnull IListedSpacecraft craft) {

@@ -5,7 +5,6 @@ import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
-import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
@@ -32,7 +31,6 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Map;
 
 public class BlockController extends Block implements RegisterItemBlock, RegisterItemModel, RegisterTileEntity {
     
@@ -89,10 +87,10 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
     }
     
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
-        TileEntity te = worldIn.getTileEntity(pos);
-        if (te != null && te instanceof TileController) {
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        super.neighborChanged(state, world, pos, blockIn, fromPos);
+        TileEntity te = world.getTileEntity(pos);
+        if (te instanceof TileController) {
             ((TileController) te).scanStructure();
         }
     }

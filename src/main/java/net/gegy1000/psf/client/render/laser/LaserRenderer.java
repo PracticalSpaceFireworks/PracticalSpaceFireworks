@@ -1,14 +1,7 @@
 package net.gegy1000.psf.client.render.laser;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
-import org.lwjgl.opengl.GL11;
-
 import it.unimi.dsi.fastutil.longs.Long2IntArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.sound.PSFSounds;
@@ -31,6 +24,11 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.lwjgl.opengl.GL11;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID, value = Side.CLIENT)
 public class LaserRenderer {
@@ -43,14 +41,14 @@ public class LaserRenderer {
 
     }
     
-    private static final Random rand = new Random();
+    private static final Random RAND = new Random();
 
-    private static Map<BlockPos, LaserState> lasers = new HashMap<>();
-    private static Long2IntMap focus = new Long2IntArrayMap();
+    private static final Map<BlockPos, LaserState> LASERS = new HashMap<>();
+    private static final Long2IntMap FOCUS = new Long2IntArrayMap();
     
     @SubscribeEvent
     public static void onClientDisconnect(ClientDisconnectionFromServerEvent event) {
-        lasers.clear();
+        LASERS.clear();
     }
 
     @SubscribeEvent
@@ -74,13 +72,13 @@ public class LaserRenderer {
         
         GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
         
-        for (val e : lasers.entrySet()) {
+        for (val e : LASERS.entrySet()) {
             BlockPos p = e.getKey();
             GlStateManager.pushMatrix();
             {
                 GlStateManager.translate(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5);
                 
-                float f = (focus.get(p.toLong()) + event.getPartialTicks()) / 80f;
+                float f = (FOCUS.get(p.toLong()) + event.getPartialTicks()) / 80f;
                 float radiusMod = e.getValue() == LaserState.FIRING ? (1 - f + 0.5f) * 2 : 1;
                 float alphaMod = e.getValue() == LaserState.FIRING ? MathHelper.clamp(f, 0, 1) : 1;
 
@@ -117,20 +115,20 @@ public class LaserRenderer {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent event) {
         if (event.phase == Phase.END) {
-            for (val e : lasers.entrySet()) {
+            for (val e : LASERS.entrySet()) {
                 if (e.getValue() == LaserState.FIRING) {
                     BlockPos p = e.getKey();
-                    int max = rand.nextInt(5);
+                    int max = RAND.nextInt(5);
                     for (int i = 0; i < max; i++) {
-                        double px = (p.getX() + 0.5 + (rand.nextGaussian() * 2));
+                        double px = (p.getX() + 0.5 + (RAND.nextGaussian() * 2));
                         double py = p.getY() + 1;
-                        double pz = (p.getZ() + 0.5 + (rand.nextGaussian() * 2));
+                        double pz = (p.getZ() + 0.5 + (RAND.nextGaussian() * 2));
                         Minecraft.getMinecraft().world.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, px, py, pz, 0, 0, 0);
                     }
                 }
             }
-            for (long l : focus.keySet().toLongArray()) {
-                focus.put(l, focus.get(l) + 1);
+            for (long l : FOCUS.keySet().toLongArray()) {
+                FOCUS.put(l, FOCUS.get(l) + 1);
             }
         }
     }
@@ -171,14 +169,14 @@ public class LaserRenderer {
 
     public static void updateLaser(BlockPos pos, LaserState state) {
         if (state != LaserState.COMPLETE) {
-            lasers.put(pos, state);
+            LASERS.put(pos, state);
             if (state == LaserState.FIRING) {
-                focus.put(pos.toLong(), 0);
+                FOCUS.put(pos.toLong(), 0);
                 Minecraft.getMinecraft().world.playSound(Minecraft.getMinecraft().player, pos, PSFSounds.LASER_FIRE, SoundCategory.BLOCKS, 4, 1);
             }
         } else {
-            lasers.remove(pos);
-            focus.remove(pos.toLong());
+            LASERS.remove(pos);
+            FOCUS.remove(pos.toLong());
         }
     }
 }

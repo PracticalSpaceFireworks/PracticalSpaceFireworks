@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 
 public class UniqueManager<T extends IUnique> {
     
-    private Cache<UUID, T> satelliteCache = CacheBuilder.newBuilder()
+    private final Cache<UUID, T> satelliteCache = CacheBuilder.newBuilder()
             .weakValues()
             .removalListener(this::onRemoved)
-            .<UUID, T>build();
+            .build();
     
-    private List<Consumer<T>> addCallbacks = new ArrayList<>();
-    private List<Consumer<T>> removeCallbacks = new ArrayList<>();
+    private final List<Consumer<T>> addCallbacks = new ArrayList<>();
+    private final List<Consumer<T>> removeCallbacks = new ArrayList<>();
     
     public void register(@Nonnull T obj) {
         this.satelliteCache.put(obj.getId(), obj);

@@ -50,7 +50,7 @@ public class ModuleController extends EmptyModule implements IController {
     }
     
     @Override
-    public void onSatelliteTick(ISatellite satellite) {
+    public void onSatelliteTick(@Nonnull ISatellite satellite) {
         super.onSatelliteTick(satellite);
         
         if (deorbiting && satellite.isOrbiting()) {
@@ -82,7 +82,7 @@ public class ModuleController extends EmptyModule implements IController {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(@Nonnull NBTTagCompound nbt) {
         super.deserializeNBT(nbt);
         setPos(new BlockPos(nbt.getInteger("controller_x"), nbt.getInteger("controller_y"), nbt.getInteger("controller_z")));
     }

@@ -12,7 +12,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -90,12 +89,6 @@ public class BlockFuelTank extends BlockModule {
         return state.getBlock() == this || BlockModule.isStructural(me, state);
     }
 
-    @Nonnull
-    @Override
-    public IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
-        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand);
-    }
-    
     @Override
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
         super.onBlockAdded(worldIn, pos, state);
@@ -115,10 +108,10 @@ public class BlockFuelTank extends BlockModule {
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
-        super.breakBlock(worldIn, pos, state);
+    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+        super.breakBlock(world, pos, state);
         if (!CONVERTING.get()) {
-            updateNeighbors(state, worldIn, pos);
+            updateNeighbors(state, world, pos);
         }
     }
 
@@ -143,7 +136,7 @@ public class BlockFuelTank extends BlockModule {
     }
 
     @Override
-    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         if (connecting != null && connecting.getBlock() == this) {
             return true;
         } else if (connecting == null) {

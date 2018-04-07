@@ -23,7 +23,7 @@ public class ModuleSolarPanel extends EmptyModule {
     }
 
     @Override
-    public void onSatelliteTick(ISatellite satellite) {
+    public void onSatelliteTick(@Nonnull ISatellite satellite) {
         super.onSatelliteTick(satellite);
 
         Collection<IEnergyStorage> powerSources = satellite.getModuleCaps(CapabilityEnergy.ENERGY);

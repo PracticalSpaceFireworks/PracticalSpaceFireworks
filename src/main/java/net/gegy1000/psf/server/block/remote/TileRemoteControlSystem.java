@@ -1,21 +1,18 @@
 package net.gegy1000.psf.server.block.remote;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.ISatellite;
+import net.minecraft.tileentity.TileEntity;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
-
-import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.ISatellite;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 
 @ParametersAreNonnullByDefault
 public class TileRemoteControlSystem extends TileEntity {
@@ -44,15 +41,5 @@ public class TileRemoteControlSystem extends TileEntity {
     
     public List<IListedSpacecraft> getCrafts() {
         return Lists.newArrayList(crafts.values());
-    }
-    
-    @Override
-    public void readFromNBT(NBTTagCompound compound) {
-        super.readFromNBT(compound);
-    }
-
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        return super.writeToNBT(compound);
     }
 }

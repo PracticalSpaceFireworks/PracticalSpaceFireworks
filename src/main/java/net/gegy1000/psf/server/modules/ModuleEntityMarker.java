@@ -27,7 +27,7 @@ public class ModuleEntityMarker extends EmptyModule {
     }
 
     @Override
-    public void onSatelliteTick(ISatellite satellite) {
+    public void onSatelliteTick(@Nonnull ISatellite satellite) {
         Collection<IEntityList> entityLists = satellite.getModuleCaps(CapabilityModuleData.ENTITY_LIST);
         for (IEntityList entityList : entityLists) {
             for (EntityLivingBase living : entityList.getEntities()) {

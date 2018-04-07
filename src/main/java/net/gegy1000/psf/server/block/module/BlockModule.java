@@ -1,11 +1,5 @@
 package net.gegy1000.psf.server.block.module;
 
-import java.util.Arrays;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
@@ -31,6 +25,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
 
 @ParametersAreNonnullByDefault
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
@@ -119,24 +118,24 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
 
     @Override
     @Deprecated
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
-        super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
-        state = state.getActualState(worldIn, pos);
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
+        super.neighborChanged(state, world, pos, block, fromPos);
+        state = state.getActualState(world, pos);
         if (!isStructuralModule(null, state)) {
             BlockPos connectedTo = pos.offset(state.getValue(DIRECTION).getOpposite());
             if (connectedTo.equals(fromPos)) {
-                IBlockState other = worldIn.getBlockState(connectedTo).getActualState(worldIn, connectedTo);
+                IBlockState other = world.getBlockState(connectedTo).getActualState(world, connectedTo);
                 if (!isStructural(state, other)) {
-                    worldIn.destroyBlock(pos, true);
+                    world.destroyBlock(pos, true);
                 }
             }
         }
-        IModule module = TileModule.getModule(worldIn.getTileEntity(pos));
+        IModule module = TileModule.getModule(world.getTileEntity(pos));
         if (module != null) {
             ISatellite owner = module.getOwner();
             if (owner != null && !owner.isInvalid()) {
-                TileEntity te = worldIn.getTileEntity(owner.getPosition());
-                if (te != null && te instanceof TileController) {
+                TileEntity te = world.getTileEntity(owner.getPosition());
+                if (te instanceof TileController) {
                     ((TileController)te).scanStructure();
                 }
             }

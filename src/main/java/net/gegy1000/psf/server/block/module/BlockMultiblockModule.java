@@ -51,7 +51,7 @@ public class BlockMultiblockModule extends BlockModule {
     }
     
     @Override
-    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         return super.isStructuralModule(connecting, state) || (connecting != null && connecting.getBlock() == this && connecting.getValue(DUMMY));
     }
     
@@ -80,16 +80,15 @@ public class BlockMultiblockModule extends BlockModule {
     
     @Override
     @Deprecated
-    public @Nonnull AxisAlignedBB getSelectedBoundingBox(@Nonnull IBlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos) {
-        TileEntity te = worldIn.getTileEntity(pos);
+    public @Nonnull AxisAlignedBB getSelectedBoundingBox(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos) {
+        TileEntity te = world.getTileEntity(pos);
         if (state.getValue(DUMMY) && te instanceof TileDummyModule) {
             pos = ((TileDummyModule)te).getMaster();
-            te = worldIn.getTileEntity(pos);
-            state = worldIn.getBlockState(pos);
+            state = world.getBlockState(pos);
         }
         // Can happen during load if crosses chunks, or if the multiblock is corrupted in some other way
         if (state.getBlock() != this) {
-            return super.getSelectedBoundingBox(state, worldIn, pos);
+            return super.getSelectedBoundingBox(state, world, pos);
         }
         AxisAlignedBB bb = new AxisAlignedBB(pos);
         for (BlockPos bp : getDummyPositions(state, pos)) {
@@ -99,7 +98,7 @@ public class BlockMultiblockModule extends BlockModule {
     }
     
     @Override
-    protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, @Nonnull EnumFacing side) {
+    protected boolean canAttachOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull IBlockState on, @Nonnull EnumFacing side) {
         for (BlockPos check : getDummyPositions(getDefaultState().withProperty(DIRECTION, side), pos)) {
             if (!world.getBlockState(check).getBlock().isReplaceable(world, check)) {
                 return false;
@@ -109,15 +108,15 @@ public class BlockMultiblockModule extends BlockModule {
     }
     
     @Override
-    public void onBlockAdded(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
-        super.onBlockAdded(worldIn, pos, state);
+    public void onBlockAdded(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
+        super.onBlockAdded(world, pos, state);
         
         if (!state.getValue(DUMMY)) {
-            IBlockState dummystate = state.withProperty(DUMMY, true);
-            for (BlockPos dummypos : getDummyPositions(state, pos)) {
-                worldIn.setBlockState(dummypos, dummystate);
-                TileEntity te = worldIn.getTileEntity(dummypos);
-                if (te != null && te instanceof TileDummyModule) {
+            IBlockState dummyState = state.withProperty(DUMMY, true);
+            for (BlockPos dummyPos : getDummyPositions(state, pos)) {
+                world.setBlockState(dummyPos, dummyState);
+                TileEntity te = world.getTileEntity(dummyPos);
+                if (te instanceof TileDummyModule) {
                     ((TileDummyModule) te).setMaster(pos);
                 }
             }
@@ -125,18 +124,18 @@ public class BlockMultiblockModule extends BlockModule {
     }
     
     @Override
-    public void breakBlock(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
+    public void breakBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
         if (state.getValue(DUMMY)) {
-            TileEntity te = worldIn.getTileEntity(pos);
-            if (te != null && te instanceof TileDummyModule) {
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof TileDummyModule) {
                 pos = ((TileDummyModule) te).getMaster();
             }
         }
         int flags = BlockModule.CONVERTING.get() ? 10 : 3;
         for (BlockPos dummy : getDummyPositions(state, pos)) {
-            worldIn.setBlockState(dummy, Blocks.AIR.getDefaultState(), flags);
+            world.setBlockState(dummy, Blocks.AIR.getDefaultState(), flags);
         }
-        worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), flags);
-        super.breakBlock(worldIn, pos, state);
+        world.setBlockState(pos, Blocks.AIR.getDefaultState(), flags);
+        super.breakBlock(world, pos, state);
     }
 }

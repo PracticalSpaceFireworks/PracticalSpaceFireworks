@@ -1,7 +1,5 @@
 package net.gegy1000.psf.server.modules.data;
 
-import javax.annotation.Nonnull;
-
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -12,6 +10,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import javax.annotation.Nonnull;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,9 +36,7 @@ public class PacketLaserState implements IMessage {
         
         @Override
         public IMessage onMessage(PacketLaserState message, MessageContext ctx) {
-            PracticalSpaceFireworks.PROXY.handlePacket(ctx, player -> {
-                LaserRenderer.updateLaser(message.loc, message.state);
-            });
+            PracticalSpaceFireworks.PROXY.handlePacket(ctx, player -> LaserRenderer.updateLaser(message.loc, message.state));
             return null;
         }
     }

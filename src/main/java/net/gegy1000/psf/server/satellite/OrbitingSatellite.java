@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +47,7 @@ public class OrbitingSatellite extends AbstractSatellite {
         trackingPlayers.forEach(this::track);
     }
 
+    @Nonnull
     @Override
     public UUID getId() {
         return this.uuid;
@@ -66,13 +68,14 @@ public class OrbitingSatellite extends AbstractSatellite {
         return false;
     }
 
+    @Nonnull
     @Override
     public BlockPos getPosition() {
         return this.position;
     }
 
     @Override
-    public SpacecraftWorldHandler buildWorldHandler(World world) {
+    public SpacecraftWorldHandler buildWorldHandler(@Nonnull World world) {
         return worldHandler;
     }
 

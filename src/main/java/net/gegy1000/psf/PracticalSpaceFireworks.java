@@ -1,7 +1,6 @@
 package net.gegy1000.psf;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.apache.logging.log4j.LogManager;

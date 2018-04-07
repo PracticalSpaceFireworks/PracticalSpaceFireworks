@@ -6,7 +6,6 @@ import lombok.Setter;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.block.controller.TileController;
-import net.gegy1000.psf.server.block.controller.TileController.ScanValue;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilityController;
@@ -22,7 +21,6 @@ import com.google.common.collect.Lists;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class TileBoundSatellite extends AbstractSatellite {
@@ -51,6 +49,7 @@ public class TileBoundSatellite extends AbstractSatellite {
         return controller.isInvalid();
     }
 
+    @Nonnull
     @Override
     public BlockPos getPosition() {
         return controller.getPos();
@@ -63,7 +62,7 @@ public class TileBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftWorldHandler buildWorldHandler(World world) {
+    public SpacecraftWorldHandler buildWorldHandler(@Nonnull World world) {
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, controller.getModules());

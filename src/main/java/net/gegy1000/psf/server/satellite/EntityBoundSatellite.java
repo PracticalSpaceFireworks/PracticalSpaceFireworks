@@ -55,6 +55,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
         return name;
     }
 
+    @Nonnull
     @Override
     public UUID getId() {
         return this.uuid;
@@ -75,13 +76,14 @@ public class EntityBoundSatellite extends AbstractSatellite {
         return !spacecraft.isEntityAlive();
     }
 
+    @Nonnull
     @Override
     public BlockPos getPosition() {
         return this.spacecraft.getPosition();
     }
 
     @Override
-    public SpacecraftWorldHandler buildWorldHandler(World world) {
+    public SpacecraftWorldHandler buildWorldHandler(@Nonnull World world) {
         return this.spacecraft.getWorldHandler();
     }
 

@@ -2,9 +2,6 @@ package net.gegy1000.psf.server.modules;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IModuleConfig;
-import net.gegy1000.psf.api.IModuleConfig.ConfigType;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
@@ -13,13 +10,10 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
 
 public class ModuleBattery extends EmptyModule {
 
@@ -69,7 +63,7 @@ public class ModuleBattery extends EmptyModule {
 
     @Override
     public List<String> getSummary() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 "Energy Stored: " + storage.getEnergyStored() + " / " + storage.getMaxEnergyStored()
         );
     }
@@ -82,7 +76,7 @@ public class ModuleBattery extends EmptyModule {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(@Nonnull NBTTagCompound nbt) {
         super.deserializeNBT(nbt);
         CapabilityEnergy.ENERGY.getStorage().readNBT(CapabilityEnergy.ENERGY, storage, null, nbt.getTag("energy"));
     }
@@ -109,7 +103,7 @@ public class ModuleBattery extends EmptyModule {
     }
     
     @Override
-    public void readUpdateTag(NBTTagCompound tag) {
+    public void readUpdateTag(@Nonnull NBTTagCompound tag) {
         deserializeNBT(tag);
     }
 }

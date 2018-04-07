@@ -2,7 +2,6 @@ package net.gegy1000.psf.server.block.remote;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 

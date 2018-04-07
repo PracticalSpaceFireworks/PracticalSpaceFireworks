@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.lwjgl.input.Mouse;
@@ -72,7 +73,7 @@ public class GuiModuleConfig extends GuiRemoteControl {
     }
     
     @Override
-    public void updateModule(UUID id, NBTTagCompound tag) {
+    public void updateModule(@Nonnull UUID id, @Nonnull NBTTagCompound tag) {
         for (IModule m : moduleGroup) {
             if (m.getId().equals(id)) {
                 m.readUpdateTag(tag);

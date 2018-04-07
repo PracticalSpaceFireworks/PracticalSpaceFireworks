@@ -33,7 +33,7 @@ import java.util.Set;
 public class TileController extends TileEntity implements ITickable {
 
     @Value
-    public class ScanValue {
+    private class ScanValue {
         IBlockState state;
         IModule module;
     }
@@ -44,7 +44,7 @@ public class TileController extends TileEntity implements ITickable {
 
     private boolean converted;
 
-    private CraftGraph craft = new CraftGraph(satellite);
+    private final CraftGraph craft = new CraftGraph(satellite);
     
     // A cache of the saved positions of the graph
     // Used to make sure the controller doesn't scan beyond its saved state during world load

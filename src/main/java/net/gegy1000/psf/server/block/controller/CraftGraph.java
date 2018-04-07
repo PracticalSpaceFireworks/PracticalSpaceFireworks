@@ -41,24 +41,17 @@ public class CraftGraph implements Iterable<IModule> {
         public boolean equals(@Nullable Object obj) {
             if (this == obj) {
                 return true;
-            }
-            if (obj == null) {
+            } else if (obj == null || getClass() != obj.getClass()) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            
+
             Vertex other = (Vertex) obj;
 
             if (!module.getId().equals(other.module.getId())) {
                 return false;
             }
-            
-            if (!pos.equals(other.pos)) {
-                return false;
-            }
-            return true;
+
+            return pos.equals(other.pos);
         }
         
         @Override

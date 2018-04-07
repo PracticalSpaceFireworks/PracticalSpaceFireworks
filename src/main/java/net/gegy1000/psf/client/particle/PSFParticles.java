@@ -10,7 +10,7 @@ public enum PSFParticles {
         return new ParticleRocketPlume(world, posX, posY, posZ, motionX, motionY, motionZ);
     });
 
-    IParticleFactory factory;
+    final IParticleFactory factory;
 
     PSFParticles(IParticleFactory factory) {
         this.factory = factory;

@@ -19,6 +19,7 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
         this.uuid = uuid;
     }
 
+    @Nonnull
     @Override
     public UUID getId() {
         return uuid;

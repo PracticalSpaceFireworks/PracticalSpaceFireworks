@@ -62,7 +62,7 @@ public class BlockStrut extends BlockModule {
     }
 
     @Override
-    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         return true;
     }
 }

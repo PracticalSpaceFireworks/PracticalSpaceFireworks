@@ -18,6 +18,7 @@ public class TileListedSpacecraft implements IListedSpacecraft {
         this.satellite = satellite;
     }
     
+    @Nonnull
     @Override
     public UUID getId() {
         return this.satellite.getId();

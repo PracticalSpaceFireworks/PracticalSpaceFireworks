@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IStringSerializable;
 
+import javax.annotation.Nonnull;
+
 public class ModuleThruster extends EmptyModule {
 
     @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class ModuleThruster extends EmptyModule {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound nbt) {
+    public void deserializeNBT(@Nonnull NBTTagCompound nbt) {
         super.deserializeNBT(nbt);
         int tier = nbt.getByte("tier") & 0xFF;
         this.tier = ThrusterTier.values()[tier % ThrusterTier.values().length];

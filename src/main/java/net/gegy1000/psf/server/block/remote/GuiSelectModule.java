@@ -4,13 +4,10 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
 
-import lombok.Getter;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.block.remote.config.GuiModuleConfig;
 import net.minecraft.client.Minecraft;

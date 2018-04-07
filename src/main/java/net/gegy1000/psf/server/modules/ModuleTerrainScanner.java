@@ -34,7 +34,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     }
 
     @Override
-    public void onSatelliteTick(ISatellite satellite) {
+    public void onSatelliteTick(@Nonnull ISatellite satellite) {
         World world = satellite.getWorld();
         BlockPos position = satellite.getPosition();
         if (world.isBlockLoaded(position) || this.scanData == null) {
@@ -101,7 +101,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     }
 
     @Override
-    public void deserializeNBT(NBTTagCompound compound) {
+    public void deserializeNBT(@Nonnull NBTTagCompound compound) {
         super.deserializeNBT(compound);
         if (compound.hasKey("scan_data")) {
             this.scanData = new TerrainScanData();

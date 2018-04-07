@@ -1,10 +1,6 @@
 package net.gegy1000.psf.server.block.remote.config;
 
-import java.util.Optional;
-import java.util.UUID;
-
 import io.netty.buffer.ByteBuf;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
@@ -16,6 +12,9 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @NoArgsConstructor
 public class PacketConfigChange implements IMessage {
@@ -42,6 +41,7 @@ public class PacketConfigChange implements IMessage {
         ByteBufUtils.writeTag(buf, cfgData);
     }
 
+    @Override
     public void fromBytes(ByteBuf buf) {
         this.craftId = new UUID(buf.readLong(), buf.readLong());
         this.moduleId = new UUID(buf.readLong(), buf.readLong());

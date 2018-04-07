@@ -1,19 +1,18 @@
 package net.gegy1000.psf.server.block.remote;
 
+import net.minecraft.client.Minecraft;
+
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
-import net.minecraft.client.Minecraft;
-
 public class GuiCraftList extends AbstractScrollingList<IListedSpacecraft> {
     
-    private GuiSelectCraft gui;
+    private final GuiSelectCraft parent;
 
     public GuiCraftList(GuiSelectCraft parent, Minecraft client, int width, int height, int top, int bottom, int left, int entryHeight, int screenWidth, int screenHeight) {
         super(Collections.emptyList(), client, width, height, top, bottom, left, entryHeight, screenWidth, screenHeight);
-        this.gui = parent;
+        this.parent = parent;
     }
     
     @Override
@@ -23,7 +22,7 @@ public class GuiCraftList extends AbstractScrollingList<IListedSpacecraft> {
     }
     
     protected List<IListedSpacecraft> getCrafts() {
-        return gui.getTe().getCrafts();
+        return parent.getTe().getCrafts();
     }
 
     @Override
@@ -38,6 +37,6 @@ public class GuiCraftList extends AbstractScrollingList<IListedSpacecraft> {
     
     @Override
     protected void elementClicked(int index, boolean doubleClick) {
-        gui.selectCraft(index);
+        parent.selectCraft(index);
     }
 }

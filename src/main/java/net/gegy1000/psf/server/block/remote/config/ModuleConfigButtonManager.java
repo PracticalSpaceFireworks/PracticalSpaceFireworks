@@ -1,14 +1,5 @@
 package net.gegy1000.psf.server.block.remote.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-
 import lombok.Value;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
@@ -16,6 +7,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 public class ModuleConfigButtonManager extends GuiButton {
@@ -60,8 +58,8 @@ public class ModuleConfigButtonManager extends GuiButton {
     
     private int scroll;
     
-    private List<TextHolder> summaries = new ArrayList<>();
-    private List<IModuleConfigButton<?>> buttons = new ArrayList<>();
+    private final List<TextHolder> summaries = new ArrayList<>();
+    private final List<IModuleConfigButton<?>> buttons = new ArrayList<>();
     
     public IModuleConfigButton<?> create(IModule module, IModuleConfig cfg) {
         IModuleConfigButton<?> btn;
