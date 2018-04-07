@@ -29,7 +29,6 @@ public class EmptyModule implements IModule {
     
     private final Map<String, IModuleConfig> configs = new HashMap<>();
     
-    @Nonnull
     @Getter
     private UUID id = UUID.randomUUID();
     

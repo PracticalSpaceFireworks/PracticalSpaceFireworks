@@ -63,7 +63,7 @@ public class ModuleController extends EmptyModule implements IController {
             
             SatelliteWorldData data = satellite.getWorld().getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
             if (data != null) {
-                data.removeSatellite(getId());
+                data.removeSatellite(satellite.getId());
             }
             
             for (EntityPlayerMP player : satellite.getTrackingPlayers()) {
