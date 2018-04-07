@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.util.PointUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -16,7 +17,12 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
+import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Lists;
 
 public class SpacecraftBuilder {
     private final LongList blockKeys = new LongArrayList();
@@ -44,9 +50,14 @@ public class SpacecraftBuilder {
         this.maxPos = PointUtils.max(pos, this.maxPos);
     }
 
-    public void copyFrom(World world, BlockPos origin, Set<BlockPos> positions) {
-        for (BlockPos pos : positions) {
+    public void copyFrom(World world, BlockPos origin, @Nullable CraftGraph positions) {
+        if (positions == null) {
+            return;
+        }
+        List<BlockPos> locations = Lists.newArrayList(positions.getPositions());
+        for (BlockPos pos : locations) {
             BlockPos localPos = pos.subtract(origin);
+            IBlockState state = world.getBlockState(pos);
             this.setBlockState(localPos, world.getBlockState(pos));
 
             TileEntity entity = world.getTileEntity(pos);

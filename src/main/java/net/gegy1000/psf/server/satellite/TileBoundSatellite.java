@@ -17,6 +17,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+
+import com.google.common.collect.Lists;
+
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -40,7 +43,7 @@ public class TileBoundSatellite extends AbstractSatellite {
 
     @Override
     public Collection<IModule> getModules() {
-        return controller.getModules().values().stream().map(ScanValue::getModule).collect(Collectors.toList());
+        return Lists.newArrayList(controller.getModules());
     }
 
     @Override
@@ -57,7 +60,7 @@ public class TileBoundSatellite extends AbstractSatellite {
     public SpacecraftWorldHandler buildWorldHandler(World world) {
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
-        builder.copyFrom(world, origin, controller.getModules().keySet());
+        builder.copyFrom(world, origin, controller.getModules());
         return builder.buildWorldHandler(origin, world);
     }
 

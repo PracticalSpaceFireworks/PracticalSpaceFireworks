@@ -1,11 +1,18 @@
 package net.gegy1000.psf.server.block.module;
 
+import java.util.Arrays;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.controller.BlockController;
+import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -23,10 +30,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
     
@@ -122,6 +125,16 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
                 IBlockState other = worldIn.getBlockState(connectedTo).getActualState(worldIn, connectedTo);
                 if (!isStructural(state, other)) {
                     worldIn.destroyBlock(pos, true);
+                }
+            }
+        }
+        IModule module = TileModule.getModule(worldIn.getTileEntity(pos));
+        if (module != null) {
+            ISatellite owner = module.getOwner();
+            if (owner != null && !owner.isInvalid()) {
+                TileEntity te = worldIn.getTileEntity(owner.getPosition());
+                if (te != null && te instanceof TileController) {
+                    ((TileController)te).scanStructure();
                 }
             }
         }

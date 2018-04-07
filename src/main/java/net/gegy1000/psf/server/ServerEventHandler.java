@@ -2,6 +2,7 @@ package net.gegy1000.psf.server;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
@@ -40,7 +41,7 @@ public class ServerEventHandler {
         if (entity != null && !(entity instanceof EntitySpacecraft)) {
             World world = entity.getEntityWorld();
 
-            int radius = TileController.CONTIGUOUS_RANGE;
+            int radius = CraftGraph.RANGE;
             AxisAlignedBB searchBounds = event.getAabb().expand(radius, radius, radius);
             List<EntitySpacecraft> spacecrafts = world.getEntitiesWithinAABB(EntitySpacecraft.class, searchBounds);
 

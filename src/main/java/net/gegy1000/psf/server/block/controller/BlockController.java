@@ -61,9 +61,9 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
         if (te instanceof TileController) {
             ISatellite satellite = te.getCapability(CapabilitySatellite.INSTANCE, null);
             if (!worldIn.isRemote) {
-                Map<BlockPos, ScanValue> modules = ((TileController) te).scanStructure();
+                CraftGraph craft = ((TileController) te).getModules();
 
-                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, modules.keySet(), pos, satellite);
+                EntitySpacecraft spacecraft = new EntitySpacecraft(worldIn, craft, pos, satellite);
                 ISatellite newsat = spacecraft.getCapability(CapabilitySatellite.INSTANCE, null);
                 satellite.getTrackingPlayers().forEach(newsat::track);
                 
@@ -71,7 +71,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
 
                 BlockModule.CONVERTING.set(true);
                 try {
-                    modules.keySet().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
+                    craft.getPositions().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10));
                 } finally {
                     BlockModule.CONVERTING.set(false);
                 }
@@ -86,6 +86,15 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
             return true;
         }
         return super.onBlockActivated(worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
+    }
+    
+    @Override
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
+        super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
+        TileEntity te = worldIn.getTileEntity(pos);
+        if (te != null && te instanceof TileController) {
+            ((TileController) te).scanStructure();
+        }
     }
     
     @Override

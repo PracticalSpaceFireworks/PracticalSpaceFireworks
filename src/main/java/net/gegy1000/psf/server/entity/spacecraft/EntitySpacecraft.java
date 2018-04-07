@@ -6,6 +6,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
@@ -91,10 +92,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private SpacecraftMetadata metadata;
 
     public EntitySpacecraft(World world) {
-        this(world, Collections.emptySet(), BlockPos.ORIGIN, null);
+        this(world, null, BlockPos.ORIGIN, null);
     }
 
-    public EntitySpacecraft(World world, Set<BlockPos> positions, @Nonnull BlockPos origin, @Nullable ISatellite parent) {
+    public EntitySpacecraft(World world, @Nullable CraftGraph positions, @Nonnull BlockPos origin, @Nullable ISatellite parent) {
         super(world);
         this.setSize(1, 1);
 

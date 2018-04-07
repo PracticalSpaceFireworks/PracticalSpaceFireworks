@@ -103,4 +103,9 @@ public class EmptyModule implements IModule {
     public @Nonnull Collection<IModuleConfig> getConfigs() {
         return this.configs.values();
     }
+    
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
