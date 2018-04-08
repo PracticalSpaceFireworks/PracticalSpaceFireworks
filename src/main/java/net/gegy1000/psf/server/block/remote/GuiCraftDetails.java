@@ -36,6 +36,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Rectangle;
@@ -63,6 +65,13 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     @Nonnull
+    private static final ResourceLocation[] BG_FRAMES = new ResourceLocation[3];
+    static {
+        for (int i = 0; i < BG_FRAMES.length; i++) {
+            BG_FRAMES[i] = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system_frame" + i + ".png");
+        }
+    }
+    
     private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
 
     private static final boolean scissorAvailable = GLContext.getCapabilities().OpenGL20;
@@ -87,15 +96,17 @@ public class GuiCraftDetails extends GuiRemoteControl {
     private double mass;
 
     private MapRenderer mapRenderer;
+    
+    private int bgFrame;
 
     protected GuiCraftDetails(GuiSelectCraft parent, int selected, TileRemoteControlSystem te) {
         super(parent, te);
         this.selectedCraft = selected;
 
-        xSize = 256;
-        ySize = 201;
+        xSize = 246;
+        ySize = 200;
 
-        panel = new Rectangle(10, 10, (xSize / 2) - 20, ySize - 20);
+        panel = new Rectangle(8, 7, 74, 175);
     }
 
     @Override
@@ -107,22 +118,40 @@ public class GuiCraftDetails extends GuiRemoteControl {
             PSFNetworkHandler.network.sendToServer(new PacketRequestVisual(craft.getId()));
         }
 
-        buttonModules = new GuiButtonExt(-1, guiLeft + (xSize / 2), guiTop + 34, 115, 20, "Modules");
+        buttonModules = new GuiButtonExt(-1, guiLeft + 129, guiTop + 26, 58, 14, "Modules");
         addButton(buttonModules);
 
-        buttonBack = new GuiButtonExt(0, guiLeft + xSize - 50 - 10, guiTop + ySize - 20 - 10, 50, 20, "Back");
+        buttonBack = new GuiButtonExt(0, guiLeft + 164, guiTop + 162, 49, 20, "Back");
         addButton(buttonBack);
 
         buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
-        addButton(buttonMode);
+//        addButton(buttonMode);
 
-        buttonLaunch = new GuiButtonExt(2, guiLeft + panel.getX() + panel.getWidth() + 10, guiTop + ySize - 20 - 10, 50, 20, "Launch");
+        buttonLaunch = new GuiButtonExt(2, guiLeft + 103, guiTop + 162, 49, 19, "Launch");
         addButton(buttonLaunch);
 
-        tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
+        Keyboard.enableRepeatEvents(true);
+        tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + 103, guiTop + 7, 110, 14) {
+            
+            @Override
+            public void drawTextBox() {
+                if (this.getVisible()) {
+                    // Render background without border
+                    drawRect(this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
+                }
+                this.x += 2;
+                this.width -= 4;
+                this.y += 3;
+                super.drawTextBox();
+                this.x -= 2;
+                this.width += 4;
+                this.y -= 3;
+            }
+        };
+        tfName.setEnableBackgroundDrawing(false);
         if (craft != null) {
             tfName.setText(craft.getName());
-            buttonLaunch.visible = craft.canLaunch();
+            buttonLaunch.enabled = craft.canLaunch();
         }
     }
     
@@ -157,6 +186,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
             mass = synced.metadata.getMass();
         }
+        
+        bgFrame = (bgFrame + 1) % BG_FRAMES.length;
+        
+        tfName.updateCursorCounter();
     }
 
     @Override
@@ -180,6 +213,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Override
     public void onGuiClosed() {
+        Keyboard.enableRepeatEvents(false);
         super.onGuiClosed();
         if (selectedCraft >= 0) {
             updateName();
@@ -211,21 +245,27 @@ public class GuiCraftDetails extends GuiRemoteControl {
             buttonMode.displayString = this.mode.name().substring(0, 1);
         } else if (button == buttonLaunch && craft != null && craft.canLaunch()) {
             craft.launch();
-            buttonLaunch.visible = craft.canLaunch();
+            buttonLaunch.enabled = craft.canLaunch();
         }
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+        GlStateManager.color(1, 1, 1, 1);
+        drawDefaultBackground();
+        GlStateManager.color(1, 1, 1, 0.8f);
+        mc.getTextureManager().bindTexture(BG_FRAMES[bgFrame]);
+        GlStateManager.enableBlend();
+        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+        
         IListedSpacecraft craft = getCraft();
 
-        drawBackground(craft);
+//        drawBackground(craft);
 
         if (craft != null && synced != null) {
             renderPreview(synced);
             tfName.drawTextBox();
-            drawStats(craft);
+//            drawStats(craft);
         }
     }
     
@@ -293,7 +333,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     private void drawBackground(@Nullable IListedSpacecraft craft) {
-        drawRect(guiLeft + panel.getX() - 1, guiTop + panel.getY() - 1, guiLeft + panel.getX() + panel.getWidth() + 1, guiTop + panel.getY() + panel.getHeight() + 1, 0xFF8A8A8A);
         GlStateManager.color(1, 1, 1);
 
         mc.getTextureManager().bindTexture(PREVIEW_BG);
@@ -390,8 +429,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
         double halfY = lengthY / 2;
         double halfZ = lengthZ / 2;
 
-        final double maxW = 6 * 16;
-        final double maxH = 11 * 16;
+        final double maxW = 4.5 * 16;
+        final double maxH = 10.5 * 16;
 
         double overW = Math.max(lengthX - maxW, lengthZ - maxW);
         double overH = lengthY - maxH;
@@ -408,7 +447,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         halfY *= sc;
         halfZ *= sc;
 
-        GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
+        GlStateManager.translate(guiLeft + halfX + (panel.getX() + (panel.getWidth() / 2)), guiTop + halfY + (panel.getY() + (panel.getHeight() / 2)), 500);
 
         GlStateManager.translate(-halfX, -halfY, -halfZ);
         GlStateManager.rotate(-10, 1, 0, 0);
@@ -519,7 +558,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     @Override
     public void updateCraft(@Nonnull IListedSpacecraft craft) {
         tfName.setText(craft.getName());
-        buttonLaunch.visible = craft.canLaunch();
+        buttonLaunch.enabled = craft.canLaunch();
     }
 
     @Override
