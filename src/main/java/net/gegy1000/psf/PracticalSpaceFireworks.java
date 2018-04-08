@@ -19,12 +19,15 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
-@Mod(modid = PracticalSpaceFireworks.MODID, name = "Practical Space Fireworks", version = PracticalSpaceFireworks.VERSION, acceptedMinecraftVersions = "[1.12]")
+import static net.gegy1000.psf.PracticalSpaceFireworks.*;
+
+@Mod(modid = MODID, name = NAME, version = VERSION, acceptedMinecraftVersions = "[1.12]")
 @ParametersAreNonnullByDefault
 public class PracticalSpaceFireworks {
     @Nonnull
     public static final String MODID = "psf";
     public static final String VERSION = "0.2.0";
+    public static final String NAME = "Practical Space Fireworks";
 
     public static final String CLIENT_PROXY = "net.gegy1000.psf.client.ClientProxy";
     public static final String SERVER_PROXY = "net.gegy1000.psf.server.ServerProxy";
