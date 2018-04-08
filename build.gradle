@@ -8,6 +8,7 @@ buildscript {
   }
   dependencies {
     classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+    classpath 'org.ajoberstar:gradle-git:0.10.1'
   }
 }
 
@@ -17,8 +18,25 @@ plugins {
 
 apply plugin: "net.minecraftforge.gradle.forge"
 
+import org.ajoberstar.grgit.Grgit
+
+def repo = Grgit.open(project.file('.'))
+project.ext.gitHash = repo.log().find().abbreviatedId
+
+boolean dev = System.getenv('RELEASE') == null || System.getenv('RELEASE').equals('false');
+
+ext.buildnumber = 0
+project.buildnumber = System.getenv('BUILD_NUMBER') != null ? System.getenv('BUILD_NUMBER') : project.ext.gitHash
+
 def mod_file = getModFile()
-version = getModField("VERSION", mod_file)
+if (mod_file.isEmpty()) {
+  throw new ProjectConfigurationException("Could not locate main mod file!", null)
+}
+def mod_version = getModField("VERSION", mod_file)
+if (mod_version.isEmpty()) {
+  throw new ProjectConfigurationException("Could not locate mod version in " + mod_file, null)
+}
+version = mod_version + ".${buildnumber}"
 group = "net.gegy1000"
 archivesBaseName = "practical-space-fireworks"
 sourceCompatibility = targetCompatibility = "1.8"
@@ -66,7 +84,7 @@ String getModFile() {
     if (element.file.isFile()) {
       element.file.eachLine { String s ->
         s = s.trim()
-        if (s.startsWith("@Mod")) {
+        if (s.matches("@Mod\\s*\\(.*")) {
           path = "src/main/java/$element.relativePath"
         }
       }
