@@ -48,9 +48,9 @@ public class SpacecraftBuilder {
         this.maxPos = PointUtils.max(pos, this.maxPos);
     }
 
-    public void copyFrom(World world, BlockPos origin, @Nullable CraftGraph positions) {
+    public SpacecraftBuilder copyFrom(World world, BlockPos origin, @Nullable CraftGraph positions) {
         if (positions == null) {
-            return;
+            return this;
         }
         List<BlockPos> locations = Lists.newArrayList(positions.getPositions());
         for (BlockPos pos : locations) {
@@ -72,6 +72,7 @@ public class SpacecraftBuilder {
                 this.setTileEntity(localPos, copiedEntity);
             }
         }
+        return this;
     }
 
     public SpacecraftWorldHandler buildWorldHandler(BlockPos origin, World world) {

@@ -1,17 +1,22 @@
 package net.gegy1000.psf.server.satellite;
 
 import lombok.Setter;
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.gegy1000.psf.server.block.controller.CraftGraph;
+import net.gegy1000.psf.server.block.controller.CraftGraph.SearchFilter;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -135,9 +140,10 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public ISatellite toOrbiting() {
-        SpacecraftWorldHandler blockAccess = this.spacecraft.getWorldHandler();
-        SpacecraftWorldHandler[] split = blockAccess.splitVertically(getWorld(), PSFBlockRegistry.payloadSeparator);
-        SpacecraftWorldHandler topPart = split[split.length - 1];
-        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), topPart, getTrackingPlayers());
+        CraftGraph craft = new CraftGraph(this);
+        SearchFilter filter = d -> !d.getModule().getRegistryName().equals(new ResourceLocation(PracticalSpaceFireworks.MODID, "payload_separator"));
+        craft.scan(BlockPos.ORIGIN, this.spacecraft.getDelegatedWorld(), filter);
+        SpacecraftWorldHandler payload = new SpacecraftBuilder().copyFrom(this.spacecraft.getDelegatedWorld(), BlockPos.ORIGIN, craft).buildWorldHandler(BlockPos.ORIGIN, this.spacecraft.getDelegatedWorld());
+        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), payload, getTrackingPlayers());
     }
 }

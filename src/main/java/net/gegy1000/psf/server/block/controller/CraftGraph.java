@@ -1,20 +1,8 @@
 package net.gegy1000.psf.server.block.controller;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.Value;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.module.TileModule;
-import net.gegy1000.psf.server.capability.CapabilityModule;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +14,21 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.Value;
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.capability.CapabilityModule;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.util.EnumFacing;
+
 @RequiredArgsConstructor
 @ParametersAreNonnullByDefault
 public class CraftGraph implements Iterable<IModule> {
@@ -33,7 +36,7 @@ public class CraftGraph implements Iterable<IModule> {
     @ToString
     @RequiredArgsConstructor
     @Getter
-    public static class Vertex {
+    private static class Vertex {
         private final IModule module;
         private final BlockPos pos;
 
@@ -70,6 +73,22 @@ public class CraftGraph implements Iterable<IModule> {
         private final int distance;
     }
     
+    @Value
+    public static class SearchData {
+        private final IModule module;
+        private final BlockPos pos, from;
+        private final EnumFacing dir;
+    }
+    
+    @FunctionalInterface
+    public interface SearchFilter extends Predicate<SearchData> {
+        
+        public static final SearchFilter TRUE = d -> true;
+        
+        boolean test(SearchData data);
+        
+    }
+    
     public static final int RANGE = 32;
     
     @Getter
@@ -82,10 +101,25 @@ public class CraftGraph implements Iterable<IModule> {
     }
     
     public void scan(BlockPos root, World world) {
-        scan(root, world, v -> true);
+        scan(root, world, SearchFilter.TRUE);
     }
     
-    public void scan(BlockPos root, World world, Predicate<Vertex> filter) {
+    public void scan(BlockPos root, World world, SearchFilter extraFilter) {
+        // Compose filter argument with default filtering logic
+        SearchFilter filter = data -> {
+            if (!extraFilter.test(data)) {
+                return false;
+            }
+            ISatellite owner = data.getModule().getOwner();
+            // Make sure this module is either unowned or owned by us
+            if (owner == null || owner.isInvalid() || owner.equals(getSatellite())) {
+                IBlockState state = world.getBlockState(data.getPos());
+                // Check that connecting these states is valid, don't form edges through non-solid adjacent modules
+                return BlockModule.isConnectedTo(state, data.getDir());
+            }
+            return false;
+        };
+        
         // Clear owners
         adjacencies.values().stream().flatMap(List::stream).forEach(v -> {
             IModule m = TileModule.getModule(world.getTileEntity(v.getPos()));
@@ -116,19 +150,19 @@ public class CraftGraph implements Iterable<IModule> {
                     BlockPos bp = ret.getVertex().getPos().offset(face);
                     TileEntity te = world.getTileEntity(bp);
                     IModule cap = te != null ? te.getCapability(CapabilityModule.INSTANCE, null) : null;
-                    ISatellite owner = cap == null ? null : cap.getOwner();
-                    boolean haveSeen = seen.contains(bp);
                     if (cap != null) {
                         Vertex newVertex = new Vertex(cap, bp);
-                        if (haveSeen) {
-                            getAdjacent(ret.getVertex()).add(newVertex);
-                        } else if ((owner == null || owner.isInvalid() || owner.equals(getSatellite())) && filter.test(newVertex)) {
+                        if (filter.test(new SearchData(newVertex.getModule(), newVertex.getPos(), ret.getVertex().getPos(), face))) {
                             // Only search through this node if it's not been seen before
-                            search.offer(new SearchNode(newVertex, ret.getDistance() + 1));
-                            cap.setOwner(getSatellite());
+                            if (!seen.contains(bp)) {
+                                search.offer(new SearchNode(newVertex, ret.getDistance() + 1));
+                                cap.setOwner(getSatellite());
+                            }
+                            getAdjacent(ret.getVertex()).add(newVertex);
+                            getAdjacent(newVertex).add(ret.getVertex());
+                            seen.add(bp);
                         }
                     }
-                    seen.add(bp);
                 }
             }
         }

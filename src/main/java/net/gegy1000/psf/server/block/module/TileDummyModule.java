@@ -13,32 +13,40 @@ public class TileDummyModule extends TileModule {
     
     @Getter
     @Nonnull
-    private BlockPos master = BlockPos.ORIGIN.up();
+    private BlockPos masterOffset = BlockPos.ORIGIN.up();
 
     @Override
     public IModule getModule() {
         TileEntity te = getWorld() == null ? null : getWorld().getTileEntity(getMaster());
         return te == null ? null : te.getCapability(CapabilityModule.INSTANCE, null);
     }
+    
+    @Nonnull
+    public BlockPos getMaster() {
+        return getPos().add(getMasterOffset());
+    }
 
-    public void setMaster(@Nonnull BlockPos master) {
-        if (master.equals(this.getPos())) {
+    public void setMasterOffset(@Nonnull BlockPos offset) {
+        if (offset.equals(BlockPos.ORIGIN)) {
             throw new IllegalArgumentException("Dummy cannot be its own master!");
         }
-        this.master = master;
+        this.masterOffset = offset;
+    }
+    
+    public void setMaster(@Nonnull BlockPos pos) {
+        setMasterOffset(pos.subtract(getPos()));
     }
     
     @Override
     public @Nonnull NBTTagCompound writeToNBT(@Nonnull NBTTagCompound compound) {
         compound = super.writeToNBT(compound);
-        BlockPos master = getMaster();
-        compound.setLong("master_pos", master.toLong());
+        compound.setLong("master_pos", getMasterOffset().toLong());
         return compound;
     }
     
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound compound) {
         super.readFromNBT(compound);
-        setMaster(BlockPos.fromLong(compound.getLong("master_pos")));
+        setMasterOffset(BlockPos.fromLong(compound.getLong("master_pos")));
     }
 }

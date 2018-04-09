@@ -48,4 +48,9 @@ public class BlockPayloadSeparator extends BlockModule {
     public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         return true;
     }
+    
+    @Override
+    protected boolean isDirectional(IBlockState state) {
+        return false; // Directional filtering not needed, since craft splitting ignores these blocks entirely
+    }
 }

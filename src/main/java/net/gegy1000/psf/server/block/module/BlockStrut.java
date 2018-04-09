@@ -65,4 +65,9 @@ public class BlockStrut extends BlockModule {
     public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         return true;
     }
+    
+    @Override
+    protected boolean isDirectional(@Nonnull IBlockState state) {
+        return false;
+    }
 }

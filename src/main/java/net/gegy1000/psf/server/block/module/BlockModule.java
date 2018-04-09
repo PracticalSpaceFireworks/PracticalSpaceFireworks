@@ -86,6 +86,10 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, EnumFacing side) {
         return true;
     }
+    
+    protected boolean isDirectional(IBlockState state) {
+        return true;
+    }
 
     @Override
     public boolean canPlaceBlockAt(@Nonnull World world, @Nonnull BlockPos pos) {
@@ -181,5 +185,10 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public static boolean isStructural(@Nullable IBlockState connecting, IBlockState state) {
         return state.getBlock() instanceof BlockController ||
                 (state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(connecting, state));
+    }
+
+    public static boolean isConnectedTo(IBlockState state, EnumFacing dir) {
+        return !(state.getBlock() instanceof BlockModule) || 
+                !((BlockModule)state.getBlock()).isDirectional(state) || state.getValue(DIRECTION) == dir;
     }
 }

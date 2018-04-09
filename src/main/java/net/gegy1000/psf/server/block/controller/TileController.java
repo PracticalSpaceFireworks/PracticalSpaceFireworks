@@ -185,7 +185,11 @@ public class TileController extends TileEntity implements ITickable {
     }
 
     public void scanStructure() {
-        craft.scan(getPos(), getWorld(), structureLimits == null ? v -> true : v -> structureLimits.contains(v.getPos()));
+        if (structureLimits == null) {
+            craft.scan(getPos(), getWorld());
+        } else {
+            craft.scan(getPos(), getWorld(), d -> structureLimits.contains(d.getPos()));
+        }
         markDirty();
     }
 }

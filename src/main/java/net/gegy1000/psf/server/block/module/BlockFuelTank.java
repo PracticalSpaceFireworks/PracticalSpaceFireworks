@@ -157,4 +157,9 @@ public class BlockFuelTank extends BlockModule {
         }
         return true;
     }
+    
+    @Override
+    protected boolean isDirectional(IBlockState state) {
+        return false;
+    }
 }
