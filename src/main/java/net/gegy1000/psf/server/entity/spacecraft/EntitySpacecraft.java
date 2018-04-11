@@ -292,7 +292,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        if (!world.isRemote && hand == EnumHand.MAIN_HAND) {
+        if (world.isRemote) {
+            player.swingArm(hand);
+        } else if (hand == EnumHand.MAIN_HAND) {
             float prevRotationYaw = this.rotationYaw;
             float prevRotationPitch = this.rotationPitch;
 
