@@ -10,6 +10,7 @@ import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -18,6 +19,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static net.gegy1000.psf.PracticalSpaceFireworks.*;
 
@@ -40,6 +43,8 @@ public class PracticalSpaceFireworks {
     @Instance
     public static PracticalSpaceFireworks instance;
 
+    private static boolean deobfuscatedEnvironment;
+
     @Nonnull
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
@@ -52,9 +57,17 @@ public class PracticalSpaceFireworks {
         FluidRegistry.enableUniversalBucket();
     }
 
+    public static boolean isDeobfuscatedEnvironment() {
+        return deobfuscatedEnvironment;
+    }
+
     @Mod.EventHandler
     public static void onPreInit(FMLPreInitializationEvent event) {
         PROXY.onPreInit();
+        Object o = Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        if (o instanceof Boolean) {
+            deobfuscatedEnvironment = (boolean) o;
+        } else LOGGER.error("Failed to retrieve environment state from launch blackboard!");
     }
 
     @Mod.EventHandler

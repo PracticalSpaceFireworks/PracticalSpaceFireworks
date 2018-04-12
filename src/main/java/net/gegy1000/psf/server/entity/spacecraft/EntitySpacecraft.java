@@ -3,6 +3,7 @@ package net.gegy1000.psf.server.entity.spacecraft;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
@@ -19,6 +20,7 @@ import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -35,10 +37,13 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -292,6 +297,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+        Optional<RayTraceResult> rayTrace = playerRayTrace(getDelegatedWorld(), player);
+        if (!rayTrace.isPresent() || rayTrace.get().typeOfHit != RayTraceResult.Type.BLOCK) {
+            return false;
+        }
+
         if (world.isRemote) {
             player.swingArm(hand);
         } else if (hand == EnumHand.MAIN_HAND) {
@@ -316,9 +326,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
                 BlockModule.CONVERTING.set(true);
                 try {
-                    for (Map.Entry<BlockPos, IBlockState> entry : blocks.entrySet()) {
-                        world.setBlockState(entry.getKey(), entry.getValue().withRotation(rotation), 10);
-                    }
+                    blocks.forEach((pos, block) -> world.setBlockState(pos, block.withRotation(rotation), 14));
 
                     for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
                         world.setTileEntity(entry.getKey(), entry.getValue());
@@ -326,6 +334,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 } finally {
                     BlockModule.CONVERTING.set(false);
                 }
+
+                BlockPos min = getWorldHandler().getMinPos().add(getPosition());
+                BlockPos max = getWorldHandler().getMaxPos().add(getPosition());
+                world.markBlockRangeForRenderUpdate(min, max);
 
                 this.converted = true;
                 for (EntityPlayerMP p : satellite.getTrackingPlayers()) {
@@ -342,6 +354,22 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         return true;
+    }
+
+    private Optional<RayTraceResult> playerRayTrace(World world, EntityPlayer player) {
+        IController ctrl = worldHandler.findController();
+        if (ctrl == null) return Optional.empty();
+        BlockPos origin = ctrl.getPosition().orElse(BlockPos.ORIGIN);
+        double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
+        // FIXME Incorrect positions after entity has moved from origin
+        double posX = player.posX - origin.getX();
+        double posY = player.posY + player.getEyeHeight() - origin.getY();
+        double posZ = player.posZ - origin.getZ();
+        double lookX = player.getLookVec().x * reach;
+        double lookY = player.getLookVec().y * reach;
+        double lookZ = player.getLookVec().z * reach;
+        Vec3d startPos = new Vec3d(posX, posY, posZ);
+        return Optional.ofNullable(world.rayTraceBlocks(startPos, startPos.addVector(lookX, lookY, lookZ)));
     }
 
     @Override
