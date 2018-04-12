@@ -14,10 +14,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.Chunk;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -83,10 +86,13 @@ public class SpacecraftBuilder {
 
             blockData[SpacecraftWorldHandler.getPosIndex(pos, minPos, maxPos)] = state;
         }
-
+        MutableBlockPos mutablePos = new MutableBlockPos(origin);
         int[] lightData = new int[SpacecraftWorldHandler.getDataSize(minPos, maxPos)];
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
-            lightData[SpacecraftWorldHandler.getPosIndex(pos, minPos, maxPos)] = getCombinedLight(world, origin.add(pos));
+            mutablePos.setPos(origin.getX() + pos.getX(), origin.getY() + pos.getY(), origin.getZ() + pos.getZ());
+            int index = SpacecraftWorldHandler.getPosIndex(pos, minPos, maxPos);
+            lightData[index] = getCombinedLight(world, mutablePos);
+            mutablePos.setPos(origin);
         }
 
         Biome biome = world.getBiome(origin);
@@ -94,33 +100,41 @@ public class SpacecraftBuilder {
         return new SpacecraftWorldHandler(blockData, lightData, this.entities, biome, minPos, maxPos);
     }
 
-    private int getCombinedLight(World world, BlockPos pos) {
-        int skyLight = this.getLightFromNeighborsFor(world, EnumSkyBlock.SKY, pos);
-        int blockLight = this.getLightFromNeighborsFor(world, EnumSkyBlock.BLOCK, pos);
+    private int getCombinedLight(World world, MutableBlockPos pos) {
+        int skyLight = getLightFromNeighborsFor(world, EnumSkyBlock.SKY, pos);
+        int blockLight = getLightFromNeighborsFor(world, EnumSkyBlock.BLOCK, pos);
         return skyLight << 20 | blockLight << 4;
     }
 
-    private int getLightFromNeighborsFor(World world, EnumSkyBlock type, BlockPos pos) {
-        if (!world.provider.hasSkyLight() && type == EnumSkyBlock.SKY) {
-            return 0;
-        } else {
-            if (pos.getY() < 0) {
-                pos = new BlockPos(pos.getX(), 0, pos.getZ());
-            }
-            if (!world.isValid(pos)) {
-                return type.defaultLightValue;
-            } else if (!world.isBlockLoaded(pos)) {
-                return type.defaultLightValue;
-            } else if (world.getBlockState(pos).useNeighborBrightness()) {
-                int lightUp = world.getLightFor(type, pos.up());
-                int lightEast = world.getLightFor(type, pos.east());
-                int lightWest = world.getLightFor(type, pos.west());
-                int lightSouth = world.getLightFor(type, pos.south());
-                int lightNorth = world.getLightFor(type, pos.north());
-                return Math.max(lightUp, Math.max(lightEast, Math.max(lightWest, Math.max(lightSouth, lightNorth))));
-            } else {
-                return world.getChunkFromBlockCoords(pos).getLightFor(type, pos);
-            }
+    private int getLightFromNeighborsFor(World world, EnumSkyBlock type, MutableBlockPos pos) {
+        if (world.provider.hasSkyLight() || type != EnumSkyBlock.SKY) {
+            pos.setY(Math.max(0, pos.getY()));
+            if (world.isValid(pos) && world.isBlockLoaded(pos)) {
+                if (world.getBlockState(pos).useNeighborBrightness()) {
+                    int u = getLightForSide(world, type, pos, EnumFacing.UP);
+                    int n = getLightForSide(world, type, pos, EnumFacing.NORTH);
+                    int s = getLightForSide(world, type, pos, EnumFacing.SOUTH);
+                    int w = getLightForSide(world, type, pos, EnumFacing.WEST);
+                    int e = getLightForSide(world, type, pos, EnumFacing.EAST);
+                    return Math.max(u, Math.max(e, Math.max(w, Math.max(s, n))));
+                }
+                Chunk chunk = world.getChunkFromBlockCoords(pos);
+                return chunk.getLightFor(type, pos);
+            } else return type.defaultLightValue;
         }
+        return 0;
+    }
+
+    private int getLightForSide(World world, EnumSkyBlock type, MutableBlockPos pos, EnumFacing side) {
+        pos.move(side);
+        boolean invalidY = pos.getY() < 0;
+        int light;
+        if (invalidY) pos.setY(0);
+        if (world.isValid(pos) && world.isBlockLoaded(pos)) {
+            Chunk chunk = world.getChunkFromBlockCoords(pos);
+            light = chunk.getLightFor(type, pos);
+        } else light = type.defaultLightValue;
+        if (!invalidY) pos.move(side.getOpposite());
+        return light;
     }
 }
