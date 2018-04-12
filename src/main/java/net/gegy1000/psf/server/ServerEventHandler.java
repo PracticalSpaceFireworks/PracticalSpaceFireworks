@@ -40,13 +40,17 @@ public class ServerEventHandler {
         if (entity != null && !(entity instanceof EntitySpacecraft)) {
             World world = entity.getEntityWorld();
 
-            int radius = CraftGraph.RANGE;
-            AxisAlignedBB searchBounds = event.getAabb().expand(radius, radius, radius);
+            AxisAlignedBB collisionBounds = event.getAabb();
+            AxisAlignedBB searchBounds = collisionBounds.grow(CraftGraph.RANGE);
             List<EntitySpacecraft> spacecrafts = world.getEntitiesWithinAABB(EntitySpacecraft.class, searchBounds);
 
             for (EntitySpacecraft spacecraft : spacecrafts) {
-                if (event.getAabb().intersects(spacecraft.getEntityBoundingBox())) {
-                    spacecraft.collectTransformedBlockBounds(event.getAabb(), event.getCollisionBoxesList());
+                if (collisionBounds.intersects(spacecraft.getEntityBoundingBox())) {
+                    List<AxisAlignedBB> bounds = spacecraft.collectTransformedBlockBounds();
+                    List<AxisAlignedBB> boxes = event.getCollisionBoxesList();
+                    bounds.stream().map(bb -> bb.offset(spacecraft.posX, spacecraft.posY, spacecraft.posZ))
+                            .filter(collisionBounds::intersects)
+                            .forEach(boxes::add);
                 }
             }
         }

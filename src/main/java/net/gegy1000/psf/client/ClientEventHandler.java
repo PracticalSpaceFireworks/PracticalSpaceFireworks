@@ -42,27 +42,29 @@ public class ClientEventHandler {
             lastShakeY = shakeY;
             lastShakeZ = shakeZ;
 
-            double totalShake = 0.0;
+            if (!MC.isGamePaused()) {
+                double totalShake = 0.0;
 
-            List<EntitySpacecraft> entities = MC.world.getEntities(EntitySpacecraft.class, s -> true);
-            for (EntitySpacecraft spacecraft : entities) {
-                double shake = spacecraft.getState().getCameraShake();
-                double distance = MathHelper.clamp(spacecraft.getDistance(MC.player), 10.0, 400.0);
-                totalShake += shake * (1.0 - distance / 400.0);
-            }
+                List<EntitySpacecraft> entities = MC.world.getEntities(EntitySpacecraft.class, s -> true);
+                for (EntitySpacecraft spacecraft : entities) {
+                    double shake = spacecraft.getState().getCameraShake();
+                    double distance = MathHelper.clamp(spacecraft.getDistance(MC.player), 10.0, 400.0);
+                    totalShake += shake * (1.0 - distance / 400.0);
+                }
 
-            if (!MC.player.onGround && !MC.player.collidedVertically && !MC.player.collidedHorizontally) {
-                totalShake *= 0.5;
-            }
+                if (!MC.player.onGround && !MC.player.collidedVertically && !MC.player.collidedHorizontally) {
+                    totalShake *= 0.5;
+                }
 
-            if (totalShake > 1e-3) {
-                totalShake = Math.min(totalShake, 0.25);
+                if (totalShake > 1e-3) {
+                    totalShake = Math.min(totalShake, 0.25);
 
-                Random rand = MC.world.rand;
+                    Random rand = MC.world.rand;
 
-                shakeX = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
-                shakeY = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
-                shakeZ = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
+                    shakeX = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
+                    shakeY = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
+                    shakeZ = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
+                }
             }
         }
     }

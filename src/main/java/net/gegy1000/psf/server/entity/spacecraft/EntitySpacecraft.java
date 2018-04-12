@@ -20,7 +20,6 @@ import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,7 +42,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
@@ -71,6 +69,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Getter
     private final Matrix inverseMatrix = new Matrix(3);
+
+    private AxisAlignedBB calculatedBounds = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 
     private float lastRecalcYaw = Float.MAX_VALUE;
     private float lastRecalcPitch = Float.MAX_VALUE;
@@ -217,17 +217,20 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void setPosition(double x, double y, double z) {
-        super.setPosition(x, y, z);
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
 
-        this.setEntityBoundingBox(this.calculateEncompassingBounds());
+        if (calculatedBounds != null) {
+            this.setEntityBoundingBox(calculatedBounds.offset(posX, posY, posZ));
+        }
     }
 
     @Nonnull
     private AxisAlignedBB calculateEncompassingBounds() {
-        List<AxisAlignedBB> bounds = new ArrayList<>();
-        this.collectTransformedBlockBounds(null, bounds);
+        List<AxisAlignedBB> bounds = this.collectTransformedBlockBounds();
 
-        AxisAlignedBB ret = new AxisAlignedBB(this.posX, this.posY, this.posZ, this.posX, this.posY, this.posZ);
+        AxisAlignedBB ret = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
         for (AxisAlignedBB bb : bounds) {
             ret = ret.union(bb);
         }
@@ -237,7 +240,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void resetPositionToBB() {
-        AxisAlignedBB bounds = this.calculateEncompassingBounds();
+        AxisAlignedBB bounds = this.calculatedBounds.offset(posX, posY, posZ);
         AxisAlignedBB updatedBounds = this.getEntityBoundingBox();
         this.posX += updatedBounds.minX - bounds.minX;
         this.posY += updatedBounds.minY - bounds.minY;
@@ -254,11 +257,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return super.isInRangeToRenderDist(distance / 8);
     }
 
-    public void collectTransformedBlockBounds(@Nullable AxisAlignedBB reference, @Nonnull List<AxisAlignedBB> bounds) {
+    public List<AxisAlignedBB> collectTransformedBlockBounds() {
+        List<AxisAlignedBB> bounds = new ArrayList<>();
         if (worldHandler != null) {
-            if (reference == null) {
-                reference = TileEntity.INFINITE_EXTENT_AABB;
-            }
             for (BlockPos pos : BlockPos.getAllInBoxMutable(worldHandler.getMinPos(), worldHandler.getMaxPos())) {
                 IBlockState state = worldHandler.getBlockState(pos);
                 if (state.getBlock() != Blocks.AIR) {
@@ -268,14 +269,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         if (bb == null) {
                             continue;
                         }
-                        AxisAlignedBB transformed = this.rotateBoundsEncompassing(bb, pos).offset(this.posX, this.posY, this.posZ);
-                        if (reference.intersects(transformed)) {
-                            bounds.add(transformed);
-                        }
+                        bounds.add(rotateBoundsEncompassing(bb, pos));
                     }
                 }
             }
         }
+        return bounds;
     }
 
     private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
@@ -292,7 +291,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.inverseMatrix.multiply(this.rotationMatrix);
         this.inverseMatrix.inverse();
 
-        this.setEntityBoundingBox(this.calculateEncompassingBounds());
+        this.calculatedBounds = this.calculateEncompassingBounds();
+        this.setEntityBoundingBox(calculatedBounds.offset(posX, posY, posZ));
     }
 
     @Override
@@ -358,7 +358,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     private Optional<RayTraceResult> playerRayTrace(World world, EntityPlayer player) {
         IController ctrl = worldHandler.findController();
-        if (ctrl == null) return Optional.empty();
+        if (ctrl == null) {
+            return Optional.empty();
+        }
         BlockPos origin = ctrl.getPosition().orElse(BlockPos.ORIGIN);
         double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
         // FIXME Incorrect positions after entity has moved from origin
