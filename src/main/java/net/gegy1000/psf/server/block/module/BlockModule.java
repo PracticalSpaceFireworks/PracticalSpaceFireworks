@@ -124,6 +124,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     @Deprecated
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
         super.neighborChanged(state, world, pos, block, fromPos);
+        if (BlockModule.CONVERTING.get()) return;
         state = state.getActualState(world, pos);
         if (!isStructuralModule(null, state)) {
             BlockPos connectedTo = pos.offset(state.getValue(DIRECTION).getOpposite());
