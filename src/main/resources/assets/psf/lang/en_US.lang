@@ -32,3 +32,7 @@ item.psf.target_selector.name=Target Selector
 
 fluid.psf.kerosene=Kerosene
 fluid.psf.liquid_oxygen=Liquid Oxygen
+
+# Entities
+
+entity.psf.spacecraft.name=Spacecraft
