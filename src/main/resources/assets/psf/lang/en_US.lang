@@ -36,3 +36,6 @@ fluid.psf.liquid_oxygen=Liquid Oxygen
 # Entities
 
 entity.psf.spacecraft.name=Spacecraft
+
+# Waila
+tooltip.psf.waila.looking_at=Looking at: %s

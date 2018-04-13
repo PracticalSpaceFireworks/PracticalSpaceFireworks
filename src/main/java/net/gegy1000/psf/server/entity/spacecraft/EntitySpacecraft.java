@@ -356,7 +356,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return true;
     }
 
-    private Optional<RayTraceResult> playerRayTrace(World world, EntityPlayer player) {
+    public Optional<RayTraceResult> playerRayTrace(World world, EntityPlayer player) {
         IController ctrl = worldHandler.findController();
         if (ctrl == null) {
             return Optional.empty();
