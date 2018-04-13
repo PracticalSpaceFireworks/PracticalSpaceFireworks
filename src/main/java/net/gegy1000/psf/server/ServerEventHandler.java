@@ -38,23 +38,16 @@ public class ServerEventHandler {
     public static void onCollide(GetCollisionBoxesEvent event) {
         Entity entity = event.getEntity();
         if (entity != null && !(entity instanceof EntitySpacecraft)) {
-            World world = entity.getEntityWorld();
-
-            AxisAlignedBB aabb = event.getAabb();
-            AxisAlignedBB searchBounds = aabb.grow(CraftGraph.RANGE);
-            List<EntitySpacecraft> spacecrafts = world.getEntitiesWithinAABB(EntitySpacecraft.class, searchBounds);
-
-            for (EntitySpacecraft spacecraft : spacecrafts) {
-                if (aabb.intersects(spacecraft.getEntityBoundingBox())) {
-                    List<AxisAlignedBB> blockBounds = spacecraft.collectTransformedBlockBounds();
-                    List<AxisAlignedBB> boxes = event.getCollisionBoxesList();
-                    double x = spacecraft.posX;
-                    double y = spacecraft.posY;
-                    double z = spacecraft.posZ;
-                    AxisAlignedBB collisionBounds = aabb.offset(-x, -y, -z);
-                    for (AxisAlignedBB bound : blockBounds) {
-                        if (collisionBounds.intersects(bound)) {
-                            boxes.add(bound.offset(x, y, z));
+            AxisAlignedBB entityBounds = event.getAabb();
+            for (EntitySpacecraft sc : entity.getEntityWorld().getEntitiesWithinAABB(
+                    EntitySpacecraft.class, entityBounds.grow(CraftGraph.RANGE)
+            )) {
+                if (entityBounds.intersects(sc.getEntityBoundingBox())) {
+                    List<AxisAlignedBB> collisionBoxes = event.getCollisionBoxesList();
+                    AxisAlignedBB entityCollision = entityBounds.offset(-sc.posX, -sc.posY, -sc.posZ);
+                    for (AxisAlignedBB bound : sc.collectTransformedBlockBounds()) {
+                        if (entityCollision.intersects(bound)) {
+                            collisionBoxes.add(bound.offset(sc.posX, sc.posY, sc.posZ));
                         }
                     }
                 }
