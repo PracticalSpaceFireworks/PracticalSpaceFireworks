@@ -32,7 +32,7 @@ public class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin {
     public List<String> getWailaBody(Entity entity, List<String> list, IWailaEntityAccessor accessor, IWailaConfigHandler cfg) {
         EntityPlayer player = accessor.getPlayer();
         DelegatedWorld world = ((EntitySpacecraft) entity).getDelegatedWorld();
-        ((EntitySpacecraft) entity).playerRayTrace(world, player).ifPresent(result -> {
+        ((EntitySpacecraft) entity).playerRayTrace(player).ifPresent(result -> {
             BlockPos pos = result.getBlockPos();
             IBlockState state = world.getBlockState(pos);
             ItemStack stack = state.getBlock().getPickBlock(state, result, world, pos, player);

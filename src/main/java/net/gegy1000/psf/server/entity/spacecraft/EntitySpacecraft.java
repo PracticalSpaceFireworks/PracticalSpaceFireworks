@@ -297,7 +297,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-        Optional<RayTraceResult> rayTrace = playerRayTrace(getDelegatedWorld(), player);
+        Optional<RayTraceResult> rayTrace = playerRayTrace(player);
         if (!rayTrace.isPresent() || rayTrace.get().typeOfHit != RayTraceResult.Type.BLOCK) {
             return false;
         }
@@ -356,7 +356,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return true;
     }
 
-    public Optional<RayTraceResult> playerRayTrace(World world, EntityPlayer player) {
+    public Optional<RayTraceResult> playerRayTrace(EntityPlayer player) {
         IController ctrl = worldHandler.findController();
         if (ctrl == null) {
             return Optional.empty();
@@ -371,7 +371,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         double lookY = player.getLookVec().y * reach;
         double lookZ = player.getLookVec().z * reach;
         Vec3d startPos = new Vec3d(posX, posY, posZ);
-        return Optional.ofNullable(world.rayTraceBlocks(startPos, startPos.addVector(lookX, lookY, lookZ)));
+        return Optional.ofNullable(getDelegatedWorld().rayTraceBlocks(startPos, startPos.addVector(lookX, lookY, lookZ)));
     }
 
     @Override
