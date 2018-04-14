@@ -48,7 +48,7 @@ public class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin {
     @Nonnull
     public List<String> getWailaHead(Entity entity, List<String> list, IWailaEntityAccessor accessor, IWailaConfigHandler cfg) {
         if (lastHitVec != accessor.getMOP().hitVec) {
-            subHit = ((EntitySpacecraft) accessor.getEntity()).playerRayTrace(accessor.getPlayer()).orElse(null);
+            subHit = ((EntitySpacecraft) accessor.getEntity()).pointedBlock;
         }
         lastHitVec = accessor.getMOP().hitVec;
         if (subHit != null && subHit.typeOfHit == Type.BLOCK) {

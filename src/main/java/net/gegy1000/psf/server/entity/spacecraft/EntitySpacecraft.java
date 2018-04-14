@@ -19,6 +19,7 @@ import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -83,6 +84,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @SideOnly(Side.CLIENT)
     public SpacecraftModel model;
+
+    @SideOnly(Side.CLIENT)
+    public RayTraceResult pointedBlock;
 
     private DelegatedWorld delegatedWorld;
     private SpacecraftWorldHandler worldHandler;
@@ -201,9 +205,16 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         if (!world.isRemote) {
             satellite.tickSatellite(ticksExisted);
+        } else {
+            updateRayTrace();
         }
 
         super.onUpdate();
+    }
+
+    private void updateRayTrace() {
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        pointedBlock = playerRayTrace(player).orElse(null);
     }
 
     @Override
@@ -248,6 +259,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public boolean canBeCollidedWith() {
+        // If there is no pointed block, return false as we don't want the pointed entity raytracer to detect this
+        if (world.isRemote) {
+            return pointedBlock != null;
+        }
         return true;
     }
 
