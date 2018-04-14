@@ -97,9 +97,10 @@ public class TileFuelLoader extends TileEntity {
         for (IFluidTankProperties properties : tankProperties) {
             FluidStack contents = properties.getContents();
             if (contents != null) {
+                int originalAmount = contents.amount;
                 int filled = fluidHandler.fill(handler.drain(contents, true), true);
-                if (filled < contents.amount) {
-                    handler.fill(new FluidStack(contents.getFluid(), filled), true);
+                if (filled < originalAmount) {
+                    handler.fill(new FluidStack(contents.getFluid(), originalAmount - filled), true);
                 }
             }
         }

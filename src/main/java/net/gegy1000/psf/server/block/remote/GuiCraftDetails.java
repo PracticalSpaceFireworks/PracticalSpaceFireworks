@@ -541,6 +541,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
         public SyncedData(IVisual visual) {
             model = SpacecraftModel.build(new DelegatedWorld(Minecraft.getMinecraft().world, visual.getWorldHandler()), visual.getWorldHandler());
             modules = visual.getModules();
+            modules.forEach(module -> module.handleModuleChange(modules));
+
             terrainScannerModules = modules.stream()
                     .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
                     .collect(Collectors.toList());

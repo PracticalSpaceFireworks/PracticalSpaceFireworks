@@ -28,6 +28,9 @@ public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICap
     @Nullable
     ISatellite getOwner();
 
+    default void handleModuleChange(Collection<IModule> modules) {
+    }
+
     default void onSatelliteTick(ISatellite satellite) {
     }
 

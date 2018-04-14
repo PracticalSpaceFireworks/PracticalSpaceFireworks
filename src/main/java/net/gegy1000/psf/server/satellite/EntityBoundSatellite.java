@@ -5,7 +5,6 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.block.controller.CraftGraph.SearchFilter;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;

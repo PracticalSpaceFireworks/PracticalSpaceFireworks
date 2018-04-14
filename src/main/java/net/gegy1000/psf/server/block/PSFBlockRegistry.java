@@ -1,11 +1,5 @@
 package net.gegy1000.psf.server.block;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
@@ -14,6 +8,7 @@ import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.fueler.BlockFuelLoader;
 import net.gegy1000.psf.server.block.module.BlockBattery;
 import net.gegy1000.psf.server.block.module.BlockFuelTank;
+import net.gegy1000.psf.server.block.module.BlockFuelValve;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.block.module.BlockPayloadSeparator;
@@ -36,6 +31,11 @@ import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFBlockRegistry {
@@ -91,6 +91,8 @@ public class PSFBlockRegistry {
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
         fuelLoader = register(event, "fuel_loader", new BlockFuelLoader());
+
+        register(event, "fuel_valve", new BlockFuelValve());
 
         // Register module TE only once
         GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + ":" + "module");

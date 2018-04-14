@@ -102,7 +102,7 @@ public class BlockFuelTank extends BlockModule {
         if (placer instanceof EntityPlayer && ((EntityPlayer) placer).capabilities.isCreativeMode) {
             IModule module = TileModule.getModule(world.getTileEntity(pos));
             if (module instanceof ModuleFuelTank) {
-                ((ModuleFuelTank) module).setFull();
+//                ((ModuleFuelTank) module).setFull();
             }
         }
     }

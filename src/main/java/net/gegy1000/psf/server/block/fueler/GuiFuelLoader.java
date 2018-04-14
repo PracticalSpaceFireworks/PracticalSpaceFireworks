@@ -89,7 +89,7 @@ public class GuiFuelLoader extends GuiContainer {
         if (mouseX >= x && mouseY >= y && mouseX <= x + TANK_WIDTH && mouseY <= y + TANK_HEIGHT) {
             List<String> lines = new ArrayList<>();
             lines.add(fluid.getRarity().rarityColor + I18n.format(fluid.getUnlocalizedName()));
-            lines.add(TextFormatting.BLUE.toString() + amount + "/" + capacity);
+            lines.add(TextFormatting.BLUE.toString() + amount + "/" + capacity + " mB");
 
             float percentage = capacity == 0 ? 0 : (float) amount / capacity * 100;
             lines.add(TextFormatting.GRAY.toString() + TextFormatting.ITALIC + String.format("%.1f%%", percentage));

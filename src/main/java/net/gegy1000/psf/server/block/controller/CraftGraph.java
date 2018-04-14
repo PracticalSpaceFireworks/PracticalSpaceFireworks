@@ -1,19 +1,5 @@
 package net.gegy1000.psf.server.block.controller;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Predicate;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -25,9 +11,23 @@ import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.util.EnumFacing;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @ParametersAreNonnullByDefault
@@ -165,6 +165,11 @@ public class CraftGraph implements Iterable<IModule> {
                     }
                 }
             }
+        }
+
+        List<IModule> modules = adjacencies.keySet().stream().map(Vertex::getModule).collect(Collectors.toList());
+        for (IModule cap : modules) {
+            cap.handleModuleChange(modules);
         }
     }
 
