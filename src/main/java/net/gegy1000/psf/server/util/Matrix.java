@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.util;
 
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 
 import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix4d;
@@ -69,6 +70,12 @@ public class Matrix {
     public Point3d transform(Point3d point) {
         this.matrix.transform(point);
         return point;
+    }
+
+    public Vec3d transformPoint(Vec3d point) {
+        Point3d p = new Point3d(point.x, point.y, point.z);
+        this.matrix.transform(p);
+        return new Vec3d(p.x, p.y, p.z);
     }
 
     public Point3d transform(double x, double y, double z) {

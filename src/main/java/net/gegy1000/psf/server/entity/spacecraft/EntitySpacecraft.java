@@ -3,7 +3,6 @@ package net.gegy1000.psf.server.entity.spacecraft;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
@@ -269,7 +268,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         if (bb == null) {
                             continue;
                         }
-                        bounds.add(rotateBoundsEncompassing(bb, pos));
+                        bounds.add(rotateBoundsEncompassing(bb));
                     }
                 }
             }
@@ -277,7 +276,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         return bounds;
     }
 
-    private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds, BlockPos pos) {
+    private AxisAlignedBB rotateBoundsEncompassing(AxisAlignedBB bounds) {
         bounds = bounds.offset(-0.5, 0, -0.5);
         return this.rotationMatrix.transform(bounds);
     }
@@ -357,21 +356,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     public Optional<RayTraceResult> playerRayTrace(EntityPlayer player) {
-        IController ctrl = worldHandler.findController();
-        if (ctrl == null) {
-            return Optional.empty();
-        }
-        BlockPos origin = ctrl.getPosition().orElse(BlockPos.ORIGIN);
         double reach = player.getEntityAttribute(EntityPlayer.REACH_DISTANCE).getAttributeValue();
-        // FIXME Incorrect positions after entity has moved from origin
-        double posX = player.posX - origin.getX();
-        double posY = player.posY + player.getEyeHeight() - origin.getY();
-        double posZ = player.posZ - origin.getZ();
-        double lookX = player.getLookVec().x * reach;
-        double lookY = player.getLookVec().y * reach;
-        double lookZ = player.getLookVec().z * reach;
-        Vec3d startPos = new Vec3d(posX, posY, posZ);
-        return Optional.ofNullable(getDelegatedWorld().rayTraceBlocks(startPos, startPos.addVector(lookX, lookY, lookZ)));
+
+        Vec3d origin = player.getPositionEyes(1.0F).subtract(posX, posY, posZ);
+        Vec3d target = origin.add(player.getLookVec().scale(reach));
+
+        origin = inverseMatrix.transformPoint(origin);
+        target = inverseMatrix.transformPoint(target);
+
+        return Optional.ofNullable(getDelegatedWorld().rayTraceBlocks(origin.addVector(0.5, 0, 0.5), target.addVector(0.5, 0.0, 0.5)));
     }
 
     @Override
