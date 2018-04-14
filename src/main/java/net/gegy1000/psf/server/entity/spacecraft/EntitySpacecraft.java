@@ -10,6 +10,7 @@ import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
+import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
@@ -192,13 +193,16 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         if (posY > 1000) {
             setDead();
 
-            if (!world.isRemote && world.hasCapability(CapabilityWorldData.SATELLITE_INSTANCE, null)) {
+            if (!world.isRemote) {
                 SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
-                ISatellite orbiting = satellite.toOrbiting();
-                capability.addSatellite(orbiting);
-                converted = true;
-                for (EntityPlayerMP player : orbiting.getTrackingPlayers()) {
-                    PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, orbiting.toListedCraft()), player);
+                if (capability != null) {
+                    ISatellite orbiting = satellite.toOrbiting();
+                    capability.addSatellite(orbiting);
+                    converted = true;
+                    for (EntityPlayerMP player : orbiting.getTrackingPlayers()) {
+                        PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, orbiting.toListedCraft()), player);
+                        PSFNetworkHandler.network.sendTo(new PacketVisualData(orbiting.buildWorldHandler(world)), player);
+                    }
                 }
             }
         }

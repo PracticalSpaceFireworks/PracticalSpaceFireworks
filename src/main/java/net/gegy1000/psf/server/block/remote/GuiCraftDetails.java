@@ -79,7 +79,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Nullable
     private SyncedData synced;
-    
+
     @Nonnull
     private Map<Fluid, ResourceAmount> fluidData = new HashMap<>();
     @Nonnull
@@ -125,11 +125,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
             buttonLaunch.visible = craft.canLaunch();
         }
     }
-    
+
     @Override
     public void updateScreen() {
         super.updateScreen();
-        
+
         SyncedData synced = this.synced;
         if (synced != null) {
             List<IFluidTankProperties> tanks = synced.tankModules.stream()
@@ -137,7 +137,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
                     .filter(Objects::nonNull)
                     .flatMap(handler -> Arrays.stream(handler.getTankProperties()))
                     .collect(Collectors.toList());
-    
+
             Map<Fluid, ResourceAmount> totalFluid = new HashMap<>();
             for (IFluidTankProperties tank : tanks) {
                 FluidStack contents = tank.getContents();
@@ -146,9 +146,9 @@ public class GuiCraftDetails extends GuiRemoteControl {
                     amount.add(contents.amount, tank.getCapacity());
                 }
             }
-            
+
             this.fluidData = totalFluid;
-            
+
             energyData = new ResourceAmount();
             synced.modules.stream()
                     .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
@@ -228,7 +228,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             drawStats(craft);
         }
     }
-    
+
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
@@ -236,17 +236,17 @@ public class GuiCraftDetails extends GuiRemoteControl {
         SyncedData synced = this.synced;
         if (craft != null && !craft.isOrbiting() && synced != null) {
             SpacecraftMetadata metadata = synced.metadata;
-            
+
             int x = panel.getX() + 4;
             int y = panel.getY() + panel.getHeight() - 4;
-            
+
             int width = panel.getWidth() - 8;
             if (metadata.getThrusters().isEmpty()) {
                 y -= drawWarning(x, y, width, Collections.singletonList("No Thrusters!"), mouseX, mouseY);
             } else if (metadata.getTotalForce() / metadata.getMass() < (EntitySpacecraft.GRAVITY * 1.25)) {
                 y -= drawWarning(x, y, width, Collections.singletonList("Low Thrust!"), mouseX, mouseY);
             }
-            
+
             if (energyData.capacity == 0) {
                 y -= drawWarning(x, y, width, Collections.singletonList("No Batteries!"), mouseX, mouseY);
             } else if ((float) energyData.amount / energyData.capacity < 0.25f){
@@ -261,7 +261,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low Kerosene!"), mouseX, mouseY);
                 }
             }
-            
+
             ResourceAmount lox = fluidData.get(PSFFluidRegistry.LIQUID_OXYGEN);
             if (lox != null && lox.capacity > 0) {
                 if ((float) lox.amount / lox.capacity < 0.25f) {
@@ -270,7 +270,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             }
         }
     }
-    
+
     private int drawWarning(int x, int y, int width, List<String> strings, int mx, int my) {
         GlStateManager.enableBlend();
         mx -= guiLeft;
@@ -482,7 +482,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
         x -= 5;
         y += 15;
-        
+
         mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(mass) + "kg", x, y, color);
     }
 
@@ -518,6 +518,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Override
     public void updateCraft(@Nonnull IListedSpacecraft craft) {
+        super.updateCraft(craft);
         tfName.setText(craft.getName());
         buttonLaunch.visible = craft.canLaunch();
     }
