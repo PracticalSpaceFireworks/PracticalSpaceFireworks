@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ModuleFuelTank extends EmptyModule {
-    private static final int CAPACITY = 250;
+    private static final int CAPACITY = 500;
 
     private final FluidTank keroseneTank;
     private final FluidTank liquidOxygenTank;
@@ -156,7 +156,7 @@ public class ModuleFuelTank extends EmptyModule {
         public double getAdditionalMass() {
             double additonalMass = 0.0;
             for (Map.Entry<Fluid, IFluidHandler> handler : handlers.entrySet()) {
-                double density = handler.getKey().getDensity() * 0.8;
+                double density = handler.getKey().getDensity() * 0.4;
 
                 IFluidTankProperties properties = handler.getValue().getTankProperties()[0];
                 FluidStack contents = properties.getContents();
