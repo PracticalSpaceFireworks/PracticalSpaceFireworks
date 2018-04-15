@@ -344,7 +344,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
                 BlockModule.CONVERTING.set(true);
                 try {
-                    blocks.forEach((pos, block) -> world.setBlockState(pos, block.withRotation(rotation), 14));
+                    blocks.forEach((pos, block) -> world.setBlockState(pos, block.withRotation(rotation), 10|1));
 
                     for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
                         world.setTileEntity(entry.getKey(), entry.getValue());

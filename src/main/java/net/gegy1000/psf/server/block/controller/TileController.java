@@ -4,6 +4,7 @@ import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
@@ -185,6 +186,7 @@ public class TileController extends TileEntity implements ITickable {
     }
 
     public void scanStructure() {
+        if (BlockModule.CONVERTING.get()) return;
         if (structureLimits == null) {
             craft.scan(getPos(), getWorld());
         } else {

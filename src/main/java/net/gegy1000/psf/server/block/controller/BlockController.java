@@ -71,7 +71,7 @@ public class BlockController extends Block implements RegisterItemBlock, Registe
 
                 BlockModule.CONVERTING.set(true);
                 try {
-                    craft.getPositions().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 14));
+                    craft.getPositions().forEach(p -> worldIn.setBlockState(p, Blocks.AIR.getDefaultState(), 10|1));
                 } finally {
                     BlockModule.CONVERTING.set(false);
                 }
