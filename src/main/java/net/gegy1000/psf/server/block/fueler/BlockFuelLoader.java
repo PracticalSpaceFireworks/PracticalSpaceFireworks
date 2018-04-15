@@ -5,7 +5,6 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -62,8 +61,6 @@ public class BlockFuelLoader extends BlockHorizontal implements RegisterItemMode
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        rebuildTankList(world, pos);
-
         TileEntity entity = world.getTileEntity(pos);
         if (entity instanceof TileFuelLoader) {
             player.openGui(PracticalSpaceFireworks.instance, PSFGuiHandler.ID_FUEL_LOADER, world, pos.getX(), pos.getY(), pos.getZ());
@@ -71,19 +68,6 @@ public class BlockFuelLoader extends BlockHorizontal implements RegisterItemMode
         }
 
         return false;
-    }
-
-    @Override
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos) {
-        super.neighborChanged(state, world, pos, block, fromPos);
-        rebuildTankList(world, pos);
-    }
-
-    private void rebuildTankList(World world, BlockPos pos) {
-        TileEntity entity = world.getTileEntity(pos);
-        if (entity instanceof TileFuelLoader) {
-            ((TileFuelLoader) entity).rebuildTankList();
-        }
     }
 
     @Override
