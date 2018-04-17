@@ -58,6 +58,8 @@ public class PSFModelRegistry {
 
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.kerosene, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.liquidOxygen, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.filteredAir, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.compressedAir, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
         
         IStateMapper dummyMapper = new StateMap.Builder().ignore(BlockMultiblockModule.DUMMY).build();
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.solarPanel, dummyMapper);

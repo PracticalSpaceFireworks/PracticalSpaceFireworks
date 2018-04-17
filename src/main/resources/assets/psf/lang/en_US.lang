@@ -33,6 +33,8 @@ item.psf.target_selector.name=Target Selector
 
 fluid.psf.kerosene=Kerosene
 fluid.psf.liquid_oxygen=Liquid Oxygen
+fluid.psf.filtered_air=Filtered Air
+fluid.psf.compressed_air=Compressed Air
 
 # Entities
 

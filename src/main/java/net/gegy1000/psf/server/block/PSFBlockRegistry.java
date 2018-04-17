@@ -15,6 +15,8 @@ import net.gegy1000.psf.server.block.module.BlockPayloadSeparator;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileDummyModule;
 import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.block.production.BlockAirCompressor;
+import net.gegy1000.psf.server.block.production.BlockAirIntake;
 import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.block.Block;
@@ -44,6 +46,8 @@ public class PSFBlockRegistry {
 
     public static BlockFluidFinite kerosene;
     public static BlockFluidFinite liquidOxygen;
+    public static BlockFluidFinite filteredAir;
+    public static BlockFluidFinite compressedAir;
 
     public static BlockStrut strut;
 
@@ -52,6 +56,8 @@ public class PSFBlockRegistry {
 
     public static BlockRemoteControlSystem remoteControlSystem;
     public static BlockFuelLoader fuelLoader;
+    public static BlockAirIntake airIntake;
+    public static BlockAirCompressor airCompressor;
 
     public static BlockFuelTank fuelTank;
     public static BlockPayloadSeparator payloadSeparator;
@@ -79,7 +85,7 @@ public class PSFBlockRegistry {
         registerModuleBlock(event, "terrain_scanner");
         solarPanel = register(event, "solar_panel", new BlockMultiblockModule(Material.IRON, "solar_panel"));
         laser = register(event, "laser", new BlockMultiblockModule(Material.IRON, "laser") {
-            
+
             @Override
             protected int getHeight() {
                 return 2;
@@ -88,9 +94,13 @@ public class PSFBlockRegistry {
 
         kerosene = register(event, "kerosene", new BlockPSFFluid(PSFFluidRegistry.KEROSENE, Material.WATER));
         liquidOxygen = register(event, "liquid_oxygen", new BlockPSFFluid(PSFFluidRegistry.LIQUID_OXYGEN, Material.WATER));
+        filteredAir = register(event, "filtered_air", new BlockPSFFluid(PSFFluidRegistry.FILTERED_AIR, Material.WATER));
+        compressedAir = register(event, "compressed_air", new BlockPSFFluid(PSFFluidRegistry.COMPRESSED_AIR, Material.WATER));
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
         fuelLoader = register(event, "fuel_loader", new BlockFuelLoader());
+        airIntake = register(event, "air_intake", new BlockAirIntake());
+        airCompressor = register(event, "air_compressor", new BlockAirCompressor());
 
         register(event, "fuel_valve", new BlockFuelValve());
 

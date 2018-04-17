@@ -35,7 +35,7 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void onCollide(GetCollisionBoxesEvent event) {
         Entity entity = event.getEntity();
-        if (entity != null && !(entity instanceof EntitySpacecraft)) {
+        if (entity != null) {
             AxisAlignedBB entityBounds = event.getAabb();
             for (EntitySpacecraft sc : entity.getEntityWorld().getEntitiesWithinAABB(
                     EntitySpacecraft.class, entityBounds.grow(CraftGraph.RANGE)
