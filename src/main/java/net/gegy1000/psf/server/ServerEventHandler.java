@@ -40,7 +40,7 @@ public class ServerEventHandler {
             for (EntitySpacecraft sc : entity.getEntityWorld().getEntitiesWithinAABB(
                     EntitySpacecraft.class, entityBounds.grow(CraftGraph.RANGE)
             )) {
-                if (entityBounds.intersects(sc.getEntityBoundingBox())) {
+                if (sc != entity && entityBounds.intersects(sc.getEntityBoundingBox())) {
                     List<AxisAlignedBB> collisionBoxes = event.getCollisionBoxesList();
                     AxisAlignedBB entityCollision = entityBounds.offset(-sc.posX, -sc.posY, -sc.posZ);
                     for (AxisAlignedBB bound : sc.collectTransformedBlockBounds()) {
