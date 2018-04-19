@@ -60,7 +60,9 @@ public class TileAirIntake extends TileEntity implements ITickable {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
+        if (compound.hasKey("energy")) {
+            CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
+        }
     }
 
     @Nonnull
