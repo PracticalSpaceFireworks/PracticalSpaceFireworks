@@ -122,7 +122,7 @@ public class TileAirCompressor extends TileEntity implements ITickable {
         COMPRESSING {
             @Override
             protected State update(TileAirCompressor compressor, IFluidTankProperties properties, @Nullable FluidStack contents) {
-                if (contents == null) {
+                if (contents == null || contents.amount == 0) {
                     return State.DRAINING;
                 }
                 if (compressor.energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK) {
