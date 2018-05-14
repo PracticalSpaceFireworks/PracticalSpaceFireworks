@@ -65,10 +65,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     @Nonnull
-    private static final ResourceLocation[] BG_FRAMES = new ResourceLocation[3];
+    private static final ResourceLocation[] BG_FRAMES = new ResourceLocation[6];
     static {
         for (int i = 0; i < BG_FRAMES.length; i++) {
-            BG_FRAMES[i] = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system_frame" + i + ".png");
+            BG_FRAMES[i] = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/animation_0000" + i + ".png");
         }
     }
     
@@ -103,8 +103,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
         super(parent, te);
         this.selectedCraft = selected;
 
-        xSize = 246;
-        ySize = 200;
+        xSize = 236;
+        ySize = 189;
 
         panel = new Rectangle(8, 7, 74, 175);
     }
@@ -127,7 +127,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
 //        addButton(buttonMode);
 
-        buttonLaunch = new GuiButtonExt(2, guiLeft + 103, guiTop + 162, 49, 19, "Launch");
+        buttonLaunch = new GuiButtonExt(2, guiLeft + 103, guiTop + 162, 49, 20, "Launch");
         addButton(buttonLaunch);
 
         Keyboard.enableRepeatEvents(true);
@@ -251,13 +251,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-        GlStateManager.color(1, 1, 1, 1);
-        drawDefaultBackground();
-        GlStateManager.color(1, 1, 1, 0.8f);
-        mc.getTextureManager().bindTexture(BG_FRAMES[bgFrame]);
-        GlStateManager.enableBlend();
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
-        
+        super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+
         IListedSpacecraft craft = getCraft();
 
 //        drawBackground(craft);
@@ -274,7 +269,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
         IListedSpacecraft craft = getCraft();
         SyncedData synced = this.synced;
-        if (craft != null && !craft.isOrbiting() && synced != null) {
+        
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
+
+        if (false && craft != null && !craft.isOrbiting() && synced != null) {
             SpacecraftMetadata metadata = synced.metadata;
             
             int x = panel.getX() + 4;
@@ -309,6 +307,13 @@ public class GuiCraftDetails extends GuiRemoteControl {
                 }
             }
         }
+        
+        mc.getTextureManager().bindTexture(BG_FRAMES[bgFrame]);
+        GlStateManager.enableBlend();
+        GlStateManager.color(1, 1, 1, 0.25f);
+        drawTexturedModalRect(0, 0, 0, 0, xSize, ySize);
+        
+        GlStateManager.alphaFunc(GL11.GL_GREATER, 0.1f);
     }
     
     private int drawWarning(int x, int y, int width, List<String> strings, int mx, int my) {
@@ -321,7 +326,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
         drawRect(x + 1, y - 1, x + width - 1, y - height + 1, alpha | 0xC1AD00);
         mc.getTextureManager().bindTexture(TEXTURE_LOC);
         GlStateManager.enableBlend();
-        GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
         GlStateManager.color(1, 1, 1, (alpha >>> 24) / 255f);
         drawTexturedModalRect(x + 3, y - (int) Math.ceil(height / 2f) - 4, 115, 202, 9, 9);
         int sy = (y - height) + 5;
