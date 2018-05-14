@@ -21,10 +21,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public class TileAirIntake extends TileEntity implements ITickable {
-    private static final int ENERGY_BUFFER = 6000;
-    private static final int ENERGY_PER_TICK = 40;
+    private static final int ENERGY_BUFFER = 500;
+    private static final int ENERGY_PER_TICK = 10;
 
-    private static final int AIR_PER_TICK = 100;
+    private static final int AIR_PER_TICK = 1;
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
 

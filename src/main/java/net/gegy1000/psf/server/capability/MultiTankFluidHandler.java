@@ -2,6 +2,7 @@ package net.gegy1000.psf.server.capability;
 
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
@@ -20,6 +21,7 @@ public class MultiTankFluidHandler implements IFluidHandler {
     @Override
     public IFluidTankProperties[] getTankProperties() {
         Map<Fluid, Properties> collectedProperties = new HashMap<>();
+        int emptyCapacity = 0;
         for (IFluidHandler handler : this.internal) {
             IFluidTankProperties[] allInternalProps = handler.getTankProperties();
             for (IFluidTankProperties internalProp : allInternalProps) {
@@ -27,8 +29,13 @@ public class MultiTankFluidHandler implements IFluidHandler {
                 if (contents != null) {
                     Properties merged = collectedProperties.computeIfAbsent(contents.getFluid(), Properties::new);
                     merged.add(contents.amount, internalProp.getCapacity());
+                } else {
+                    emptyCapacity += internalProp.getCapacity();
                 }
             }
+        }
+        if (collectedProperties.isEmpty() && emptyCapacity > 0) {
+            return new IFluidTankProperties[] { new FluidTankProperties(null, emptyCapacity) };
         }
         return collectedProperties.values().toArray(new IFluidTankProperties[0]);
     }

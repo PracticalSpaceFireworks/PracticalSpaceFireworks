@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.block.production;
 
+import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,7 +12,6 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -27,27 +27,17 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     private static final EnumFacing[] OUTPUT_SIDES = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
 
     private static final int TANK_SIZE = 1000;
-    private static final int COMPRESS_PER_TICK = 8;
+    private static final int COMPRESS_PER_TICK = 2;
 
     private static final int DRAIN_PER_TICK = 60;
 
-    private static final int ENERGY_BUFFER = 6000;
-    private static final int ENERGY_PER_TICK = 200;
+    private static final int ENERGY_BUFFER = 500;
+    private static final int ENERGY_PER_TICK = 20;
 
     private static final int STATE_CHANGE_TIME = 20;
 
-    private final IFluidHandler inputStorage = new FluidTank(TANK_SIZE) {
-        @Override
-        public boolean canFillFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == PSFFluidRegistry.FILTERED_AIR;
-        }
-    };
-    private final IFluidHandler outputStorage = new FluidTank(TANK_SIZE) {
-        @Override
-        public boolean canFillFluidType(FluidStack fluid) {
-            return fluid != null && fluid.getFluid() == PSFFluidRegistry.COMPRESSED_AIR;
-        }
-    };
+    private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluidRegistry.FILTERED_AIR);
+    private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluidRegistry.COMPRESSED_AIR);
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
@@ -83,16 +73,15 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        if (compound.hasKey("input_fluid")) {
-            CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(inputStorage, null, compound.getTag("input_fluid"));
-        }
-        if (compound.hasKey("output_fluid")) {
-            CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(outputStorage, null, compound.getTag("output_fluid"));
-        }
-        if (compound.hasKey("energy")) {
-            CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
-        }
+        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(inputStorage, null, compound.getTag("input_fluid"));
+        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(outputStorage, null, compound.getTag("output_fluid"));
+        CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
         state = State.values()[compound.getByte("state") % State.values().length];
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+        super.readFromNBT(tag);
     }
 
     @Override

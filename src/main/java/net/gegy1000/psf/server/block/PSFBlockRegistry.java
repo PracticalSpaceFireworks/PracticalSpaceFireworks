@@ -17,6 +17,7 @@ import net.gegy1000.psf.server.block.module.TileDummyModule;
 import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.block.production.BlockAirCompressor;
 import net.gegy1000.psf.server.block.production.BlockAirIntake;
+import net.gegy1000.psf.server.block.production.BlockAirSeparator;
 import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.block.Block;
@@ -46,6 +47,7 @@ public class PSFBlockRegistry {
 
     public static BlockFluidFinite kerosene;
     public static BlockFluidFinite liquidOxygen;
+    public static BlockFluidFinite liquidNitrogen;
     public static BlockFluidFinite filteredAir;
     public static BlockFluidFinite compressedAir;
 
@@ -58,6 +60,7 @@ public class PSFBlockRegistry {
     public static BlockFuelLoader fuelLoader;
     public static BlockAirIntake airIntake;
     public static BlockAirCompressor airCompressor;
+    public static BlockAirSeparator airSeparator;
 
     public static BlockFuelTank fuelTank;
     public static BlockPayloadSeparator payloadSeparator;
@@ -94,6 +97,7 @@ public class PSFBlockRegistry {
 
         kerosene = register(event, "kerosene", new BlockPSFFluid(PSFFluidRegistry.KEROSENE, Material.WATER));
         liquidOxygen = register(event, "liquid_oxygen", new BlockPSFFluid(PSFFluidRegistry.LIQUID_OXYGEN, Material.WATER));
+        liquidNitrogen = register(event, "liquid_nitrogen", new BlockPSFFluid(PSFFluidRegistry.LIQUID_NITROGEN, Material.WATER));
         filteredAir = register(event, "filtered_air", new BlockPSFFluid(PSFFluidRegistry.FILTERED_AIR, Material.WATER));
         compressedAir = register(event, "compressed_air", new BlockPSFFluid(PSFFluidRegistry.COMPRESSED_AIR, Material.WATER));
 
@@ -101,6 +105,7 @@ public class PSFBlockRegistry {
         fuelLoader = register(event, "fuel_loader", new BlockFuelLoader());
         airIntake = register(event, "air_intake", new BlockAirIntake());
         airCompressor = register(event, "air_compressor", new BlockAirCompressor());
+        airSeparator = register(event, "air_separator", new BlockAirSeparator());
 
         register(event, "fuel_valve", new BlockFuelValve());
 

@@ -15,6 +15,5 @@ public class FluidAir extends Fluid {
         this.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + type + "_air");
         this.setDensity(1);
         this.setViscosity(1);
-        this.setGaseous(true);
     }
 }
