@@ -110,8 +110,8 @@ public class PSFBlockRegistry {
         register(event, "fuel_valve", new BlockFuelValve());
 
         // Register module TE only once
-        GameRegistry.registerTileEntity(TileModule.class, PracticalSpaceFireworks.MODID + ":" + "module");
-        GameRegistry.registerTileEntity(TileDummyModule.class, PracticalSpaceFireworks.MODID + ":" + "dummy_module");
+        GameRegistry.registerTileEntity(TileModule.class, new ResourceLocation(PracticalSpaceFireworks.MODID, "module"));
+        GameRegistry.registerTileEntity(TileDummyModule.class, new ResourceLocation(PracticalSpaceFireworks.MODID, "dummy_module"));
     }
 
     @SubscribeEvent
@@ -143,7 +143,7 @@ public class PSFBlockRegistry {
         REGISTERED_BLOCKS.add(block);
 
         if (block instanceof RegisterTileEntity) {
-            String blockEntityKey = PracticalSpaceFireworks.MODID + "." + identifier;
+            ResourceLocation blockEntityKey = new ResourceLocation(PracticalSpaceFireworks.MODID, identifier);
             GameRegistry.registerTileEntity(((RegisterTileEntity) block).getEntityClass(), blockEntityKey);
         }
 

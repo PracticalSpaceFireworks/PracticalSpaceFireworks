@@ -3,6 +3,11 @@ package net.gegy1000.psf;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IFixableData;
+import net.minecraftforge.common.util.ModFixs;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +48,8 @@ public class PracticalSpaceFireworks {
 
     private static boolean deobfuscatedEnvironment;
 
+    private static ModFixs fixer;
+
     @Nonnull
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
@@ -61,6 +68,7 @@ public class PracticalSpaceFireworks {
 
     @Mod.EventHandler
     public static void onPreInit(FMLPreInitializationEvent event) {
+        initDataFixers();
         PROXY.onPreInit();
         Object o = Launch.blackboard.get("fml.deobfuscatedEnvironment");
         if (o instanceof Boolean) {
@@ -81,5 +89,24 @@ public class PracticalSpaceFireworks {
     @Mod.EventHandler
     public static void onServerStopped(FMLServerStoppedEvent event) {
         PROXY.getSatellites().flush();
+    }
+
+    private static void initDataFixers() {
+        fixer = FMLCommonHandler.instance().getDataFixer().init(MODID, 1);
+        fixer.registerFix(FixTypes.BLOCK_ENTITY, new IFixableData() {
+            @Override
+            public int getFixVersion() {
+                return 1;
+            }
+
+            @Override
+            public NBTTagCompound fixTagCompound(NBTTagCompound compound) {
+                String id = compound.getString("id");
+                if (id.contains(MODID + ".")) {
+                    compound.setString("id", MODID + ":" + id.replace(MODID + ".", ""));
+                }
+                return compound;
+            }
+        });
     }
 }
