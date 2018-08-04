@@ -5,5 +5,58 @@
       "sounds":[
          "psf:laser"
       ]
+   },
+   "metal.break":{
+      "category":"block",
+      "subtitle": "subtitles.block.generic.break",
+      "sounds":[
+         "psf:dig/metal",
+         "psf:dig/metal1",
+         "psf:dig/metal2",
+         "psf:dig/metal3",
+         "psf:dig/metal7",
+         "psf:dig/metal8"
+      ]
+   },
+   "metal.step":{
+      "category":"neutral",
+      "subtitle": "subtitles.block.generic.footsteps",
+      "sounds":[
+         "psf:step/metal4",
+         "psf:step/metal5",
+         "psf:step/metal6",
+         "psf:step/metal9"
+      ]
+   },
+   "metal.place":{
+      "category":"neutral",
+      "subtitle": "subtitles.block.generic.place",
+      "sounds":[
+         "psf:dig/metal",
+         "psf:dig/metal1",
+         "psf:dig/metal2",
+         "psf:dig/metal3",
+         "psf:dig/metal7",
+         "psf:dig/metal8"
+      ]
+   },
+   "metal.hit":{
+      "category":"block",
+      "subtitle": "subtitles.block.generic.hit",
+      "sounds":[
+         "psf:step/metal4",
+         "psf:step/metal5",
+         "psf:step/metal6",
+         "psf:step/metal9"
+      ]
+   },
+   "metal.fall":{
+      "category":"block",
+      "sounds":[
+         "psf:step/metal4",
+         "psf:step/metal5",
+         "psf:step/metal6",
+         "psf:step/metal9"
+      ]
    }
 }

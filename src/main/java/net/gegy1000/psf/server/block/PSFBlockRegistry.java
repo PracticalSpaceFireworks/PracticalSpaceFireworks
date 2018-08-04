@@ -33,6 +33,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.BlockFluidFinite;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import javax.annotation.Nonnull;
@@ -72,7 +73,7 @@ public class PSFBlockRegistry {
         register(event, "controller.simple", basicController = new BlockController(ControllerType.BASIC));
 
         // Modules
-        strut = register(event, "strut", new BlockStrut());
+        strut = register(event, "strut_cube", new BlockStrut());
         register(event, "battery.simple", new BlockBattery("battery_simple"));
         thruster = register(event, "thruster.simple", new BlockModule(Material.IRON, "thruster_simple") {
             @Override
@@ -80,7 +81,6 @@ public class PSFBlockRegistry {
                 return side == EnumFacing.DOWN;
             }
         });
-//        registerModuleBlock(event, "antenna");
         registerModuleBlock(event, "entity_detector.simple");
         registerModuleBlock(event, "entity_marker");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
@@ -125,6 +125,20 @@ public class PSFBlockRegistry {
                 ItemBlock itemBlock = ((RegisterItemBlock) block).createItemBlock(block);
                 event.getRegistry().register(itemBlock.setRegistryName(block.getRegistryName()));
                 REGISTERED_ITEM_BLOCKS.add(itemBlock);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMissingBlockMappings(RegistryEvent.MissingMappings<Block> event) {
+        for (RegistryEvent.MissingMappings.Mapping<Block> mapping : event.getMappings()) {
+            if (mapping.key.getResourcePath().equals("strut")) {
+                ResourceLocation key = new ResourceLocation(PracticalSpaceFireworks.MODID, "strut_cube");
+                Block block = ForgeRegistries.BLOCKS.getValue(key);
+                if (block != null) {
+                    mapping.remap(block);
+                    mapping.ignore();
+                }
             }
         }
     }

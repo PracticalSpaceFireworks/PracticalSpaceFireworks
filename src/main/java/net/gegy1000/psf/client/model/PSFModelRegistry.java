@@ -6,7 +6,6 @@ import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
-import net.gegy1000.psf.server.block.module.StrutType;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
@@ -65,10 +64,5 @@ public class PSFModelRegistry {
         IStateMapper dummyMapper = new StateMap.Builder().ignore(BlockMultiblockModule.DUMMY).build();
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.solarPanel, dummyMapper);
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.laser, dummyMapper);
-
-        Item strut = Item.getItemFromBlock(PSFBlockRegistry.strut);
-        for (StrutType type : StrutType.values()) {
-            ModelLoader.setCustomModelResourceLocation(strut, type.ordinal(), new ModelResourceLocation(PSFBlockRegistry.strut.getRegistryName(), "type=" + type.getName()));
-        }
     }
 }

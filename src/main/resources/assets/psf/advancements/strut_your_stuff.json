@@ -1,0 +1,28 @@
+{
+  "display": {
+    "announce_to_chat": true,
+    "hidden": true,
+    "icon": {
+      "item": "psf:strut_cube"
+    },
+    "title": {
+      "translate": "advancements.psf.strut_your_stuff.title"
+    },
+    "description": {
+      "translate": "advancements.psf.strut_your_stuff.desc"
+    }
+  },
+  "parent": "psf:root",
+  "criteria": {
+    "strut_cube": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "psf:strut_cube"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ itemGroup.psf=Practical Space Fireworks
 
 tile.psf.fuel_tank.name=Fuel Tank
 tile.psf.fuel_valve.name=Fuel Valve
-tile.psf.strut.name=Cubic Strut
+tile.psf.strut_cube.name=Cubic Strut
 tile.psf.thruster.simple.name=Simple Thruster
 tile.psf.antenna.name=Antenna
 tile.psf.payload_separator.name=Payload Separator
@@ -47,3 +47,7 @@ entity.psf.spacecraft.name=Spacecraft
 
 # Waila
 tooltip.psf.waila.looking_at=Looking at: %s
+
+# Advancements
+advancements.psf.strut_your_stuff.title=Strut Your Stuff
+advancements.psf.strut_your_stuff.desc=Craft a strut cube

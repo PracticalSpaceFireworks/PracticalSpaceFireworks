@@ -1,0 +1,28 @@
+{
+  "display": {
+    "show_toast": false,
+    "announce_to_chat": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "icon": {
+      "item": "minecraft:air"
+    },
+    "title": {
+      "translate": "advancements.psf.root.title"
+    },
+    "description": {
+      "translate": "advancements.psf.root.description"
+    }
+  },
+  "criteria": {
+    "crafting_table": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "minecraft:crafting_table"
+          }
+        ]
+      }
+    }
+  }
+}
