@@ -1,3 +1,5 @@
+import org.ajoberstar.grgit.Grgit
+
 buildscript {
   repositories {
     jcenter()
@@ -18,8 +20,6 @@ plugins {
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
-
-import org.ajoberstar.grgit.Grgit
 
 def repo = Grgit.open(project.file('.'))
 project.ext.gitHash = repo.log().find().abbreviatedId
@@ -44,19 +44,21 @@ archivesBaseName = "practical-space-fireworks"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-  version = "1.12.2-14.23.2.2611"
-  runDir = "minecraft"
-  mappings = "snapshot_20180125"
+    version = '1.12.2-14.23.4.2745'
+    runDir = 'minecraft'
+    mappings = 'snapshot_20180125'
 }
 
 repositories {
-  mavenCentral()
-  jcenter()
-  maven { url = 'http://tehnut.info/maven' }
+    mavenCentral()
+    jcenter()
+    maven { url = 'http://maven.tterrag.com' }
+    maven { url = 'http://tehnut.info/maven' }
 }
 
 dependencies {
-  deobfCompile 'mcp.mobius.waila:Hwyla:1.8.25-B40_1.12'
+    runtime 'team.chisel.ctm:CTM:MC1.12.2-0.3.2.18'
+    compile 'mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2'
 }
 
 processResources {
@@ -120,16 +122,12 @@ curseforge {
 
     project {
         id = project.project_id
-        changelog = System.getenv('CHANGELOG') == null || System.getenv('CHANGELOG').equals('none') ? getChangelogText() : System.getenv('CHANGELOG')
+        changelog = System.getenv('CHANGELOG') == null || System.getenv('CHANGELOG') == 'none' ? getChangelogText() : System.getenv('CHANGELOG')
         changelogType = 'html'
         releaseType = project.curse_type
-		addGameVersion '1.12.2'
-        mainArtifact(jar) {
-            displayName = getModField("NAME", mod_file) + " - ${version}"
-        }
-        relations {
-        	optionalLibrary 'ctm'
-        }
+        addGameVersion '1.12.2'
+        mainArtifact(jar) { displayName = getModField("NAME", mod_file) + " - ${version}" }
+        relations { requiredLibrary 'ctm' }
     }
 }
 

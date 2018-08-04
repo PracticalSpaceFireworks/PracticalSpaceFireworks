@@ -27,13 +27,14 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 
 import static net.gegy1000.psf.PracticalSpaceFireworks.*;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, acceptedMinecraftVersions = "[1.12]")
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = "[1.12]")
 @ParametersAreNonnullByDefault
 public class PracticalSpaceFireworks {
     @Nonnull
     public static final String MODID = "psf";
     public static final String VERSION = "0.2.0";
     public static final String NAME = "Practical Space Fireworks";
+    public static final String DEPENDENCIES = "required-after-client:ctm@[MC1.12.2-0.3.2.18,)";
 
     public static final String CLIENT_PROXY = "net.gegy1000.psf.client.ClientProxy";
     public static final String SERVER_PROXY = "net.gegy1000.psf.server.ServerProxy";
