@@ -88,6 +88,12 @@ public class BlockStrut extends BlockModule {
     }
 
     @Override
+    @Deprecated
+    public float getAmbientOcclusionLightValue(@Nonnull IBlockState state) {
+        return 0.5F;
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Random rand) {
         if (world.isRainingAt(pos.up())) {
