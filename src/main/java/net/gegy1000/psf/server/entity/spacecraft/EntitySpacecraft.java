@@ -7,6 +7,7 @@ import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.controller.CraftGraph;
+import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
@@ -361,6 +362,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 for (EntityPlayerMP p : satellite.getTrackingPlayers()) {
                     PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.TILE, satellite.toListedCraft()), p);
                 }
+                
+                // TODO improve IController API to avoid this
+                satellite.getController().getPosition()
+                    .map(world::getTileEntity)
+                    .filter(TileController.class::isInstance)
+                    .map(TileController.class::cast)
+                    .ifPresent(TileController::scanStructure);
 
                 setDead();
             } else {
