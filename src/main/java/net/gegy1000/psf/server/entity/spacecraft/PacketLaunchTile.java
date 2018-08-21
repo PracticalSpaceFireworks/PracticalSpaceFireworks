@@ -30,11 +30,12 @@ public class PacketLaunchTile implements IMessage {
         @Override
         public IMessage onMessage(PacketLaunchTile message, MessageContext ctx) {
             PracticalSpaceFireworks.PROXY.handlePacket(ctx, player -> {
-                // Do not care about loading chunks because we want to load the tiles if it's launching now anyway
-                TileEntity tile = player.world.getTileEntity(message.pos);
-                if (tile instanceof TileController) {
-                    EntitySpacecraft spacecraft = ((TileController) tile).constructEntity();
-                    spacecraft.setState(EntitySpacecraft.StateType.LAUNCH);
+                if (player.world.isBlockLoaded(message.pos)) {
+                    TileEntity tile = player.world.getTileEntity(message.pos);
+                    if (tile instanceof TileController) {
+                        EntitySpacecraft spacecraft = ((TileController) tile).constructEntity();
+                        spacecraft.setState(EntitySpacecraft.StateType.LAUNCH);
+                    }
                 }
             });
             return null;
