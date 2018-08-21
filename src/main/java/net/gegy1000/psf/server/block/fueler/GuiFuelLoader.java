@@ -49,7 +49,7 @@ public class GuiFuelLoader extends GuiContainer {
         mouseX -= originX;
         mouseY -= originY;
 
-        String title = I18n.format(PSFBlockRegistry.fuelLoader.getUnlocalizedName() + ".name");
+        String title = I18n.format(PSFBlockRegistry.fuelLoader.getTranslationKey() + ".name");
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
@@ -88,7 +88,7 @@ public class GuiFuelLoader extends GuiContainer {
     private void drawTankTooltip(Fluid fluid, int amount, int capacity, int x, int y, int mouseX, int mouseY) {
         if (mouseX >= x && mouseY >= y && mouseX <= x + TANK_WIDTH && mouseY <= y + TANK_HEIGHT) {
             List<String> lines = new ArrayList<>();
-            lines.add(fluid.getRarity().rarityColor + I18n.format(fluid.getUnlocalizedName()));
+            lines.add(fluid.getRarity().color + I18n.format(fluid.getUnlocalizedName()));
             lines.add(TextFormatting.BLUE.toString() + amount + "/" + capacity + " mB");
 
             float percentage = capacity == 0 ? 0 : (float) amount / capacity * 100;

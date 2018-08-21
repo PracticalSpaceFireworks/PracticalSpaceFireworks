@@ -132,7 +132,7 @@ public class PSFBlockRegistry {
     @SubscribeEvent
     public static void onMissingBlockMappings(RegistryEvent.MissingMappings<Block> event) {
         for (RegistryEvent.MissingMappings.Mapping<Block> mapping : event.getMappings()) {
-            if (mapping.key.getResourcePath().equals("strut")) {
+            if (mapping.key.getNamespace().equals("strut")) {
                 ResourceLocation key = new ResourceLocation(PracticalSpaceFireworks.MODID, "strut_cube");
                 Block block = ForgeRegistries.BLOCKS.getValue(key);
                 if (block != null) {
@@ -153,7 +153,7 @@ public class PSFBlockRegistry {
 
     private static <T extends Block> T register(RegistryEvent.Register<Block> event, @Nonnull String identifier, T block) {
         event.getRegistry().register(block.setRegistryName(new ResourceLocation(PracticalSpaceFireworks.MODID, identifier.replace('.', '_'))));
-        block.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
+        block.setTranslationKey(PracticalSpaceFireworks.MODID + "." + identifier);
         REGISTERED_BLOCKS.add(block);
 
         if (block instanceof RegisterTileEntity) {

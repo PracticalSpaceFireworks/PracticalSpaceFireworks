@@ -1,22 +1,16 @@
 package net.gegy1000.psf;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.datafix.FixTypes;
-import net.minecraft.util.datafix.IFixableData;
-import net.minecraftforge.common.util.ModFixs;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.datafix.FixTypes;
+import net.minecraft.util.datafix.IFixableData;
+import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -24,6 +18,11 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static net.gegy1000.psf.PracticalSpaceFireworks.*;
 
@@ -54,7 +53,7 @@ public class PracticalSpaceFireworks {
     @Nonnull
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
-        public @Nonnull ItemStack getTabIconItem() {
+        public @Nonnull ItemStack createIcon() {
             return new ItemStack(PSFBlockRegistry.strut);
         }
     };

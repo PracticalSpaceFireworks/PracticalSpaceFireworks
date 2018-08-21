@@ -20,7 +20,7 @@ public class PSFItemRegistry {
     }
 
     private static void register(RegistryEvent.Register<Item> event, String identifier, Item item) {
-        item.setUnlocalizedName(PracticalSpaceFireworks.MODID + "." + identifier);
+        item.setTranslationKey(PracticalSpaceFireworks.MODID + "." + identifier);
         event.getRegistry().register(item.setRegistryName(identifier));
         REGISTERED_ITEMS.add(item);
     }

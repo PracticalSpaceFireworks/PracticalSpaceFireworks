@@ -67,7 +67,7 @@ public class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin {
             IBlockState state = world.getBlockState(pos);
             ItemStack stack = state.getBlock().getPickBlock(state, subHit, world, pos, accessor.getPlayer());
             if (!stack.isEmpty()) {
-                String name = withLocalization(stack.getUnlocalizedName() + ".name");
+                String name = withLocalization(stack.getTranslationKey() + ".name");
                 return withValues(list, withLocalization("tooltip.psf.waila.looking_at", name));
             }
         }

@@ -79,7 +79,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     }
     
     @Override
-    public @Nonnull BlockRenderLayer getBlockLayer() {
+    public @Nonnull BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
     

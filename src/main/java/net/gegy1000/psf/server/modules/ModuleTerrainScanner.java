@@ -50,7 +50,7 @@ public class ModuleTerrainScanner extends EmptyModule {
         TerrainScanData scanData = new TerrainScanData();
         for (int chunkZ = -SCAN_RANGE; chunkZ <= SCAN_RANGE; chunkZ++) {
             for (int chunkX = -SCAN_RANGE; chunkX <= SCAN_RANGE; chunkX++) {
-                Chunk chunk = world.getChunkFromChunkCoords(origin.x + chunkX, origin.z + chunkZ);
+                Chunk chunk = world.getChunk(origin.x + chunkX, origin.z + chunkZ);
                 scanData.addChunk(this.scanChunk(new ChunkPos(chunkX, chunkZ), chunk));
 
                 int height = chunk.getTopFilledSegment() + 8;

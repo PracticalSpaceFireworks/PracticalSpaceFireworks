@@ -378,7 +378,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         SpacecraftWorldHandler worldHandler = model.getWorldHandler();
         BlockPos minPos = worldHandler.getMinPos();
         BlockPos maxPos = worldHandler.getMaxPos();
-        AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(minPos), new Vec3d(maxPos).addVector(1, 1, 1));
+        AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(minPos), new Vec3d(maxPos).add(1, 1, 1));
 
         GlStateManager.pushMatrix();
 

@@ -1,17 +1,25 @@
 package net.gegy1000.psf.server.block.controller;
 
+import com.google.common.base.Stopwatch;
 import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.module.BlockModule;
+import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
+import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
 import net.gegy1000.psf.server.modules.ModuleController;
 import net.gegy1000.psf.server.modules.Modules;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.TileBoundSatellite;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -30,6 +38,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class TileController extends TileEntity implements ITickable {
 
@@ -193,5 +202,44 @@ public class TileController extends TileEntity implements ITickable {
             craft.scan(getPos(), getWorld(), d -> structureLimits.contains(d.getPos()));
         }
         markDirty();
+    }
+
+    @Nonnull
+    public EntitySpacecraft constructEntity() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        CraftGraph craft = getModules();
+        ISatellite satellite = getCapability(CapabilitySatellite.INSTANCE, null);
+        EntitySpacecraft spacecraft = new EntitySpacecraft(world, craft, pos, satellite);
+        ISatellite newsat = spacecraft.getCapability(CapabilitySatellite.INSTANCE, null);
+        satellite.getTrackingPlayers().forEach(newsat::track);
+
+        this.converted();
+
+        BlockModule.CONVERTING.set(true);
+        try {
+            craft.getPositions().forEach(p -> world.setBlockState(p, Blocks.AIR.getDefaultState(), 10 | 1));
+        } finally {
+            BlockModule.CONVERTING.set(false);
+        }
+
+        SpacecraftWorldHandler worldHandler = spacecraft.getWorldHandler();
+        BlockPos min = worldHandler.getMinPos().add(pos);
+        BlockPos max = worldHandler.getMaxPos().add(pos);
+        world.markBlockRangeForRenderUpdate(min, max);
+
+        spacecraft.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0);
+        world.spawnEntity(spacecraft);
+
+        for (EntityPlayerMP player : newsat.getTrackingPlayers()) {
+            PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, newsat.toListedCraft()), player);
+        }
+
+        long time = stopwatch.stop().elapsed(TimeUnit.MICROSECONDS);
+
+        if (PracticalSpaceFireworks.isDeobfuscatedEnvironment()) {
+            PracticalSpaceFireworks.LOGGER.info("Constructed satellite entity in {}µs", time);
+        }
+
+        return spacecraft;
     }
 }

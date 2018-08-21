@@ -46,7 +46,7 @@ public class ItemTargetSelector extends Item implements RegisterItemModel {
             Vec3d start = headVec;
             Vec3d lookVec = playerIn.getLook(1);
             double reach = 500;
-            headVec = headVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
+            headVec = headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
             RayTraceResult mop = worldIn.rayTraceBlocks(start, headVec);
             if (mop != null) {
                 playerIn.swingArm(handIn);

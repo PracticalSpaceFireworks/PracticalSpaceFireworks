@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.server.capability.CapabilityModule;
@@ -85,9 +86,12 @@ public class TileModule extends TileEntity {
             String id = Strings.emptyToNull(compound.getString("moduleID"));
             Preconditions.checkNotNull(id, "No module data found!");
             IModuleFactory factory = Modules.get().getValue(new ResourceLocation(id));
-            Preconditions.checkNotNull(factory, "Unknown module type!");
-            this.module = factory.get();
-            this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
+            if (factory != null) {
+                this.module = factory.get();
+                this.module.deserializeNBT(compound.getCompoundTag("moduleData"));
+            } else {
+                PracticalSpaceFireworks.LOGGER.warn("Unknown module type '" + id + "'");
+            }
         }
     }
 

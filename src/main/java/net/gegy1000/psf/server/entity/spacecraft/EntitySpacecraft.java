@@ -79,6 +79,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     static {
         PSFNetworkHandler.network.registerMessage(PacketLaunchCraft.Handler.class, PacketLaunchCraft.class, PSFNetworkHandler.nextID(), Side.SERVER);
+        PSFNetworkHandler.network.registerMessage(PacketLaunchTile.Handler.class, PacketLaunchTile.class, PSFNetworkHandler.nextID(), Side.SERVER);
     }
 
     @Getter
@@ -345,7 +346,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
                 BlockModule.CONVERTING.set(true);
                 try {
-                    blocks.forEach((pos, block) -> world.setBlockState(pos, block.withRotation(rotation), 10|1));
+                    blocks.forEach((pos, block) -> world.setBlockState(pos, block.withRotation(rotation), 10 | 1));
 
                     for (Map.Entry<BlockPos, TileEntity> entry : entities.entrySet()) {
                         world.setTileEntity(entry.getKey(), entry.getValue());
@@ -362,13 +363,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 for (EntityPlayerMP p : satellite.getTrackingPlayers()) {
                     PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.TILE, satellite.toListedCraft()), p);
                 }
-                
+
                 // TODO improve IController API to avoid this
                 satellite.getController().getPosition()
-                    .map(world::getTileEntity)
-                    .filter(TileController.class::isInstance)
-                    .map(TileController.class::cast)
-                    .ifPresent(TileController::scanStructure);
+                        .map(world::getTileEntity)
+                        .filter(TileController.class::isInstance)
+                        .map(TileController.class::cast)
+                        .ifPresent(TileController::scanStructure);
 
                 setDead();
             } else {
@@ -391,7 +392,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         origin = inverseMatrix.transformPoint(origin);
         target = inverseMatrix.transformPoint(target);
 
-        return Optional.ofNullable(getDelegatedWorld().rayTraceBlocks(origin.addVector(0.5, 0, 0.5), target.addVector(0.5, 0.0, 0.5)));
+        return Optional.ofNullable(getDelegatedWorld().rayTraceBlocks(origin.add(0.5, 0, 0.5), target.add(0.5, 0.0, 0.5)));
     }
 
     @Override

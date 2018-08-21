@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.satellite;
 
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -9,16 +10,15 @@ import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilityController;
+import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-
-import com.google.common.collect.Lists;
-
 import java.util.Collection;
 import java.util.UUID;
 
@@ -99,5 +99,15 @@ public class TileBoundSatellite extends AbstractSatellite {
         super.deserializeNBT(tag);
         this.id = new UUID(tag.getLong("uuid_msb"), tag.getLong("uuid_lsb"));
         this.name = tag.getString("name");
+    }
+
+    @Override
+    public void launch() {
+        PSFNetworkHandler.network.sendToServer(new PacketLaunchTile(controller.getPos()));
+    }
+
+    @Override
+    public boolean canLaunch() {
+        return true;
     }
 }

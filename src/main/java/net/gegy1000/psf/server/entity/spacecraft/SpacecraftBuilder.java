@@ -118,7 +118,7 @@ public class SpacecraftBuilder {
                     int e = getLightForSide(world, type, pos, EnumFacing.EAST);
                     return Math.max(u, Math.max(e, Math.max(w, Math.max(s, n))));
                 }
-                Chunk chunk = world.getChunkFromBlockCoords(pos);
+                Chunk chunk = world.getChunk(pos);
                 return chunk.getLightFor(type, pos);
             } else return type.defaultLightValue;
         }
@@ -131,7 +131,7 @@ public class SpacecraftBuilder {
         int light;
         if (invalidY) pos.setY(0);
         if (world.isValid(pos) && world.isBlockLoaded(pos)) {
-            Chunk chunk = world.getChunkFromBlockCoords(pos);
+            Chunk chunk = world.getChunk(pos);
             light = chunk.getLightFor(type, pos);
         } else light = type.defaultLightValue;
         if (!invalidY) pos.move(side.getOpposite());

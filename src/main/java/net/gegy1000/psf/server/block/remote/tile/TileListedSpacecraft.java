@@ -3,6 +3,7 @@ package net.gegy1000.psf.server.block.remote.tile;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
+import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.math.BlockPos;
 
@@ -40,5 +41,15 @@ public class TileListedSpacecraft implements IListedSpacecraft {
     @Override
     public BlockPos getPosition() {
         return satellite.getPosition();
+    }
+
+    @Override
+    public void launch() {
+        PSFNetworkHandler.network.sendToServer(new PacketLaunchTile(satellite.getPosition()));
+    }
+
+    @Override
+    public boolean canLaunch() {
+        return true;
     }
 }
