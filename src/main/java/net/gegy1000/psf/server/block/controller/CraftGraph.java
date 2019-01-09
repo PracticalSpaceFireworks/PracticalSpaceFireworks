@@ -113,7 +113,7 @@ public class CraftGraph implements Iterable<IModule> {
             ISatellite owner = data.getModule().getOwner();
             // Make sure this module is either unowned or owned by us
             if (owner == null || owner.isInvalid() || owner.equals(getSatellite())) {
-                IBlockState state = world.getBlockState(data.getPos());
+                IBlockState state = world.getBlockState(data.getFrom());
                 // Check that connecting these states is valid, don't form edges through non-solid adjacent modules
                 return BlockModule.isConnectedTo(state, data.getDir());
             }
