@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "psf:terrain_scanner"
+  },
+  "pattern": [
+    " S ",
+    "IEI",
+    "PRP"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "S": { "item": "#SLIME" },
+    "I": { "item": "#IRON_INGOT" },
+    "E": { "item": "#ENDER_EYE" },
+    "P": { "item": "#IRON_PLATE" },
+    "R": { "item": "#REDSTONE" }
+  }
+}

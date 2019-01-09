@@ -9,7 +9,7 @@
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
-    "P": { "item": "minecraft:heavy_weighted_pressure_plate" },
+    "P": { "item": "#IRON_PLATE" },
     "B": { "item": "#IRON_BARS" },
     "I": { "item": "#IRON_INGOT" }
   }

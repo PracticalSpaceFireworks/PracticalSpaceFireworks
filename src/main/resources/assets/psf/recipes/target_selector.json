@@ -1,0 +1,17 @@
+{
+  "result": {
+    "item": "psf:target_selector"
+  },
+  "pattern": [
+    "TI ",
+    "IRI",
+    " IB"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "T": { "item": "minecraft:redstone_torch" },
+    "I": { "item": "#IRON_INGOT" },
+    "R": { "item": "#REDSTONE" },
+    "B": { "item": "minecraft:stone_button" }
+  }
+}

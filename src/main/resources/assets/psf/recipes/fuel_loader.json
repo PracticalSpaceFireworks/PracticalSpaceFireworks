@@ -1,16 +1,16 @@
 {
   "result": {
-    "item": "psf:remote_control_system"
+    "item": "psf:fuel_loader"
   },
   "pattern": [
-    "IGI",
-    "IRI",
+    "BBI",
+    "BUI",
     "III"
   ],
   "type": "minecraft:crafting_shaped",
   "key": {
+    "B": { "item": "#IRON_BARS" },
     "I": { "item": "#IRON_INGOT" },
-    "G": { "item": "#GOLD_PLATE" },
-    "R": { "item": "#REDSTONE_BLOCK" }
+    "U": { "item": "minecraft:bucket" }
   }
 }

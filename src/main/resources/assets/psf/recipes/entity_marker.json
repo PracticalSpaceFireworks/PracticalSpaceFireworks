@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "psf:entity_marker"
+  },
+  "pattern": [
+    "ITI",
+    "GIG",
+    "PRP"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "T": { "item": "minecraft:redstone_torch" },
+    "G": { "item": "#GLOWSTONE" },
+    "P": { "item": "#IRON_PLATE" },
+    "R": { "item": "#REDSTONE" }
+  }
+}

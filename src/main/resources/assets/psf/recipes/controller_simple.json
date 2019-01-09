@@ -10,7 +10,7 @@
   "type": "minecraft:crafting_shaped",
   "key": {
     "I": { "item": "#IRON_INGOT" },
-    "G": { "item": "minecraft:light_weighted_pressure_plate" },
+    "G": { "item": "#GOLD_PLATE" },
     "R": { "item": "#REDSTONE_BLOCK" }
   }
 }

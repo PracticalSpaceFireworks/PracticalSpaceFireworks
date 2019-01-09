@@ -51,9 +51,49 @@
   {
     "ingredient": {
       "type": "forge:ore_dict",
+      "ore": "dustGlowstone"
+    },
+    "name": "GLOWSTONE"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
       "ore": "paneGlassColorless"
     },
     "name": "GLASS_PANE_COLORLESS"
+  },
+  {
+    "ingredient": {
+      "item": "minecraft:light_weighted_pressure_plate"
+    },
+    "name": "GOLD_PLATE"
+  },
+  {
+    "ingredient": {
+      "item": "minecraft:heavy_weighted_pressure_plate"
+    },
+    "name": "IRON_PLATE"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "pearlEnderEye"
+    },
+    "name": "ENDER_EYE"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "gemLapis"
+    },
+    "name": "LAPIS"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "slimeball"
+    },
+    "name": "SLIME"
   },
   {
     "ingredient": {

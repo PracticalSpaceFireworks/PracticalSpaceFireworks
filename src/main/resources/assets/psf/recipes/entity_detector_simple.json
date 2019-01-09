@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "psf:entity_detector_simple"
+  },
+  "pattern": [
+    " L ",
+    "IEI",
+    "PRP"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "L": { "item": "#LAPIS" },
+    "I": { "item": "#IRON_INGOT" },
+    "E": { "item": "#ENDER_EYE" },
+    "P": { "item": "#IRON_PLATE" },
+    "R": { "item": "#REDSTONE" }
+  }
+}

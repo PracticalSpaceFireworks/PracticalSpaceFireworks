@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:payload_separator",
+    "data": 0
+  },
+  "pattern": [
+    "IBI",
+    "IPI"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "B": { "item": "#IRON_BARS" },
+    "P": { "item": "minecraft:piston" }
+  }
+}
