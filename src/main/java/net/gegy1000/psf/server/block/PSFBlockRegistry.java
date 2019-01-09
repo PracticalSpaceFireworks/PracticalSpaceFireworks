@@ -132,7 +132,7 @@ public class PSFBlockRegistry {
     @SubscribeEvent
     public static void onMissingBlockMappings(RegistryEvent.MissingMappings<Block> event) {
         for (RegistryEvent.MissingMappings.Mapping<Block> mapping : event.getMappings()) {
-            if (mapping.key.getNamespace().equals("strut")) {
+            if (mapping.key.getPath().equals("strut")) {
                 ResourceLocation key = new ResourceLocation(PracticalSpaceFireworks.MODID, "strut_cube");
                 Block block = ForgeRegistries.BLOCKS.getValue(key);
                 if (block != null) {
