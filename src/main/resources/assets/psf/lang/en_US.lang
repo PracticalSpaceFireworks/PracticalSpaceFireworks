@@ -9,6 +9,7 @@ tile.psf.thruster.simple.name=Simple Thruster
 tile.psf.antenna.name=Antenna
 tile.psf.payload_separator.name=Payload Separator
 tile.psf.terrain_scanner.name=Terrain Scanner
+tile.psf.weather_scanner.name=Weather Scanner
 tile.psf.laser.name=Laser
 tile.psf.solar_panel_small.name=Small Solar Panel
 tile.psf.solar_panel_large.name=Large Solar Panel
@@ -30,9 +31,13 @@ tile.psf.fuel_loader.name=Fuel Loader
 tile.psf.air_intake.name=Air Intake
 tile.psf.air_compressor.name=Air Compressor
 tile.psf.air_separator.name=Air Separator
+tile.psf.kerosene_extractor.name=Kerosene Extractor
 
 # Items
 item.psf.target_selector.name=Target Selector
+
+item.psf.mirror.name=Mirror
+item.psf.light_source.name=Light Source
 
 # Fluids
 
