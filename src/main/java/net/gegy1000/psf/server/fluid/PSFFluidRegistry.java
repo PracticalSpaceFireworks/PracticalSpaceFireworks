@@ -13,6 +13,7 @@ public class PSFFluidRegistry {
 
     static {
         FILTERED_AIR.setGaseous(true);
+        COMPRESSED_AIR.setGaseous(true);
     }
 
     public static void register() {
