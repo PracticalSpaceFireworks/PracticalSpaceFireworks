@@ -18,6 +18,7 @@ import net.gegy1000.psf.server.block.module.TileModule;
 import net.gegy1000.psf.server.block.production.BlockAirCompressor;
 import net.gegy1000.psf.server.block.production.BlockAirIntake;
 import net.gegy1000.psf.server.block.production.BlockAirSeparator;
+import net.gegy1000.psf.server.block.production.BlockKeroseneExtractor;
 import net.gegy1000.psf.server.block.remote.BlockRemoteControlSystem;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.block.Block;
@@ -106,6 +107,7 @@ public class PSFBlockRegistry {
         airIntake = register(event, "air_intake", new BlockAirIntake());
         airCompressor = register(event, "air_compressor", new BlockAirCompressor());
         airSeparator = register(event, "air_separator", new BlockAirSeparator());
+        register(event, "kerosene_extractor", new BlockKeroseneExtractor());
 
         register(event, "fuel_valve", new BlockFuelValve());
 
