@@ -1,0 +1,15 @@
+{
+  "result": {
+    "item": "psf:fuel_tank"
+  },
+  "pattern": [
+    "QIQ",
+    "I I",
+    "QIQ"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "Q": { "item": "#QUARTZ" }
+  }
+}

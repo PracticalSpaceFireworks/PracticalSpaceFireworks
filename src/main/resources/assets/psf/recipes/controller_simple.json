@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:controller_simple"
+  },
+  "pattern": [
+    "IGI",
+    "GRG",
+    "IGI"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "G": { "item": "minecraft:light_weighted_pressure_plate" },
+    "R": { "item": "#REDSTONE_BLOCK" }
+  }
+}

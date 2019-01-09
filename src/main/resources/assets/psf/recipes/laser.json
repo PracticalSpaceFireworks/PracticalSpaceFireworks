@@ -1,0 +1,17 @@
+{
+  "result": {
+    "item": "psf:laser"
+  },
+  "pattern": [
+    " D ",
+    "LML",
+    "IMI"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "D": { "item": "#DIAMOND" },
+    "L": { "item": "#LIGHT_SOURCE" },
+    "M": { "item": "#MIRROR" },
+    "I": { "item": "#IRON_INGOT" }
+  }
+}

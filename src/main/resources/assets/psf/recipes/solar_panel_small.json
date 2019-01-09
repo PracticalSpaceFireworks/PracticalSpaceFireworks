@@ -1,0 +1,17 @@
+{
+  "result": {
+    "item": "psf:solar_panel_small"
+  },
+  "pattern": [
+    "GGG",
+    "QQQ",
+    "IRI"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": { "item": "#GOLD_INGOT" },
+    "Q": { "item": "#QUARTZ" },
+    "I": { "item": "#IRON_INGOT" },
+    "R": { "item": "#REDSTONE" }
+  }
+}

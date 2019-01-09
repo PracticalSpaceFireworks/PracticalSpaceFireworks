@@ -1,0 +1,15 @@
+{
+  "result": {
+    "item": "psf:solar_panel_large"
+  },
+  "pattern": [
+    " S ",
+    " S ",
+    "III"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "S": { "item": "psf:solar_panel_small" },
+    "I": { "item": "#IRON_INGOT" }
+  }
+}

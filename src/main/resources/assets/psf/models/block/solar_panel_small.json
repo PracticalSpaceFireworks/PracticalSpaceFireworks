@@ -1,0 +1,22 @@
+{
+  "ambientocclusion": true,
+  "textures": {
+    "top": "psf:blocks/solar_panel_single",
+    "sides": "psf:blocks/solar_panel_base",
+    "particle": "#top"
+  },
+  "elements": [
+    {
+        "from": [0, 0, 0],
+        "to": [16, 2, 16],
+        "faces": {
+            "north": { "texture": "#sides"},
+            "east": { "texture": "#sides"},
+            "south": { "texture": "#sides"},
+            "west": { "texture": "#sides"},
+            "up": { "texture": "#top"},
+            "down": { "texture": "#sides"}
+        }
+    }
+  ]
+}

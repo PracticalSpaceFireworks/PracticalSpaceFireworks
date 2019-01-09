@@ -13,16 +13,20 @@ import java.util.Set;
 @Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFItemRegistry {
     private static final Set<Item> REGISTERED_ITEMS = new LinkedHashSet<>();
+    
+    public static ItemCraftingMaterial craftingMaterial;
 
     @SubscribeEvent
     public static void onRegisterItems(RegistryEvent.Register<Item> event) {
         register(event, "target_selector", new ItemTargetSelector());
+        craftingMaterial = register(event, "crafting_material", new ItemCraftingMaterial());
     }
 
-    private static void register(RegistryEvent.Register<Item> event, String identifier, Item item) {
+    private static <T extends Item> T register(RegistryEvent.Register<Item> event, String identifier, T item) {
         item.setTranslationKey(PracticalSpaceFireworks.MODID + "." + identifier);
         event.getRegistry().register(item.setRegistryName(identifier));
         REGISTERED_ITEMS.add(item);
+        return item;
     }
 
     public static Set<Item> getRegisteredItems() {

@@ -6,7 +6,9 @@ import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
+import net.gegy1000.psf.server.item.ItemCraftingMaterial;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
+import net.gegy1000.psf.server.item.ItemCraftingMaterial.CraftingMaterial;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.renderer.block.statemap.StateMap;
@@ -40,6 +42,11 @@ public class PSFModelRegistry {
                 ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(location, "inventory"));
             }
         }
+        
+        for (CraftingMaterial mat : CraftingMaterial.values()) {
+            ItemCraftingMaterial craftingItem = PSFItemRegistry.craftingMaterial;
+            ModelLoader.setCustomModelResourceLocation(craftingItem, mat.ordinal(), new ModelResourceLocation(new ResourceLocation(PracticalSpaceFireworks.MODID, mat.getName()), "inventory"));
+        }
 
         Set<ItemBlock> registeredItemBlocks = PSFBlockRegistry.getRegisteredItemBlocks();
 
@@ -62,7 +69,7 @@ public class PSFModelRegistry {
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.compressedAir, new StateMap.Builder().ignore(BlockFluidFinite.LEVEL).build());
         
         IStateMapper dummyMapper = new StateMap.Builder().ignore(BlockMultiblockModule.DUMMY).build();
-        ModelLoader.setCustomStateMapper(PSFBlockRegistry.solarPanel, dummyMapper);
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.solarPanelLarge, dummyMapper);
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.laser, dummyMapper);
     }
 }

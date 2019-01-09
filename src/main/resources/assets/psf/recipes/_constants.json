@@ -1,0 +1,72 @@
+[
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "ingotIron"
+    },
+    "name": "IRON_INGOT"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "barsIron"
+    },
+    "name": "IRON_BARS"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "gemQuartz"
+    },
+    "name": "QUARTZ"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "blockRedstone"
+    },
+    "name": "REDSTONE_BLOCK"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    },
+    "name": "REDSTONE"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "ingotGold"
+    },
+    "name": "GOLD_INGOT"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "gemDiamond"
+    },
+    "name": "DIAMOND"
+  },
+  {
+    "ingredient": {
+      "type": "forge:ore_dict",
+      "ore": "paneGlassColorless"
+    },
+    "name": "GLASS_PANE_COLORLESS"
+  },
+  {
+    "ingredient": {
+      "item": "psf:crafting_material",
+      "data": 0
+    },
+    "name": "MIRROR"
+  },
+  {
+    "ingredient": {
+      "item": "psf:crafting_material",
+      "data": 1
+    },
+    "name": "LIGHT_SOURCE"
+  }
+]
