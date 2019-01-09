@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:remote_control_system"
+  },
+  "pattern": [
+    "IGI",
+    "IRI",
+    "III"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "G": { "item": "minecraft:light_weighted_pressure_plate" },
+    "R": { "item": "#REDSTONE_BLOCK" }
+  }
+}

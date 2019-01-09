@@ -13,13 +13,12 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class ModuleSolarPanel extends EmptyModule {
-
-    private static final int POWER_PER_TICK = 120;
-
-    private static final EnergyStats USAGE_STATS = new EnergyStats(0, POWER_PER_TICK);
-
-    public ModuleSolarPanel() {
+     
+    private final EnergyStats USAGE_STATS;
+    
+    public ModuleSolarPanel(int perTick) {
         super("solar_panel");
+        USAGE_STATS = new EnergyStats(0, perTick);
     }
 
     @Override
@@ -29,7 +28,7 @@ public class ModuleSolarPanel extends EmptyModule {
         Collection<IEnergyStorage> powerSources = satellite.getModuleCaps(CapabilityEnergy.ENERGY);
 
         if (satellite.getWorld().isDaytime()) {
-            int powerToProvide = POWER_PER_TICK;
+            int powerToProvide = USAGE_STATS.getMaxDrain();
             powerToProvide = -(int)((powerToProvide / (36000000.0)) * satellite.getWorld().getWorldTime() * (satellite.getWorld().getWorldTime() - 12000)) + 1;
             for (IEnergyStorage source : powerSources) {
                 powerToProvide -= source.receiveEnergy(powerToProvide, false);

@@ -10,7 +10,8 @@ tile.psf.antenna.name=Antenna
 tile.psf.payload_separator.name=Payload Separator
 tile.psf.terrain_scanner.name=Terrain Scanner
 tile.psf.laser.name=Laser
-tile.psf.solar_panel.name=Solar Panel
+tile.psf.solar_panel_small.name=Small Solar Panel
+tile.psf.solar_panel_large.name=Large Solar Panel
 
 tile.psf.entity_detector.simple.name=Simple Entity Detector
 tile.psf.entity_marker.name=Simple Entity Marker

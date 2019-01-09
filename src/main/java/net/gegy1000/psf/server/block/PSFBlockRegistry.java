@@ -12,6 +12,7 @@ import net.gegy1000.psf.server.block.module.BlockFuelValve;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.block.module.BlockPayloadSeparator;
+import net.gegy1000.psf.server.block.module.BlockSolarPanel;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileDummyModule;
 import net.gegy1000.psf.server.block.module.TileModule;
@@ -66,7 +67,8 @@ public class PSFBlockRegistry {
 
     public static BlockFuelTank fuelTank;
     public static BlockPayloadSeparator payloadSeparator;
-    public static BlockMultiblockModule solarPanel;
+    public static BlockModule solarPanelSmall;
+    public static BlockMultiblockModule solarPanelLarge;
     public static BlockMultiblockModule laser;
 
     @SubscribeEvent
@@ -87,7 +89,8 @@ public class PSFBlockRegistry {
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
         payloadSeparator = register(event, "payload_separator", new BlockPayloadSeparator());
         registerModuleBlock(event, "terrain_scanner");
-        solarPanel = register(event, "solar_panel", new BlockMultiblockModule(Material.IRON, "solar_panel"));
+        solarPanelSmall = register(event, "solar_panel_small", new BlockSolarPanel());
+        solarPanelLarge = register(event, "solar_panel_large", new BlockMultiblockModule(Material.IRON, "solar_panel_large"));
         laser = register(event, "laser", new BlockMultiblockModule(Material.IRON, "laser") {
 
             @Override

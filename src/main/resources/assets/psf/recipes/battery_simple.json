@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:battery_simple"
+  },
+  "pattern": [
+    " G ",
+    "RRR",
+    "III"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "G": { "item": "#GOLD_INGOT" },
+    "R": { "item": "#REDSTONE" },
+    "I": { "item": "#IRON_INGOT" }
+  }
+}

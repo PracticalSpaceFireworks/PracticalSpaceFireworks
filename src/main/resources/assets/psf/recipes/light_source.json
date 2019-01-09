@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "psf:crafting_material",
+    "data": 1
+  },
+  "pattern": [
+    "QPQ",
+    "PLP",
+    "PGP"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": { "item": "#QUARTZ" },
+    "P": { "item": "#GLASS_PANE_COLORLESS" },
+    "L": { "item": "minecraft:redstone_lamp" },
+    "G": { "item": "#GOLD_INGOT" }
+  }
+}

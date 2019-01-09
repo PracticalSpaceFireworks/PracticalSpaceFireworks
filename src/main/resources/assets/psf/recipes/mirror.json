@@ -1,0 +1,15 @@
+{
+  "result": {
+    "item": "psf:crafting_material",
+    "data": 0
+  },
+  "pattern": [
+    "QQQ",
+    "III"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "Q": { "item": "#QUARTZ" },
+    "I": { "item": "#IRON_INGOT" }
+  }
+}
