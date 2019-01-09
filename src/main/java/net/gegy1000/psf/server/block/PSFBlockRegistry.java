@@ -87,6 +87,7 @@ public class PSFBlockRegistry {
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());
         payloadSeparator = register(event, "payload_separator", new BlockPayloadSeparator());
         registerModuleBlock(event, "terrain_scanner");
+        registerModuleBlock(event, "weather_scanner");
         solarPanel = register(event, "solar_panel", new BlockMultiblockModule(Material.IRON, "solar_panel"));
         laser = register(event, "laser", new BlockMultiblockModule(Material.IRON, "laser") {
 
