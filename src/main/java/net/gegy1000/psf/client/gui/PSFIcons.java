@@ -10,6 +10,7 @@ public enum PSFIcons implements IWidgetIcon {
     BAR_BACKGROUND(0, 0, 115, 5),
     BAR_FILL(0, 5, 113, 3),
     WARNING(0, 16, 9, 9),
+    DROPDOWN_ARROW(16, 16, 7, 3),
     ;
 
     public static final @Nonnull ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/widgets.png");

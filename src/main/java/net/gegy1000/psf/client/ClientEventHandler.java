@@ -16,6 +16,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 import java.util.Random;
 
+import lombok.Getter;
+
 @Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID, value = Side.CLIENT)
 @SideOnly(Side.CLIENT)
 public class ClientEventHandler {
@@ -23,6 +25,9 @@ public class ClientEventHandler {
 
     private static double shakeX, shakeY, shakeZ;
     private static double lastShakeX, lastShakeY, lastShakeZ;
+    
+    @Getter
+    private static int elapsedTicks;
 
     @SubscribeEvent
     public static void onStopTracking(PlayerEvent.StopTracking event) {
@@ -38,6 +43,7 @@ public class ClientEventHandler {
     @SubscribeEvent
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END && MC.player != null) {
+            elapsedTicks++;
             lastShakeX = shakeX;
             lastShakeY = shakeY;
             lastShakeZ = shakeZ;

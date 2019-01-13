@@ -6,6 +6,7 @@ import org.lwjgl.util.Rectangle;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
+import net.gegy1000.psf.client.ClientEventHandler;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
@@ -44,15 +46,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.Fluid;
@@ -67,6 +73,88 @@ public class GuiCraftDetails extends GuiRemoteControl {
         CRAFT,
         MAP,;
     }
+    
+    @ParametersAreNonnullByDefault
+    private class DetailsExpando extends GuiButton {
+        
+        private float prog;
+        private int prevHeight;
+        private boolean state;
+
+        public DetailsExpando(int buttonId, int x, int y, int width) {
+            super(buttonId, x, y, width, 5, "");
+            prevHeight = 65;
+        }
+        
+        @Override
+        public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+            if (super.mousePressed(mc, mouseX, mouseY)) {
+                state = !state;
+                int tmp = prevHeight;
+                prevHeight = height;
+                height = tmp;
+                prog = 0;
+                return true;
+            }
+            return false;
+        }
+                
+        @Override
+        public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+            if (this.visible) {
+                prog = MathHelper.clamp(prog + partialTicks / 4f, 0, 1);
+                double height = MathHelper.clampedLerp(prevHeight, this.height, prog);
+
+                GlStateManager.enableBlend();
+                GlStateManager.disableTexture2D();
+                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                BufferBuilder buf = Tessellator.getInstance().getBuffer();
+                GlStateManager.color(0, 0, 0, 0.75f);
+                buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+                buf.pos(x, y + height, 0).endVertex();
+                buf.pos(x + width, y + height, 0).endVertex();
+                buf.pos(x + width, y, 0).endVertex();
+                buf.pos(x, y, 0).endVertex();
+                Tessellator.getInstance().draw();
+                GlStateManager.enableTexture2D();
+
+                this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
+                if (hovered) {
+                    GlStateManager.color(1, 1, 0.5f);
+                } else {
+                    GlStateManager.color(1, 1, 1);
+                }
+                PSFIcons.map.render(PSFIcons.DROPDOWN_ARROW, x + (width / 2) - PSFIcons.DROPDOWN_ARROW.getWidth() / 2, y + height - PSFIcons.DROPDOWN_ARROW.getHeight() - 1, true, state);
+                
+                if (state && prog >= 1) {
+                    int x = this.x + 4;
+                    int y = this.y + 4;
+                    int color = 0xFFFFFFFF;
+    
+                    IListedSpacecraft craft = getCraft();
+                    if (craft == null) {
+                        return;
+                    }
+                    boolean orbiting = craft.isOrbiting();
+                    mc.fontRenderer.drawString(orbiting ? "Orbiting Over:" : "Position:", x, y, color);
+                    BlockPos pos = craft.getPosition();
+                    x += 5;
+                    y += 10;
+                    mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
+                    if (!orbiting) {
+                        y += 10;
+                        mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
+                    }
+                    y += 10;
+                    mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
+                    x -= 5;
+                    y += 15;
+    
+                    mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(mass) + "kg", x, y, color);
+                }
+            }
+        }
+    }
 
     @Nonnull
     private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
@@ -78,6 +166,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
     private PreviewMode mode = PreviewMode.CRAFT;
 
     private GuiButton buttonModules, buttonBack, buttonMode, buttonLaunch;
+    
+    private DetailsExpando buttonShowDetails;
 
     private GuiTextField tfName;
 
@@ -121,11 +211,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
         buttonBack = new GuiButtonExt(0, guiLeft + xSize - 50 - 10, guiTop + ySize - 20 - 10, 50, 20, "Back");
         addButton(buttonBack);
 
-        buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 2, 20, 20, "C");
-        addButton(buttonMode);
-
         buttonLaunch = new GuiButtonExt(2, guiLeft + panel.getX() + panel.getWidth() + 10, guiTop + ySize - 20 - 10, 50, 20, "Launch");
         addButton(buttonLaunch);
+        
+        buttonShowDetails = new DetailsExpando(3, guiLeft + panel.getX(), guiTop + panel.getY(), panel.getWidth());
+        addButton(buttonShowDetails);
 
         tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
         if (craft != null) {
@@ -435,31 +525,9 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     private void drawStats(IListedSpacecraft craft) {
-        int x = guiLeft + (xSize / 2);
-        int y = guiTop + 62;
-        int color = 0xFF333333;
-
         for (Widget widget : widgets) {
             widget.draw();
-            y = widget.getY() + widget.getHeight() + 4;
         }
-        
-        boolean orbiting = craft.isOrbiting();
-        mc.fontRenderer.drawString(orbiting ? "Orbiting Over:" : "Position:", x, y, color);
-        BlockPos pos = craft.getPosition();
-        x += 5;
-        y += 10;
-        mc.fontRenderer.drawString("X: " + pos.getX(), x, y, color);
-        if (!orbiting) {
-            y += 10;
-            mc.fontRenderer.drawString("Y: " + pos.getY(), x, y, color);
-        }
-        y += 10;
-        mc.fontRenderer.drawString("Z: " + pos.getZ(), x, y, color);
-        x -= 5;
-        y += 15;
-
-        mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(mass) + "kg", x, y, color);
     }
 
     @Nullable
