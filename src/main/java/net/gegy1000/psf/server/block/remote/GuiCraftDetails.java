@@ -1,12 +1,36 @@
 package net.gegy1000.psf.server.block.remote;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
+import net.gegy1000.psf.client.gui.PSFIcons;
+import net.gegy1000.psf.client.gui.Widget;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
+import net.gegy1000.psf.server.block.remote.widget.WidgetEnergyBar;
+import net.gegy1000.psf.server.block.remote.widget.WidgetFluidBar;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
@@ -36,24 +60,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class GuiCraftDetails extends GuiRemoteControl {
 
@@ -79,6 +85,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Nullable
     private SyncedData synced;
+    
+    private List<Widget> widgets = new ArrayList<>();
 
     @Nonnull
     private Map<Fluid, ResourceAmount> fluidData = new HashMap<>();
@@ -124,39 +132,13 @@ public class GuiCraftDetails extends GuiRemoteControl {
             tfName.setText(craft.getName());
             buttonLaunch.visible = craft.canLaunch();
         }
+        
+        refreshWidgets();
     }
 
     @Override
     public void updateScreen() {
         super.updateScreen();
-
-        SyncedData synced = this.synced;
-        if (synced != null) {
-            List<IFluidTankProperties> tanks = synced.tankModules.stream()
-                    .map(m -> m.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
-                    .filter(Objects::nonNull)
-                    .flatMap(handler -> Arrays.stream(handler.getTankProperties()))
-                    .collect(Collectors.toList());
-
-            Map<Fluid, ResourceAmount> totalFluid = new HashMap<>();
-            for (IFluidTankProperties tank : tanks) {
-                FluidStack contents = tank.getContents();
-                if (contents != null) {
-                    ResourceAmount amount = totalFluid.computeIfAbsent(contents.getFluid(), fluid -> new ResourceAmount());
-                    amount.add(contents.amount, tank.getCapacity());
-                }
-            }
-
-            this.fluidData = totalFluid;
-
-            energyData = new ResourceAmount();
-            synced.modules.stream()
-                    .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
-                    .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
-                    .forEach(storage -> energyData.add(storage.getEnergyStored(), storage.getMaxEnergyStored()));
-
-            mass = synced.metadata.getMass();
-        }
     }
 
     @Override
@@ -247,26 +229,32 @@ public class GuiCraftDetails extends GuiRemoteControl {
                 y -= drawWarning(x, y, width, Collections.singletonList("Low Thrust!"), mouseX, mouseY);
             }
 
-            if (energyData.capacity == 0) {
+            if (energyData.getCapacity() == 0) {
                 y -= drawWarning(x, y, width, Collections.singletonList("No Batteries!"), mouseX, mouseY);
-            } else if ((float) energyData.amount / energyData.capacity < 0.25f){
+            } else if ((float) energyData.getAmount() / energyData.getCapacity() < 0.25f){
                 y -= drawWarning(x, y, width, Collections.singletonList("Low Energy!"), mouseX, mouseY);
             } else if (synced.energyNetUsage < 0) {
                 y -= drawWarning(x, y, width, Collections.singletonList("Needs Solar!"), mouseX, mouseY);
             }
 
             ResourceAmount kerosene = fluidData.get(PSFFluidRegistry.KEROSENE);
-            if (kerosene != null && kerosene.capacity > 0) {
-                if ((float) kerosene.amount / kerosene.capacity < 0.25f) {
+            if (kerosene != null && kerosene.getCapacity() > 0) {
+                if ((float) kerosene.getAmount() / kerosene.getCapacity() < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low Kerosene!"), mouseX, mouseY);
                 }
             }
 
             ResourceAmount lox = fluidData.get(PSFFluidRegistry.LIQUID_OXYGEN);
-            if (lox != null && lox.capacity > 0) {
-                if ((float) lox.amount / lox.capacity < 0.25f) {
+            if (lox != null && lox.getCapacity() > 0) {
+                if ((float) lox.getAmount() / lox.getCapacity() < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low LOX!"), mouseX, mouseY);
                 }
+            }
+        }
+        
+        for (Widget w : widgets) {
+            if (w.hovering(mouseX, mouseY)) {
+                drawHoveringText(w.getTooltip(), mouseX - guiLeft, mouseY - guiTop);
             }
         }
     }
@@ -279,11 +267,10 @@ public class GuiCraftDetails extends GuiRemoteControl {
         int alpha = (mx >= x && my <= y && mx <= x + width && my >= y - height ? 0x55 : 0xFF) << 24;
         drawRect(x, y, x + width, y - height, alpha | 0x333333);
         drawRect(x + 1, y - 1, x + width - 1, y - height + 1, alpha | 0xC1AD00);
-        mc.getTextureManager().bindTexture(TEXTURE_LOC);
         GlStateManager.enableBlend();
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0);
         GlStateManager.color(1, 1, 1, (alpha >>> 24) / 255f);
-        drawTexturedModalRect(x + 3, y - (int) Math.ceil(height / 2f) - 4, 115, 202, 9, 9);
+        PSFIcons.map.render(PSFIcons.WARNING, x + 3, y - (int) Math.ceil(height / 2f) - 4, true);
         int sy = (y - height) + 5;
         for (String s : strings) {
             mc.fontRenderer.drawString(s, x + 15, sy, alpha | 0x333333);
@@ -452,23 +439,12 @@ public class GuiCraftDetails extends GuiRemoteControl {
         int y = guiTop + 62;
         int color = 0xFF333333;
 
-        boolean orbiting = craft.isOrbiting();
-        if (orbiting) {
-
-            mc.fontRenderer.drawString("Energy", x, y, color);
-            y += 12;
-            drawBar(x, y, energyData.amount, energyData.capacity, 0xFFFFCD4F);
-            y += 12;
-        } else {
-            for (Map.Entry<Fluid, ResourceAmount> entry : fluidData.entrySet()) {
-                String localizedName = I18n.format(entry.getKey().getUnlocalizedName());
-                mc.fontRenderer.drawString(localizedName, x, y, color);
-                y += 12;
-                drawBar(x, y, entry.getValue().amount, entry.getValue().capacity, entry.getKey().getColor());
-                y += 12;
-            }
+        for (Widget widget : widgets) {
+            widget.draw();
+            y = widget.getY() + widget.getHeight() + 4;
         }
-
+        
+        boolean orbiting = craft.isOrbiting();
         mc.fontRenderer.drawString(orbiting ? "Orbiting Over:" : "Position:", x, y, color);
         BlockPos pos = craft.getPosition();
         x += 5;
@@ -486,22 +462,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
         mc.fontRenderer.drawString("Mass: " + DecimalFormat.getInstance().format(mass) + "kg", x, y, color);
     }
 
-    private void drawBar(int x, int y, int value, int max, int color) {
-        mc.getTextureManager().bindTexture(TEXTURE_LOC);
-
-        int red = (color >> 16) & 0xFF;
-        int green = (color >> 8) & 0xFF;
-        int blue = color & 0xFF;
-
-        float valueScale = (float) value / max;
-
-        drawTexturedModalRect(x, y, 0, 202, 115, 5);
-        GlStateManager.color(red / 255.0F, green / 255.0F, blue / 255.0F, 1.0F);
-        drawTexturedModalRect(x, y, 0, 207, (int) (valueScale * 115), 5);
-
-        GlStateManager.color(1, 1, 1, 1);
-    }
-
     @Nullable
     @Override
     public IListedSpacecraft getCraft() {
@@ -510,10 +470,59 @@ public class GuiCraftDetails extends GuiRemoteControl {
         }
         return null;
     }
+    
+    private void refreshWidgets() {
+        widgets.clear();
+        if (synced == null) {
+            return;
+        }
+        
+        List<IFluidTankProperties> tanks = synced.tankModules.stream()
+                .map(m -> m.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+                .filter(Objects::nonNull)
+                .flatMap(handler -> Arrays.stream(handler.getTankProperties()))
+                .collect(Collectors.toList());
+
+        fluidData.values().forEach(ResourceAmount::clear);
+        for (IFluidTankProperties tank : tanks) {
+            FluidStack contents = tank.getContents();
+            if (contents != null) {
+                ResourceAmount amount = fluidData.computeIfAbsent(contents.getFluid(), fluid -> new ResourceAmount());
+                amount.add(contents.amount, tank.getCapacity());
+            }
+        }
+        int x = guiLeft + (xSize / 2);
+        int y = guiTop + 62;
+        IListedSpacecraft craft = getCraft();
+        if (craft == null) {
+            return;
+        }
+        
+        if (!craft.isOrbiting()) {
+            for (Entry<Fluid, ResourceAmount> e : fluidData.entrySet()) {
+                Widget w = new WidgetFluidBar(e.getKey(), e.getValue(), e.getKey().getColor(), x, y);
+                y += w.getHeight();
+                widgets.add(w);
+            }
+        }
+
+        energyData.clear();
+        synced.modules.stream()
+                .filter(m -> m.hasCapability(CapabilityEnergy.ENERGY, null))
+                .map(m -> m.getCapability(CapabilityEnergy.ENERGY, null))
+                .forEach(storage -> energyData.add(storage.getEnergyStored(), storage.getMaxEnergyStored()));
+        
+        if (craft.isOrbiting()) {
+            widgets.add(new WidgetEnergyBar(energyData, x, y));
+        }
+
+        mass = synced.metadata.getMass();
+    }
 
     @Override
     public void setVisual(@Nonnull IVisual visual) {
         synced = new SyncedData(visual);
+        refreshWidgets();
     }
 
     @Override
@@ -521,6 +530,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         super.updateCraft(craft);
         tfName.setText(craft.getName());
         buttonLaunch.visible = craft.canLaunch();
+        refreshWidgets();
     }
 
     @Override
@@ -528,6 +538,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         if (synced != null) {
             synced.modules.stream().filter(m -> m.getId().equals(id)).findFirst().ifPresent(m -> m.readUpdateTag(tag));
         }
+        refreshWidgets();
     }
 
     private class SyncedData {
@@ -555,18 +566,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
                     .filter(m -> m.hasCapability(CapabilityModuleData.ENERGY_STATS, null))
                     .map(m -> m.getCapability(CapabilityModuleData.ENERGY_STATS, null))
                     .reduce(0, (val, handler) -> val + handler.getMaxFill() - handler.getMaxDrain(), (a, b) -> a + b);
-        }
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    private class ResourceAmount {
-        private int capacity;
-        private int amount;
-
-        public void add(int amount, int capacity) {
-            this.amount += amount;
-            this.capacity += capacity;
         }
     }
 }
