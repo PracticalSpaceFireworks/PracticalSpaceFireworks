@@ -10,6 +10,7 @@ import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -17,12 +18,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -44,7 +40,11 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     private IModuleFactory factory; // lazy loaded
 
     public BlockModule(Material mat, String module) {
-        super(mat);
+        this(mat, mat.getMaterialMapColor(), module);
+    }
+
+    public BlockModule(Material mat, MapColor color, String module) {
+        super(mat, color);
         this.moduleID = new ResourceLocation(PracticalSpaceFireworks.MODID, module);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
         this.setHardness(2);
