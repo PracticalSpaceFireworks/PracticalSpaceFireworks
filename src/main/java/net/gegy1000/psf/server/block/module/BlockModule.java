@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.block.module;
 
+import com.google.common.base.MoreObjects;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleFactory;
@@ -27,7 +28,6 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
 
 @ParametersAreNonnullByDefault
 public class BlockModule extends Block implements RegisterItemBlock, RegisterItemModel {
@@ -101,31 +101,33 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
 
     @Override
     public boolean canPlaceBlockAt(@Nonnull World world, @Nonnull BlockPos pos) {
-        return Arrays.stream(EnumFacing.VALUES).anyMatch(side -> isSideValid(world, pos, side));
+        return findValidFacing(world, pos) != null;
     }
 
     private boolean isSideValid(World world, BlockPos pos, EnumFacing side) {
-        BlockPos offsetPos = pos.offset(side.getOpposite());
-        IBlockState on = world.getBlockState(offsetPos).getActualState(world, offsetPos);
-
-        if (!canAttachOnSide(world, pos, getDefaultState().withProperty(DIRECTION, side), on, side)) {
-            return false;
+        BlockPos offset = pos.offset(side.getOpposite());
+        IBlockState state = world.getBlockState(offset).getActualState(world, offset);
+        if (canAttachOnSide(world, pos, getDefaultState().withProperty(DIRECTION, side), state, side)) {
+            if (isStructuralModule(null, getDefaultState()) || isStructural(getDefaultState(), state)) {
+                return super.canPlaceBlockAt(world, pos);
+            }
         }
-
-        if (isStructuralModule(null, getDefaultState()) || isStructural(getDefaultState(), on)) {
-            return super.canPlaceBlockAt(world, pos);
-        }
-
         return false;
     }
 
     @Override
-    public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
-        EnumFacing direction = facing;
-        if (!isSideValid(world, pos, direction)) {
-            direction = Arrays.stream(EnumFacing.VALUES).filter(s -> isSideValid(world, pos, s)).findFirst().orElse(EnumFacing.UP);
+    public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
+        return this.getDefaultState().withProperty(DIRECTION, isSideValid(world, pos, side) ? side : MoreObjects.firstNonNull(findValidFacing(world, pos), EnumFacing.UP));
+    }
+    
+    @Nullable
+    private EnumFacing findValidFacing(World world, BlockPos pos) {
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (isSideValid(world, pos, facing)) {
+                return facing;
+            }
         }
-        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, direction);
+        return null;
     }
 
     @Override
@@ -192,12 +194,16 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     }
 
     public static boolean isStructural(@Nullable IBlockState connecting, IBlockState state) {
-        return state.getBlock() instanceof BlockController ||
-                (state.getBlock() instanceof BlockModule && ((BlockModule) state.getBlock()).isStructuralModule(connecting, state));
+        Block block = state.getBlock();
+        if (block instanceof BlockController) return true;
+        if (!(block instanceof BlockModule)) return false;
+        return ((BlockModule) block).isStructuralModule(connecting, state);
     }
 
-    public static boolean isConnectedTo(IBlockState state, EnumFacing dir) {
-        return !(state.getBlock() instanceof BlockModule) || 
-                !((BlockModule)state.getBlock()).isDirectional(state) || state.getValue(DIRECTION) == dir;
+    public static boolean isConnectedTo(IBlockState state, EnumFacing side) {
+        Block block = state.getBlock();
+        if (!(block instanceof BlockModule)) return true;
+        if (!((BlockModule) block).isDirectional(state)) return true;
+        return side == state.getValue(DIRECTION);
     }
 }
