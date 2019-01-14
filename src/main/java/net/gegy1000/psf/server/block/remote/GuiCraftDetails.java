@@ -77,7 +77,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     @ParametersAreNonnullByDefault
     private class DetailsExpando extends GuiButton {
         
-        private float prog;
+        private float prog = 1;
         private int prevHeight;
         private boolean state;
 
