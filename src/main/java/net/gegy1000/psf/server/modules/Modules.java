@@ -2,6 +2,7 @@ package net.gegy1000.psf.server.modules;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.api.SimpleModuleFactory;
 import net.gegy1000.psf.server.modules.ModuleBattery.BatteryTier;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;

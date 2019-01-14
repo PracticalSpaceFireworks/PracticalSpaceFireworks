@@ -1,4 +1,4 @@
-package net.gegy1000.psf.server.block.remote.config;
+package net.gegy1000.psf.api;
 
 import javax.annotation.Nonnull;
 

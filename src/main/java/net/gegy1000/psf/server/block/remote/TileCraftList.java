@@ -15,7 +15,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
-public class TileRemoteControlSystem extends TileEntity {
+public class TileCraftList extends TileEntity implements ICraftList {
     
     private Map<UUID, IListedSpacecraft> crafts = new HashMap<>();
     
@@ -23,6 +23,7 @@ public class TileRemoteControlSystem extends TileEntity {
         return Collectors.toMap(IListedSpacecraft::getId, Functions.identity());
     }
 
+    @Override
     public void rebuildCraftList() {
         if (!getWorld().isRemote) {
             crafts = PracticalSpaceFireworks.PROXY.getSatellites().getAll().stream()
@@ -31,14 +32,17 @@ public class TileRemoteControlSystem extends TileEntity {
         }
     }
 
+    @Override
     public void provideServerCrafts(List<IListedSpacecraft> crafts) {
         this.crafts = crafts.stream().collect(toMap());
     }
-    
-    public void provideSingleCraft(IListedSpacecraft craft) { 
+
+    @Override
+    public void provideSingleCraft(IListedSpacecraft craft) {
         this.crafts.put(craft.getId(), craft);
     }
-    
+
+    @Override
     public List<IListedSpacecraft> getCrafts() {
         return Lists.newArrayList(crafts.values());
     }

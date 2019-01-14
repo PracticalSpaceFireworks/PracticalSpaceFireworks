@@ -5,15 +5,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @ParametersAreNonnullByDefault
 public interface IModuleConfig extends INBTSerializable<NBTTagCompound> {
-    
-    enum ConfigType {
-        ACTION,
-        TOGGLE,
-        TEXT
-    }
     
     String getKey();
     
@@ -33,9 +29,6 @@ public interface IModuleConfig extends INBTSerializable<NBTTagCompound> {
      */
     default void modified() {}
 
-    ConfigType getType();
-
-    @Override
-    void deserializeNBT(@Nullable NBTTagCompound tag);
-
+    @SideOnly(Side.CLIENT)
+    IModuleConfigDisplay getDisplay();
 }

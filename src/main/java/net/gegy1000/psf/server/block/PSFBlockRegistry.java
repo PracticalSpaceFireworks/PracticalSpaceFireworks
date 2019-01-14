@@ -5,6 +5,7 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
+import net.gegy1000.psf.server.block.data.BlockDataViewer;
 import net.gegy1000.psf.server.block.fueler.BlockFuelLoader;
 import net.gegy1000.psf.server.block.module.*;
 import net.gegy1000.psf.server.block.production.BlockAirCompressor;
@@ -52,6 +53,7 @@ public class PSFBlockRegistry {
     public static BlockModule thruster;
 
     public static BlockRemoteControlSystem remoteControlSystem;
+    public static BlockDataViewer dataViewer;
     public static BlockFuelLoader fuelLoader;
     public static BlockAirIntake airIntake;
     public static BlockAirCompressor airCompressor;
@@ -95,6 +97,7 @@ public class PSFBlockRegistry {
         compressedAir = register(event, "compressed_air", new BlockPSFFluid(PSFFluidRegistry.COMPRESSED_AIR, Material.WATER));
 
         remoteControlSystem = register(event, "remote_control_system", new BlockRemoteControlSystem());
+        dataViewer = register(event, "data_viewer", new BlockDataViewer());
         fuelLoader = register(event, "fuel_loader", new BlockFuelLoader());
         airIntake = register(event, "air_intake", new BlockAirIntake());
         airCompressor = register(event, "air_compressor", new BlockAirCompressor());

@@ -5,6 +5,7 @@ import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
+import net.gegy1000.psf.client.GlUtil;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
 import net.gegy1000.psf.server.block.remote.widget.WidgetEnergyBar;
@@ -15,7 +16,6 @@ import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
-import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -62,13 +62,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+
 public class GuiCraftDetails extends GuiRemoteControl {
 
-    enum PreviewMode {
-        CRAFT,
-        MAP,;
-    }
-    
     @ParametersAreNonnullByDefault
     private class DetailsExpando extends GuiButton {
         
@@ -154,13 +151,9 @@ public class GuiCraftDetails extends GuiRemoteControl {
     @Nonnull
     private static final ResourceLocation PREVIEW_BG = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/preview_bg.png");
 
-    private static final boolean scissorAvailable = GLContext.getCapabilities().OpenGL20;
-
     private final int selectedCraft;
 
-    private PreviewMode mode = PreviewMode.CRAFT;
-
-    private GuiButton buttonModules, buttonBack, buttonMode, buttonLaunch;
+    private GuiButton buttonModules, buttonBack, buttonLaunch;
     
     private DetailsExpando buttonShowDetails;
 
@@ -179,9 +172,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     private ResourceAmount energyData = new ResourceAmount(1, 1); // Avoid energy warnings before data is synced
     private double mass;
 
-    private MapRenderer mapRenderer;
-
-    protected GuiCraftDetails(GuiSelectCraft parent, int selected, TileRemoteControlSystem te) {
+    protected GuiCraftDetails(GuiSelectCraft parent, int selected, TileCraftList te) {
         super(parent, te);
         this.selectedCraft = selected;
 
@@ -251,9 +242,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
         if (selectedCraft >= 0) {
             updateName();
         }
-        if (mapRenderer != null) {
-            mapRenderer.delete();
-        }
     }
 
     private void updateName() {
@@ -273,9 +261,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
             updateName();
             untrack();
             mc.displayGuiScreen(getParent());
-        } else if (button == buttonMode) {
-            this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
-            buttonMode.displayString = this.mode.name().substring(0, 1);
         } else if (button == buttonLaunch && craft != null && craft.canLaunch()) {
             craft.launch();
             buttonLaunch.visible = craft.canLaunch();
@@ -290,7 +275,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         drawBackground(craft);
 
         if (craft != null && synced != null) {
-            renderPreview(synced);
+            renderCraft(synced.model);
             tfName.drawTextBox();
             drawStats(craft);
         }
@@ -385,67 +370,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.disableBlend();
     }
 
-    private void renderPreview(SyncedData synced) {
-        switch (mode) {
-            case CRAFT:
-                renderCraft(synced.model);
-                break;
-            case MAP:
-                renderMap(synced);
-                break;
-        }
-    }
-
-    private void renderMap(SyncedData syncedData) {
-        Optional<ITerrainScan> terrainScan = syncedData.terrainScannerModules.stream()
-                .map(module -> module.getCapability(CapabilityModuleData.TERRAIN_SCAN, null))
-                .filter(Objects::nonNull)
-                .findFirst();
-
-        ITerrainScan buildScan = terrainScan.orElseGet(() -> new EmptyTerrainScan(ModuleTerrainScanner.SCAN_RANGE));
-        if (mapRenderer == null || mapRenderer.shouldUpdate(buildScan)) {
-            if (mapRenderer != null) {
-                mapRenderer.delete();
-            }
-            mapRenderer = new MapRenderer(buildScan);
-        }
-
-        GlStateManager.pushMatrix();
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableRescaleNormal();
-        GlStateManager.enableDepth();
-
-        if (scissorAvailable) {
-            ScaledResolution sr = new ScaledResolution(mc);
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
-                    panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
-        }
-
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.translate(guiLeft + (xSize / 4), guiTop + ySize / 2, 500);
-
-        GlStateManager.rotate(-45.0F, 1.0F, 0.0F, 0.0F);
-        RenderHelper.enableGUIStandardItemLighting();
-        GlStateManager.rotate(mc.player.ticksExisted + mc.getRenderPartialTicks(), 0, 1, 0);
-        GlStateManager.scale(-1.8, -1.8, -1.8);
-
-        GlStateManager.translate(-8.0, 0.0, -8.0);
-
-        mapRenderer.performUploads();
-        mapRenderer.render();
-
-        if (scissorAvailable) {
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        }
-
-        GlStateManager.disableDepth();
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableLighting();
-        GlStateManager.popMatrix();
-    }
-
     private void renderCraft(SpacecraftModel model) {
         SpacecraftBodyData body = model.getBody();
         BlockPos minPos = body.getMinPos();
@@ -493,7 +417,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
         GlStateManager.scale(-16, -16, -16);
 
-        if (scissorAvailable) {
+        if (GlUtil.SCISSOR_AVAILABLE) {
             ScaledResolution sr = new ScaledResolution(mc);
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
             GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
@@ -513,7 +437,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         model.render(BlockRenderLayer.TRANSLUCENT);
         GlStateManager.disableBlend();
 
-        if (scissorAvailable) {
+        if (GlUtil.SCISSOR_AVAILABLE) {
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
         }
         GlStateManager.popMatrix();
@@ -604,7 +528,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
         refreshWidgets();
     }
 
-    private class SyncedData {
+    @Getter
+    public static class SyncedData {
         final Collection<IModule> modules;
         final Collection<IModule> terrainScannerModules;
         final Collection<IModule> tankModules;

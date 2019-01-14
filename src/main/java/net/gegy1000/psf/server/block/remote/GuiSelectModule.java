@@ -22,7 +22,7 @@ public class GuiSelectModule extends GuiRemoteControl {
     
     private GuiModuleList moduleList;
 
-    protected GuiSelectModule(GuiRemoteControl parent, int selectedCraft, Collection<IModule> modules, TileRemoteControlSystem te) {
+    protected GuiSelectModule(GuiRemoteControl parent, int selectedCraft, Collection<IModule> modules, TileCraftList te) {
         super(parent, te);
         this.parent = parent;
         this.craftIndex = selectedCraft;

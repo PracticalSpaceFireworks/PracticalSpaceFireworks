@@ -3,6 +3,8 @@ package net.gegy1000.psf.server.block.remote.config;
 import lombok.Value;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.IModuleConfigButton;
+import net.gegy1000.psf.api.IModuleConfigDisplay;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
@@ -62,19 +64,7 @@ public class ModuleConfigButtonManager extends GuiButton {
     private final List<IModuleConfigButton<?>> buttons = new ArrayList<>();
     
     public IModuleConfigButton<?> create(IModule module, IModuleConfig cfg) {
-        IModuleConfigButton<?> btn;
-        switch (cfg.getType()) {
-        default:
-        case ACTION:
-            btn = new ModuleConfigButtonAction(parent, module, cfg, id++, startX, startY + y, width, 20);
-            break;
-        case TOGGLE:
-            btn = new ModuleConfigButtonToggle(parent, module, cfg, id, startX, startY + y, width, 20);
-            break;
-        case TEXT:
-            btn = new ModuleConfigButtonTextField(parent, module, cfg, id, Minecraft.getMinecraft().fontRenderer, startX, startY + y, width, 20);
-            break;                
-        }
+        IModuleConfigButton<?> btn = cfg.getDisplay().createButton(parent, module, id++, startX, startY + y, width);
         buttons.add(btn);
         y += btn.getButton().height + linePadding;
         return btn;

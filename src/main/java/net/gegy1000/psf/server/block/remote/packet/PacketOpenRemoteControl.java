@@ -1,18 +1,32 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
+import javax.annotation.Nonnull;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+
 import io.netty.buffer.ByteBuf;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import net.gegy1000.psf.server.block.data.GuiMapData;
 import net.gegy1000.psf.server.block.remote.GuiSelectCraft;
+import net.gegy1000.psf.server.block.remote.ICraftList;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
+import net.gegy1000.psf.server.block.remote.TileCraftList;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -22,14 +36,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @NoArgsConstructor
 public class PacketOpenRemoteControl implements IMessage {
@@ -85,18 +91,35 @@ public class PacketOpenRemoteControl implements IMessage {
         }
     }
     
-    private BlockPos pos;
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public enum GuiType {
+        CONTROL_SYSTEM(gui -> new GuiSelectCraft((TileCraftList) gui)),
+        DATA_VIEWER(gui -> new GuiMapData((TileCraftList) gui)),
+        ;
+        
+        private final Function<ICraftList, ? extends GuiScreen> guiFactory;
+
+        public GuiScreen makeGui(ICraftList craftGui) {
+            return guiFactory.apply(craftGui);
+        }
+    }
+    
+    private GuiType type = GuiType.CONTROL_SYSTEM;
+    
+    private BlockPos pos = BlockPos.ORIGIN;
 
     @Nonnull
     private Map<SatelliteState, List<IListedSpacecraft>> byType = new HashMap<>();
 
-    public PacketOpenRemoteControl(BlockPos pos, @Nonnull EnumMap<SatelliteState, List<IListedSpacecraft>> crafts) {
+    public PacketOpenRemoteControl(GuiType type, BlockPos pos, @Nonnull EnumMap<SatelliteState, List<IListedSpacecraft>> crafts) {
+        this.type = type;
         this.byType = crafts;
         this.pos = pos;
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
+        buf.writeByte(this.type.ordinal());
         buf.writeLong(this.pos.toLong());
         for (SatelliteState state : SatelliteState.values()) {
             List<IListedSpacecraft> group = this.byType.getOrDefault(state, new ArrayList<>());
@@ -112,6 +135,7 @@ public class PacketOpenRemoteControl implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
+        this.type = GuiType.values()[buf.readByte()];
         this.pos = BlockPos.fromLong(buf.readLong());
         for (SatelliteState state : SatelliteState.values()) {
             int count = buf.readUnsignedShort();
@@ -139,10 +163,10 @@ public class PacketOpenRemoteControl implements IMessage {
                 BlockPos pos = message.pos;
                 if (player.world.isBlockLoaded(pos) && player.getDistanceSqToCenter(pos) <= 64.0) {
                     TileEntity entity = player.world.getTileEntity(pos);
-                    if (entity instanceof TileRemoteControlSystem) {
-                        TileRemoteControlSystem controlSystem = (TileRemoteControlSystem) entity;
-                        controlSystem.provideServerCrafts(SatelliteState.getAllCrafts(player, message.byType));
-                        Minecraft.getMinecraft().displayGuiScreen(new GuiSelectCraft(controlSystem));
+                    if (entity instanceof ICraftList) {
+                        ICraftList craftGui = (ICraftList) entity;
+                        craftGui.provideServerCrafts(SatelliteState.getAllCrafts(player, message.byType));
+                        Minecraft.getMinecraft().displayGuiScreen(message.type.makeGui(craftGui));
                     }
                 }
             });

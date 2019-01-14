@@ -1,26 +1,24 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.util.UUID;
 
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.gegy1000.psf.server.util.GuiDummyContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public abstract class GuiRemoteControl extends GuiContainer implements IVisualReceiver {
+public abstract class GuiRemoteControl extends GuiDummyContainer implements IVisualReceiver {
     
     @Nonnull
     protected static final ResourceLocation TEXTURE_LOC = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/control_system.png");
@@ -30,20 +28,10 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
     private final GuiScreen parent;
 
     @Getter
-    private final TileRemoteControlSystem te;
+    private final TileCraftList te;
 
-    protected GuiRemoteControl(@Nullable GuiScreen parent, TileRemoteControlSystem te) {
-        super(new Container() {
-
-            @Override
-            public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
-                if (te.getWorld().getTileEntity(te.getPos()) != te) {
-                    return false;
-                } else {
-                    return playerIn.getDistanceSq(te.getPos().getX() + 0.5, te.getPos().getY() + 0.5, te.getPos().getZ() + 0.5) <= 64;
-                }
-            }
-        });
+    protected GuiRemoteControl(@Nullable GuiScreen parent, TileCraftList te) {
+        super(te);
         this.parent = parent;
         this.te = te;
         

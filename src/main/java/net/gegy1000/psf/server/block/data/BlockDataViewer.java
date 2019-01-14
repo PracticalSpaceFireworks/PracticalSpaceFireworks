@@ -1,14 +1,22 @@
-package net.gegy1000.psf.server.block.remote;
+package net.gegy1000.psf.server.block.data;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
+import net.gegy1000.psf.server.block.remote.ICraftList;
+import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.TileCraftList;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.GuiType;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -25,15 +33,9 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.stream.Collectors;
+public class BlockDataViewer extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock {
 
-@ParametersAreNonnullByDefault
-public class BlockRemoteControlSystem extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
-
-    public BlockRemoteControlSystem() {
+    public BlockDataViewer() {
         super(Material.IRON);
         this.setHarvestLevel("pickaxe", 1);
         this.setSoundType(SoundType.METAL);
@@ -54,6 +56,7 @@ public class BlockRemoteControlSystem extends BlockHorizontal implements Registe
         return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(FACING, placer.getHorizontalFacing().getOpposite());
     }
 
+
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         TileEntity te = world.getTileEntity(pos);
@@ -66,7 +69,7 @@ public class BlockRemoteControlSystem extends BlockHorizontal implements Registe
                     .filter(s -> s.getWorld() == world)
                     .map(ISatellite::toListedCraft)
                     .collect(Collectors.groupingBy(c -> SatelliteState.byClass(c.getClass()))));
-            PSFNetworkHandler.network.sendTo(new PacketOpenRemoteControl(GuiType.CONTROL_SYSTEM, pos, satellites), (EntityPlayerMP) player);
+            PSFNetworkHandler.network.sendTo(new PacketOpenRemoteControl(GuiType.DATA_VIEWER, pos, satellites), (EntityPlayerMP) player);
         }
         return true;
     }
@@ -99,11 +102,6 @@ public class BlockRemoteControlSystem extends BlockHorizontal implements Registe
     @Override
     public TileEntity createTileEntity(World world, IBlockState state) {
         return new TileCraftList();
-    }
-
-    @Override
-    public Class<? extends TileEntity> getEntityClass() {
-        return TileCraftList.class;
     }
 
     @Override

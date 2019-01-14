@@ -5,6 +5,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.base.Strings;
 
+import net.gegy1000.psf.api.IModuleConfigDisplay;
+import net.gegy1000.psf.server.block.remote.config.ModuleConfigButtonTextField;
 import net.minecraft.nbt.NBTTagCompound;
 
 @ParametersAreNonnullByDefault
@@ -23,8 +25,8 @@ public class ConfigBasicText extends AbstractConfig {
     }
 
     @Override
-    public ConfigType getType() {
-        return ConfigType.TEXT;
+    public IModuleConfigDisplay getDisplay() {
+        return ModuleConfigButtonTextField.factory(this);
     }
     
     @Override

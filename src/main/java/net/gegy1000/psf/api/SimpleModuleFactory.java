@@ -1,12 +1,10 @@
-package net.gegy1000.psf.server.modules;
+package net.gegy1000.psf.api;
 
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IModuleFactory;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 @RequiredArgsConstructor

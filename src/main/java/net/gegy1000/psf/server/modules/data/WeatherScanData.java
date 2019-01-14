@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.modules.data;
 
+import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.IWeatherData;
 import net.minecraft.nbt.NBTTagCompound;
 

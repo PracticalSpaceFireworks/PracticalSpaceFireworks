@@ -6,6 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.IModuleConfigButton;
+import net.gegy1000.psf.api.IModuleConfigDisplay;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 
@@ -48,5 +50,15 @@ public class ModuleConfigButtonAction extends GuiButtonExt implements IModuleCon
     @Override
     public int getY() {
         return initialY;
+    }
+
+    public static IModuleConfigDisplay factory(IModuleConfig cfg) {
+        return new IModuleConfigDisplay() {
+
+            @Override
+            public IModuleConfigButton<?> createButton(GuiModuleConfig parent, IModule module, int id, int x, int y, int width) {
+                return new ModuleConfigButtonAction(parent, module, cfg, id, x, y, width, 20);
+            }
+        };
     }
 }

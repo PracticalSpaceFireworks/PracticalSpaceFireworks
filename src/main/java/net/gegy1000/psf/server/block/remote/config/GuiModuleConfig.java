@@ -12,10 +12,11 @@ import org.lwjgl.input.Mouse;
 
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.IModuleConfigButton;
 import net.gegy1000.psf.server.block.remote.GuiRemoteControl;
 import net.gegy1000.psf.server.block.remote.GuiSelectModule;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
+import net.gegy1000.psf.server.block.remote.TileCraftList;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -29,7 +30,7 @@ public class GuiModuleConfig extends GuiRemoteControl {
     
     private List<IModuleConfigButton<?>> buttons = new ArrayList<>();
     
-    public GuiModuleConfig(GuiSelectModule parent, int craftIndex, List<IModule> moduleGroup, TileRemoteControlSystem te) {
+    public GuiModuleConfig(GuiSelectModule parent, int craftIndex, List<IModule> moduleGroup, TileCraftList te) {
         super(parent, te);
         this.parent = parent;
         this.craftIndex = craftIndex;

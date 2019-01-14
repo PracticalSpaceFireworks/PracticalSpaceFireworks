@@ -7,6 +7,8 @@ import com.google.common.base.Strings;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import net.gegy1000.psf.api.IModuleConfigDisplay;
+import net.gegy1000.psf.server.block.remote.config.ModuleConfigButtonToggle;
 import net.minecraft.nbt.NBTTagCompound;
 
 @ParametersAreNonnullByDefault
@@ -33,10 +35,10 @@ public class ConfigBasicToggle extends AbstractConfig {
     }
 
     @Override
-    public ConfigType getType() {
-        return ConfigType.TOGGLE;
+    public IModuleConfigDisplay getDisplay() {
+        return ModuleConfigButtonToggle.factory(this);
     }
-
+    
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tag = new NBTTagCompound();

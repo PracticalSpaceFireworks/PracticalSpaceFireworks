@@ -3,6 +3,8 @@ package net.gegy1000.psf.server.modules.configs;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import net.gegy1000.psf.api.IModuleConfigDisplay;
+import net.gegy1000.psf.server.block.remote.config.ModuleConfigButtonAction;
 import net.minecraft.nbt.NBTTagCompound;
 
 @ParametersAreNonnullByDefault
@@ -21,8 +23,8 @@ public class ConfigBasicAction extends AbstractConfig {
     }
 
     @Override
-    public ConfigType getType() {
-        return ConfigType.ACTION;
+    public IModuleConfigDisplay getDisplay() {
+        return ModuleConfigButtonAction.factory(this);
     }
 
     @Override
