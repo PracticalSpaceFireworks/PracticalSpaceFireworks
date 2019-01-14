@@ -79,11 +79,20 @@ public class BlockFuelTank extends BlockModule {
 
     @Override
     public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
-        Rim rim = state.getActualState(world, pos).getValue(RIM);
-        if ((Rim.TOP == rim || Rim.BOTH == rim) && side.getAxis().isHorizontal()) {
-            BlockPos offset = pos.offset(side);
-            return world.getBlockState(offset).getBlock() != this
-                    || world.getBlockState(offset.up()).getBlock() != this;
+        state = state.getActualState(world, pos);
+        Rim rim = state.getValue(RIM);
+        if (Rim.TOP == rim || Rim.BOTH == rim) {
+            if (side.getAxis().isHorizontal()) {
+                BlockPos offset = pos.offset(side);
+                return world.getBlockState(offset).getBlock() != this
+                        || world.getBlockState(offset.up()).getBlock() != this;
+            } else if (side == EnumFacing.UP) {
+                for (PropertyBool property : BORDERS.values()) {
+                    if (!state.getValue(property)) {
+                        return false;
+                    }
+                }
+            }
         }
         return true;
     }
