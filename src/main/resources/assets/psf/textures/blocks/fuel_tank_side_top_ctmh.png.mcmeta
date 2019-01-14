@@ -2,6 +2,9 @@
   "ctm": {
     "ctm_version": 1,
     "type": "ctm_horizontal",
-    "layer": "SOLID"
+    "layer": "SOLID",
+    "extra": {
+      "connect_inside": true
+    }
   }
 }
