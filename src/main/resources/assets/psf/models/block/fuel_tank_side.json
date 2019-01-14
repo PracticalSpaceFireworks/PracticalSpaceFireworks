@@ -1,0 +1,19 @@
+{
+  "__comment": "Copyright © InsomniaKitten 2018",
+  "textures": {
+    "particle": "psf:blocks/fuel_tank_top",
+    "top": "psf:blocks/fuel_tank_top",
+    "side": "psf:blocks/fuel_tank_side_top"
+  },
+  "elements": [
+    {
+      "from": [ 1, 13, 0 ],
+      "to": [ 15, 16, 1 ],
+      "faces": {
+        "up": { "texture": "#top", "cullface": "up" },
+        "north": { "texture": "#side", "cullface": "north" },
+        "south": { "texture": "#side" }
+      }
+    }
+  ]
+}

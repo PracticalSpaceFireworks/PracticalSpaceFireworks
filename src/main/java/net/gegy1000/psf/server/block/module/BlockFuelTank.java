@@ -1,100 +1,121 @@
 package net.gegy1000.psf.server.block.module;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.server.block.property.FuelTankBorder;
 import net.gegy1000.psf.server.modules.ModuleFuelTank;
+import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.EnumSet;
+import java.util.Locale;
+import java.util.function.Function;
 
 public class BlockFuelTank extends BlockModule {
-    private static final PropertyBool NORTH = PropertyBool.create("north");
-    private static final PropertyBool SOUTH = PropertyBool.create("south");
-    private static final PropertyBool EAST = PropertyBool.create("east");
-    private static final PropertyBool WEST = PropertyBool.create("west");
+
+    private static final PropertyEnum<Rim> RIM = PropertyEnum.create("rim", Rim.class, Rim.RIM);
+
+    private static final ImmutableMap<FuelTankBorder, PropertyBool> BORDERS = FuelTankBorder.BORDERS.stream()
+            .collect(Maps.toImmutableEnumMap(Function.identity(), b -> PropertyBool.create(b.getName())));
 
     public BlockFuelTank() {
         super(Material.IRON, "fuel_tank");
         this.setSoundType(SoundType.METAL);
         this.setHardness(3.0F);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.UP)
-                .withProperty(NORTH, false).withProperty(SOUTH, false)
-                .withProperty(EAST, false).withProperty(WEST, false));
+    }
+
+    @Nonnull
+    @Override
+    protected BlockStateContainer createBlockState() {
+        BlockStateContainer.Builder builder = new BlockStateContainer.Builder(this);
+        BORDERS.values().forEach(builder::add);
+        return builder.add(DIRECTION, RIM).build();
     }
 
     @Override
+    public IBlockState withRotation(@Nonnull IBlockState state, @Nonnull Rotation rot) {
+        return state;
+    }
+
+    @Override
+    public IBlockState withMirror(@Nonnull IBlockState state, @Nonnull Mirror mirror) {
+        return state;
+    }
+
     @Nonnull
-    protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, DIRECTION, NORTH, SOUTH, WEST, EAST);
+    @Override
+    public IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
+        return getDefaultState();
     }
 
     @Override
     public boolean isOpaqueCube(@Nonnull IBlockState state) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isFullCube(@Nonnull IBlockState state) {
-        return false;
+        return true;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean shouldSideBeRendered(IBlockState state, @Nonnull IBlockAccess blockAccess, @Nonnull BlockPos pos, EnumFacing side) {
-        BlockPos neighbourPos = pos.offset(side);
-        IBlockState neighbour = blockAccess.getBlockState(neighbourPos);
-        neighbour = neighbour.getActualState(blockAccess, neighbourPos);
-        if (side.getAxis() == EnumFacing.Axis.Y) {
-            if (neighbour.getBlock() == this) {
-                int count = 0;
-                if (neighbour.getValue(NORTH)) count++;
-                if (neighbour.getValue(SOUTH)) count++;
-                if (neighbour.getValue(EAST)) count++;
-                if (neighbour.getValue(WEST)) count++;
-                if (count == 2) {
-                    return true;
+    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        Rim rim = state.getActualState(world, pos).getValue(RIM);
+        if ((Rim.TOP == rim || Rim.BOTH == rim) && side.getAxis().isHorizontal()) {
+            BlockPos offset = pos.offset(side);
+            return world.getBlockState(offset).getBlock() != this
+                    || world.getBlockState(offset.up()).getBlock() != this;
+        }
+        return true;
+    }
+
+    @Override
+    public IBlockState getActualState(@Nonnull IBlockState state, IBlockAccess world, BlockPos pos) {
+        Rim edges = sectionForPosition(world, pos);
+        state = state.withProperty(RIM, edges);
+        if (Rim.TOP == edges || Rim.BOTH == edges) {
+            for (FuelTankBorder border : FuelTankBorder.CARDINALS) {
+                Block block = world.getBlockState(border.offset(pos)).getBlock();
+                state = state.withProperty(BORDERS.get(border), this != block);
+            }
+            for (FuelTankBorder border : FuelTankBorder.ORDINALS) {
+                if (state.getValue(BORDERS.get(border.primary()))) {
+                    state = state.withProperty(BORDERS.get(border), true);
+                } else {
+                    boolean secondary = state.getValue(BORDERS.get(border.secondary()));
+                    boolean value = secondary || this != world.getBlockState(border.offset(pos)).getBlock();
+                    state = state.withProperty(BORDERS.get(border), value);
                 }
             }
         }
-
-        return !canConnect(state, blockAccess, pos, side) || neighbour.getBlock() != this;
-    }
-
-    @Override
-    @Nonnull
-    public IBlockState getActualState(@Nonnull IBlockState state, IBlockAccess world, BlockPos pos) {
-        return state.withProperty(NORTH, this.canConnect(state, world, pos, EnumFacing.NORTH))
-                .withProperty(SOUTH, this.canConnect(state, world, pos, EnumFacing.SOUTH))
-                .withProperty(EAST, this.canConnect(state, world, pos, EnumFacing.EAST))
-                .withProperty(WEST, this.canConnect(state, world, pos, EnumFacing.WEST));
-    }
-
-    private boolean canConnect(IBlockState me, IBlockAccess world, BlockPos pos, EnumFacing side) {
-        IBlockState state = world.getBlockState(pos.offset(side));
-        return state.getBlock() == this || BlockModule.isStructural(me, state);
+        return super.getActualState(state, world, pos);
     }
 
     @Override
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state) {
         super.onBlockAdded(worldIn, pos, state);
         if (!CONVERTING.get()) {
-            updateNeighbors(state, worldIn, pos);
-        }    
+            updateNeighbors(worldIn, pos);
+        }
     }
 
     @Override
@@ -108,58 +129,67 @@ public class BlockFuelTank extends BlockModule {
     }
 
     @Override
-    public void breakBlock(World world, BlockPos pos, IBlockState state) {
+    public void breakBlock(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
         super.breakBlock(world, pos, state);
         if (!CONVERTING.get()) {
-            updateNeighbors(state, world, pos);
+            updateNeighbors(world, pos);
         }
     }
 
-    private void updateNeighbors(IBlockState state, World worldIn, BlockPos pos) {
-        for (EnumFacing dir : EnumFacing.HORIZONTALS) {
-            if (canConnect(state, worldIn, pos, dir)) {
-                BlockPos pos2 = pos.offset(dir);
-                worldIn.notifyNeighborsOfStateChange(pos2, worldIn.getBlockState(pos2).getBlock(), true);
+    private void updateNeighbors(World world, BlockPos pos) {
+        for (EnumFacing facing : EnumFacing.values()) {
+            if (facing.getAxis().isHorizontal()) {
+                BlockPos offset = pos.offset(facing);
+                Block other = world.getBlockState(offset).getBlock();
+                world.notifyNeighborsOfStateChange(offset, other, true);
             }
         }
     }
 
-    @Override
+    @Override // todo update when ctm supports non-serialized properties
     public int getMetaFromState(@Nonnull IBlockState state) {
-        return 0;
+        return state.getValue(RIM).ordinal();
     }
 
     @Override
-    @Nonnull
+    @Nonnull // todo update when ctm supports non-serialized properties
     public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState();
+        return this.getDefaultState().withProperty(RIM, Rim.VALUES[meta % Rim.VALUES.length]);
     }
 
     @Override
     public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
-        if (connecting != null && connecting.getBlock() == this) {
-            return true;
-        } else if (connecting == null) {
-            return true;
-        }
-        boolean n = state.getValue(NORTH);
-        boolean s = state.getValue(SOUTH);
-        boolean w = state.getValue(WEST);
-        boolean e = state.getValue(EAST);
-        if (n && e) {
-            return w || s;
-        } else if (n && w) {
-            return e || s;
-        } else if (s && e) {
-            return n || w;
-        } else if (s && w) {
-            return n || e;
-        }
         return true;
     }
-    
+
     @Override
-    protected boolean isDirectional(IBlockState state) {
+    protected boolean isDirectional(@Nonnull IBlockState state) {
         return false;
+    }
+
+    private Rim sectionForPosition(IBlockAccess world, BlockPos pos) {
+        if (this == world.getBlockState(pos.up()).getBlock()) {
+            if (this == world.getBlockState(pos.down()).getBlock()) {
+                return Rim.NONE;
+            }
+            return Rim.BOTTOM;
+        }
+        if (this == world.getBlockState(pos.down()).getBlock()) {
+            return Rim.TOP;
+        }
+        return Rim.BOTH;
+    }
+
+    public enum Rim implements IStringSerializable {
+        BOTTOM, TOP, NONE, BOTH;
+
+        public static final ImmutableSet<Rim> RIM = Sets.immutableEnumSet(EnumSet.allOf(Rim.class));
+
+        private static final Rim[] VALUES = values();
+
+        @Override
+        public final String getName() {
+            return name().toLowerCase(Locale.ROOT);
+        }
     }
 }

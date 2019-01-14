@@ -1,7 +1,0 @@
-# Blender MTL File: 'fuel_tank_corner.blend'
-# Material Count: 1
-
-newmtl Material
-
-Kd 1.0 1.0 1.0
-map_Kd psf:blocks/fuel_tank_corner

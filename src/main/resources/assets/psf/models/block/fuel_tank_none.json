@@ -1,0 +1,8 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "psf:blocks/fuel_tank_bottom",
+    "top": "psf:blocks/fuel_tank_top",
+    "side": "psf:blocks/fuel_tank_side_none"
+  }
+}
