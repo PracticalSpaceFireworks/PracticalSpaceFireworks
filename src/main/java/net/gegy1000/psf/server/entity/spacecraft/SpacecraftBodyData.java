@@ -3,18 +3,14 @@ package net.gegy1000.psf.server.entity.spacecraft;
 import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
-import net.gegy1000.psf.server.entity.world.FixedSizeWorldHandler;
+import net.gegy1000.psf.server.entity.world.DelegatedWorld;
+import net.gegy1000.psf.server.entity.world.FixedSizeWorldData;
 import net.gegy1000.psf.server.modules.ModuleThruster;
 import net.gegy1000.psf.server.util.BlockMassHandler;
-import net.gegy1000.psf.server.util.PointUtils;
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -30,12 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SpacecraftWorldHandler extends FixedSizeWorldHandler {
-    protected SpacecraftWorldHandler(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, Biome biome, BlockPos minPos, BlockPos maxPos) {
+public class SpacecraftBodyData extends FixedSizeWorldData {
+    protected SpacecraftBodyData(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, Biome biome, BlockPos minPos, BlockPos maxPos) {
         super(blockData, lightData, entities, biome, minPos, maxPos);
     }
 
-    protected SpacecraftWorldHandler() {
+    protected SpacecraftBodyData() {
         super();
     }
 
@@ -60,12 +56,13 @@ public class SpacecraftWorldHandler extends FixedSizeWorldHandler {
         return modules;
     }
 
-    public SpacecraftMetadata buildSpacecraftMetadata() {
+    public SpacecraftMetadata buildSpacecraftMetadata(World parent) {
         double mass = 0.0;
         Point3d com = new Point3d(0.0, 0.0, 0.0);
 
+        DelegatedWorld world = buildWorld(parent);
         for (BlockPos pos : BlockPos.getAllInBoxMutable(this.minPos, this.maxPos)) {
-            double blockMass = BlockMassHandler.getMass(parent, pos, this.getBlockState(pos));
+            double blockMass = BlockMassHandler.getMass(world, pos, this.getBlockState(pos));
             mass += blockMass;
 
             com.x += (pos.getX() + 0.5) * blockMass;
@@ -97,15 +94,15 @@ public class SpacecraftWorldHandler extends FixedSizeWorldHandler {
         return new SpacecraftMetadata(modules, fuelTanks, thrusters.build(), mass, com);
     }
 
-    public static SpacecraftWorldHandler deserializeCraft(NBTTagCompound compound) {
-        SpacecraftWorldHandler worldHandler = new SpacecraftWorldHandler();
-        worldHandler.deserialize(compound);
-        return worldHandler;
+    public static SpacecraftBodyData deserializeCraft(NBTTagCompound compound) {
+        SpacecraftBodyData bodyData = new SpacecraftBodyData();
+        bodyData.deserialize(compound);
+        return bodyData;
     }
 
-    public static SpacecraftWorldHandler deserializeCraft(ByteBuf buffer) {
-        SpacecraftWorldHandler worldHandler = new SpacecraftWorldHandler();
-        worldHandler.deserialize(buffer);
-        return worldHandler;
+    public static SpacecraftBodyData deserializeCraft(ByteBuf buffer) {
+        SpacecraftBodyData bodyData = new SpacecraftBodyData();
+        bodyData.deserialize(buffer);
+        return bodyData;
     }
 }

@@ -27,7 +27,7 @@ import java.util.Map;
 
 @ParametersAreNonnullByDefault
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FixedSizeWorldHandler implements DelegatedWorld.Handler {
+public class FixedSizeWorldData implements DelegatedWorld.Data {
     protected int[] blockData;
     protected int[] lightData;
     protected Long2ObjectMap<TileEntity> entities;
@@ -39,20 +39,13 @@ public class FixedSizeWorldHandler implements DelegatedWorld.Handler {
     @Getter
     protected BlockPos maxPos;
 
-    protected DelegatedWorld parent = null;
-
-    protected FixedSizeWorldHandler(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, Biome biome, BlockPos minPos, BlockPos maxPos) {
+    protected FixedSizeWorldData(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, Biome biome, BlockPos minPos, BlockPos maxPos) {
         this.blockData = blockData;
         this.lightData = lightData;
         this.entities = entities;
         this.biome = biome;
         this.minPos = minPos;
         this.maxPos = maxPos;
-    }
-
-    @Override
-    public void setParent(DelegatedWorld parent) {
-        this.parent = parent;
     }
 
     @Override
@@ -162,7 +155,7 @@ public class FixedSizeWorldHandler implements DelegatedWorld.Handler {
         NBTTagList entityList = compound.getTagList("entities", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < entityList.tagCount(); i++) {
             NBTTagCompound entityTag = entityList.getCompoundTagAt(i);
-            TileEntity entity = TileEntity.create(parent, entityTag);
+            TileEntity entity = TileEntity.create(null, entityTag);
             if (entity == null) {
                 PracticalSpaceFireworks.LOGGER.warn("Failed to deserialize TE for spacecraft");
                 continue;
@@ -210,7 +203,7 @@ public class FixedSizeWorldHandler implements DelegatedWorld.Handler {
         entities = new Long2ObjectOpenHashMap<>();
         for (int i = 0; i < entityCount; i++) {
             NBTTagCompound entityTag = ByteBufUtils.readTag(buffer);
-            TileEntity entity = TileEntity.create(parent, entityTag);
+            TileEntity entity = TileEntity.create(null, entityTag);
             if (entity == null) {
                 PracticalSpaceFireworks.LOGGER.warn("Failed to deserialize TE");
                 continue;

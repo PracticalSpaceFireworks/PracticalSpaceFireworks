@@ -2,7 +2,7 @@ package net.gegy1000.psf.client;
 
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -14,9 +14,9 @@ public interface IVisualReceiver {
     
     interface IVisual {
 
-        SpacecraftWorldHandler getWorldHandler();
-
         Collection<IModule> getModules();
+
+        SpacecraftBodyData getBodyData();
     }
     
     void setVisual(IVisual visual);

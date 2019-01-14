@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.client.IVisualReceiver;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -20,16 +20,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PacketVisualData implements IMessage {
-    private SpacecraftWorldHandler worldHandler;
+    private SpacecraftBodyData bodyData;
 
     @Override
     public void toBytes(ByteBuf buf) {
-        worldHandler.serialize(buf);
+        bodyData.serialize(buf);
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        worldHandler = SpacecraftWorldHandler.deserializeCraft(buf);
+        bodyData = SpacecraftBodyData.deserializeCraft(buf);
     }
     
     public static class Handler implements IMessageHandler<PacketVisualData, IMessage> {
@@ -44,8 +44,8 @@ public class PacketVisualData implements IMessage {
         private void updateVisualClient(PacketVisualData message) {
             GuiScreen gui = Minecraft.getMinecraft().currentScreen;
             if (gui instanceof IVisualReceiver) {
-                List<IModule> modules = message.worldHandler.findModules();
-                ((IVisualReceiver) gui).setVisual(new IListedSpacecraft.Visual(message.worldHandler, modules));
+                List<IModule> modules = message.bodyData.findModules();
+                ((IVisualReceiver) gui).setVisual(new IListedSpacecraft.Visual(message.bodyData, modules));
             }
         }
     }

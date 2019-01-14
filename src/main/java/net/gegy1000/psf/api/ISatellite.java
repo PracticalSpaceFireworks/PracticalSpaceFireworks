@@ -2,7 +2,7 @@ package net.gegy1000.psf.api;
 
 import com.google.common.base.Functions;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -67,7 +67,7 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
         return caps;
     }
 
-    SpacecraftWorldHandler buildWorldHandler(World world);
+    SpacecraftBodyData buildBodyData(World world);
 
     IListedSpacecraft toListedCraft();
 
