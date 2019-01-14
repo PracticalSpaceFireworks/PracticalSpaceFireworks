@@ -2,8 +2,7 @@ package net.gegy1000.psf.client.render.spacecraft.model;
 
 import lombok.Getter;
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
-import net.gegy1000.psf.server.entity.world.DelegatedWorld;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
@@ -18,18 +17,16 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 public class DisplayListSpacecraftModel implements SpacecraftModel {
     @Getter
-    private final DelegatedWorld renderWorld;
-    @Getter
-    private final SpacecraftWorldHandler worldHandler;
+    private final SpacecraftBodyData body;
 
     private final Map<BlockRenderLayer, Integer> lists = new EnumMap<>(BlockRenderLayer.class);
     private boolean available = true;
 
-    DisplayListSpacecraftModel(DelegatedWorld world, SpacecraftWorldHandler worldHandler) {
-        this.renderWorld = world;
-        this.worldHandler = worldHandler;
+    DisplayListSpacecraftModel(SpacecraftBodyData body) {
+        this.body = body;
+
         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-            drawBlocks(world, worldHandler, layer, BUILDER);
+            drawBlocks(body, layer, BUILDER);
 
             int id = GLAllocation.generateDisplayLists(1);
 

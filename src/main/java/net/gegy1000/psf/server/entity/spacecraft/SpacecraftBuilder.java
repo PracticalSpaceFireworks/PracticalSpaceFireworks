@@ -78,26 +78,26 @@ public class SpacecraftBuilder {
         return this;
     }
 
-    public SpacecraftWorldHandler buildWorldHandler(BlockPos origin, World world) {
-        int[] blockData = new int[SpacecraftWorldHandler.getDataSize(minPos, maxPos)];
+    public SpacecraftBodyData buildBodyData(BlockPos origin, World world) {
+        int[] blockData = new int[SpacecraftBodyData.getDataSize(minPos, maxPos)];
         for (int i = 0; i < this.blockKeys.size(); i++) {
             BlockPos pos = BlockPos.fromLong(this.blockKeys.getLong(i));
             int state = this.blockValues.getInt(i);
 
-            blockData[SpacecraftWorldHandler.getPosIndex(pos, minPos, maxPos)] = state;
+            blockData[SpacecraftBodyData.getPosIndex(pos, minPos, maxPos)] = state;
         }
         MutableBlockPos mutablePos = new MutableBlockPos(origin);
-        int[] lightData = new int[SpacecraftWorldHandler.getDataSize(minPos, maxPos)];
+        int[] lightData = new int[SpacecraftBodyData.getDataSize(minPos, maxPos)];
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
             mutablePos.setPos(origin.getX() + pos.getX(), origin.getY() + pos.getY(), origin.getZ() + pos.getZ());
-            int index = SpacecraftWorldHandler.getPosIndex(pos, minPos, maxPos);
+            int index = SpacecraftBodyData.getPosIndex(pos, minPos, maxPos);
             lightData[index] = getCombinedLight(world, mutablePos);
             mutablePos.setPos(origin);
         }
 
         Biome biome = world.getBiome(origin);
 
-        return new SpacecraftWorldHandler(blockData, lightData, this.entities, biome, minPos, maxPos);
+        return new SpacecraftBodyData(blockData, lightData, this.entities, biome, minPos, maxPos);
     }
 
     private int getCombinedLight(World world, MutableBlockPos pos) {

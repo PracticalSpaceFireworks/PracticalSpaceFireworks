@@ -12,7 +12,7 @@ import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBody;
 import net.gegy1000.psf.server.modules.ModuleController;
 import net.gegy1000.psf.server.modules.Modules;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
@@ -55,7 +55,7 @@ public class TileController extends TileEntity implements ITickable {
     private boolean converted;
 
     private final CraftGraph craft = new CraftGraph(satellite);
-    
+
     // A cache of the saved positions of the graph
     // Used to make sure the controller doesn't scan beyond its saved state during world load
     // Always null after onLoad()
@@ -173,7 +173,7 @@ public class TileController extends TileEntity implements ITickable {
             NBTTagList list = compound.getTagList("connected_blocks", Constants.NBT.TAG_LONG);
             structureLimits = new HashSet<>();
             for (NBTBase tag : list) {
-                structureLimits.add(BlockPos.fromLong(((NBTTagLong)tag).getLong()));
+                structureLimits.add(BlockPos.fromLong(((NBTTagLong) tag).getLong()));
             }
         }
     }
@@ -195,7 +195,9 @@ public class TileController extends TileEntity implements ITickable {
     }
 
     public void scanStructure() {
-        if (BlockModule.CONVERTING.get()) return;
+        if (BlockModule.CONVERTING.get()) {
+            return;
+        }
         if (structureLimits == null) {
             craft.scan(getPos(), getWorld());
         } else {
@@ -207,31 +209,33 @@ public class TileController extends TileEntity implements ITickable {
     @Nonnull
     public EntitySpacecraft constructEntity() {
         Stopwatch stopwatch = Stopwatch.createStarted();
-        CraftGraph craft = getModules();
+
+        CraftGraph craftGraph = getModules();
         ISatellite satellite = getCapability(CapabilitySatellite.INSTANCE, null);
-        EntitySpacecraft spacecraft = new EntitySpacecraft(world, craft, pos, satellite);
-        ISatellite newsat = spacecraft.getCapability(CapabilitySatellite.INSTANCE, null);
+
+        EntitySpacecraft entity = new EntitySpacecraft(world, craftGraph, pos, satellite);
+        ISatellite newsat = entity.getCapability(CapabilitySatellite.INSTANCE, null);
         satellite.getTrackingPlayers().forEach(newsat::track);
 
         this.converted();
 
         BlockModule.CONVERTING.set(true);
         try {
-            craft.getPositions().forEach(p -> world.setBlockState(p, Blocks.AIR.getDefaultState(), 10 | 1));
+            craftGraph.getPositions().forEach(p -> world.setBlockState(p, Blocks.AIR.getDefaultState(), 10 | 1));
         } finally {
             BlockModule.CONVERTING.set(false);
         }
 
-        SpacecraftWorldHandler worldHandler = spacecraft.getWorldHandler();
-        BlockPos min = worldHandler.getMinPos().add(pos);
-        BlockPos max = worldHandler.getMaxPos().add(pos);
+        SpacecraftBody body = entity.getBody();
+        BlockPos min = body.getMinPos().add(pos);
+        BlockPos max = body.getMaxPos().add(pos);
         world.markBlockRangeForRenderUpdate(min, max);
 
-        spacecraft.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0);
-        world.spawnEntity(spacecraft);
+        entity.setPositionAndRotation(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 180, 0);
+        world.spawnEntity(entity);
 
         for (EntityPlayerMP player : newsat.getTrackingPlayers()) {
-            PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, newsat.toListedCraft()), player);
+            PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ENTITY, newsat.toListedCraft()), player);
         }
 
         long time = stopwatch.stop().elapsed(TimeUnit.MICROSECONDS);
@@ -240,6 +244,6 @@ public class TileController extends TileEntity implements ITickable {
             PracticalSpaceFireworks.LOGGER.info("Constructed satellite entity in {}µs", time);
         }
 
-        return spacecraft;
+        return entity;
     }
 }

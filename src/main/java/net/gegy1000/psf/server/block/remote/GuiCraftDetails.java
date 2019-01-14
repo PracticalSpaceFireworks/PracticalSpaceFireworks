@@ -1,32 +1,8 @@
 package net.gegy1000.psf.server.block.remote;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.data.ITerrainScan;
-import net.gegy1000.psf.client.ClientEventHandler;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
@@ -35,9 +11,8 @@ import net.gegy1000.psf.server.block.remote.widget.WidgetEnergyBar;
 import net.gegy1000.psf.server.block.remote.widget.WidgetFluidBar;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
-import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
@@ -52,7 +27,6 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
@@ -66,6 +40,27 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GuiCraftDetails extends GuiRemoteControl {
 
@@ -452,9 +447,9 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     private void renderCraft(SpacecraftModel model) {
-        SpacecraftWorldHandler worldHandler = model.getWorldHandler();
-        BlockPos minPos = worldHandler.getMinPos();
-        BlockPos maxPos = worldHandler.getMaxPos();
+        SpacecraftBodyData body = model.getBody();
+        BlockPos minPos = body.getMinPos();
+        BlockPos maxPos = body.getMaxPos();
         AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(minPos), new Vec3d(maxPos).add(1, 1, 1));
 
         GlStateManager.pushMatrix();
@@ -485,7 +480,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         halfY *= sc;
         halfZ *= sc;
 
-        GlStateManager.translate(guiLeft + halfX + (xSize / 4), guiTop + halfY + (ySize / 2), 500);
+        GlStateManager.translate(guiLeft + halfX + (xSize / 4.0F), guiTop + halfY + (ySize / 2.0F), 500);
 
         GlStateManager.translate(-halfX, -halfY, -halfZ);
         GlStateManager.rotate(-10, 1, 0, 0);
@@ -618,7 +613,9 @@ public class GuiCraftDetails extends GuiRemoteControl {
         final int energyNetUsage;
 
         public SyncedData(IVisual visual) {
-            model = SpacecraftModel.build(new DelegatedWorld(Minecraft.getMinecraft().world, visual.getWorldHandler()), visual.getWorldHandler());
+            SpacecraftBodyData body = visual.getBodyData();
+
+            model = SpacecraftModel.build(body);
             modules = visual.getModules();
             modules.forEach(module -> module.handleModuleChange(modules));
 
@@ -628,7 +625,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             tankModules = modules.stream()
                     .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
                     .collect(Collectors.toList());
-            metadata = visual.getWorldHandler().buildSpacecraftMetadata();
+            metadata = body.buildSpacecraftMetadata(Minecraft.getMinecraft().world);
 
             energyNetUsage = modules.stream()
                     .filter(m -> m.hasCapability(CapabilityModuleData.ENERGY_STATS, null))

@@ -12,7 +12,8 @@ import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
+import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -44,13 +45,13 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public void detectModules() {
-        SpacecraftWorldHandler worldHandler = this.spacecraft.getWorldHandler();
+        SpacecraftBodyData bodyData = this.spacecraft.getBody().getData();
 
         this.modules.clear();
-        this.modules.addAll(worldHandler.findModules());
+        this.modules.addAll(bodyData.findModules());
         this.modules.forEach(module -> module.setOwner(this));
 
-        this.controller = worldHandler.findController();
+        this.controller = bodyData.findController();
     }
 
     @Nonnull
@@ -87,8 +88,8 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftWorldHandler buildWorldHandler(@Nonnull World world) {
-        return this.spacecraft.getWorldHandler();
+    public SpacecraftBodyData buildBodyData(@Nonnull World world) {
+        return this.spacecraft.getBody().getData();
     }
 
     @Override
@@ -141,8 +142,9 @@ public class EntityBoundSatellite extends AbstractSatellite {
     public ISatellite toOrbiting() {
         CraftGraph craft = new CraftGraph(this);
         SearchFilter filter = d -> !d.getModule().getRegistryName().equals(new ResourceLocation(PracticalSpaceFireworks.MODID, "payload_separator"));
-        craft.scan(BlockPos.ORIGIN, this.spacecraft.getDelegatedWorld(), filter);
-        SpacecraftWorldHandler payload = new SpacecraftBuilder().copyFrom(this.spacecraft.getDelegatedWorld(), BlockPos.ORIGIN, craft).buildWorldHandler(BlockPos.ORIGIN, this.spacecraft.getDelegatedWorld());
+        DelegatedWorld spacecraftWorld = this.spacecraft.getBody().getWorld();
+        craft.scan(BlockPos.ORIGIN, spacecraftWorld, filter);
+        SpacecraftBodyData payload = new SpacecraftBuilder().copyFrom(spacecraftWorld, BlockPos.ORIGIN, craft).buildBodyData(BlockPos.ORIGIN, spacecraftWorld);
         return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), payload, getTrackingPlayers());
     }
 }

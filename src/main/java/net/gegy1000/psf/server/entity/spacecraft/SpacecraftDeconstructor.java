@@ -17,11 +17,11 @@ import java.util.Map;
 import java.util.Optional;
 
 public class SpacecraftDeconstructor {
-    public static Optional<Result> deconstruct(World world, SpacecraftWorldHandler worldHandler, double posX, double posY, double posZ, Matrix rotationMatrix) {
+    public static Optional<Result> deconstruct(World world, SpacecraftBodyData bodyData, double posX, double posY, double posZ, Matrix rotationMatrix) {
         Map<BlockPos, IBlockState> blocks = new HashMap<>();
         Map<BlockPos, TileEntity> entities = new HashMap<>();
-        for (BlockPos pos : BlockPos.getAllInBoxMutable(worldHandler.getMinPos(), worldHandler.getMaxPos())) {
-            IBlockState state = worldHandler.getBlockState(pos);
+        for (BlockPos pos : BlockPos.getAllInBoxMutable(bodyData.getMinPos(), bodyData.getMaxPos())) {
+            IBlockState state = bodyData.getBlockState(pos);
             if (state.getBlock() != Blocks.AIR) {
                 Point3d point = new Point3d(pos.getX(), pos.getY(), pos.getZ());
                 rotationMatrix.transform(point);
@@ -34,7 +34,7 @@ public class SpacecraftDeconstructor {
 
                 blocks.put(transformedPos, state);
 
-                TileEntity entity = worldHandler.getTileEntity(pos);
+                TileEntity entity = bodyData.getTileEntity(pos);
                 if (entity != null) {
                     NBTTagCompound tag = entity.serializeNBT();
                     // TE must get the proper position during readFromNBT

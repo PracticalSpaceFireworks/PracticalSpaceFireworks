@@ -62,7 +62,7 @@ public class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin {
     @Nonnull
     public List<String> getWailaBody(Entity entity, List<String> list, IWailaEntityAccessor accessor, IWailaConfigHandler cfg) {
         if (subHit != null && subHit.typeOfHit == Type.BLOCK) {
-            DelegatedWorld world = ((EntitySpacecraft) entity).getDelegatedWorld();
+            DelegatedWorld world = ((EntitySpacecraft) entity).getBody().getWorld();
             BlockPos pos = subHit.getBlockPos();
             IBlockState state = world.getBlockState(pos);
             ItemStack stack = state.getBlock().getPickBlock(state, subHit, world, pos, accessor.getPlayer());

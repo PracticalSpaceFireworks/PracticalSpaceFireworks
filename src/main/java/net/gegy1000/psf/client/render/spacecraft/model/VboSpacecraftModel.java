@@ -2,8 +2,7 @@ package net.gegy1000.psf.client.render.spacecraft.model;
 
 import lombok.Getter;
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
-import net.gegy1000.psf.server.entity.world.DelegatedWorld;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -19,24 +18,21 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 public class VboSpacecraftModel implements SpacecraftModel {
     @Getter
-    private final DelegatedWorld renderWorld;
-    @Getter
-    private final SpacecraftWorldHandler worldHandler;
+    private final SpacecraftBodyData body;
 
     private final Map<BlockRenderLayer, VertexBuffer> buffers = new EnumMap<>(BlockRenderLayer.class);
 
     private boolean available = true;
 
-    VboSpacecraftModel(DelegatedWorld world, SpacecraftWorldHandler worldHandler) {
-        this.renderWorld = world;
-        this.worldHandler = worldHandler;
+    VboSpacecraftModel(SpacecraftBodyData body) {
+        this.body = body;
 
         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
             VertexBuffer buffer = new VertexBuffer(DefaultVertexFormats.BLOCK);
             buffer.bindBuffer();
             this.bindAttributes();
 
-            drawBlocks(world, worldHandler, layer, BUILDER);
+            drawBlocks(body, layer, BUILDER);
             buffer.bufferData(BUILDER.getByteBuffer());
 
             buffer.unbindBuffer();

@@ -12,7 +12,7 @@ import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftWorldHandler;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -62,11 +62,11 @@ public class TileBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftWorldHandler buildWorldHandler(@Nonnull World world) {
+    public SpacecraftBodyData buildBodyData(@Nonnull World world) {
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, controller.getModules());
-        return builder.buildWorldHandler(origin, world);
+        return builder.buildBodyData(origin, world);
     }
 
     @Override

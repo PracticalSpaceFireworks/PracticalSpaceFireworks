@@ -43,7 +43,7 @@ public class ServerEventHandler {
                 if (sc != entity && entityBounds.intersects(sc.getEntityBoundingBox())) {
                     List<AxisAlignedBB> collisionBoxes = event.getCollisionBoxesList();
                     AxisAlignedBB entityCollision = entityBounds.offset(-sc.posX, -sc.posY, -sc.posZ);
-                    for (AxisAlignedBB bound : sc.collectTransformedBlockBounds()) {
+                    for (AxisAlignedBB bound : sc.getBody().collectTransformedBlockBounds()) {
                         if (entityCollision.intersects(bound)) {
                             collisionBoxes.add(bound.offset(sc.posX, sc.posY, sc.posZ));
                         }

@@ -23,7 +23,7 @@ public class RenderSpacecraft extends Render<EntitySpacecraft> {
 
         SpacecraftModel model = entity.model;
         if (model == null || !model.isAvailable()) {
-            entity.model = model = SpacecraftModel.build(entity.getDelegatedWorld(), entity.getWorldHandler());
+            entity.model = model = SpacecraftModel.build(entity.getBody().getData());
         }
 
         float lerpYaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;

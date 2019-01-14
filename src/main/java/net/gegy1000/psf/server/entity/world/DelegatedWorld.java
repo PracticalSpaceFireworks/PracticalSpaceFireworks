@@ -29,13 +29,12 @@ import java.io.File;
 @ParametersAreNonnullByDefault
 public class DelegatedWorld extends World {
     private final World parent;
-    private final Handler handler;
+    private final Data data;
 
-    public DelegatedWorld(World parent, Handler handler) {
+    public DelegatedWorld(World parent, Data data) {
         super(new SaveHandler(), parent.getWorldInfo(), parent.provider, parent.profiler, parent.isRemote);
         this.parent = parent;
-        this.handler = handler;
-        this.handler.setParent(this);
+        this.data = data;
     }
 
     @Nonnull
@@ -61,14 +60,14 @@ public class DelegatedWorld extends World {
 
     @Override
     public boolean isOutsideBuildHeight(BlockPos pos) {
-        return !handler.containsBlock(pos);
+        return !data.containsBlock(pos);
     }
 
     @Override
     @Nonnull
     public IBlockState getBlockState(BlockPos pos) {
-        if (handler.containsBlock(pos)) {
-            return handler.getBlockState(pos);
+        if (data.containsBlock(pos)) {
+            return data.getBlockState(pos);
         }
         return Blocks.AIR.getDefaultState();
     }
@@ -76,16 +75,20 @@ public class DelegatedWorld extends World {
     @Nullable
     @Override
     public TileEntity getTileEntity(BlockPos pos) {
-        if (handler.containsBlock(pos)) {
-            return handler.getTileEntity(pos);
+        if (data.containsBlock(pos)) {
+            TileEntity entity = data.getTileEntity(pos);
+            if (entity != null && entity.getWorld() != this) {
+                entity.setWorld(this);
+            }
+            return entity;
         }
         return null;
     }
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state) {
-        if (handler.containsBlock(pos)) {
-            handler.setBlockState(pos, state);
+        if (data.containsBlock(pos)) {
+            data.setBlockState(pos, state);
             return true;
         }
         return false;
@@ -93,15 +96,15 @@ public class DelegatedWorld extends World {
 
     @Override
     public void setTileEntity(BlockPos pos, @Nullable TileEntity entity) {
-        if (handler.containsBlock(pos)) {
-            handler.setTileEntity(pos, entity);
+        if (data.containsBlock(pos)) {
+            data.setTileEntity(pos, entity);
         }
     }
 
     @Override
     public boolean isAirBlock(BlockPos pos) {
-        if (handler.containsBlock(pos)) {
-            IBlockState state = handler.getBlockState(pos);
+        if (data.containsBlock(pos)) {
+            IBlockState state = data.getBlockState(pos);
             return state.getBlock().isAir(state, this, pos);
         }
         return true;
@@ -110,15 +113,15 @@ public class DelegatedWorld extends World {
     @Override
     @SideOnly(Side.CLIENT)
     public int getCombinedLight(BlockPos pos, int lightValue) {
-        if (handler.containsBlock(pos)) {
-            return handler.getLight(pos);
+        if (data.containsBlock(pos)) {
+            return data.getLight(pos);
         }
         return 15 << 20;
     }
 
     @Override
     public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
-        if (!handler.containsBlock(pos)) {
+        if (!data.containsBlock(pos)) {
             return _default;
         }
         return getBlockState(pos).isSideSolid(this, pos, side);
@@ -127,17 +130,17 @@ public class DelegatedWorld extends World {
     @Override
     @Nonnull
     public Biome getBiome(BlockPos pos) {
-        return handler.getBiome(pos);
+        return data.getBiome(pos);
     }
 
     @Override
     public boolean isValid(BlockPos pos) {
-        return handler.containsBlock(pos);
+        return data.containsBlock(pos);
     }
 
     @Override
     public boolean isBlockLoaded(BlockPos pos) {
-        return handler.containsBlock(pos);
+        return data.containsBlock(pos);
     }
 
     @Override
@@ -145,9 +148,7 @@ public class DelegatedWorld extends World {
         return false;
     }
 
-    public interface Handler {
-        void setParent(DelegatedWorld world);
-
+    public interface Data {
         void setBlockState(BlockPos pos, IBlockState state);
 
         void setTileEntity(BlockPos pos, @Nullable TileEntity entity);
@@ -164,6 +165,10 @@ public class DelegatedWorld extends World {
         Biome getBiome(BlockPos pos);
 
         boolean containsBlock(BlockPos pos);
+
+        default DelegatedWorld buildWorld(World parent) {
+            return new DelegatedWorld(parent, this);
+        }
     }
 
     private static class ChunkProvider implements IChunkProvider {
