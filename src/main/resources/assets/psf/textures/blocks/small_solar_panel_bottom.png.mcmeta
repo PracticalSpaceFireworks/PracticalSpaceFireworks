@@ -1,0 +1,10 @@
+{
+  "ctm": {
+    "ctm_version": 1,
+    "type": "ctm",
+    "layer": "SOLID",
+    "textures": [
+      "psf:blocks/small_solar_panel_bottom_ctm"
+    ]
+  }
+}

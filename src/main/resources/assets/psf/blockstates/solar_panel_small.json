@@ -1,19 +1,16 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "psf:solar_panel_small",
-    "transform": "forge:default-block"
+    "model": "psf:solar_panel_small"
   },
   "variants": {
-    "normal": [{}],
-    "inventory": [{}],
     "facing": {
-      "down": {"x": 180},
-      "up": {},
-      "north": {"x": 90},
-      "south": {"x": 90, "y": 180},
-      "east": {"x": 90, "y": 90},
-      "west": {"x": 90, "y": 270}
+      "down": { "x": 180, "uvlock": true },
+      "up": { },
+      "north": { "x": 90 },
+      "south": { "x": 90, "y": 180 },
+      "east": { "x": 90, "y": 90 },
+      "west": { "x": 90, "y": 270 }
     }
   }
 }

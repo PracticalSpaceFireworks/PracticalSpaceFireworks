@@ -1,22 +1,24 @@
 {
-  "ambientocclusion": true,
+  "__comment": "Copyright © InsomniaKitten 2018",
+  "parent": "minecraft:block/block",
   "textures": {
-    "top": "psf:blocks/solar_panel_single",
-    "sides": "psf:blocks/solar_panel_base",
-    "particle": "#top"
+    "particle": "psf:blocks/small_solar_panel_top",
+    "down": "psf:blocks/small_solar_panel_bottom",
+    "up": "psf:blocks/small_solar_panel_top",
+    "side": "psf:blocks/small_solar_panel_side"
   },
   "elements": [
     {
-        "from": [0, 0, 0],
-        "to": [16, 2, 16],
-        "faces": {
-            "north": { "texture": "#sides"},
-            "east": { "texture": "#sides"},
-            "south": { "texture": "#sides"},
-            "west": { "texture": "#sides"},
-            "up": { "texture": "#top"},
-            "down": { "texture": "#sides"}
-        }
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 4, 16 ],
+      "faces": {
+        "down": { "texture": "#down", "cullface": "down" },
+        "up": { "texture": "#up" },
+        "north": { "texture": "#side", "cullface": "north" },
+        "south": { "texture": "#side", "cullface": "south" },
+        "west": { "texture": "#side", "cullface": "west" },
+        "east": { "texture": "#side", "cullface": "east" }
+      }
     }
   ]
 }

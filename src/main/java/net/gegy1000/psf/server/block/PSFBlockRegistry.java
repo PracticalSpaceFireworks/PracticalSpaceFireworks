@@ -12,7 +12,7 @@ import net.gegy1000.psf.server.block.module.BlockFuelValve;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.block.module.BlockPayloadSeparator;
-import net.gegy1000.psf.server.block.module.BlockSolarPanel;
+import net.gegy1000.psf.server.block.module.BlockSmallSolarPanel;
 import net.gegy1000.psf.server.block.module.BlockStrut;
 import net.gegy1000.psf.server.block.module.TileDummyModule;
 import net.gegy1000.psf.server.block.module.TileModule;
@@ -90,7 +90,7 @@ public class PSFBlockRegistry {
         payloadSeparator = register(event, "payload_separator", new BlockPayloadSeparator());
         registerModuleBlock(event, "terrain_scanner");
         registerModuleBlock(event, "weather_scanner");
-        solarPanelSmall = register(event, "solar_panel_small", new BlockSolarPanel());
+        solarPanelSmall = register(event, "solar_panel_small", new BlockSmallSolarPanel());
         solarPanelLarge = register(event, "solar_panel_large", new BlockMultiblockModule(Material.IRON, "solar_panel_large"));
         laser = register(event, "laser", new BlockMultiblockModule(Material.IRON, "laser") {
 
