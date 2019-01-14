@@ -104,11 +104,6 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         return Arrays.stream(EnumFacing.VALUES).anyMatch(side -> isSideValid(world, pos, side));
     }
 
-    @Override
-    public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side) {
-        return isSideValid(world, pos, side);
-    }
-
     private boolean isSideValid(World world, BlockPos pos, EnumFacing side) {
         BlockPos offsetPos = pos.offset(side.getOpposite());
         IBlockState on = world.getBlockState(offsetPos).getActualState(world, offsetPos);
