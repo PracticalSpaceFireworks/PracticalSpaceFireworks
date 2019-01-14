@@ -8,6 +8,7 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.TileController;
+import net.gegy1000.psf.server.item.ItemBlockModule;
 import net.gegy1000.psf.server.modules.Modules;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
@@ -17,6 +18,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -64,7 +66,13 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     }
 
     @Override
-    protected @Nonnull BlockStateContainer createBlockState() {
+    public ItemBlock createItemBlock(@Nonnull Block block) {
+        return new ItemBlockModule(block);
+    }
+
+    @Override
+    protected @Nonnull
+    BlockStateContainer createBlockState() {
         return new BlockStateContainer(this, DIRECTION);
     }
 
@@ -94,6 +102,11 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     @Override
     public boolean canPlaceBlockAt(@Nonnull World world, @Nonnull BlockPos pos) {
         return Arrays.stream(EnumFacing.VALUES).anyMatch(side -> isSideValid(world, pos, side));
+    }
+
+    @Override
+    public boolean canPlaceBlockOnSide(World world, BlockPos pos, EnumFacing side) {
+        return isSideValid(world, pos, side);
     }
 
     private boolean isSideValid(World world, BlockPos pos, EnumFacing side) {
