@@ -2,14 +2,6 @@
   "ctm": {
     "ctm_version": 1,
     "type": "ctm_horizontal",
-    "layer": "SOLID",
-    "extra": {
-      "connect_to": [
-        {
-          "block": "psf:fuel_tank",
-          "predicate": [ { "rim": "both" } ]
-        }
-      ]
-    }
+    "layer": "SOLID"
   }
 }

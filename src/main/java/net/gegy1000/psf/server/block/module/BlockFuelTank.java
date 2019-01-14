@@ -146,17 +146,6 @@ public class BlockFuelTank extends BlockModule {
         }
     }
 
-    @Override // todo update when ctm supports non-serialized properties
-    public int getMetaFromState(@Nonnull IBlockState state) {
-        return state.getValue(RIM).ordinal();
-    }
-
-    @Override
-    @Nonnull // todo update when ctm supports non-serialized properties
-    public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState().withProperty(RIM, Rim.VALUES[meta % Rim.VALUES.length]);
-    }
-
     @Override
     public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         return true;
