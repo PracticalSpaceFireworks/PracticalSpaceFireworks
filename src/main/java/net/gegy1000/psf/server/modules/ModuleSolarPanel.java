@@ -16,8 +16,8 @@ public class ModuleSolarPanel extends EmptyModule {
      
     private final EnergyStats USAGE_STATS;
     
-    public ModuleSolarPanel(int perTick) {
-        super("solar_panel");
+    public ModuleSolarPanel(String subtype, int perTick) {
+        super("solar_panel_" + subtype);
         USAGE_STATS = new EnergyStats(0, perTick);
     }
 
