@@ -53,6 +53,7 @@ public class FixedSizeWorldHandler implements DelegatedWorld.Handler {
     @Override
     public void setParent(DelegatedWorld parent) {
         this.parent = parent;
+        entities.values().forEach(te -> te.setWorld(parent));
     }
 
     @Override
