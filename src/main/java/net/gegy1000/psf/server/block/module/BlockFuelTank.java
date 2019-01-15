@@ -147,11 +147,9 @@ public class BlockFuelTank extends BlockModule {
 
     private void updateNeighbors(World world, BlockPos pos) {
         for (EnumFacing facing : EnumFacing.values()) {
-            if (facing.getAxis().isHorizontal()) {
-                BlockPos offset = pos.offset(facing);
-                Block other = world.getBlockState(offset).getBlock();
-                world.notifyNeighborsOfStateChange(offset, other, true);
-            }
+            BlockPos offset = pos.offset(facing);
+            Block other = world.getBlockState(offset).getBlock();
+            world.notifyNeighborsOfStateChange(offset, other, true);
         }
     }
 
