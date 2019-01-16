@@ -158,6 +158,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
         }
 
+        if (body.updateRotation(rotationYaw, rotationPitch)) {
+            body.apply(this);
+        }
+
         double lastMotionY = motionY;
 
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);

@@ -46,12 +46,14 @@ public class SpacecraftBody {
         this(craft.getWorld(), craft.buildBodyData(craft.getWorld()));
     }
 
-    public void updateRotation(float yaw, float pitch) {
+    public boolean updateRotation(float yaw, float pitch) {
         if (Math.abs(yaw - this.lastRecalcYaw) > 1e-3 || Math.abs(pitch - this.lastRecalcPitch) > 1e-3) {
             this.recalculateRotation(yaw, pitch);
             this.lastRecalcYaw = yaw;
             this.lastRecalcPitch = pitch;
+            return true;
         }
+        return false;
     }
 
     public void apply(Entity entity) {
