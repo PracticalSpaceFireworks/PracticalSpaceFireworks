@@ -78,7 +78,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public RayTraceResult pointedBlock;
 
     @Getter
-    private State state = new Static(this);
+    private State state = new StaticState(this);
 
     private boolean converted;
     private SpacecraftMetadata metadata;
@@ -120,6 +120,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private void initSpacecraft() {
         this.satellite.detectModules();
         this.body.updateRotation(rotationYaw, rotationPitch);
+        this.body.apply(this);
+
         this.metadata = body.buildSpacecraftMetadata();
 
         if (!world.isRemote) {
@@ -301,6 +303,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 this.rotationYaw = prevRotationYaw;
                 this.rotationPitch = prevRotationPitch;
                 this.body.updateRotation(rotationYaw, rotationPitch);
+                this.body.apply(this);
+
                 return false;
             }
         }
@@ -343,8 +347,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     public void writeSpawnData(ByteBuf buffer) {
         this.body.serialize(buffer);
         ByteBufUtils.writeTag(buffer, this.satellite.serializeNBT());
-
-        buffer.writeBoolean(this.state instanceof Launch);
     }
 
     @Override
@@ -389,13 +391,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         STATIC {
             @Override
             protected State create(EntitySpacecraft entity) {
-                return new Static(entity);
+                return new StaticState(entity);
             }
         },
         LAUNCH {
             @Override
             protected State create(EntitySpacecraft entity) {
-                return new Launch(entity);
+                return new LaunchState(entity);
             }
         };
 
@@ -414,10 +416,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         StateType getType();
     }
 
-    public static class Static implements State {
+    private static class StaticState implements State {
         private final EntitySpacecraft entity;
 
-        public Static(EntitySpacecraft entity) {
+        StaticState(EntitySpacecraft entity) {
             this.entity = entity;
         }
 
@@ -435,7 +437,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
     }
 
-    public static class Launch implements State {
+    private static class LaunchState implements State {
         private static final int ENGINE_WARMUP = 80;
         private static final int MIN_ACC = ENGINE_WARMUP / 4;
 
@@ -446,7 +448,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         private double lastForce;
 
-        public Launch(EntitySpacecraft entity) {
+        LaunchState(EntitySpacecraft entity) {
             this.entity = entity;
             this.fuelHandler = entity.metadata.buildFuelHandler();
         }

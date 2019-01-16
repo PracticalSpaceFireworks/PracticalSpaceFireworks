@@ -35,7 +35,6 @@ public interface SpacecraftModel {
     default void drawBlocks(SpacecraftBodyData body, BlockRenderLayer layer, BufferBuilder builder) {
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-        // TODO: parent of bodydata is bad
         DelegatedWorld world = body.buildWorld(Minecraft.getMinecraft().world);
         for (BlockPos pos : BlockPos.getAllInBoxMutable(body.getMinPos(), body.getMaxPos())) {
             IBlockState state = world.getBlockState(pos);

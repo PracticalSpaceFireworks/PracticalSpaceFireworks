@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import net.gegy1000.psf.server.api.CustomMass;
+import net.gegy1000.psf.server.api.WeightedBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -62,8 +62,8 @@ public class BlockMassHandler {
             return CACHED_STATE_MASS.get(stateId);
         }
 
-        if (state.getBlock() instanceof CustomMass) {
-            return ((CustomMass) state.getBlock()).getMass(state);
+        if (state.getBlock() instanceof WeightedBlock) {
+            return ((WeightedBlock) state.getBlock()).getMass(state);
         }
 
         double mass = getMaterialMass(state.getMaterial());
