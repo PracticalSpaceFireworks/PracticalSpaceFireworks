@@ -4,10 +4,9 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -23,19 +22,18 @@ public class BlockPayloadSeparator extends BlockModule {
     }
 
     @Override
-    public boolean canPlaceBlockOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
-        return side == EnumFacing.UP && super.canPlaceBlockOnSide(world, pos, side);
-    }
-
-    @Nonnull
-    @Override
-    public IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
-        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(DIRECTION, EnumFacing.UP);
+    protected boolean canAttachOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull IBlockState on, @Nonnull EnumFacing side) {
+        return EnumFacing.UP == side;
     }
 
     @Override
     public int getMetaFromState(@Nonnull IBlockState state) {
         return 0;
+    }
+
+    @Override
+    public boolean doesSideBlockRendering(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+        return side.getAxis().isVertical();
     }
 
     @Override
@@ -48,9 +46,9 @@ public class BlockPayloadSeparator extends BlockModule {
     public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
         return true;
     }
-    
+
     @Override
-    protected boolean isDirectional(IBlockState state) {
-        return false; // Directional filtering not needed, since craft splitting ignores these blocks entirely
+    protected boolean isDirectional(@Nonnull IBlockState state) {
+        return false;
     }
 }
