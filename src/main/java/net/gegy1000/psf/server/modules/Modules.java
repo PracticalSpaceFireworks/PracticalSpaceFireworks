@@ -30,6 +30,7 @@ public class Modules {
         registry.register(new SimpleModuleFactory(ModuleController::new).setRegistryName("controller_simple"));
         
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut_cube")).setRegistryName("strut_cube"));
+        registry.register(new SimpleModuleFactory(() -> new EmptyModule("strut_slope")).setRegistryName("strut_slope"));
         
         registry.register(new SimpleModuleFactory(() -> new ModuleBattery(BatteryTier.SIMPLE, 100000)).setRegistryName("battery_simple"));
         registry.register(new SimpleModuleFactory(() -> new ModuleThruster(ModuleThruster.ThrusterTier.SIMPLE)).setRegistryName("thruster_simple"));

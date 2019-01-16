@@ -6,16 +6,7 @@ import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.fueler.BlockFuelLoader;
-import net.gegy1000.psf.server.block.module.BlockBattery;
-import net.gegy1000.psf.server.block.module.BlockFuelTank;
-import net.gegy1000.psf.server.block.module.BlockFuelValve;
-import net.gegy1000.psf.server.block.module.BlockModule;
-import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
-import net.gegy1000.psf.server.block.module.BlockPayloadSeparator;
-import net.gegy1000.psf.server.block.module.BlockSmallSolarPanel;
-import net.gegy1000.psf.server.block.module.BlockStrut;
-import net.gegy1000.psf.server.block.module.TileDummyModule;
-import net.gegy1000.psf.server.block.module.TileModule;
+import net.gegy1000.psf.server.block.module.*;
 import net.gegy1000.psf.server.block.production.BlockAirCompressor;
 import net.gegy1000.psf.server.block.production.BlockAirIntake;
 import net.gegy1000.psf.server.block.production.BlockAirSeparator;
@@ -54,7 +45,8 @@ public class PSFBlockRegistry {
     public static BlockFluidFinite filteredAir;
     public static BlockFluidFinite compressedAir;
 
-    public static BlockStrut strut;
+    public static BlockStrutFixed strut;
+    public static BlockStrutOrientable strutSlope;
 
     public static BlockController basicController;
     public static BlockModule thruster;
@@ -76,7 +68,8 @@ public class PSFBlockRegistry {
         register(event, "controller.simple", basicController = new BlockController(ControllerType.BASIC));
 
         // Modules
-        strut = register(event, "strut_cube", new BlockStrut());
+        strut = register(event, "strut_cube", new BlockStrutFixed("strut_cube"));
+        strutSlope = register(event, "strut_slope", new BlockStrutOrientable.Slope("strut_slope"));
         register(event, "battery.simple", new BlockBattery("battery_simple"));
         thruster = register(event, "thruster.simple", new BlockModule(Material.IRON, "thruster_simple") {
             @Override

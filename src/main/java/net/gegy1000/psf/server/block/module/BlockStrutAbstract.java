@@ -1,11 +1,9 @@
 package net.gegy1000.psf.server.block.module;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.sound.PSFSounds;
+import net.gegy1000.psf.server.block.PSFSoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -25,76 +23,59 @@ import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Random;
-import java.util.function.Function;
 
-public class BlockStrut extends BlockModule {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public abstract class BlockStrutAbstract extends BlockModule {
+    protected static final AxisAlignedBB STRUT_BOUNDING_BOX = new AxisAlignedBB(0.0625, 0.0, 0.0625, 0.9375, 1.0, 0.9375);
 
-    private static final ImmutableMap<EnumFacing, PropertyBool> SIDE_PROPS = Arrays.stream(EnumFacing.VALUES)
-            .collect(Maps.toImmutableEnumMap(Function.identity(), f -> PropertyBool.create(f.getName())));
-
-    private static final AxisAlignedBB STRUT_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 1.0D, 0.9375D);
-
-    public BlockStrut() {
-        super(Material.IRON, "strut_cube");
-        setSoundType(PSFSounds.METAL);
+    public BlockStrutAbstract(String name) {
+        super(Material.IRON, name);
+        setSoundType(PSFSoundType.METAL);
         setHardness(2.0f);
         setCreativeTab(PracticalSpaceFireworks.TAB);
         setLightOpacity(1);
     }
 
     @Override
-    public @Nullable AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return ForgeModContainer.fullBoundingBoxLadders ? FULL_BLOCK_AABB : STRUT_AABB;
+    @Nullable
+    @Deprecated
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return ForgeModContainer.fullBoundingBoxLadders ? FULL_BLOCK_AABB : STRUT_BOUNDING_BOX;
     }
 
     @Override
-    protected @Nonnull
-    BlockStateContainer createBlockState() {
-        BlockStateContainer.Builder builder = new BlockStateContainer.Builder(this);
-        for (PropertyBool prop : SIDE_PROPS.values()) {
-            builder.add(prop);
-        }
-        return builder.add(DIRECTION).build();
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, DIRECTION);
     }
 
     @Override
-    public boolean isFullCube(@Nonnull IBlockState state) {
-        return true;
-    }
-
-    @Override
-    public @Nonnull BlockRenderLayer getRenderLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 
     @Override
-    public int getLightOpacity(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        return super.getLightOpacity(state, world, pos);
-    }
-
-    @Override
-    protected boolean isDirectional(@Nonnull IBlockState state) {
+    protected boolean isDirectional(IBlockState state) {
         return false;
     }
 
     @Override
-    public @Nonnull IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
         return getDefaultState().withProperty(DIRECTION, EnumFacing.UP);
     }
 
     @Override
     @Deprecated
-    public float getAmbientOcclusionLightValue(@Nonnull IBlockState state) {
+    public float getAmbientOcclusionLightValue(IBlockState state) {
         return 0.5F;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Random rand) {
+    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
         if (world.isRainingAt(pos.up())) {
             IBlockState below = world.getBlockState(pos.down());
             BlockFaceShape shape = below.getBlockFaceShape(world, pos.down(), EnumFacing.UP);
@@ -108,56 +89,43 @@ public class BlockStrut extends BlockModule {
     }
 
     @Override
-    public int getMetaFromState(@Nonnull IBlockState state) {
+    public int getMetaFromState(IBlockState state) {
         return 0;
     }
 
     @Override
-    public @Nonnull IBlockState getStateFromMeta(int meta) {
+    public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(DIRECTION, EnumFacing.UP);
     }
 
     @Override
-    public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
         return true;
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        for (EnumFacing side : EnumFacing.VALUES) {
-            PropertyBool property = SIDE_PROPS.get(side);
-            BlockPos offset = pos.offset(side);
-            IBlockState target = world.getBlockState(offset);
-            state = state.withProperty(property, target.getBlock() != this);
-        }
-        return state;
-    }
-
-    @Override
+    @Deprecated
     public boolean causesSuffocation(IBlockState state) {
         return false;
     }
 
     @Override
-    public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
+    public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable EntityLivingBase entity) {
         return true;
     }
-    
+
     @Override
     public void onEntityCollision(World world, BlockPos pos, IBlockState state, Entity entity) {
         if (entity instanceof EntityLivingBase && (!(entity instanceof EntityPlayer) || !((EntityPlayer) entity).capabilities.isFlying)) {
             EntityLivingBase living = (EntityLivingBase) entity;
-
             if (!living.isOnLadder() || !isLadder(state, world, pos, living)) {
                 living.motionX = MathHelper.clamp(living.motionX, -0.15D, 0.15D);
                 living.motionY = Math.max(living.motionY, -0.15D);
                 living.motionZ = MathHelper.clamp(living.motionZ, -0.15D, 0.15D);
                 living.fallDistance = 0.0F;
-
                 if (living.collidedHorizontally) {
                     living.motionY = 0.2D;
                 }
-
                 if (living.isSneaking()) {
                     living.motionY = Math.max(living.motionY, 0.08D);
                 }
