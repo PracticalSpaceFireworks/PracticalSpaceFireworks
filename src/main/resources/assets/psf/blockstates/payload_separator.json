@@ -1,5 +1,6 @@
 {
   "variants": {
-    "normal": { "model": "psf:payload_separator" }
+    "secure=true": { "model": "psf:payload_separator_secure" },
+    "secure=false": { "model": "psf:payload_separator" }
   }
 }

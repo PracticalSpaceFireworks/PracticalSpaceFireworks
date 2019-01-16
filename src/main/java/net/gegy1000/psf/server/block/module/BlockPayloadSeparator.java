@@ -1,54 +1,97 @@
 package net.gegy1000.psf.server.block.module;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BlockPayloadSeparator extends BlockModule {
+    private static final PropertyBool SECURE = PropertyBool.create("secure");
+
     public BlockPayloadSeparator() {
         super(Material.IRON, "payload_separator");
         this.setSoundType(SoundType.METAL);
         this.setHardness(3.0F);
         this.setCreativeTab(PracticalSpaceFireworks.TAB);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.UP));
+        this.setDefaultState(this.blockState.getBaseState()
+                .withProperty(DIRECTION, EnumFacing.UP)
+                .withProperty(SECURE, false)
+        );
+    }
+
+    @Nonnull
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, DIRECTION, SECURE);
     }
 
     @Override
-    protected boolean canAttachOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull IBlockState on, @Nonnull EnumFacing side) {
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
+        return state.withProperty(SECURE, isStructural(state, world.getBlockState(pos.up())));
+    }
+
+    @Override
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos offset) {
+        if (pos.getX() == offset.getX() && pos.getY() + 1 == offset.getY() && pos.getZ() == offset.getZ()) {
+            boolean secure = state.getActualState(world, pos).getValue(SECURE);
+            SoundEvent sound = secure ? SoundEvents.BLOCK_PISTON_EXTEND : SoundEvents.BLOCK_FIRE_EXTINGUISH;
+            float pitch = world.rand.nextFloat() * 0.25F + 0.6F;
+            world.playSound(null, pos, sound, SoundCategory.BLOCKS, 0.5F, pitch);
+        }
+    }
+
+    @Override
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        if (state.getActualState(world, pos).getValue(SECURE)) {
+            float pitch = world.rand.nextFloat() * 0.25F + 0.6F;
+            world.playSound(null, pos, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 0.5F, pitch);
+        }
+    }
+
+    @Override
+    protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, EnumFacing side) {
         return EnumFacing.UP == side;
     }
 
     @Override
-    public int getMetaFromState(@Nonnull IBlockState state) {
+    public int getMetaFromState(IBlockState state) {
         return 0;
     }
 
     @Override
-    public boolean doesSideBlockRendering(@Nonnull IBlockState state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull EnumFacing side) {
+    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return side.getAxis().isVertical();
     }
 
     @Override
-    @Nonnull
     public IBlockState getStateFromMeta(int meta) {
         return this.getDefaultState();
     }
 
     @Override
-    public boolean isStructuralModule(@Nullable IBlockState connecting, @Nonnull IBlockState state) {
+    public boolean isStructuralModule(@Nullable IBlockState connecting, IBlockState state) {
         return true;
     }
 
     @Override
-    protected boolean isDirectional(@Nonnull IBlockState state) {
+    protected boolean isDirectional(IBlockState state) {
         return false;
     }
 }
