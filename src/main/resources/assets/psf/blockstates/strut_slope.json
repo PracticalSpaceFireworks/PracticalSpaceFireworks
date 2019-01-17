@@ -10,18 +10,18 @@
       "east": {}
     },
     "orientation": {
-      "north_down": { "model": "psf:strut_slope.obj", "x" : 90, "y": 270 },
-      "north_up": { "model": "psf:strut_slope.obj", "x" : 270, "y": 270 },
+      "north_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 90 },
+      "north_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 90 },
       "north_west": { "model": "psf:strut_slope.obj", "y": 90 },
       "north_east": { "model": "psf:strut_slope.obj", "y": 180 },
-      "south_down": { "model": "psf:strut_slope.obj", "x" : 90, "y": 90 },
-      "south_up": { "model": "psf:strut_slope.obj", "x" : 270, "y": 90 },
+      "south_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 270 },
+      "south_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 270 },
       "south_west": { "model": "psf:strut_slope.obj" },
       "south_east": { "model": "psf:strut_slope.obj", "y": 270 },
-      "west_down": { "model": "psf:strut_slope.obj", "x" : 90, "y": 180 },
-      "west_up": { "model": "psf:strut_slope.obj", "x" : 270, "y": 180 },
-      "east_down": { "model": "psf:strut_slope.obj", "x" : 90 },
-      "east_up": { "model": "psf:strut_slope.obj", "x" : 270 }
+      "west_down": { "model": "psf:strut_slope.obj", "x": 270 },
+      "west_up": { "model": "psf:strut_slope.obj", "x": 90 },
+      "east_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 180 },
+      "east_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 180 }
     },
     "inventory": {
       "model": "psf:strut_slope.obj",

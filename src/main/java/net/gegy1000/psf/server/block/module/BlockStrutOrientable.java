@@ -58,7 +58,7 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
     @Override // fixme
     public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
         if (side.getAxis().isVertical()) {
-            return getDefaultState().withProperty(ORIENTATION, Orientation.from(placer.getHorizontalFacing().getOpposite(), side));
+            return getDefaultState().withProperty(ORIENTATION, Orientation.from(placer.getHorizontalFacing(), side.getOpposite()));
         } else {
             float offset = side.getAxis() == Axis.X ? hitZ : hitX;
             EnumFacing secondary;
