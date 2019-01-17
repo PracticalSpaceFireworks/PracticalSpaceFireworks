@@ -44,7 +44,7 @@ archivesBaseName = "practical-space-fireworks"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-    version = '1.12.2-14.23.4.2745'
+    version = '1.12.2-14.23.5.2807'
     runDir = 'minecraft'
     mappings = 'stable_39'
 }
@@ -57,7 +57,7 @@ repositories {
 }
 
 dependencies {
-    runtime 'team.chisel.ctm:CTM:MC1.12.2-0.3.2.18'
+    runtime 'team.chisel.ctm:CTM:MC1.12.2-0.3.3.22'
     compile 'mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2'
 }
 
