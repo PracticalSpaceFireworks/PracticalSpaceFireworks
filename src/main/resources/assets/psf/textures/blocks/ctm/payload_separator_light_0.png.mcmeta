@@ -4,7 +4,10 @@
     "type": "normal",
     "layer": "CUTOUT",
     "extra": {
-      "light": 15
+      "light": {
+        "block": 15,
+        "sky": 0
+      }
     }
   }
 }
