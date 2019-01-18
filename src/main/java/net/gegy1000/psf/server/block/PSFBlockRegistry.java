@@ -71,12 +71,7 @@ public class PSFBlockRegistry {
         strut = register(event, "strut_cube", new BlockStrutFixed("strut_cube"));
         strutSlope = register(event, "strut_slope", new BlockStrutOrientable.Slope("strut_slope"));
         register(event, "battery.simple", new BlockBattery("battery_simple"));
-        thruster = register(event, "thruster.simple", new BlockModule(Material.IRON, "thruster_simple") {
-            @Override
-            protected boolean canAttachOnSide(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nonnull IBlockState on, @Nonnull EnumFacing side) {
-                return side == EnumFacing.DOWN;
-            }
-        });
+        thruster = register(event, "thruster.simple", new BlockThruster("thruster_simple"));
         registerModuleBlock(event, "entity_detector.simple");
         registerModuleBlock(event, "entity_marker");
         fuelTank = register(event, "fuel_tank", new BlockFuelTank());

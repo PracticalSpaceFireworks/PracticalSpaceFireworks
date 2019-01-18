@@ -28,10 +28,11 @@ public class BlockPayloadSeparator extends BlockModule {
 
     public BlockPayloadSeparator() {
         super(Material.IRON, "payload_separator");
-        this.setSoundType(SoundType.METAL);
-        this.setHardness(3.0F);
-        this.setCreativeTab(PracticalSpaceFireworks.TAB);
-        this.setDefaultState(this.blockState.getBaseState()
+        setSoundType(SoundType.METAL);
+        setHardness(3.0F);
+        setLightOpacity(4);
+        setCreativeTab(PracticalSpaceFireworks.TAB);
+        setDefaultState(blockState.getBaseState()
                 .withProperty(DIRECTION, EnumFacing.UP)
                 .withProperty(SECURE, false)
         );
@@ -40,6 +41,12 @@ public class BlockPayloadSeparator extends BlockModule {
     @Override
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
         return BlockRenderLayer.SOLID == layer || BlockRenderLayer.CUTOUT == layer;
+    }
+
+    @Override
+    @Deprecated
+    public float getAmbientOcclusionLightValue(IBlockState state) {
+        return 1.0F;
     }
 
     @Nonnull
@@ -84,6 +91,11 @@ public class BlockPayloadSeparator extends BlockModule {
     @Override
     public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return side.getAxis().isVertical() || this == world.getBlockState(pos.offset(side)).getBlock();
+    }
+
+    @Override
+    public boolean causesSuffocation(IBlockState state) {
+        return true;
     }
 
     @Override
