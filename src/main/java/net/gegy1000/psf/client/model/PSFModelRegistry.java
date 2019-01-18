@@ -6,12 +6,15 @@ import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
+import net.gegy1000.psf.server.block.module.BlockPayloadSeparator;
 import net.gegy1000.psf.server.item.ItemCraftingMaterial;
 import net.gegy1000.psf.server.item.PSFItemRegistry;
 import net.gegy1000.psf.server.item.ItemCraftingMaterial.CraftingMaterial;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.renderer.block.statemap.StateMap;
+import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
@@ -24,6 +27,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Set;
 
@@ -58,7 +62,15 @@ public class PSFModelRegistry {
         IStateMapper controllerMapper = new StateMap.Builder().ignore(BlockController.TYPE).build();
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.basicController, controllerMapper);
 
-        ModelLoader.setCustomStateMapper(PSFBlockRegistry.payloadSeparator, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
+        ModelLoader.setCustomStateMapper(PSFBlockRegistry.payloadSeparator, new StateMapperBase() {
+            @Override
+            @Nonnull
+            protected ModelResourceLocation getModelResourceLocation(@Nonnull IBlockState state) {
+                String path = "payload_separator";
+                if (state.getValue(BlockPayloadSeparator.SECURE)) path += "_secure";
+                return new ModelResourceLocation(new ResourceLocation(PracticalSpaceFireworks.MODID, path), "normal");
+            }
+        });
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.strut, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.fuelTank, new StateMap.Builder().ignore(BlockModule.DIRECTION).build());
 

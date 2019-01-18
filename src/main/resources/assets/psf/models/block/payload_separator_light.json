@@ -1,0 +1,85 @@
+{
+  "__comment": "Copyright © InsomniaKitten 2018",
+  "textures": {
+    "particle": "psf:blocks/payload_separator_light"
+  },
+  "elements": [
+    {
+      "from": [ 3, 12, 16 ],
+      "to": [ 16, 16, 16 ],
+      "shade": false,
+      "faces": {
+        "south": { "texture": "#particle", "cullface": "south", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 0, 12, 3 ],
+      "to": [ 0, 16, 16 ],
+      "shade": false,
+      "faces": {
+        "west": { "texture": "#particle", "cullface": "west", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 0, 12, 0 ],
+      "to": [ 13, 16, 0 ],
+      "shade": false,
+      "faces": {
+        "north": { "texture": "#particle", "cullface": "north", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 16, 12, 0 ],
+      "to": [ 16, 16, 13 ],
+      "shade": false,
+      "faces": {
+        "east": { "texture": "#particle", "cullface": "east", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 16, 0, 0 ],
+      "to": [ 16, 4, 13 ],
+      "shade": false,
+      "faces": {
+        "east": { "texture": "#particle", "cullface": "east", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 3, 0, 16 ],
+      "to": [ 16, 4, 16 ],
+      "shade": false,
+      "faces": {
+        "south": { "texture": "#particle", "cullface": "south", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 0, 0, 3 ],
+      "to": [ 0, 4, 16 ],
+      "shade": false,
+      "faces": {
+        "west": { "texture": "#particle", "cullface": "west", "tintindex": 0 }
+      }
+    },
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 13, 4, 0 ],
+      "shade": false,
+      "faces": {
+        "north": { "texture": "#particle", "cullface": "north", "tintindex": 0 }
+      }
+    }
+  ],
+  "ctm_version": 1,
+  "ctm_overrides": {
+    "0": {
+      "type": "normal",
+      "layer": "CUTOUT",
+      "extra": {
+        "light": {
+          "block": 15,
+          "sky": 0
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -23,7 +24,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockPayloadSeparator extends BlockModule {
-    private static final PropertyBool SECURE = PropertyBool.create("secure");
+    public static final PropertyBool SECURE = PropertyBool.create("secure");
 
     public BlockPayloadSeparator() {
         super(Material.IRON, "payload_separator");
@@ -34,6 +35,11 @@ public class BlockPayloadSeparator extends BlockModule {
                 .withProperty(DIRECTION, EnumFacing.UP)
                 .withProperty(SECURE, false)
         );
+    }
+
+    @Override
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+        return BlockRenderLayer.SOLID == layer || BlockRenderLayer.CUTOUT == layer;
     }
 
     @Nonnull

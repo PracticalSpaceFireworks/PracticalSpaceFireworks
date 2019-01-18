@@ -2,9 +2,9 @@
   "forge_marker": 1,
   "defaults": {
     "custom": {
-      "base": "psf:payload_separator#particle",
-      "Solid": "psf:payload_separator#block",
-      "Cutout": "psf:payload_separator#light"
+      "base": "psf:payload_separator_secure#particle",
+      "Solid": "psf:payload_separator_secure#block",
+      "Cutout": "psf:payload_separator_secure#light"
     }
   },
   "variants": {
@@ -21,7 +21,7 @@
       "model": "psf:payload_separator"
     },
     "light": {
-      "model": "psf:payload_separator_light"
+      "model": "psf:payload_separator_light_secure"
     }
   }
 }
