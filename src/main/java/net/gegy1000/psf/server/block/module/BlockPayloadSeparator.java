@@ -83,7 +83,7 @@ public class BlockPayloadSeparator extends BlockModule {
 
     @Override
     public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return side.getAxis().isVertical();
+        return side.getAxis().isVertical() || this == world.getBlockState(pos.offset(side)).getBlock();
     }
 
     @Override
