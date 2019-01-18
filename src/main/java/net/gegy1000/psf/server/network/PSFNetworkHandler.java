@@ -1,7 +1,10 @@
 package net.gegy1000.psf.server.network;
 
 import com.google.common.reflect.Reflection;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.server.block.data.packet.PacketDisplay;
+import net.gegy1000.psf.server.block.data.packet.PacketRequestDisplay;
 import net.gegy1000.psf.server.block.remote.config.PacketConfigChange;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
@@ -35,7 +38,11 @@ public class PSFNetworkHandler {
         network.registerMessage(PacketRequestVisual.Handler.class, PacketRequestVisual.class, nextID(), Side.SERVER);
         network.registerMessage(PacketSetName.Handler.class, PacketSetName.class, nextID(), Side.SERVER);
         network.registerMessage(PacketConfigChange.Handler.class, PacketConfigChange.class, nextID(), Side.SERVER);
-    
+        
+        /* Data Viewer */
+        network.registerMessage(PacketRequestDisplay.Handler.class, PacketRequestDisplay.class, nextID(), Side.SERVER);
+        network.registerMessage(PacketDisplay.Handler.class, PacketDisplay.class, nextID(), Side.CLIENT);
+
         /* Module Syncing */
         network.registerMessage(PacketModule.Handler.class, PacketModule.class, nextID(), Side.CLIENT);
         network.registerMessage(PacketLaserState.Handler.class, PacketLaserState.class, nextID(), Side.CLIENT);

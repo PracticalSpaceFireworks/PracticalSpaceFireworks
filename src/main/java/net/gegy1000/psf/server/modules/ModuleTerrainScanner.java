@@ -1,5 +1,8 @@
 package net.gegy1000.psf.server.modules;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
@@ -14,9 +17,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class ModuleTerrainScanner extends EmptyModule {
     public static final int SCAN_RANGE = 2;
@@ -37,58 +37,51 @@ public class ModuleTerrainScanner extends EmptyModule {
     public void onSatelliteTick(@Nonnull ISatellite satellite) {
         World world = satellite.getWorld();
         BlockPos position = satellite.getPosition();
-        if (world.isBlockLoaded(position) || this.scanData == null && satellite.tryExtractEnergy(POWER_PER_TICK)) {
+        if (world.isBlockLoaded(position) || satellite.tryExtractEnergy(POWER_PER_TICK)) {
             this.scanData = this.scan(world, new ChunkPos(position.getX() >> 4, position.getZ() >> 4));
             this.dirty(true);
         }
     }
 
     private TerrainScanData scan(World world, ChunkPos origin) {
-        int minHeight = 256;
-        int maxHeight = 0;
-
         TerrainScanData scanData = new TerrainScanData();
         for (int chunkZ = -SCAN_RANGE; chunkZ <= SCAN_RANGE; chunkZ++) {
             for (int chunkX = -SCAN_RANGE; chunkX <= SCAN_RANGE; chunkX++) {
                 Chunk chunk = world.getChunk(origin.x + chunkX, origin.z + chunkZ);
-                scanData.addChunk(this.scanChunk(new ChunkPos(chunkX, chunkZ), chunk));
-
-                int height = chunk.getTopFilledSegment() + 8;
-                if (height > maxHeight) {
-                    maxHeight = height;
-                }
-                if (height < minHeight) {
-                    minHeight = height;
+                for (TerrainScanData.ChunkData data : this.scanChunk(chunk)) {
+                    scanData.addChunk(data);
                 }
             }
         }
-
-        scanData.setMinHeight(minHeight);
-        scanData.setMaxHeight(maxHeight);
 
         this.scanned = true;
         return scanData;
     }
 
-    private TerrainScanData.ChunkData scanChunk(ChunkPos chunkPos, Chunk chunk) {
-        byte[] blockColors = new byte[65536];
-
-        int index = 0;
-        for (int localX = 0; localX < 16; localX++) {
-            for (int localZ = 0; localZ < 16; localZ++) {
-                for (int localY = 0; localY < 256; localY++) {
-                    MapColor mapColor = chunk.getBlockState(localX, localY, localZ).getMapColor(null, null);
-                    blockColors[index++] = (byte) mapColor.colorIndex;
+    private TerrainScanData.ChunkData[] scanChunk(Chunk chunk) {
+        int segments = (chunk.getTopFilledSegment() >> 4) + 1;
+        TerrainScanData.ChunkData[] ret = new TerrainScanData.ChunkData[segments];
+        for (int y = 0; y < segments; y++) {
+            byte[] blockColors = new byte[4096];
+    
+            int index = 0;
+            for (int localX = 0; localX < 16; localX++) {
+                for (int localZ = 0; localZ < 16; localZ++) {
+                    for (int localY = y; localY < y + 16; localY++) {
+                        MapColor mapColor = chunk.getBlockState(localX, localY, localZ).getMapColor(null, null);
+                        blockColors[index++] = (byte) mapColor.colorIndex;
+                    }
                 }
             }
+    
+            ret[y] = new TerrainScanData.ChunkData(new BlockPos(chunk.getPos().x, y, chunk.getPos().z), blockColors);
         }
-
-        return new TerrainScanData.ChunkData(chunkPos, blockColors);
+        return ret;
     }
 
     @Override
     public int getTickInterval() {
-        return this.scanned ? SCAN_INTERVAL : 1;
+        return this.scanned ? 100 : 1;
     }
 
     @Override

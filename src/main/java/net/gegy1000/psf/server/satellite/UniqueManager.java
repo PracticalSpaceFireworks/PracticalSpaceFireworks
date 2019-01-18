@@ -10,13 +10,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class UniqueManager<T extends IUnique> {
+public class UniqueManager<T extends IUnique> implements Iterable<T> {
     
     private final Cache<UUID, T> satelliteCache = CacheBuilder.newBuilder()
             .weakValues()
@@ -68,5 +69,10 @@ public class UniqueManager<T extends IUnique> {
 
     public void flush() {
         this.satelliteCache.invalidateAll();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return satelliteCache.asMap().values().iterator();
     }
 }

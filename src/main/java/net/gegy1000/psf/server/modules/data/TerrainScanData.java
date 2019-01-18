@@ -17,20 +17,12 @@ import net.gegy1000.psf.api.data.ITerrainScan;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 @RequiredArgsConstructor
 public class TerrainScanData implements ITerrainScan {
-    private final Map<ChunkPos, IScannedChunk> scannedChunks = new HashMap<>();
-
-    @Getter
-    @Setter
-    private int minHeight;
-
-    @Getter
-    @Setter
-    private int maxHeight;
+    private final Map<BlockPos, IScannedChunk> scannedChunks = new HashMap<>();
 
     public void addChunk(ChunkData chunkData) {
         this.scannedChunks.put(chunkData.chunkPos, chunkData);
@@ -44,8 +36,6 @@ public class TerrainScanData implements ITerrainScan {
             chunkList.appendTag(scannedChunk.serializeNBT());
         }
         compound.setTag("chunks", chunkList);
-        compound.setShort("min_height", (short) this.minHeight);
-        compound.setShort("max_height", (short) this.maxHeight);
         return compound;
     }
 
@@ -57,17 +47,15 @@ public class TerrainScanData implements ITerrainScan {
             chunk.deserializeNBT(chunkList.getCompoundTagAt(i));
             this.scannedChunks.put(chunk.chunkPos, chunk);
         }
-        this.minHeight = compound.getShort("min_height");
-        this.maxHeight = compound.getShort("max_height");
     }
 
     @Nullable
     @Override
     public MapColor getMapColor(int x, int y, int z) {
-        ChunkPos chunkPos = new ChunkPos(x >> 4, z >> 4);
+        BlockPos chunkPos = new BlockPos(x >> 4, y >> 4, z >> 4);
         IScannedChunk scannedChunk = this.scannedChunks.get(chunkPos);
         if (scannedChunk != null) {
-            return scannedChunk.getMapColor(x & 15, y & 255, z & 15);
+            return scannedChunk.getMapColor(x & 15, y & 15, z & 15);
         }
         return null;
     }
@@ -81,19 +69,19 @@ public class TerrainScanData implements ITerrainScan {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChunkData implements IScannedChunk {
-        private ChunkPos chunkPos;
+        private BlockPos chunkPos;
         private byte[] blockColors;
 
         @Nonnull
         @Override
-        public ChunkPos getChunkPos() {
+        public BlockPos getChunkPos() {
             return this.chunkPos;
         }
 
         @Override
         @Nullable
         public MapColor getMapColor(int x, int y, int z) {
-            int idx = this.blockColors[x << 12 | z << 8 | y] & 0xFF;
+            int idx = this.blockColors[x << 8 | z << 4 | y] & 0xFF;
             if (idx == 0) {
                 return null;
             }
@@ -103,16 +91,25 @@ public class TerrainScanData implements ITerrainScan {
         @Override
         public NBTTagCompound serializeNBT() {
             NBTTagCompound compound = new NBTTagCompound();
-            compound.setInteger("chunk_x", this.chunkPos.x);
-            compound.setInteger("chunk_z", this.chunkPos.z);
+            compound.setLong("pos", this.chunkPos.toLong());
             compound.setByteArray("block_data", this.blockColors);
             return compound;
         }
 
         @Override
         public void deserializeNBT(NBTTagCompound compound) {
-            this.chunkPos = new ChunkPos(compound.getInteger("chunk_x"), compound.getInteger("chunk_z"));
+            this.chunkPos = BlockPos.fromLong(compound.getLong("pos"));
             this.blockColors = compound.getByteArray("block_data");
         }
+    }
+
+    @Override
+    public int getMinHeight() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxHeight() {
+        return scannedChunks.keySet().stream().mapToInt(BlockPos::getY).map(i -> (i << 4) + 8).max().orElse(0);
     }
 }

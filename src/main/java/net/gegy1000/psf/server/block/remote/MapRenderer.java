@@ -49,16 +49,39 @@ public class MapRenderer extends Gui {
     private final List<ChunkRenderer> chunkRenderers;
 
     private final ExecutorService chunkBuildService = Executors.newSingleThreadExecutor();
+    
+    private int centerX;
+    private int centerZ;
 
     public MapRenderer(ITerrainScan terrainScan) {
         this.terrainScan = terrainScan;
 
         List<IScannedChunk> chunks = new ArrayList<>(terrainScan.getChunks());
         chunks.sort(Comparator.comparingInt(value -> {
-            ChunkPos chunkPos = value.getChunkPos();
-            return (chunkPos.x * chunkPos.x) + (chunkPos.z * chunkPos.z);
+            BlockPos chunkPos = value.getChunkPos();
+            return (chunkPos.getX() * chunkPos.getX()) + (chunkPos.getZ() * chunkPos.getZ());
         }));
         this.chunkRenderers = chunks.stream().map(ChunkRenderer::new).collect(Collectors.toList());
+        
+        int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
+        int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
+        for (IScannedChunk chunk : terrainScan.getChunks()) {
+            BlockPos pos = chunk.getChunkPos();
+            if (pos.getX() < minX) {
+                minX = pos.getX();
+            }
+            if (pos.getX()> maxX) {
+                maxX = pos.getX();
+            }
+            if (pos.getZ() < minZ) {
+                minZ = pos.getZ();
+            }
+            if (pos.getZ() > maxZ) {
+                maxZ = pos.getZ();
+            }
+        }
+        centerX = minX + ((maxX - minX) / 2);
+        centerZ = minZ + ((maxZ - minZ) / 2);
     }
 
     public void performUploads() {
@@ -67,7 +90,7 @@ public class MapRenderer extends Gui {
 
     public void render() {
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0, -this.terrainScan.getMaxHeight(), 0);
+        GlStateManager.translate(-centerX * 16, -this.terrainScan.getMaxHeight(), -centerZ * 16);
 
         this.chunkRenderers.forEach(ChunkRenderer::render);
 
@@ -92,6 +115,7 @@ public class MapRenderer extends Gui {
     private class ChunkRenderer {
         private final IScannedChunk scannedChunk;
         private final int globalX;
+        private final int globalY;
         private final int globalZ;
 
         private Future<BufferBuilder> builtMesh;
@@ -99,8 +123,9 @@ public class MapRenderer extends Gui {
 
         private ChunkRenderer(IScannedChunk scannedChunk) {
             this.scannedChunk = scannedChunk;
-            this.globalX = scannedChunk.getChunkPos().getXStart();
-            this.globalZ = scannedChunk.getChunkPos().getZStart();
+            this.globalX = scannedChunk.getChunkPos().getX() << 4;
+            this.globalY = scannedChunk.getChunkPos().getY() << 4;
+            this.globalZ = scannedChunk.getChunkPos().getZ() << 4;
 
             this.builtMesh = MapRenderer.this.chunkBuildService.submit(() -> {
                 BufferBuilder builder = new BufferBuilder(0x8000);
@@ -132,7 +157,7 @@ public class MapRenderer extends Gui {
 
         private void render() {
             GlStateManager.pushMatrix();
-            GlStateManager.translate(this.globalX, 0, this.globalZ);
+            GlStateManager.translate(this.globalX, this.globalY, this.globalZ);
 
             if (this.displayList != -1) {
                 GlStateManager.callList(this.displayList);
@@ -181,7 +206,8 @@ public class MapRenderer extends Gui {
             builder.begin(GL11.GL_QUADS, POSITION_COLOR_NORMAL);
 
             IScannedChunk scannedChunk = this.scannedChunk;
-            for (BlockPos pos : BlockPos.getAllInBoxMutable(0, 0, 0, 15, 255, 15)) {
+            int y = scannedChunk.getChunkPos().getY() << 4;
+            for (BlockPos pos : BlockPos.getAllInBoxMutable(0, y, 0, 15, y + 15, 15)) {
                 MapColor mapColor = scannedChunk.getMapColor(pos.getX(), pos.getY(), pos.getZ());
                 if (mapColor != null) {
                     List<EnumFacing> faces = Arrays.stream(RENDER_FACES)

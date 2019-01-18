@@ -12,7 +12,7 @@ import net.gegy1000.psf.api.data.IScannedChunk;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.BlockPos;
 
 @RequiredArgsConstructor
 public class EmptyTerrainScan implements ITerrainScan {
@@ -30,7 +30,7 @@ public class EmptyTerrainScan implements ITerrainScan {
         List<IScannedChunk> scannedChunks = new ArrayList<>();
         for (int localZ = -scanRange; localZ <= scanRange; localZ++) {
             for (int localX = -scanRange; localX <= scanRange; localX++) {
-                scannedChunks.add(new EmptyChunk(new ChunkPos(localX, localZ)));
+                scannedChunks.add(new EmptyChunk(new BlockPos(localX, 0, localZ)));
             }
         }
         return scannedChunks;
@@ -57,11 +57,11 @@ public class EmptyTerrainScan implements ITerrainScan {
 
     @RequiredArgsConstructor
     private class EmptyChunk implements IScannedChunk {
-        private final ChunkPos pos;
+        private final BlockPos pos;
 
         @Nonnull
         @Override
-        public ChunkPos getChunkPos() {
+        public BlockPos getChunkPos() {
             return pos;
         }
 

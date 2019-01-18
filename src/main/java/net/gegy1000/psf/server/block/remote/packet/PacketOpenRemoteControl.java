@@ -15,7 +15,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import net.gegy1000.psf.server.block.data.GuiMapData;
+import net.gegy1000.psf.server.block.data.GuiDataViewer;
 import net.gegy1000.psf.server.block.remote.GuiSelectCraft;
 import net.gegy1000.psf.server.block.remote.ICraftList;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
@@ -94,7 +94,7 @@ public class PacketOpenRemoteControl implements IMessage {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public enum GuiType {
         CONTROL_SYSTEM(gui -> new GuiSelectCraft((TileCraftList) gui)),
-        DATA_VIEWER(gui -> new GuiMapData((TileCraftList) gui)),
+        DATA_VIEWER(gui -> new GuiDataViewer((TileCraftList) gui)),
         ;
         
         private final Function<ICraftList, ? extends GuiScreen> guiFactory;

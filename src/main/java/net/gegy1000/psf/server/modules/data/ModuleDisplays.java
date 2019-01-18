@@ -3,8 +3,8 @@ package net.gegy1000.psf.server.modules.data;
 import javax.annotation.Nonnull;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModuleFactory;
@@ -35,13 +35,13 @@ public class ModuleDisplays {
     
     @SubscribeEvent
     public static void registerModuleDisplays(RegistryEvent.Register<IModuleFactory> event) {
-        registry.register(new SimpleModuleDataDisplayFactory(ModuleDisplayMap::new, s -> {
-            Collection<ITerrainScan> scans = s.getModuleCaps(CapabilityModuleData.TERRAIN_SCAN);
+        registry.register(new SimpleModuleDataDisplayFactory(ModuleDisplayMap::new, crafts -> {
+            Collection<ITerrainScan> scans = StreamSupport.stream(crafts.spliterator(), false).flatMap(s -> s.getModuleCaps(CapabilityModuleData.TERRAIN_SCAN).stream()).collect(Collectors.toList());
             if (scans.isEmpty()) {
                 return null;
             }
             return new ModuleDisplayMap(new CompositeTerrainScan(scans));
-        }));
+        }).setRegistryName("map"));
     }
 
     public static @Nonnull IForgeRegistry<IModuleDataDisplayFactory> get() {

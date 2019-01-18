@@ -15,14 +15,14 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 public class SimpleModuleDataDisplayFactory extends IForgeRegistryEntry.Impl<IModuleDataDisplayFactory> implements IModuleDataDisplayFactory {
     
     private final Supplier<IModuleDataDisplay> defaultFactory;
-    private final Function<ISatellite, IModuleDataDisplay> factory;
+    private final Function<Iterable<ISatellite>, IModuleDataDisplay> factory;
     
     public SimpleModuleDataDisplayFactory(Supplier<IModuleDataDisplay> defaultFactory) {
         this(defaultFactory, $ -> defaultFactory.get());
     }
     
     @Override
-    public Optional<IModuleDataDisplay> create(ISatellite craft) {
+    public Optional<IModuleDataDisplay> create(Iterable<ISatellite> craft) {
         return Optional.ofNullable(factory.apply(craft));
     }
 

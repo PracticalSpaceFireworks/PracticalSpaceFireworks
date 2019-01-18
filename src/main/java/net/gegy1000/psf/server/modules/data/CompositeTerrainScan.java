@@ -10,8 +10,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.api.data.IScannedChunk;
 import net.gegy1000.psf.api.data.ITerrainScan;
+import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants;
 
 /**
  * Convenience wrapper for multiple {@link ITerrainScan} instances. <strong>Cannot be serialized!</strong>
@@ -25,12 +28,25 @@ public class CompositeTerrainScan implements ITerrainScan {
 
     @Override
     public NBTTagCompound serializeNBT() {
-        throw new UnsupportedOperationException();
+        NBTTagList list = new NBTTagList();
+        for (ITerrainScan scan : scans) {
+            list.appendTag(scan.serializeNBT());
+        }
+        NBTTagCompound ret = new NBTTagCompound();
+        ret.setTag("scans", list);
+        return ret;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
-        throw new UnsupportedOperationException();
+        scans.clear();
+        NBTTagList list = nbt.getTagList("scans", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < list.tagCount(); i++) {
+            NBTTagCompound tag = list.getCompoundTagAt(i);
+            ITerrainScan scan = tag.isEmpty() ? new EmptyTerrainScan(ModuleTerrainScanner.SCAN_RANGE) : new TerrainScanData();
+            scan.deserializeNBT(tag);
+            scans.add(scan);
+        }
     }
 
     @Override
