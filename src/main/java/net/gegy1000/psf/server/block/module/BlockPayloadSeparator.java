@@ -62,7 +62,7 @@ public class BlockPayloadSeparator extends BlockModule {
 
     @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos offset) {
-        if (pos.getX() == offset.getX() && pos.getY() + 1 == offset.getY() && pos.getZ() == offset.getZ()) {
+        if (!CONVERTING.get() && pos.getX() == offset.getX() && pos.getY() + 1 == offset.getY() && pos.getZ() == offset.getZ()) {
             boolean secure = state.getActualState(world, pos).getValue(SECURE);
             SoundEvent sound = secure ? SoundEvents.BLOCK_PISTON_EXTEND : SoundEvents.BLOCK_FIRE_EXTINGUISH;
             float pitch = world.rand.nextFloat() * 0.25F + 0.6F;
