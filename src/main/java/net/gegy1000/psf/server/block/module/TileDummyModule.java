@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.block.module;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import lombok.Getter;
 import net.gegy1000.psf.api.IModule;
@@ -8,6 +9,7 @@ import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class TileDummyModule extends TileModule {
     
@@ -17,8 +19,11 @@ public class TileDummyModule extends TileModule {
 
     @Override
     public IModule getModule() {
-        TileEntity te = getWorld() == null ? null : getWorld().getTileEntity(getMaster());
-        return te == null ? null : te.getCapability(CapabilityModule.INSTANCE, null);
+        @Nullable World world = this.world;
+        if (world == null) return null;
+        TileEntity te = world.getTileEntity(getMaster());
+        if (te == null) return null;
+        return te.getCapability(CapabilityModule.INSTANCE, null);
     }
     
     @Nonnull
