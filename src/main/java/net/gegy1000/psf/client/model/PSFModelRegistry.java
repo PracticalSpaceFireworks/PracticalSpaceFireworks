@@ -2,6 +2,7 @@ package net.gegy1000.psf.client.model;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemModel;
+import net.gegy1000.psf.server.block.BlockPSFFluid;
 import net.gegy1000.psf.server.block.PSFBlockRegistry;
 import net.gegy1000.psf.server.block.controller.BlockController;
 import net.gegy1000.psf.server.block.module.BlockModule;
@@ -33,9 +34,27 @@ import java.util.Objects;
 @SideOnly(Side.CLIENT)
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID, value = Side.CLIENT)
 public final class PSFModelRegistry {
+    private PSFModelRegistry() {}
+
     @SubscribeEvent
     static void onRegisterModels(ModelRegistryEvent event) {
         OBJLoader.INSTANCE.addDomain(PracticalSpaceFireworks.MODID);
+
+        ignoreProperty(PSFBlockRegistry.basicController, BlockController.TYPE);
+
+        for (Block block : PSFBlockRegistry.getRegisteredBlocks()) {
+            if (block instanceof BlockModule) {
+                if (!((BlockModule) block).isDirectional()) {
+                    ignoreProperty(block, BlockModule.DIRECTION);
+                }
+                if (block instanceof BlockMultiblockModule) {
+                    ignoreProperty(block, BlockMultiblockModule.DUMMY);
+                }
+            }
+            if (block instanceof BlockPSFFluid) {
+                ignoreProperty(block, BlockFluidFinite.LEVEL);
+            }
+        }
 
         for (Item item : PSFItemRegistry.getRegisteredItems()) {
             if (!(item instanceof RegisterItemModel)) continue;
@@ -55,17 +74,6 @@ public final class PSFModelRegistry {
             ModelResourceLocation model = new ModelResourceLocation(path, "inventory");
             ModelLoader.setCustomModelResourceLocation(item, 0, model);
         }
-
-        ignoreProperty(PSFBlockRegistry.basicController, BlockController.TYPE);
-        ignoreProperty(PSFBlockRegistry.strut, BlockModule.DIRECTION);
-        ignoreProperty(PSFBlockRegistry.fuelTank, BlockModule.DIRECTION);
-        ignoreProperty(PSFBlockRegistry.kerosene, BlockFluidFinite.LEVEL);
-        ignoreProperty(PSFBlockRegistry.liquidOxygen, BlockFluidFinite.LEVEL);
-        ignoreProperty(PSFBlockRegistry.liquidNitrogen, BlockFluidFinite.LEVEL);
-        ignoreProperty(PSFBlockRegistry.filteredAir, BlockFluidFinite.LEVEL);
-        ignoreProperty(PSFBlockRegistry.compressedAir, BlockFluidFinite.LEVEL);
-        ignoreProperty(PSFBlockRegistry.solarPanelLarge, BlockMultiblockModule.DUMMY);
-        ignoreProperty(PSFBlockRegistry.laser, BlockMultiblockModule.DUMMY);
 
         ModelLoader.setCustomStateMapper(PSFBlockRegistry.payloadSeparator, new StateMapperBase() {
             @Override

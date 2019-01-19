@@ -1,11 +1,5 @@
 {
   "variants": {
-    "facing=down": {"model": "psf:fuel_valve", "x": 90},
-    "facing=up": {"model": "psf:fuel_valve", "x": 270},
-    "facing=north": {"model": "psf:fuel_valve"},
-    "facing=south": {"model": "psf:fuel_valve", "y": 180},
-    "facing=west": {"model": "psf:fuel_valve", "y": 270},
-    "facing=east": {"model": "psf:fuel_valve", "y": 90},
-    "inventory": {"model": "psf:fuel_valve"}
+    "normal": { "model": "psf:fuel_valve" }
   }
 }

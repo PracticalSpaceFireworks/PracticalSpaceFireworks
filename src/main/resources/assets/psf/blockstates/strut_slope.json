@@ -1,14 +1,6 @@
 {
   "forge_marker": 1,
   "variants": {
-    "facing": {
-      "down": {},
-      "up": {},
-      "north": {},
-      "south": {},
-      "west": {},
-      "east": {}
-    },
     "orientation": {
       "north_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 90 },
       "north_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 90 },
