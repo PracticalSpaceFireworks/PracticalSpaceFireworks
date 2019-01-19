@@ -3,6 +3,7 @@ package net.gegy1000.psf.client;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.block.module.BlockStrutAbstract;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
@@ -36,6 +37,7 @@ public final class StrutDebugBoxRenderer {
     @SubscribeEvent
     static void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
         if (!FMLLaunchHandler.isDeobfuscatedEnvironment()) return;
+        if (!Minecraft.getMinecraft().gameSettings.showDebugInfo) return;
         @Nullable RayTraceResult hit = event.getTarget();
         if (hit == null || Type.BLOCK != hit.typeOfHit) return;
         BlockPos pos = event.getTarget().getBlockPos();
