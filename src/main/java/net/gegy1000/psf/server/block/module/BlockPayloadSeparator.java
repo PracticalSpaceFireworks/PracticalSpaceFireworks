@@ -8,11 +8,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -56,23 +54,26 @@ public class BlockPayloadSeparator extends BlockModule {
     }
 
     @Override
-    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return state.withProperty(SECURE, isStructural(state, world.getBlockState(pos.up())));
-    }
-
-    @Override
     public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos offset) {
         if (!CONVERTING.get() && pos.getX() == offset.getX() && pos.getY() + 1 == offset.getY() && pos.getZ() == offset.getZ()) {
-            boolean secure = state.getActualState(world, pos).getValue(SECURE);
-            SoundEvent sound = secure ? SoundEvents.BLOCK_PISTON_EXTEND : SoundEvents.BLOCK_FIRE_EXTINGUISH;
-            float pitch = world.rand.nextFloat() * 0.25F + 0.6F;
-            world.playSound(null, pos, sound, SoundCategory.BLOCKS, 0.5F, pitch);
+            boolean secure = state.getValue(SECURE);
+            if (secure != isStructural(state, world.getBlockState(offset)))
+                if (world.setBlockState(pos, state.withProperty(SECURE, !secure))) {
+                    SoundEvent sound = !secure ? SoundEvents.BLOCK_PISTON_EXTEND : SoundEvents.BLOCK_FIRE_EXTINGUISH;
+                    world.playSound(null, pos, sound, SoundCategory.BLOCKS, 0.5F, world.rand.nextFloat() * 0.25F + 0.6F);
+                }
         }
+    }
+
+    @Nonnull
+    @Override
+    public IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ, int meta, @Nonnull EntityLivingBase placer, @Nonnull EnumHand hand) {
+        return getDefaultState().withProperty(SECURE, isStructural(getDefaultState(), world.getBlockState(pos.up())));
     }
 
     @Override
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        if (state.getActualState(world, pos).getValue(SECURE)) {
+        if (state.getValue(SECURE)) {
             float pitch = world.rand.nextFloat() * 0.25F + 0.6F;
             world.playSound(null, pos, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 0.5F, pitch);
         }
@@ -85,7 +86,7 @@ public class BlockPayloadSeparator extends BlockModule {
 
     @Override
     public int getMetaFromState(IBlockState state) {
-        return 0;
+        return state.getValue(SECURE) ? 1 : 0;
     }
 
     @Override
@@ -100,7 +101,7 @@ public class BlockPayloadSeparator extends BlockModule {
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return this.getDefaultState();
+        return getDefaultState().withProperty(SECURE, meta == 1);
     }
 
     @Override
