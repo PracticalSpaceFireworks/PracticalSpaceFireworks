@@ -3,6 +3,7 @@ package net.gegy1000.psf.server.block.fueler;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import net.gegy1000.psf.server.block.module.BlockFuelTank;
 import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
@@ -13,6 +14,8 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
@@ -89,18 +92,16 @@ public class TileFuelLoader extends TileEntity {
     }
 
     private IFluidHandler getFluidHandler() {
+        @Nullable World world = this.world;
+        @Nullable BlockPos pos = this.pos;
+        if (world == null || pos == null) return null;
+        IBlockState state = world.getBlockState(pos);
+        if (!(state.getBlock() instanceof BlockFuelTank)) return null;
         EnumFacing facing = world.getBlockState(pos).getValue(BlockHorizontal.FACING);
         TileEntity entity = world.getTileEntity(pos.offset(facing));
-        if (entity == null) {
-            return null;
-        }
-
+        if (entity == null) return null;
         IFluidHandler handler = entity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
-        if (handler != null && isFuelTank(handler)) {
-            return handler;
-        }
-
-        return null;
+        return handler != null && isFuelTank(handler) ? handler : null;
     }
 
     private boolean isFuelTank(IFluidHandler handler) {
