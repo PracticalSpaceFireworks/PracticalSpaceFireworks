@@ -58,7 +58,7 @@ public abstract class BlockStrutAbstract extends BlockModule {
     }
 
     @Override
-    protected boolean isDirectional(IBlockState state) {
+    protected boolean isDirectional() {
         return false;
     }
 

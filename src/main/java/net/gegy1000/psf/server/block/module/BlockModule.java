@@ -95,7 +95,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         return true;
     }
     
-    protected boolean isDirectional(IBlockState state) {
+    protected boolean isDirectional() {
         return true;
     }
 
@@ -203,7 +203,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
     public static boolean isConnectedTo(IBlockState state, EnumFacing side) {
         Block block = state.getBlock();
         if (!(block instanceof BlockModule)) return true;
-        if (!((BlockModule) block).isDirectional(state)) return true;
+        if (!((BlockModule) block).isDirectional()) return true;
         return side == state.getValue(DIRECTION);
     }
 }
