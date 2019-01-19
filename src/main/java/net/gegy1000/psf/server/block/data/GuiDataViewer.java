@@ -1,5 +1,7 @@
 package net.gegy1000.psf.server.block.data;
 
+import java.io.IOException;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Rectangle;
 
@@ -11,6 +13,7 @@ import net.gegy1000.psf.server.block.remote.TileCraftList;
 import net.gegy1000.psf.server.modules.data.ModuleDisplays;
 import net.gegy1000.psf.server.util.GuiDummyContainer;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 public class GuiDataViewer extends GuiDummyContainer implements IDataDisplay {
@@ -21,7 +24,9 @@ public class GuiDataViewer extends GuiDummyContainer implements IDataDisplay {
     
     private final IModuleDataDisplayFactory displayFactory = ModuleDisplays.get().getValue(new ResourceLocation("psf:map"));
     
-    private IModuleDataDisplay display;
+    private IModuleDataDisplay display = displayFactory.create();
+    
+    private boolean updating;
     
     public GuiDataViewer(TileCraftList te) {
         super(te);
@@ -36,7 +41,14 @@ public class GuiDataViewer extends GuiDummyContainer implements IDataDisplay {
     @Override
     public void initGui() {
         super.initGui();
-        requestDisplay(displayFactory);
+    }
+    
+    @Override
+    public void updateScreen() {
+    	if (!updating && display != null && display.needsUpdate()) {
+    		updating = true;
+    		requestDisplayUpdate(displayFactory, display);
+    	}
     }
     
     @Override
@@ -56,9 +68,28 @@ public class GuiDataViewer extends GuiDummyContainer implements IDataDisplay {
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
         }
     }
-
+    
     @Override
-    public void setDisplay(IModuleDataDisplay display) {
-        this.display = display;
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
+    	super.mouseClicked(mouseX, mouseY, mouseButton);
+    	display.mouseClick(mouseX, mouseY, mouseButton, true);
+    }
+    
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+    	super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
+    	display.mouseMove(mouseX, mouseY, true);
+    }
+    
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+    	super.mouseReleased(mouseX, mouseY, state);
+    	display.mouseClick(mouseX, mouseY, state, false);
+    }
+    
+    @Override
+    public void updateDisplay(NBTTagCompound updateData) {
+    	updating = false;
+    	this.display.updateData(updateData);
     }
 }

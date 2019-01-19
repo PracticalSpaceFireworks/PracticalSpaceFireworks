@@ -7,6 +7,9 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 
 public interface ITerrainScan extends IModuleData {
+	
+	void addChunk(IScannedChunk chunk);
+	
     @Nullable
     MapColor getMapColor(int x, int y, int z);
 

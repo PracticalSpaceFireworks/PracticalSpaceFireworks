@@ -83,6 +83,11 @@ public class MapRenderer extends Gui {
         centerX = minX + ((maxX - minX) / 2);
         centerZ = minZ + ((maxZ - minZ) / 2);
     }
+    
+    public void addChunk(IScannedChunk chunk) {
+    	this.terrainScan.addChunk(chunk);
+    	this.chunkRenderers.add(new ChunkRenderer(chunk));
+    }
 
     public void performUploads() {
         this.chunkRenderers.forEach(ChunkRenderer::performUploads);
@@ -90,7 +95,7 @@ public class MapRenderer extends Gui {
 
     public void render() {
         GlStateManager.pushMatrix();
-        GlStateManager.translate(-centerX * 16, -this.terrainScan.getMaxHeight(), -centerZ * 16);
+        GlStateManager.translate(0, -this.terrainScan.getMaxHeight(), 0);
 
         this.chunkRenderers.forEach(ChunkRenderer::render);
 

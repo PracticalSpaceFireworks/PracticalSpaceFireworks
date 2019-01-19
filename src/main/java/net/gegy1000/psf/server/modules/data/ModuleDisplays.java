@@ -1,19 +1,24 @@
 package net.gegy1000.psf.server.modules.data;
 
-import javax.annotation.Nonnull;
-
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import javax.annotation.Nonnull;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IModuleFactory;
 import net.gegy1000.psf.api.data.IModuleDataDisplayFactory;
+import net.gegy1000.psf.api.data.IScannedChunk;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.api.data.SimpleModuleDataDisplayFactory;
 import net.gegy1000.psf.server.block.data.ModuleDisplayMap;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -35,12 +40,25 @@ public class ModuleDisplays {
     
     @SubscribeEvent
     public static void registerModuleDisplays(RegistryEvent.Register<IModuleFactory> event) {
-        registry.register(new SimpleModuleDataDisplayFactory(ModuleDisplayMap::new, crafts -> {
-            Collection<ITerrainScan> scans = StreamSupport.stream(crafts.spliterator(), false).flatMap(s -> s.getModuleCaps(CapabilityModuleData.TERRAIN_SCAN).stream()).collect(Collectors.toList());
+        registry.register(new SimpleModuleDataDisplayFactory(ModuleDisplayMap::new, requestData -> {
+            Collection<ITerrainScan> scans = StreamSupport.stream(PracticalSpaceFireworks.PROXY.getSatellites().spliterator(), false)
+            		.flatMap(s -> s.getModuleCaps(CapabilityModuleData.TERRAIN_SCAN).stream())
+            		.collect(Collectors.toList());
             if (scans.isEmpty()) {
-                return null;
+                return new NBTTagCompound();
             }
-            return new ModuleDisplayMap(new CompositeTerrainScan(scans));
+            Map<ChunkPos, List<IScannedChunk>> allChunks = new CompositeTerrainScan(scans).getChunks().stream()
+            		.collect(Collectors.groupingBy(c -> new ChunkPos(c.getChunkPos().getX(), c.getChunkPos().getZ())));
+            ITerrainScan localScan = new TerrainScanData();
+    		int[] chunks = requestData.getIntArray("chunks");
+    		for (int i = 0; i < chunks.length; i += 2) {
+    			int x = chunks[i], z = chunks[i + 1];
+    			List<IScannedChunk> sections = allChunks.get(new ChunkPos(x, z));
+    			if (sections != null) {
+    				sections.forEach(localScan::addChunk);
+    			}
+    		}
+    		return localScan.serializeNBT();
         }).setRegistryName("map"));
     }
 

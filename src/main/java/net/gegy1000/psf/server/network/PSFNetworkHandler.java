@@ -3,8 +3,8 @@ package net.gegy1000.psf.server.network;
 import com.google.common.reflect.Reflection;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.block.data.packet.PacketDisplay;
-import net.gegy1000.psf.server.block.data.packet.PacketRequestDisplay;
+import net.gegy1000.psf.server.block.data.packet.PacketDisplayUpdate;
+import net.gegy1000.psf.server.block.data.packet.PacketRequestDisplayUpdate;
 import net.gegy1000.psf.server.block.remote.config.PacketConfigChange;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
@@ -40,8 +40,8 @@ public class PSFNetworkHandler {
         network.registerMessage(PacketConfigChange.Handler.class, PacketConfigChange.class, nextID(), Side.SERVER);
         
         /* Data Viewer */
-        network.registerMessage(PacketRequestDisplay.Handler.class, PacketRequestDisplay.class, nextID(), Side.SERVER);
-        network.registerMessage(PacketDisplay.Handler.class, PacketDisplay.class, nextID(), Side.CLIENT);
+        network.registerMessage(PacketRequestDisplayUpdate.Handler.class, PacketRequestDisplayUpdate.class, nextID(), Side.SERVER);
+        network.registerMessage(PacketDisplayUpdate.Handler.class, PacketDisplayUpdate.class, nextID(), Side.CLIENT);
 
         /* Module Syncing */
         network.registerMessage(PacketModule.Handler.class, PacketModule.class, nextID(), Side.CLIENT);

@@ -43,7 +43,7 @@ public class CompositeTerrainScan implements ITerrainScan {
         NBTTagList list = nbt.getTagList("scans", Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
-            ITerrainScan scan = tag.isEmpty() ? new EmptyTerrainScan(ModuleTerrainScanner.SCAN_RANGE) : new TerrainScanData();
+            ITerrainScan scan = new TerrainScanData();
             scan.deserializeNBT(tag);
             scans.add(scan);
         }
@@ -76,4 +76,16 @@ public class CompositeTerrainScan implements ITerrainScan {
         }
         return cachedMaxHeight;
     }
+
+	@Override
+	public void addChunk(IScannedChunk chunk) {
+		ITerrainScan scan;
+		if (scans.isEmpty()) {
+			scan = new TerrainScanData();
+			scans.add(scan);
+		} else {
+			scan = scans.iterator().next();
+		}
+		scan.addChunk(chunk);
+	}
 }

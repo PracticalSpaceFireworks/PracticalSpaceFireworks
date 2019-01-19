@@ -1,13 +1,12 @@
 package net.gegy1000.psf.api.data;
 
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.ISatellite;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 @RequiredArgsConstructor
@@ -15,19 +14,15 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 public class SimpleModuleDataDisplayFactory extends IForgeRegistryEntry.Impl<IModuleDataDisplayFactory> implements IModuleDataDisplayFactory {
     
     private final Supplier<IModuleDataDisplay> defaultFactory;
-    private final Function<Iterable<ISatellite>, IModuleDataDisplay> factory;
-    
-    public SimpleModuleDataDisplayFactory(Supplier<IModuleDataDisplay> defaultFactory) {
-        this(defaultFactory, $ -> defaultFactory.get());
-    }
-    
-    @Override
-    public Optional<IModuleDataDisplay> create(Iterable<ISatellite> craft) {
-        return Optional.ofNullable(factory.apply(craft));
-    }
+    private final UnaryOperator<NBTTagCompound> dataConverter;
 
     @Override
-    public IModuleDataDisplay createDefault() {
+    public IModuleDataDisplay create() {
         return defaultFactory.get();
+    }
+    
+    @Override
+    public NBTTagCompound getUpdateData(NBTTagCompound requestData) {
+    	return dataConverter.apply(requestData);
     }
 }

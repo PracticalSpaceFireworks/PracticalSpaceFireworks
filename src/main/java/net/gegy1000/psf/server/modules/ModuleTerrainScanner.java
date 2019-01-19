@@ -7,7 +7,6 @@ import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
-import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.modules.data.TerrainScanData;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.nbt.NBTTagCompound;
@@ -115,7 +114,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityModuleData.TERRAIN_SCAN) {
-            ITerrainScan terrainScan = this.scanData != null ? this.scanData : new EmptyTerrainScan(SCAN_RANGE);
+            ITerrainScan terrainScan = this.scanData != null ? this.scanData : new TerrainScanData();
             return CapabilityModuleData.TERRAIN_SCAN.cast(terrainScan);
         } else if (capability == CapabilityModuleData.ENERGY_STATS) {
             return CapabilityModuleData.ENERGY_STATS.cast(ENERGY_STATS);

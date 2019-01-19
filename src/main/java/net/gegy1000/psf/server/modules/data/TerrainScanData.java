@@ -1,17 +1,15 @@
 package net.gegy1000.psf.server.modules.data;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import net.gegy1000.psf.api.data.IScannedChunk;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.minecraft.block.material.MapColor;
@@ -24,8 +22,9 @@ import net.minecraftforge.common.util.Constants;
 public class TerrainScanData implements ITerrainScan {
     private final Map<BlockPos, IScannedChunk> scannedChunks = new HashMap<>();
 
-    public void addChunk(ChunkData chunkData) {
-        this.scannedChunks.put(chunkData.chunkPos, chunkData);
+    @Override
+    public void addChunk(IScannedChunk chunkData) {
+        this.scannedChunks.put(chunkData.getChunkPos(), chunkData);
     }
 
     @Override
