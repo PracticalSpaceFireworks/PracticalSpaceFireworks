@@ -5,26 +5,31 @@ import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import mcp.MethodsReturnNonnullByDefault;
+import net.gegy1000.psf.server.util.AxisDirectionalBB;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeModContainer;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.EnumSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
-// todo rotate and manage bounding boxes (getSouthWestBoxes -> addCollisionBoxToList)
+// todo matrix based computation for collision boxes? optimize them, pls
 // todo placement orientation (getStateForPlacement)
 // todo wrench orientation (withRotation/withMirror/rotateBlock)
 
@@ -38,11 +43,61 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
         setDefaultState(getDefaultState().withProperty(ORIENTATION, Orientation.SOUTH_WEST));
     }
 
-    protected abstract Set<AxisAlignedBB> getSouthWestBoxes();
+    protected abstract ImmutableSet<AxisAlignedBB> getCollisionBoxes();
+
+    protected abstract ImmutableSet<AxisAlignedBB> getRayTracingBoxes();
 
     @Override
     public int getMetaFromState(IBlockState state) {
         return state.getValue(ORIENTATION).ordinal();
+    }
+
+    @Override
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> boxes, @Nullable Entity entityIn, boolean isActualState) {
+        Orientation orientation = state.getValue(ORIENTATION);
+        for (AxisAlignedBB box : getCollisionBoxes()) {
+            AxisAlignedBB rot = orientation.rotateBox(box);
+            if (orientation.getSecondary().getAxis().isHorizontal()) { // fixme this is awful
+                addCollisionBoxToList(pos, entityBox, boxes, new AxisAlignedBB(rot.minX, 0.0, rot.minZ, rot.maxX, 1.0, rot.maxZ));
+            } else {
+                addCollisionBoxToList(pos, entityBox, boxes, rot);
+            }
+        }
+    }
+
+    @Override
+    @Deprecated
+    @Nullable
+    public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos position, Vec3d start, Vec3d end) {
+        Set<AxisAlignedBB> boxes = new HashSet<>();
+        Orientation orientation = state.getValue(ORIENTATION);
+        for (AxisAlignedBB box : getRayTracingBoxes()) {
+            boxes.add(orientation.rotateBox(box));
+
+        }
+        int x = position.getX();
+        int y = position.getY();
+        int z = position.getZ();
+        Set<RayTraceResult> hits = new HashSet<>();
+        Vec3d a = start.subtract(x, y, z);
+        Vec3d b = end.subtract(x, y, z);
+        for (AxisAlignedBB box : boxes) {
+            @Nullable RayTraceResult hit = box.calculateIntercept(a, b);
+            if (hit != null) {
+                Vec3d vec = hit.hitVec.add(x, y, z);
+                hits.add(new RayTraceResult(vec, hit.sideHit, position));
+            }
+        }
+        RayTraceResult ret = null;
+        double sqrDis = 0.0D;
+        for (RayTraceResult hit : hits) {
+            double newSqrDis = hit.hitVec.squareDistanceTo(end);
+            if (newSqrDis > sqrDis) {
+                ret = hit;
+                sqrDis = newSqrDis;
+            }
+        }
+        return ret;
     }
 
     @Override
@@ -79,24 +134,25 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
     @Getter
     @RequiredArgsConstructor
     public enum Orientation implements IStringSerializable {
-        NORTH_DOWN(EnumFacing.NORTH, EnumFacing.DOWN),
-        NORTH_UP(EnumFacing.NORTH, EnumFacing.UP),
-        NORTH_WEST(EnumFacing.NORTH, EnumFacing.WEST),
-        NORTH_EAST(EnumFacing.NORTH, EnumFacing.EAST),
-        SOUTH_DOWN(EnumFacing.SOUTH, EnumFacing.DOWN),
-        SOUTH_UP(EnumFacing.SOUTH, EnumFacing.UP),
-        SOUTH_WEST(EnumFacing.SOUTH, EnumFacing.WEST),
-        SOUTH_EAST(EnumFacing.SOUTH, EnumFacing.EAST),
-        WEST_DOWN(EnumFacing.WEST, EnumFacing.DOWN),
-        WEST_UP(EnumFacing.WEST, EnumFacing.UP),
-        EAST_DOWN(EnumFacing.EAST, EnumFacing.DOWN),
-        EAST_UP(EnumFacing.EAST, EnumFacing.UP);
+        NORTH_DOWN(EnumFacing.NORTH, EnumFacing.DOWN, Rotation.CLOCKWISE_90),
+        NORTH_UP(EnumFacing.NORTH, EnumFacing.UP, Rotation.CLOCKWISE_90),
+        NORTH_WEST(EnumFacing.NORTH, EnumFacing.WEST, Rotation.CLOCKWISE_90),
+        NORTH_EAST(EnumFacing.NORTH, EnumFacing.EAST, Rotation.CLOCKWISE_180),
+        SOUTH_DOWN(EnumFacing.SOUTH, EnumFacing.DOWN, Rotation.COUNTERCLOCKWISE_90),
+        SOUTH_UP(EnumFacing.SOUTH, EnumFacing.UP, Rotation.COUNTERCLOCKWISE_90),
+        SOUTH_WEST(EnumFacing.SOUTH, EnumFacing.WEST, Rotation.NONE),
+        SOUTH_EAST(EnumFacing.SOUTH, EnumFacing.EAST, Rotation.COUNTERCLOCKWISE_90),
+        WEST_DOWN(EnumFacing.WEST, EnumFacing.DOWN, Rotation.NONE),
+        WEST_UP(EnumFacing.WEST, EnumFacing.UP, Rotation.NONE),
+        EAST_DOWN(EnumFacing.EAST, EnumFacing.DOWN, Rotation.CLOCKWISE_180),
+        EAST_UP(EnumFacing.EAST, EnumFacing.UP, Rotation.CLOCKWISE_180);
 
         private static final Orientation[] VALUES = values();
         private static final ImmutableSet<Orientation> ALL = Sets.immutableEnumSet(EnumSet.allOf(Orientation.class));
 
         private final EnumFacing primary;
         private final EnumFacing secondary;
+        private final Rotation rotation;
 
         public static Orientation valueOf(int ordinal) {
             return VALUES[ordinal % VALUES.length];
@@ -118,6 +174,17 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
             return facing == getPrimary() || facing == getSecondary();
         }
 
+        // fixme this is awful
+        public final AxisAlignedBB rotateBox(AxisAlignedBB box) {
+            if (getSecondary().getAxis().isVertical()) {
+                box = AxisDirectionalBB.copyOf(box).withFacing(getSecondary().getOpposite());
+            }
+            if (getSecondary() == EnumFacing.UP) {
+                return AxisDirectionalBB.copyOf(box).withFacing(rotation.rotate(EnumFacing.SOUTH));
+            }
+            return AxisDirectionalBB.copyOf(box).withFacing(rotation.rotate(EnumFacing.NORTH));
+        }
+
         @Override
         public final String getName() {
             return name().toLowerCase(Locale.ROOT);
@@ -129,9 +196,39 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
             super(name);
         }
 
-        @Override
-        protected Set<AxisAlignedBB> getSouthWestBoxes() {
-            return ImmutableSet.of(FULL_BLOCK_AABB); // fixme
+        @Override // fixme this is awful
+        protected ImmutableSet<AxisAlignedBB> getCollisionBoxes() {
+            boolean full = ForgeModContainer.fullBoundingBoxLadders;
+            ImmutableSet.Builder<AxisAlignedBB> boxes = ImmutableSet.builder();
+            for (int i = 0; i <= 63; ++i) {
+                if (i < 4 && !full) continue;
+                if (i > 59 && !full) continue;
+                boxes.add(new AxisAlignedBB(
+                        (i / 4.0D) / 16.0D,
+                        !full ? 0.0625 : 0.0,
+                        (i / 4.0D) / 16.0D,
+                        (i / 4.0D + 0.25D) / 16.0D,
+                        !full ? 0.9375 : 1.0,
+                        !full ? 0.9375 : 1.0
+                ));
+            }
+            return boxes.build();
+        }
+
+        @Override // fixme this is awful
+        protected ImmutableSet<AxisAlignedBB> getRayTracingBoxes() {
+            ImmutableSet.Builder<AxisAlignedBB> boxes = ImmutableSet.builder();
+            for (int i = 0; i <= 63; ++i) {
+                boxes.add(new AxisAlignedBB(
+                        (i / 4.0D) / 16.0D,
+                        0.0,
+                        (i / 4.0D) / 16.0D,
+                        (i / 4.0D + 0.25D) / 16.0D,
+                        1.0,
+                        1.0
+                ));
+            }
+            return boxes.build();
         }
     }
 }
