@@ -110,7 +110,7 @@ public class BlockPayloadSeparator extends BlockModule {
     }
 
     @Override
-    protected boolean isDirectional() {
+    public boolean isDirectional() {
         return false;
     }
 }

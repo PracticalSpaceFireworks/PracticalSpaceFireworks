@@ -95,7 +95,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
         return true;
     }
     
-    protected boolean isDirectional() {
+    public boolean isDirectional() {
         return true;
     }
 
