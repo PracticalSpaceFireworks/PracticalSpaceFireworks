@@ -57,11 +57,9 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
         Orientation orientation = state.getValue(ORIENTATION);
         for (AxisAlignedBB box : getCollisionBoxes()) {
             AxisAlignedBB rot = orientation.rotateBox(box);
-            if (orientation.getSecondary().getAxis().isHorizontal()) { // fixme this is awful
-                addCollisionBoxToList(pos, entityBox, boxes, new AxisAlignedBB(rot.minX, 0.0, rot.minZ, rot.maxX, 1.0, rot.maxZ));
-            } else {
-                addCollisionBoxToList(pos, entityBox, boxes, rot);
-            }
+            double minY = orientation.getSecondary() != EnumFacing.UP ? 0.0 : rot.minY;
+            double maxY = orientation.getSecondary() != EnumFacing.DOWN ? 1.0 : rot.maxY;
+            addCollisionBoxToList(pos, entityBox, boxes, new AxisAlignedBB(rot.minX, minY, rot.minZ, rot.maxX, maxY, rot.maxZ));
         }
     }
 
