@@ -70,6 +70,7 @@ public class GuiFuelLoader extends GuiContainer {
         int originX = (width - xSize) / 2;
         int originY = (height - ySize) / 2;
 
+        GlStateManager.color(1, 1, 1, 1);
         drawTexturedModalRect(originX, originY, 0, 0, xSize, ySize);
     }
 
