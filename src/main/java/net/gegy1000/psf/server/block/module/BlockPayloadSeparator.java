@@ -73,7 +73,7 @@ public class BlockPayloadSeparator extends BlockModule {
 
     @Override
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        if (state.getValue(SECURE)) {
+        if (!CONVERTING.get() && state.getValue(SECURE)) {
             float pitch = world.rand.nextFloat() * 0.25F + 0.6F;
             world.playSound(null, pos, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.BLOCKS, 0.5F, pitch);
         }
