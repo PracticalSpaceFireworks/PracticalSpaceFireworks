@@ -154,9 +154,13 @@ public class TileFuelLoader extends TileEntity {
 
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ||
-                capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY ||
-                super.hasCapability(capability, facing);
+        if (CapabilityItemHandler.ITEM_HANDLER_CAPABILITY == capability) {
+            return true;
+        }
+        if (CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY == capability) {
+            return getFluidHandler() != null;
+        }
+        return super.hasCapability(capability, facing);
     }
 
     @Nullable
