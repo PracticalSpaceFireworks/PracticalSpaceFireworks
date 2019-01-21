@@ -8,6 +8,8 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -27,7 +29,9 @@ public class VboSpacecraftModel implements SpacecraftModel {
     VboSpacecraftModel(SpacecraftBodyData body) {
         this.body = body;
 
+        BlockRenderLayer original = MinecraftForgeClient.getRenderLayer();
         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
+            ForgeHooksClient.setRenderLayer(layer);
             VertexBuffer buffer = new VertexBuffer(DefaultVertexFormats.BLOCK);
             buffer.bindBuffer();
             this.bindAttributes();
@@ -39,6 +43,7 @@ public class VboSpacecraftModel implements SpacecraftModel {
 
             this.buffers.put(layer, buffer);
         }
+        ForgeHooksClient.setRenderLayer(original);
     }
 
     @Override

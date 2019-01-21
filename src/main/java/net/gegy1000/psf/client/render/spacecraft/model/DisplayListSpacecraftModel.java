@@ -7,6 +7,8 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -25,7 +27,9 @@ public class DisplayListSpacecraftModel implements SpacecraftModel {
     DisplayListSpacecraftModel(SpacecraftBodyData body) {
         this.body = body;
 
+        BlockRenderLayer original = MinecraftForgeClient.getRenderLayer();
         for (BlockRenderLayer layer : BlockRenderLayer.values()) {
+            ForgeHooksClient.setRenderLayer(layer);
             drawBlocks(body, layer, BUILDER);
 
             int id = GLAllocation.generateDisplayLists(1);
@@ -36,6 +40,7 @@ public class DisplayListSpacecraftModel implements SpacecraftModel {
 
             this.lists.put(layer, id);
         }
+        ForgeHooksClient.setRenderLayer(original);
     }
 
     @Override
