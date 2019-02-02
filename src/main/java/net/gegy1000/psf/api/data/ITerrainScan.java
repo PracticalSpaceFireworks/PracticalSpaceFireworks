@@ -10,6 +10,8 @@ public interface ITerrainScan extends IModuleData {
 	
 	void addChunk(IScannedChunk chunk);
 	
+    void removeChunk(IScannedChunk chunk);
+
     @Nullable
     MapColor getMapColor(int x, int y, int z);
 
@@ -19,4 +21,5 @@ public interface ITerrainScan extends IModuleData {
     int getMinHeight();
 
     int getMaxHeight();
+
 }

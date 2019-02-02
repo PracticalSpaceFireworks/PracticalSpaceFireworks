@@ -60,6 +60,11 @@ public class CompositeTerrainScan implements ITerrainScan {
     public Collection<IScannedChunk> getChunks() {
         return scans.stream().flatMap(scan -> scan.getChunks().stream()).collect(Collectors.toList());
     }
+    
+    @Override
+    public void removeChunk(IScannedChunk chunk) {
+        scans.forEach(s -> s.removeChunk(chunk));
+    }
 
     @Override
     public int getMinHeight() {

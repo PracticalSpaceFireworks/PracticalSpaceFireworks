@@ -26,6 +26,11 @@ public class TerrainScanData implements ITerrainScan {
     public void addChunk(IScannedChunk chunkData) {
         this.scannedChunks.put(chunkData.getChunkPos(), chunkData);
     }
+    
+    @Override
+    public void removeChunk(IScannedChunk chunk) {
+        scannedChunks.remove(chunk.getChunkPos());
+    }
 
     @Override
     public NBTTagCompound serializeNBT() {

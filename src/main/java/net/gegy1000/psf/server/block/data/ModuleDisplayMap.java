@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.block.data;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,13 +15,15 @@ import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.server.block.remote.MapRenderer;
 import net.gegy1000.psf.server.modules.data.CompositeTerrainScan;
 import net.gegy1000.psf.server.modules.data.TerrainScanData;
-import net.gegy1000.psf.server.modules.data.TerrainScanData.ChunkData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.culling.ClippingHelper;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.util.math.MathHelper;
 
 @NoArgsConstructor
 public class ModuleDisplayMap implements IModuleDataDisplay {
@@ -33,11 +36,7 @@ public class ModuleDisplayMap implements IModuleDataDisplay {
     private int lastMouseDragX, lastMouseDragY;
     private int prevOriginX, prevOriginZ;
     private int originX, originZ;
-    
-    public ModuleDisplayMap(CompositeTerrainScan scan) {
-        this.scan = scan;
-    }
-    
+
     @Override
     public void draw(int x, int y, int width, int height, float partialTicks) {
     	System.out.println(originX + " " + originZ);
@@ -76,10 +75,24 @@ public class ModuleDisplayMap implements IModuleDataDisplay {
     @Override
     public void mouseMove(int x, int y, boolean drag) {
     	if (drag) {
+    	    prevOriginX = originX;
+    	    prevOriginZ = originZ;
     		originX += x - lastMouseDragX;
     		originZ += y - lastMouseDragY;
     		lastMouseDragX = x;
     		lastMouseDragY = y;
+    		
+    		Iterator<IScannedChunk> iter = mapRenderer.getTerrainScan().getChunks().iterator();
+    	    ChunkPos origin = new ChunkPos(originX >> 4, originZ >> 4);
+    		while (iter.hasNext()) {
+    		    IScannedChunk chunk = iter.next();
+    		    BlockPos pos = chunk.getChunkPos();
+    		    if (Math.abs(pos.getX() - origin.x) > 4 || Math.abs(pos.getZ() - origin.z) > 4) {
+    		        mapRenderer.removeChunk(chunk);
+    		    } else {
+//    		        System.out.println();
+    		    }
+    		}
     	}
     }
     

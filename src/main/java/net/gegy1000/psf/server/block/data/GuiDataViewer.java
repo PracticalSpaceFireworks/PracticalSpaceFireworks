@@ -55,18 +55,18 @@ public class GuiDataViewer extends GuiDummyContainer implements IDataDisplay {
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         if (display == null) return;
         
-        if (GlUtil.SCISSOR_AVAILABLE) {
-            ScaledResolution sr = new ScaledResolution(mc);
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
-                    panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
-        }
+//        if (GlUtil.SCISSOR_AVAILABLE) {
+//            ScaledResolution sr = new ScaledResolution(mc);
+//            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+//            GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
+//                    panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
+//        }
         
         display.draw(guiLeft + panel.getX(), guiTop + panel.getY(), panel.getWidth(), panel.getHeight(), partialTicks);
 
-        if (GlUtil.SCISSOR_AVAILABLE) {
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        }
+//        if (GlUtil.SCISSOR_AVAILABLE) {
+//            GL11.glDisable(GL11.GL_SCISSOR_TEST);
+//        }
     }
     
     @Override

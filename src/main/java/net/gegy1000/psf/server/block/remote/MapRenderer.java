@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -27,7 +29,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -46,7 +47,7 @@ public class MapRenderer extends Gui {
 
     @Getter
     private final ITerrainScan terrainScan;
-    private final List<ChunkRenderer> chunkRenderers;
+    private final TreeMap<IScannedChunk, ChunkRenderer> chunkRenderers;
 
     private final ExecutorService chunkBuildService = Executors.newSingleThreadExecutor();
     
@@ -57,11 +58,10 @@ public class MapRenderer extends Gui {
         this.terrainScan = terrainScan;
 
         List<IScannedChunk> chunks = new ArrayList<>(terrainScan.getChunks());
-        chunks.sort(Comparator.comparingInt(value -> {
+        this.chunkRenderers = chunks.stream().collect(Collectors.toMap(Function.identity(), ChunkRenderer::new, null, () -> new TreeMap<>(Comparator.comparingInt(value -> {
             BlockPos chunkPos = value.getChunkPos();
             return (chunkPos.getX() * chunkPos.getX()) + (chunkPos.getZ() * chunkPos.getZ());
-        }));
-        this.chunkRenderers = chunks.stream().map(ChunkRenderer::new).collect(Collectors.toList());
+        }))));
         
         int minX = Integer.MAX_VALUE, maxX = Integer.MIN_VALUE;
         int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
@@ -86,25 +86,33 @@ public class MapRenderer extends Gui {
     
     public void addChunk(IScannedChunk chunk) {
     	this.terrainScan.addChunk(chunk);
-    	this.chunkRenderers.add(new ChunkRenderer(chunk));
+    	this.chunkRenderers.put(chunk, new ChunkRenderer(chunk));
+    }
+    
+    public void removeChunk(IScannedChunk chunk) {
+        this.terrainScan.removeChunk(chunk);
+        ChunkRenderer renderer = this.chunkRenderers.get(chunk);
+        if (renderer != null) {
+            renderer.delete();
+        }
     }
 
     public void performUploads() {
-        this.chunkRenderers.forEach(ChunkRenderer::performUploads);
+        this.chunkRenderers.values().forEach(ChunkRenderer::performUploads);
     }
 
     public void render() {
         GlStateManager.pushMatrix();
         GlStateManager.translate(0, -this.terrainScan.getMaxHeight(), 0);
 
-        this.chunkRenderers.forEach(ChunkRenderer::render);
+        this.chunkRenderers.values().forEach(ChunkRenderer::render);
 
         GlStateManager.popMatrix();
     }
 
     public void delete() {
         this.chunkBuildService.shutdownNow();
-        this.chunkRenderers.forEach(ChunkRenderer::delete);
+        this.chunkRenderers.values().forEach(ChunkRenderer::delete);
     }
 
     @Override
@@ -145,7 +153,7 @@ public class MapRenderer extends Gui {
                     BufferBuilder builder = this.builtMesh.get();
                     if (builder != null) {
                         int id = GLAllocation.generateDisplayLists(1);
-
+                        System.out.println(id);
                         builder.finishDrawing();
                         GlStateManager.glNewList(id, GL11.GL_COMPILE);
                         new WorldVertexBufferUploader().draw(builder);
