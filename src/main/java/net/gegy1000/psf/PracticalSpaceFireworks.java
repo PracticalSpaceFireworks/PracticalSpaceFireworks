@@ -70,10 +70,7 @@ public class PracticalSpaceFireworks {
     public static void onPreInit(FMLPreInitializationEvent event) {
         initDataFixers();
         PROXY.onPreInit();
-        Object o = Launch.blackboard.get("fml.deobfuscatedEnvironment");
-        if (o instanceof Boolean) {
-            deobfuscatedEnvironment = (boolean) o;
-        } else LOGGER.error("Failed to retrieve environment state from launch blackboard!");
+        deobfuscatedEnvironment = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
     }
 
     @Mod.EventHandler
