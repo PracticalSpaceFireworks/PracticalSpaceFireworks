@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "psf:air_intake", "x": 180 },
+    "facing=up": { "model": "psf:air_intake" },
+    "facing=north": { "model": "psf:air_intake", "x": 90 },
+    "facing=south": { "model": "psf:air_intake", "x": 90, "y": 180 },
+    "facing=east": { "model": "psf:air_intake", "x": 90, "y": 90 },
+    "facing=west": { "model": "psf:air_intake", "x": 90, "y": 270 }
+  }
+}

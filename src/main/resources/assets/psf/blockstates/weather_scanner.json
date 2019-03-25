@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": { "model": "psf:weather_scanner", "x": 180 },
+    "facing=up": { "model": "psf:weather_scanner" },
+    "facing=north": { "model": "psf:weather_scanner", "x": 90 },
+    "facing=south": { "model": "psf:weather_scanner", "x": 90, "y": 180 },
+    "facing=east": { "model": "psf:weather_scanner", "x": 90, "y": 90 },
+    "facing=west": { "model": "psf:weather_scanner", "x": 90, "y": 270 }
+  }
+}

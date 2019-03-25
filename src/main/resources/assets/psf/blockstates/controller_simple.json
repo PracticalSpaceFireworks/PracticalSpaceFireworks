@@ -1,11 +1,10 @@
 {
-    "variants": {
-        "facing=down":  { "model": "psf:controller_basic", "x": 90 },
-        "facing=up":    { "model": "psf:controller_basic", "x": 270 },
-        "facing=north": { "model": "psf:controller_basic" },
-        "facing=south": { "model": "psf:controller_basic", "y": 180 },
-        "facing=west":  { "model": "psf:controller_basic", "y": 270 },
-        "facing=east":  { "model": "psf:controller_basic", "y": 90 },
-        "inventory":    { "model": "psf:controller_basic" }
-    }
+  "variants": {
+    "facing=down": { "model": "psf:controller_simple", "x": 90 },
+    "facing=up": { "model": "psf:controller_simple", "x": 270 },
+    "facing=north": { "model": "psf:controller_simple" },
+    "facing=south": { "model": "psf:controller_simple", "y": 180 },
+    "facing=west": { "model": "psf:controller_simple", "y": 270 },
+    "facing=east": { "model": "psf:controller_simple", "y": 90 }
+  }
 }

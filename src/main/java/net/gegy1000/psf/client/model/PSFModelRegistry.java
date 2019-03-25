@@ -74,17 +74,6 @@ public final class PSFModelRegistry {
             ModelResourceLocation model = new ModelResourceLocation(path, "inventory");
             ModelLoader.setCustomModelResourceLocation(item, 0, model);
         }
-
-        ModelLoader.setCustomStateMapper(PSFBlockRegistry.payloadSeparator, new StateMapperBase() {
-            @Override
-            @Nonnull
-            protected ModelResourceLocation getModelResourceLocation(@Nonnull IBlockState state) {
-                String name = "payload_separator";
-                if (state.getValue(BlockPayloadSeparator.SECURE)) name += "_secure";
-                ResourceLocation path = new ResourceLocation(PracticalSpaceFireworks.MODID, name);
-                return new ModelResourceLocation(path, "normal");
-            }
-        });
     }
 
     private static void ignoreProperty(Block block, IProperty<?> property) {

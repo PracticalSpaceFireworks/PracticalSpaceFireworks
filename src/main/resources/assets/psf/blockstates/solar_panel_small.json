@@ -1,16 +1,10 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "model": "psf:solar_panel_small"
-  },
   "variants": {
-    "facing": {
-      "down": { "x": 180, "uvlock": true },
-      "up": { },
-      "north": { "x": 90 },
-      "south": { "x": 90, "y": 180 },
-      "east": { "x": 90, "y": 90 },
-      "west": { "x": 90, "y": 270 }
-    }
+    "facing=down": { "model": "psf:solar_panel_small", "x": 180, "uvlock": true },
+    "facing=up": { "model": "psf:solar_panel_small" },
+    "facing=north": { "model": "psf:solar_panel_small", "x": 90 },
+    "facing=south": { "model": "psf:solar_panel_small", "x": 90, "y": 180 },
+    "facing=west": { "model": "psf:solar_panel_small", "x": 90, "y": 270 },
+    "facing=east": { "model": "psf:solar_panel_small", "x": 90, "y": 90 }
   }
 }

@@ -1,20 +1,10 @@
 {
-    "forge_marker": 1,
-    "defaults": {
-        "model": "psf:entity_marker.obj",
-		"transform": "forge:default-block",
-        "custom": { "flip-v": true }
-    },
-    "variants": {
-        "normal": [{}],
-        "inventory": [{}],
-        "facing": {
-        	"down": {"x": 180},
-	      	"up": {},
-	      	"north": {"x": 90},
-	      	"south": {"x": 90, "y": 180},
-	      	"east": {"x": 90, "y": 90},
-	      	"west": {"x": 90, "y": 270}
-        }
-    }
+  "variants": {
+    "facing=down": { "model": "psf:entity_marker", "x": 180 },
+    "facing=up": { "model": "psf:entity_marker" },
+    "facing=north": { "model": "psf:entity_marker", "x": 90 },
+    "facing=south": { "model": "psf:entity_marker", "x": 90, "y": 180 },
+    "facing=east": { "model": "psf:entity_marker", "x": 90, "y": 90 },
+    "facing=west": { "model": "psf:entity_marker", "x": 90, "y": 270 }
+  }
 }

@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "normal": { "model": "psf:air_separator" }
+  }
+}

@@ -1,19 +1,10 @@
 {
-  "forge_marker": 1,
-  "defaults": {
-    "model": "psf:batteries",
-    "transform": "forge:default-block"
-  },
   "variants": {
-    "normal": [{}],
-    "inventory": [{}],
-    "facing": {
-      "down": {"x": 180},
-      "up": {},
-      "north": {"x": 90},
-      "south": {"x": 90, "y": 180},
-      "east": {"x": 90, "y": 90},
-      "west": {"x": 90, "y": 270}
-    }
+    "facing=down": { "model": "psf:battery_simple", "x": 180 },
+    "facing=up": { "model": "psf:battery_simple" },
+    "facing=north": { "model": "psf:battery_simple", "x": 90 },
+    "facing=south": { "model": "psf:battery_simple", "x": 90, "y": 180 },
+    "facing=east": { "model": "psf:battery_simple", "x": 90, "y": 90 },
+    "facing=west": { "model": "psf:battery_simple", "x": 90, "y": 270 }
   }
 }

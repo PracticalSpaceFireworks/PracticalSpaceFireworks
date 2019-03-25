@@ -1,12 +1,31 @@
 {
-    "variants": { "inventory": { "model": "psf:strut_cube" } },
-    "multipart": [
-        { "apply": { "model": "psf:strut_cube" } },
-        { "when": { "down": "true" }, "apply": { "model": "psf:strut_cube_side", "x": 90 } },
-        { "when": { "up": "true" }, "apply": { "model": "psf:strut_cube_side", "x": 270 } },
-        { "when": { "north": "true" }, "apply": { "model": "psf:strut_cube_side" } },
-        { "when": { "south": "true" }, "apply": { "model": "psf:strut_cube_side", "y": 180 } },
-        { "when": { "west": "true" }, "apply": { "model": "psf:strut_cube_side", "y": 270 } },
-        { "when": { "east": "true" }, "apply": { "model": "psf:strut_cube_side", "y": 90 } }
-    ]
+  "multipart": [
+    {
+      "apply": { "model": "psf:strut_cube" }
+    },
+    {
+      "when": { "down": "true" },
+      "apply": { "model": "psf:strut_cube_side", "x": 90 }
+    },
+    {
+      "when": { "up": "true" },
+      "apply": { "model": "psf:strut_cube_side", "x": 270 }
+    },
+    {
+      "when": { "north": "true" },
+      "apply": { "model": "psf:strut_cube_side" }
+    },
+    {
+      "when": { "south": "true" },
+      "apply": { "model": "psf:strut_cube_side", "y": 180 }
+    },
+    {
+      "when": { "west": "true" },
+      "apply": { "model": "psf:strut_cube_side", "y": 270 }
+    },
+    {
+      "when": { "east": "true" },
+      "apply": { "model": "psf:strut_cube_side", "y": 90 }
+    }
+  ]
 }

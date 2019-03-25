@@ -1,11 +1,8 @@
 {
-	"parent": "block/cube",
-	"textures": {
-		"down": "psf:blocks/remote_control_system_side",
-        "up": "psf:blocks/remote_control_system_side",
-        "east": "psf:blocks/remote_control_system_side",
-        "west": "psf:blocks/remote_control_system_side",
-        "north": "psf:blocks/remote_control_system_front",
-        "south": "psf:blocks/remote_control_system_side"
-	}
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "psf:blocks/remote_control_system_side",
+    "front": "psf:blocks/remote_control_system_front",
+    "side": "psf:blocks/remote_control_system_side"
+  }
 }

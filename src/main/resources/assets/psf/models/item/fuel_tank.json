@@ -4,8 +4,7 @@
   "textures": {
     "bottom": "psf:blocks/fuel_tank_bottom",
     "top": "psf:blocks/fuel_tank_top",
-    "side": "psf:blocks/fuel_tank_side_both",
-    "up": "psf:blocks/e_texture"
+    "side": "psf:blocks/fuel_tank_side_both"
   },
   "elements": [
     {

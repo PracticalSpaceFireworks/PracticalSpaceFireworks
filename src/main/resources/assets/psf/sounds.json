@@ -1,62 +1,119 @@
 {
-   "laser.fire":{
-      "category":"blocks",
-      "subtitle":"subtitle.psf.laser.fire",
-      "sounds":[
-         "psf:laser"
-      ]
-   },
-   "metal.break":{
-      "category":"block",
-      "subtitle": "subtitles.block.generic.break",
-      "sounds":[
-         "psf:dig/metal",
-         "psf:dig/metal1",
-         "psf:dig/metal2",
-         "psf:dig/metal3",
-         "psf:dig/metal7",
-         "psf:dig/metal8"
-      ]
-   },
-   "metal.step":{
-      "category":"neutral",
-      "subtitle": "subtitles.block.generic.footsteps",
-      "sounds":[
-         "psf:step/metal4",
-         "psf:step/metal5",
-         "psf:step/metal6",
-         "psf:step/metal9"
-      ]
-   },
-   "metal.place":{
-      "category":"neutral",
-      "subtitle": "subtitles.block.generic.place",
-      "sounds":[
-         "psf:dig/metal",
-         "psf:dig/metal1",
-         "psf:dig/metal2",
-         "psf:dig/metal3",
-         "psf:dig/metal7",
-         "psf:dig/metal8"
-      ]
-   },
-   "metal.hit":{
-      "category":"block",
-      "subtitle": "subtitles.block.generic.hit",
-      "sounds":[
-         "psf:step/metal4",
-         "psf:step/metal5",
-         "psf:step/metal6",
-         "psf:step/metal9"
-      ]
-   },
-   "metal.fall":{
-      "category":"block",
-      "sounds":[
-         "psf:step/metal4",
-         "psf:step/metal5",
-         "psf:step/metal6",
-         "psf:step/metal9"
-      ]
-   }
+  "block.thruster.ambient": {
+    "category": "blocks",
+    "subtitle": "subtitles.psf.block.thruster.ambient",
+    "sounds": [
+      "psf:ambient/thruster_idle"
+    ]
+  },
+  "laser.fire": {
+    "category": "blocks",
+    "subtitle": "subtitles.psf.laser.fire",
+    "sounds": [
+      "psf:laser"
+    ]
+  },
+  "metal.break": {
+    "category": "block",
+    "subtitle": "subtitles.block.generic.break",
+    "sounds": [
+      "psf:dig/metal",
+      "psf:dig/metal1",
+      "psf:dig/metal2",
+      "psf:dig/metal3",
+      "psf:dig/metal7",
+      "psf:dig/metal8"
+    ]
+  },
+  "metal.step": {
+    "category": "neutral",
+    "subtitle": "subtitles.block.generic.footsteps",
+    "sounds": [
+      "psf:step/metal4",
+      "psf:step/metal5",
+      "psf:step/metal6",
+      "psf:step/metal9"
+    ]
+  },
+  "metal.place": {
+    "category": "neutral",
+    "subtitle": "subtitles.block.generic.place",
+    "sounds": [
+      "psf:dig/metal",
+      "psf:dig/metal1",
+      "psf:dig/metal2",
+      "psf:dig/metal3",
+      "psf:dig/metal7",
+      "psf:dig/metal8"
+    ]
+  },
+  "metal.hit": {
+    "category": "block",
+    "subtitle": "subtitles.block.generic.hit",
+    "sounds": [
+      "psf:step/metal4",
+      "psf:step/metal5",
+      "psf:step/metal6",
+      "psf:step/metal9"
+    ]
+  },
+  "metal.fall": {
+    "category": "block",
+    "sounds": [
+      "psf:step/metal4",
+      "psf:step/metal5",
+      "psf:step/metal6",
+      "psf:step/metal9"
+    ]
+  },
+  "block.tank.break": {
+    "sounds": [
+      "psf:dig/tank1",
+      "psf:dig/tank2",
+      "psf:dig/tank3",
+      "psf:dig/tank4"
+    ],
+    "subtitle": "subtitles.block.generic.break"
+  },
+  "block.tank.fall": {
+    "sounds": [
+      "psf:step/tank1",
+      "psf:step/tank2",
+      "psf:step/tank3",
+      "psf:step/tank4",
+      "psf:step/tank5",
+      "psf:step/tank6"
+    ]
+  },
+  "block.tank.hit": {
+    "sounds": [
+      "psf:step/tank1",
+      "psf:step/tank2",
+      "psf:step/tank3",
+      "psf:step/tank4",
+      "psf:step/tank5",
+      "psf:step/tank6"
+    ],
+    "subtitle": "subtitles.block.generic.hit"
+  },
+  "block.tank.place": {
+    "sounds": [
+      "psf:dig/tank1",
+      "psf:dig/tank2",
+      "psf:dig/tank3",
+      "psf:dig/tank4"
+    ],
+    "subtitle": "subtitles.block.generic.place"
+  },
+  "block.tank.step": {
+    "sounds": [
+      "psf:step/tank1",
+      "psf:step/tank2",
+      "psf:step/tank3",
+      "psf:step/tank4",
+      "psf:step/tank5",
+      "psf:step/tank6"
+    ],
+    "subtitle": "subtitles.block.generic.footsteps"
+  }
 }

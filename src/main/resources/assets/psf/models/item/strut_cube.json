@@ -1,0 +1,62 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "psf:blocks/strut_cube"
+  },
+  "elements": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down": { "texture": "#particle" },
+        "up": { "texture": "#particle" },
+        "north": { "texture": "#particle" },
+        "south": { "texture": "#particle" },
+        "west": { "texture": "#particle" },
+        "east": { "texture": "#particle" }
+      }
+    },
+    {
+      "from": [ 0, 0, 0.01 ],
+      "to": [ 16, 16, 0.01 ],
+      "faces": {
+        "south": { "texture": "#particle" }
+      }
+    },
+    {
+      "from": [ 15.99, 0, 0 ],
+      "to": [ 15.99, 16, 16 ],
+      "faces": {
+        "west": { "texture": "#particle" }
+      }
+    },
+    {
+      "from": [ 0, 0, 15.99 ],
+      "to": [ 16, 16, 15.99 ],
+      "faces": {
+        "north": { "texture": "#particle" }
+      }
+    },
+    {
+      "from": [ 0.01, 0, 0 ],
+      "to": [ 0.01, 16, 16 ],
+      "faces": {
+        "east": { "texture": "#particle" }
+      }
+    },
+    {
+      "from": [ 0, 0.01, 0 ],
+      "to": [ 16, 0.01, 16 ],
+      "faces": {
+        "up": { "texture": "#particle" }
+      }
+    },
+    {
+      "from": [ 0, 15.99, 0 ],
+      "to": [ 16, 15.99, 16 ],
+      "faces": {
+        "down": { "texture": "#particle" }
+      }
+    }
+  ]
+}

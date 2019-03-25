@@ -1,17 +1,48 @@
 {
   "forge_marker": 1,
-  "defaults": {
-    "model": "psf:solar_panel_large"
-  },
   "variants": {
-    "inventory": [{}],
-    "facing": {
-      "down": {  "transform": { 	"rotation": { "x": 180 },  	"translation": [0, -1, 0] }},
-      "up": { 	 "transform": { 								"translation": [0, 1, 0] } },
-      "north": { "transform": { 	"rotation": { "x": 270 },	"translation": [0, 0, -1] }},
-      "south": { "transform": { 	"rotation": { "x": 90 },  	"translation": [0, 0, 1] }},
-      "east": {  "transform": { 	"rotation": { "z": 270 },  	"translation": [1, 0, 0], 	"post-rotation": { "y": 90 } }},
-      "west": {  "transform": { 	"rotation": { "z": 90 },   	"translation": [-1, 0, 0], 	"post-rotation": { "y": 90 } }}
+    "facing=down": {
+      "model": "psf:solar_panel_large",
+      "transform": {
+        "rotation": { "x": 180 },
+        "translation": [ 0, -1, 0 ]
+      }
+    },
+    "facing=up": {
+      "model": "psf:solar_panel_large",
+      "transform": {
+        "translation": [ 0, 1, 0 ]
+      }
+    },
+    "facing=north": {
+      "model": "psf:solar_panel_large",
+      "transform": {
+        "rotation": { "x": 270 },
+        "translation": [ 0, 0, -1 ]
+      }
+    },
+    "facing=south": {
+      "model": "psf:solar_panel_large",
+      "transform": {
+        "rotation": { "x": 90 },
+        "translation": [ 0, 0, 1 ]
+      }
+    },
+    "facing=east": {
+      "model": "psf:solar_panel_large",
+      "transform": {
+        "rotation": { "z": 270 },
+        "translation": [ 1, 0, 0 ],
+        "post-rotation": { "y": 90 }
+      }
+    },
+    "facing=west": {
+      "model": "psf:solar_panel_large",
+      "transform": {
+        "rotation": { "z": 90 },
+        "translation": [ -1, 0, 0 ],
+        "post-rotation": { "y": 90 }
+      }
     }
   }
 }

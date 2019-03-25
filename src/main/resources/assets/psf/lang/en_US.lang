@@ -7,7 +7,6 @@ tile.psf.fuel_valve.name=Fuel Valve
 tile.psf.strut_cube.name=Cubic Strut
 tile.psf.strut_slope.name=Sloped Strut
 tile.psf.thruster.simple.name=Simple Thruster
-tile.psf.antenna.name=Antenna
 tile.psf.payload_separator.name=Payload Separator
 tile.psf.terrain_scanner.name=Terrain Scanner
 tile.psf.weather_scanner.name=Weather Scanner
@@ -35,6 +34,7 @@ tile.psf.air_separator.name=Air Separator
 tile.psf.kerosene_extractor.name=Kerosene Extractor
 
 # Items
+
 item.psf.target_selector.name=Target Selector
 
 item.psf.mirror.name=Mirror
@@ -53,8 +53,10 @@ fluid.psf.compressed_air=Compressed Air
 entity.psf.spacecraft.name=Spacecraft
 
 # Waila
+
 tooltip.psf.waila.looking_at=Looking at: %s
 
 # Advancements
+
 advancements.psf.strut_your_stuff.title=Strut Your Stuff
 advancements.psf.strut_your_stuff.desc=Craft a strut cube

@@ -17,35 +17,75 @@
       "apply": { "model": "psf:fuel_tank_both" }
     },
     {
-      "when": { "OR": [ { "rim": "top", "north": "true" }, { "rim": "both", "north": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "north": "true" },
+          { "rim": "both", "north": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_side", "uvlock": true }
     },
     {
-      "when": { "OR": [ { "rim": "top", "north_east": "true" }, { "rim": "both", "north_east": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "north_east": "true" },
+          { "rim": "both", "north_east": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_corner", "uvlock": true }
     },
     {
-      "when": { "OR": [ { "rim": "top", "east": "true" }, { "rim": "both", "east": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "east": "true" },
+          { "rim": "both", "east": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_side", "uvlock": true, "y": 90 }
     },
     {
-      "when": { "OR": [ { "rim": "top", "south_east": "true" }, { "rim": "both", "south_east": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "south_east": "true" },
+          { "rim": "both", "south_east": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_corner", "uvlock": true, "y": 90 }
     },
     {
-      "when": { "OR": [ { "rim": "top", "south": "true" }, { "rim": "both", "south": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "south": "true" },
+          { "rim": "both", "south": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_side", "uvlock": true, "y": 180 }
     },
     {
-      "when": { "OR": [ { "rim": "top", "south_west": "true" }, { "rim": "both", "south_west": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "south_west": "true" },
+          { "rim": "both", "south_west": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_corner", "uvlock": true, "y": 180 }
     },
     {
-      "when": { "OR": [ { "rim": "top", "west": "true" }, { "rim": "both", "west": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "west": "true" },
+          { "rim": "both", "west": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_side", "uvlock": true, "y": 270 }
     },
     {
-      "when": { "OR": [ { "rim": "top", "north_west": "true" }, { "rim": "both", "north_west": "true" } ] },
+      "when": {
+        "OR": [
+          { "rim": "top", "north_west": "true" },
+          { "rim": "both", "north_west": "true" }
+        ]
+      },
       "apply": { "model": "psf:fuel_tank_corner", "uvlock": true, "y": 270 }
     }
   ]

@@ -1,20 +1,20 @@
 {
   "forge_marker": 1,
-  "defaults": {
-    "custom": {
-      "base": "psf:payload_separator#particle",
-      "Solid": "psf:payload_separator#block",
-      "Cutout": "psf:payload_separator#light"
-    }
-  },
   "variants": {
-    "normal": {
-      "model": "forge:multi-layer"
+    "secure=false": {
+      "model": "forge:multi-layer",
+      "custom": {
+        "base": "psf:payload_separator#block",
+        "Solid": "psf:payload_separator#block",
+        "Cutout": "psf:payload_separator#light"
+      }
     },
-    "particle": {
-      "model": "block",
-      "textures": {
-        "particle": "psf:blocks/payload_separator_side"
+    "secure=true": {
+      "model": "forge:multi-layer",
+      "custom": {
+        "base": "psf:payload_separator#block",
+        "Solid": "psf:payload_separator#block",
+        "Cutout": "psf:payload_separator#light_secure"
       }
     },
     "block": {
@@ -22,6 +22,9 @@
     },
     "light": {
       "model": "psf:payload_separator_light"
+    },
+    "light_secure": {
+      "model": "psf:payload_separator_light_secure"
     }
   }
 }
