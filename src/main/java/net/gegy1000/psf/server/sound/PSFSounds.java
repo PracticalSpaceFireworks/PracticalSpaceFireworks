@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFSounds {
 
+    public static final SoundEvent THRUSTER_AMBIENT = createSoundWithName("block.thruster.ambient", "thruster_ambient");
     public static final SoundEvent LASER_FIRE = createSoundWithName("laser.fire", "laser_fire");
 
     public static final SoundEvent METAL_BREAK = createSoundWithName("metal.break", "metal_break");
@@ -20,7 +21,7 @@ public class PSFSounds {
 
     @SubscribeEvent
     public static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-        event.getRegistry().registerAll(LASER_FIRE, METAL_BREAK, METAL_STEP, METAL_PLACE, METAL_HIT, METAL_FALL);
+        event.getRegistry().registerAll(THRUSTER_AMBIENT, LASER_FIRE, METAL_BREAK, METAL_STEP, METAL_PLACE, METAL_HIT, METAL_FALL);
     }
 
     private static SoundEvent createSoundWithName(String soundName, String registryName) {

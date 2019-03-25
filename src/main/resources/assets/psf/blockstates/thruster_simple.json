@@ -1,20 +1,65 @@
 {
-    "forge_marker": 1,
-    "defaults": {
-        "model": "psf:thruster.obj",
-		"transform": "forge:default-block",
-        "custom": { "flip-v": true }
+  "forge_marker": 1,
+  "variants": {
+    "facing=down": {
+      "model": "forge:multi-layer",
+      "custom": {
+        "base": "psf:thruster_simple#center_solid",
+        "Solid": "psf:thruster_simple#center_solid",
+        "Cutout": "psf:thruster_simple#center_cutout"
+      }
     },
-    "variants": {
-        "normal": [{}],
-        "inventory": [{}],
-        "facing": {
-        	"down": {},
-        	"up": {},
-        	"north": {},
-        	"south": {},
-        	"east": {},
-        	"west": {}
-        }
+    "facing=up": {
+      "model": "forge:multi-layer",
+      "custom": {
+        "base": "psf:thruster_simple#center_solid",
+        "Solid": "psf:thruster_simple#center_solid",
+        "Cutout": "psf:thruster_simple#center_cutout"
+      }
+    },
+    "facing=north": {
+      "model": "forge:multi-layer",
+      "custom": {
+        "base": "psf:thruster_simple#wall_solid",
+        "Solid": "psf:thruster_simple#wall_solid",
+        "Cutout": "psf:thruster_simple#wall_cutout"
+      }
+    },
+    "facing=south": {
+      "model": "forge:multi-layer", "y": 180,
+      "custom": {
+        "base": "psf:thruster_simple#wall_solid",
+        "Solid": "psf:thruster_simple#wall_solid",
+        "Cutout": "psf:thruster_simple#wall_cutout"
+      }
+    },
+    "facing=west": {
+      "model": "forge:multi-layer", "y": 270,
+      "custom": {
+        "base": "psf:thruster_simple#wall_solid",
+        "Solid": "psf:thruster_simple#wall_solid",
+        "Cutout": "psf:thruster_simple#wall_cutout"
+      }
+    },
+    "facing=east": {
+      "model": "forge:multi-layer", "y": 90,
+      "custom": {
+        "base": "psf:thruster_simple#wall_solid",
+        "Solid": "psf:thruster_simple#wall_solid",
+        "Cutout": "psf:thruster_simple#wall_cutout"
+      }
+    },
+    "center_solid": {
+      "model": "psf:thruster_simple_center"
+    },
+    "center_cutout": {
+      "model": "psf:thruster_simple_center_flame"
+    },
+    "wall_solid": {
+      "model": "psf:thruster_simple_wall"
+    },
+    "wall_cutout": {
+      "model": "psf:thruster_simple_wall_flame"
     }
+  }
 }
