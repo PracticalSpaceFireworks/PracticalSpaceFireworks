@@ -40,6 +40,8 @@ public class PracticalSpaceFireworks {
 
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
+    private static final ModFixs DATA_FIXER = FMLCommonHandler.instance().getDataFixer().init(MODID, 1);
+
     @SidedProxy(clientSide = CLIENT_PROXY, serverSide = SERVER_PROXY)
     public static ServerProxy PROXY;
     
@@ -47,8 +49,6 @@ public class PracticalSpaceFireworks {
     public static PracticalSpaceFireworks instance;
 
     private static boolean deobfuscatedEnvironment;
-
-    private static ModFixs fixer;
 
     @Nonnull
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
@@ -92,8 +92,7 @@ public class PracticalSpaceFireworks {
     }
 
     private static void initDataFixers() {
-        fixer = FMLCommonHandler.instance().getDataFixer().init(MODID, 1);
-        fixer.registerFix(FixTypes.BLOCK_ENTITY, new IFixableData() {
+        DATA_FIXER.registerFix(FixTypes.BLOCK_ENTITY, new IFixableData() {
             @Override
             public int getFixVersion() {
                 return 1;
