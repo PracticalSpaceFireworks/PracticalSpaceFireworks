@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
@@ -29,8 +30,8 @@ import java.util.List;
 public final class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin {
     private static final String RESET_FORMAT_CODE = "\u00a7r";
 
-    private static RayTraceResult subHit;
-    private static Vec3d lastHitVec;
+    @Nullable private static RayTraceResult subHit;
+    @Nullable private static Vec3d lastHitVec;
 
     @SubscribeEvent
     static void wailaRenderPre(WailaRenderEvent.Pre event) {
@@ -44,10 +45,11 @@ public final class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin 
     @Override
     @Nonnull
     public List<String> getWailaHead(Entity entity, List<String> tooltip, IWailaEntityAccessor accessor, IWailaConfigHandler cfg) {
-        if (lastHitVec != accessor.getMOP().hitVec) {
+        val hitVec = accessor.getMOP().hitVec;
+        if (lastHitVec != hitVec) {
             subHit = ((EntitySpacecraft) accessor.getEntity()).pointedBlock;
         }
-        lastHitVec = accessor.getMOP().hitVec;
+        lastHitVec = hitVec;
         if (subHit != null && Type.BLOCK == subHit.typeOfHit) {
             tooltip.clear();
             val satellite = ((EntitySpacecraft) entity).getSatellite();
