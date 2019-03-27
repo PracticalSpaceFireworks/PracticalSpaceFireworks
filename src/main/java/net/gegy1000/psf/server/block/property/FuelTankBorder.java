@@ -3,51 +3,47 @@ package net.gegy1000.psf.server.block.property;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.Locale;
 
 @RequiredArgsConstructor
 public enum FuelTankBorder implements IStringSerializable {
-    SOUTH(EnumFacing.SOUTH),
+    SOUTH(EnumFacing.SOUTH, null),
     SOUTH_WEST(EnumFacing.SOUTH, EnumFacing.WEST),
-    WEST(EnumFacing.WEST),
+    WEST(EnumFacing.WEST, null),
     NORTH_WEST(EnumFacing.NORTH, EnumFacing.WEST),
-    NORTH(EnumFacing.NORTH),
+    NORTH(EnumFacing.NORTH, null),
     NORTH_EAST(EnumFacing.NORTH, EnumFacing.EAST),
-    EAST(EnumFacing.EAST),
+    EAST(EnumFacing.EAST, null),
     SOUTH_EAST(EnumFacing.SOUTH, EnumFacing.EAST);
 
     private static final FuelTankBorder[] VALUES = values();
 
     public static final ImmutableCollection<FuelTankBorder> BORDERS =
-            Sets.immutableEnumSet(EnumSet.allOf(FuelTankBorder.class));
+        Arrays.stream(VALUES).collect(Sets.toImmutableEnumSet());
 
-    public static final ImmutableCollection<FuelTankBorder> CARDINALS = BORDERS.stream()
-            .filter(FuelTankBorder::isCardinal)
-            .collect(Sets.toImmutableEnumSet());
+    public static final ImmutableCollection<FuelTankBorder> CARDINALS =
+        Arrays.stream(VALUES).filter(FuelTankBorder::isCardinal).collect(Sets.toImmutableEnumSet());
 
-    public static final ImmutableCollection<FuelTankBorder> ORDINALS = BORDERS.stream()
-            .filter(FuelTankBorder::isOrdinal)
-            .collect(Sets.toImmutableEnumSet());
+    public static final ImmutableCollection<FuelTankBorder> ORDINALS =
+        Arrays.stream(VALUES).filter(FuelTankBorder::isOrdinal).collect(Sets.toImmutableEnumSet());
 
-    private final EnumFacing primary;
+    @Nonnull private final EnumFacing primary;
+    @Nullable private final EnumFacing secondary;
 
-    @Nullable
-    private final EnumFacing secondary;
-
-    FuelTankBorder(EnumFacing primary) {
-        this(primary, null);
-    }
-
+    @Nonnull
     public static FuelTankBorder valueOf(int ordinal) {
         return VALUES[ordinal % VALUES.length];
     }
 
+    @Nonnull
     public final FuelTankBorder primary() {
         switch (this) {
             case SOUTH: return SOUTH;
@@ -59,9 +55,10 @@ public enum FuelTankBorder implements IStringSerializable {
             case EAST: return EAST;
             case SOUTH_EAST: return SOUTH;
         }
-        throw new UnsupportedOperationException(toString());
+        throw new Error(toString());
     }
 
+    @Nonnull
     public final FuelTankBorder secondary() {
         switch (this) {
             case SOUTH_WEST: return WEST;
@@ -69,41 +66,35 @@ public enum FuelTankBorder implements IStringSerializable {
             case NORTH_EAST: return EAST;
             case SOUTH_EAST: return EAST;
         }
-        throw new UnsupportedOperationException(toString());
-    }
-
-    public final EnumFacing primaryDirection() {
-        return this.primary;
-    }
-
-    public final EnumFacing secondaryDirection() {
-        if (this.secondary == null) {
-            throw new UnsupportedOperationException(toString());
-        }
-        return this.secondary;
+        throw new Error(toString());
     }
 
     public final boolean isCardinal() {
-        return this.secondary == null;
+        return secondary == null;
     }
 
     public final boolean isOrdinal() {
-        return this.secondary != null;
+        return secondary != null;
     }
 
-    public final BlockPos offset(BlockPos origin) {
-        BlockPos offset = origin.offset(primary);
-        if (secondary == null) return offset;
-        return offset.offset(secondary);
+    @Nonnull
+    public final BlockPos offset(@Nonnull BlockPos origin) {
+        val offset = origin.offset(primary);
+        if (secondary != null) {
+            return offset.offset(secondary);
+        }
+        return offset;
     }
 
     @Override
+    @Nonnull
     public final String getName() {
-        return toString();
+        return name().toLowerCase(Locale.ROOT);
     }
 
     @Override
+    @Nonnull
     public final String toString() {
-        return name().toLowerCase(Locale.ROOT);
+        return getClass().getSimpleName() + '.' + name();
     }
 }
