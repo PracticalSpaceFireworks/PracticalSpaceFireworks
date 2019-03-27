@@ -14,20 +14,11 @@ import static net.minecraftforge.fluids.FluidRegistry.registerFluid;
 
 @Accessors(fluent = true)
 public final class PSFFluids {
-    @Getter
-    private static Fluid kerosene;
-
-    @Getter
-    private static Fluid liquidOxygen;
-
-    @Getter
-    private static Fluid liquidNitrogen;
-
-    @Getter
-    private static Fluid filteredAir;
-
-    @Getter
-    private static Fluid compressedAir;
+    @Getter private static Fluid kerosene;
+    @Getter private static Fluid liquidOxygen;
+    @Getter private static Fluid liquidNitrogen;
+    @Getter private static Fluid filteredAir;
+    @Getter private static Fluid compressedAir;
 
     private static boolean initialized;
 

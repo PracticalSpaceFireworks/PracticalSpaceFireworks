@@ -40,12 +40,13 @@ public final class PSFClient {
     }
 
     private static void registerStateMappers() { // fixme cleanup
-        ModelLoader.setCustomStateMapper(PSFBlocks.controllerSimple(),
+        //noinspection ConstantConditions
+        ModelLoader.setCustomStateMapper(PSFBlocks.CONTROLLER_SIMPLE,
             new StateMap.Builder().ignore(BlockController.TYPE).build()
         );
 
         for (val block : PSFBlocks.allBlocks()) {
-            if (block == PSFBlocks.controllerSimple()) continue;
+            if (block == PSFBlocks.CONTROLLER_SIMPLE) continue;
 
             val builder = new StateMap.Builder();
             if (block instanceof BlockModule) {
@@ -74,7 +75,8 @@ public final class PSFClient {
         for (val material : CraftingMaterial.values()) {
             val path = new ResourceLocation(MODID, material.getName());
             val model = new ModelResourceLocation(path, "inventory");
-            ModelLoader.setCustomModelResourceLocation(PSFItems.craftingMaterial(), material.ordinal(), model);
+            //noinspection ConstantConditions
+            ModelLoader.setCustomModelResourceLocation(PSFItems.CRAFTING_MATERIAL, material.ordinal(), model);
         }
 
         for (val item : PSFItems.allBlockItems()) {

@@ -49,7 +49,8 @@ public class GuiFuelLoader extends GuiContainer {
         mouseX -= originX;
         mouseY -= originY;
 
-        String title = I18n.format(PSFBlocks.fuelLoader().getTranslationKey() + ".name");
+        //noinspection ConstantConditions
+        String title = I18n.format(PSFBlocks.FUEL_LOADER.getTranslationKey() + ".name");
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);

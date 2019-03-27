@@ -57,7 +57,8 @@ public class PracticalSpaceFireworks {
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
         public @Nonnull ItemStack createIcon() {
-            return new ItemStack(PSFBlocks.strutCube());
+            //noinspection ConstantConditions
+            return new ItemStack(PSFBlocks.STRUT_CUBE);
         }
     };
 

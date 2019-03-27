@@ -1,7 +1,5 @@
 package net.gegy1000.psf.server.init;
 
-import lombok.Getter;
-import lombok.experimental.Accessors;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
@@ -33,196 +31,84 @@ import static com.google.common.base.Preconditions.checkState;
 import static net.gegy1000.psf.PracticalSpaceFireworks.namespace;
 import static net.minecraftforge.fml.common.registry.GameRegistry.registerTileEntity;
 
-@Accessors(fluent = true)
+@SuppressWarnings("unused")
 @ObjectHolder(PracticalSpaceFireworks.MODID)
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public final class PSFBlocks {
-    private static final String KEROSENE = "kerosene";
-    private static final String LIQUID_OXYGEN = "liquid_oxygen";
-    private static final String LIQUID_NITROGEN = "liquid_nitrogen";
-    private static final String FILTERED_AIR = "filtered_air";
-    private static final String COMPRESSED_AIR = "compressed_air";
+    public static final BlockFluidFinite KEROSENE = null;
+    public static final BlockFluidFinite LIQUID_OXYGEN = null;
+    public static final BlockFluidFinite LIQUID_NITROGEN = null;
+    public static final BlockFluidFinite FILTERED_AIR = null;
+    public static final BlockFluidFinite COMPRESSED_AIR = null;
+    public static final BlockStrutFixed STRUT_CUBE = null;
+    public static final BlockStrutOrientable STRUT_SLOPE = null;
+    public static final BlockController CONTROLLER_SIMPLE = null;
+    public static final BlockRemoteControlSystem REMOTE_CONTROL_SYSTEM = null;
+    public static final BlockPayloadSeparator PAYLOAD_SEPARATOR = null;
+    public static final BlockFuelLoader FUEL_LOADER = null;
+    public static final BlockFuelValve FUEL_VALVE = null;
+    public static final BlockFuelTank FUEL_TANK = null;
+    public static final BlockModule THRUSTER_SIMPLE = null;
+    public static final BlockKeroseneExtractor KEROSENE_EXTRACTOR = null;
+    public static final BlockAirIntake AIR_INTAKE = null;
+    public static final BlockAirCompressor AIR_COMPRESSOR = null;
+    public static final BlockAirSeparator AIR_SEPARATOR = null;
+    public static final BlockModule SOLAR_PANEL_SMALL = null;
+    public static final BlockMultiblockModule SOLAR_PANEL_LARGE = null;
+    public static final BlockBattery BATTERY_SIMPLE = null;
+    public static final BlockModule ENTITY_DETECTOR_SIMPLE = null;
+    public static final BlockModule ENTITY_MARKER = null;
+    public static final BlockModule TERRAIN_SCANNER = null;
+    public static final BlockModule WEATHER_SCANNER = null;
+    public static final BlockMultiblockModule LASER = null;
 
-    private static final String STRUT_CUBE = "strut_cube";
-    private static final String STRUT_SLOPE = "strut_slope";
-
-    private static final String CONTROLLER_SIMPLE = "controller_simple";
-    private static final String REMOTE_CONTROL_SYSTEM = "remote_control_system";
-    private static final String PAYLOAD_SEPARATOR = "payload_separator";
-
-    private static final String FUEL_LOADER = "fuel_loader";
-    private static final String FUEL_VALVE = "fuel_valve";
-    private static final String FUEL_TANK = "fuel_tank";
-    private static final String THRUSTER_SIMPLE = "thruster_simple";
-
-    private static final String KEROSENE_EXTRACTOR = "kerosene_extractor";
-    private static final String AIR_INTAKE = "air_intake";
-    private static final String AIR_COMPRESSOR = "air_compressor";
-    private static final String AIR_SEPARATOR = "air_separator";
-
-    private static final String SOLAR_PANEL_SMALL = "solar_panel_small";
-    private static final String SOLAR_PANEL_LARGE = "solar_panel_large";
-    private static final String BATTERY_SIMPLE = "battery_simple";
-
-    private static final String ENTITY_DETECTOR_SIMPLE = "entity_detector_simple";
-    private static final String ENTITY_MARKER = "entity_marker";
-
-    private static final String TERRAIN_SCANNER = "terrain_scanner";
-    private static final String WEATHER_SCANNER = "weather_scanner";
-
-    private static final String LASER = "laser";
-
-    private static final Set<Block> ALL = new LinkedHashSet<>();
-
-    @Getter
-    @ObjectHolder(KEROSENE)
-    private static BlockFluidFinite kerosene;
-
-    @Getter
-    @ObjectHolder(LIQUID_OXYGEN)
-    private static BlockFluidFinite liquidOxygen;
-
-    @Getter
-    @ObjectHolder(LIQUID_NITROGEN)
-    private static BlockFluidFinite liquidNitrogen;
-
-    @Getter
-    @ObjectHolder(FILTERED_AIR)
-    private static BlockFluidFinite filteredAir;
-
-    @Getter
-    @ObjectHolder(COMPRESSED_AIR)
-    private static BlockFluidFinite compressedAir;
-
-    @Getter
-    @ObjectHolder(STRUT_CUBE)
-    private static BlockStrutFixed strutCube;
-
-    @Getter
-    @ObjectHolder(STRUT_SLOPE)
-    private static BlockStrutOrientable strutSlope;
-
-    @Getter
-    @ObjectHolder(CONTROLLER_SIMPLE)
-    private static BlockController controllerSimple;
-
-    @Getter
-    @ObjectHolder(REMOTE_CONTROL_SYSTEM)
-    private static BlockRemoteControlSystem remoteControlSystem;
-
-    @Getter
-    @ObjectHolder(PAYLOAD_SEPARATOR)
-    private static BlockPayloadSeparator payloadSeparator;
-
-    @Getter
-    @ObjectHolder(FUEL_LOADER)
-    private static BlockFuelLoader fuelLoader;
-
-    @Getter
-    @ObjectHolder(FUEL_VALVE)
-    private static BlockFuelValve fuelValve;
-
-    @Getter
-    @ObjectHolder(FUEL_TANK)
-    private static BlockFuelTank fuelTank;
-
-    @Getter
-    @ObjectHolder(THRUSTER_SIMPLE)
-    private static BlockModule thrusterSimple;
-
-    @Getter
-    @ObjectHolder(KEROSENE_EXTRACTOR)
-    private static BlockKeroseneExtractor keroseneExtractor;
-
-    @Getter
-    @ObjectHolder(AIR_INTAKE)
-    private static BlockAirIntake airIntake;
-
-    @Getter
-    @ObjectHolder(AIR_COMPRESSOR)
-    private static BlockAirCompressor airCompressor;
-
-    @Getter
-    @ObjectHolder(AIR_SEPARATOR)
-    private static BlockAirSeparator airSeparator;
-
-    @Getter
-    @ObjectHolder(SOLAR_PANEL_SMALL)
-    private static BlockModule solarPanelSmall;
-
-    @Getter
-    @ObjectHolder(SOLAR_PANEL_LARGE)
-    private static BlockMultiblockModule solarPanelLarge;
-
-    @Getter
-    @ObjectHolder(BATTERY_SIMPLE)
-    private static BlockBattery batterySimple;
-
-    @Getter
-    @ObjectHolder(ENTITY_DETECTOR_SIMPLE)
-    private static BlockModule entityDetectorSimple;
-
-    @Getter
-    @ObjectHolder(ENTITY_MARKER)
-    private static BlockModule entityMarker;
-
-    @Getter
-    @ObjectHolder(TERRAIN_SCANNER)
-    private static BlockModule terrainScanner;
-
-    @Getter
-    @ObjectHolder(WEATHER_SCANNER)
-    private static BlockModule weatherScanner;
-
-    @Getter
-    @ObjectHolder(LASER)
-    private static BlockMultiblockModule laser;
+    private static final Set<Block> ALL_BLOCKS = new LinkedHashSet<>();
 
     private PSFBlocks() {
         throw new UnsupportedOperationException();
     }
 
     public static Set<Block> allBlocks() {
-        return Collections.unmodifiableSet(ALL);
+        return Collections.unmodifiableSet(ALL_BLOCKS);
     }
 
     @SubscribeEvent
     static void registerBlocks(final RegistryEvent.Register<Block> event) {
         @Nonnull val registry = event.getRegistry();
 
-        register(registry, KEROSENE, new BlockPSFFluid(PSFFluids.kerosene(), Material.WATER));
-        register(registry, LIQUID_OXYGEN, new BlockPSFFluid(PSFFluids.liquidOxygen(), Material.WATER));
-        register(registry, LIQUID_NITROGEN, new BlockPSFFluid(PSFFluids.liquidNitrogen(), Material.WATER));
-        register(registry, FILTERED_AIR, new BlockPSFFluid(PSFFluids.filteredAir(), Material.WATER));
-        register(registry, COMPRESSED_AIR, new BlockPSFFluid(PSFFluids.compressedAir(), Material.WATER));
+        register(registry, Name.KEROSENE, new BlockPSFFluid(PSFFluids.kerosene(), Material.WATER));
+        register(registry, Name.LIQUID_OXYGEN, new BlockPSFFluid(PSFFluids.liquidOxygen(), Material.WATER));
+        register(registry, Name.LIQUID_NITROGEN, new BlockPSFFluid(PSFFluids.liquidNitrogen(), Material.WATER));
+        register(registry, Name.FILTERED_AIR, new BlockPSFFluid(PSFFluids.filteredAir(), Material.WATER));
+        register(registry, Name.COMPRESSED_AIR, new BlockPSFFluid(PSFFluids.compressedAir(), Material.WATER));
 
-        register(registry, STRUT_CUBE, new BlockStrutFixed(STRUT_CUBE));
-        register(registry, STRUT_SLOPE, new BlockStrutOrientable.Slope(STRUT_SLOPE));
+        register(registry, Name.STRUT_CUBE, new BlockStrutFixed(Name.STRUT_CUBE));
+        register(registry, Name.STRUT_SLOPE, new BlockStrutOrientable.Slope(Name.STRUT_SLOPE));
 
-        register(registry, CONTROLLER_SIMPLE, new BlockController(ControllerType.BASIC));
-        register(registry, REMOTE_CONTROL_SYSTEM, new BlockRemoteControlSystem());
-        register(registry, PAYLOAD_SEPARATOR, new BlockPayloadSeparator());
+        register(registry, Name.CONTROLLER_SIMPLE, new BlockController(ControllerType.BASIC));
+        register(registry, Name.REMOTE_CONTROL_SYSTEM, new BlockRemoteControlSystem());
+        register(registry, Name.PAYLOAD_SEPARATOR, new BlockPayloadSeparator());
 
-        register(registry, FUEL_LOADER, new BlockFuelLoader());
-        register(registry, FUEL_VALVE, new BlockFuelValve());
-        register(registry, FUEL_TANK, new BlockFuelTank());
-        register(registry, THRUSTER_SIMPLE, new BlockThruster(THRUSTER_SIMPLE));
+        register(registry, Name.FUEL_LOADER, new BlockFuelLoader());
+        register(registry, Name.FUEL_VALVE, new BlockFuelValve());
+        register(registry, Name.FUEL_TANK, new BlockFuelTank());
+        register(registry, Name.THRUSTER_SIMPLE, new BlockThruster(Name.THRUSTER_SIMPLE));
 
-        register(registry, KEROSENE_EXTRACTOR, new BlockKeroseneExtractor());
-        register(registry, AIR_INTAKE, new BlockAirIntake());
-        register(registry, AIR_COMPRESSOR, new BlockAirCompressor());
-        register(registry, AIR_SEPARATOR, new BlockAirSeparator());
+        register(registry, Name.KEROSENE_EXTRACTOR, new BlockKeroseneExtractor());
+        register(registry, Name.AIR_INTAKE, new BlockAirIntake());
+        register(registry, Name.AIR_COMPRESSOR, new BlockAirCompressor());
+        register(registry, Name.AIR_SEPARATOR, new BlockAirSeparator());
 
-        register(registry, SOLAR_PANEL_SMALL, new BlockSmallSolarPanel());
-        register(registry, SOLAR_PANEL_LARGE, new BlockLargeSolarPanel(SOLAR_PANEL_LARGE));
-        register(registry, BATTERY_SIMPLE, new BlockBattery(BATTERY_SIMPLE));
+        register(registry, Name.SOLAR_PANEL_SMALL, new BlockSmallSolarPanel());
+        register(registry, Name.SOLAR_PANEL_LARGE, new BlockLargeSolarPanel(Name.SOLAR_PANEL_LARGE));
+        register(registry, Name.BATTERY_SIMPLE, new BlockBattery(Name.BATTERY_SIMPLE));
 
-        registerModule(registry, ENTITY_DETECTOR_SIMPLE);
-        registerModule(registry, ENTITY_MARKER);
-        registerModule(registry, TERRAIN_SCANNER);
-        registerModule(registry, WEATHER_SCANNER);
+        registerModule(registry, Name.ENTITY_DETECTOR_SIMPLE);
+        registerModule(registry, Name.ENTITY_MARKER);
+        registerModule(registry, Name.TERRAIN_SCANNER);
+        registerModule(registry, Name.WEATHER_SCANNER);
 
-        register(registry, LASER, new BlockLaser(LASER));
+        register(registry, Name.LASER, new BlockLaser(Name.LASER));
 
         // Register module TE only once
         registerTileEntity(TileModule.class, namespace("module"));
@@ -240,10 +126,39 @@ public final class PSFBlocks {
     private static <T extends Block> void register(final IForgeRegistry<Block> registry, final String name, final T block) {
         val id = namespace(name);
         block.setRegistryName(id).setTranslationKey(namespace(name, '.'));
-        checkState(ALL.add(block), "Already registered [%s: %s]", id, block);
+        checkState(ALL_BLOCKS.add(block), "Already registered [%s: %s]", id, block);
         registry.register(block);
         if (block instanceof RegisterTileEntity) {
             registerTileEntity(((RegisterTileEntity) block).getEntityClass(), id);
         }
+    }
+
+    private static final class Name {
+        static final String KEROSENE = "kerosene";
+        static final String LIQUID_OXYGEN = "liquid_oxygen";
+        static final String LIQUID_NITROGEN = "liquid_nitrogen";
+        static final String FILTERED_AIR = "filtered_air";
+        static final String COMPRESSED_AIR = "compressed_air";
+        static final String STRUT_CUBE = "strut_cube";
+        static final String STRUT_SLOPE = "strut_slope";
+        static final String CONTROLLER_SIMPLE = "controller_simple";
+        static final String REMOTE_CONTROL_SYSTEM = "remote_control_system";
+        static final String PAYLOAD_SEPARATOR = "payload_separator";
+        static final String FUEL_LOADER = "fuel_loader";
+        static final String FUEL_VALVE = "fuel_valve";
+        static final String FUEL_TANK = "fuel_tank";
+        static final String THRUSTER_SIMPLE = "thruster_simple";
+        static final String KEROSENE_EXTRACTOR = "kerosene_extractor";
+        static final String AIR_INTAKE = "air_intake";
+        static final String AIR_COMPRESSOR = "air_compressor";
+        static final String AIR_SEPARATOR = "air_separator";
+        static final String SOLAR_PANEL_SMALL = "solar_panel_small";
+        static final String SOLAR_PANEL_LARGE = "solar_panel_large";
+        static final String BATTERY_SIMPLE = "battery_simple";
+        static final String ENTITY_DETECTOR_SIMPLE = "entity_detector_simple";
+        static final String ENTITY_MARKER = "entity_marker";
+        static final String TERRAIN_SCANNER = "terrain_scanner";
+        static final String WEATHER_SCANNER = "weather_scanner";
+        static final String LASER = "laser";
     }
 }

@@ -1,8 +1,7 @@
 package net.gegy1000.psf.server.init;
 
-import lombok.Getter;
-import lombok.experimental.Accessors;
 import lombok.val;
+import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.item.ItemCraftingMaterial;
 import net.gegy1000.psf.server.item.ItemTargetSelector;
@@ -20,26 +19,17 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
-import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
 import static net.gegy1000.psf.PracticalSpaceFireworks.namespace;
 
-@Accessors(fluent = true)
-@ObjectHolder(MODID)
-@EventBusSubscriber(modid = MODID)
+@SuppressWarnings("unused")
+@ObjectHolder(PracticalSpaceFireworks.MODID)
+@EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public final class PSFItems {
-    private static final String TARGET_SELECTOR = "target_selector";
-    private static final String CRAFTING_MATERIAL = "crafting_material";
+    public static final ItemTargetSelector TARGET_SELECTOR = null;
+    public static final ItemCraftingMaterial CRAFTING_MATERIAL = null;
 
-    private static final Set<Item> REGISTERED_ITEMS = new LinkedHashSet<>();
-    private static final Set<ItemBlock> REGISTERED_ITEM_BLOCKS = new LinkedHashSet<>();
-
-    @Getter
-    @ObjectHolder(TARGET_SELECTOR)
-    private static ItemTargetSelector targetSelector;
-
-    @Getter
-    @ObjectHolder(CRAFTING_MATERIAL)
-    private static ItemCraftingMaterial craftingMaterial;
+    private static final Set<Item> ALL_ITEMS = new LinkedHashSet<>();
+    private static final Set<ItemBlock> ALL_BLOCK_ITEMS = new LinkedHashSet<>();
 
     private PSFItems() {
         throw new UnsupportedOperationException();
@@ -47,19 +37,19 @@ public final class PSFItems {
 
     @Nonnull
     public static Set<Item> allItems() {
-        return Collections.unmodifiableSet(REGISTERED_ITEMS);
+        return Collections.unmodifiableSet(ALL_ITEMS);
     }
 
     @Nonnull
     public static Set<ItemBlock> allBlockItems() {
-        return Collections.unmodifiableSet(REGISTERED_ITEM_BLOCKS);
+        return Collections.unmodifiableSet(ALL_BLOCK_ITEMS);
     }
 
     @SubscribeEvent
     static void registerItems(final RegistryEvent.Register<Item> event) {
         val registry = event.getRegistry();
-        register(registry, TARGET_SELECTOR, new ItemTargetSelector());
-        register(registry, CRAFTING_MATERIAL, new ItemCraftingMaterial());
+        register(registry, Name.TARGET_SELECTOR, new ItemTargetSelector());
+        register(registry, Name.CRAFTING_MATERIAL, new ItemCraftingMaterial());
         registerBlockItems(registry);
     }
 
@@ -67,7 +57,7 @@ public final class PSFItems {
         for (val block : PSFBlocks.allBlocks()) {
             if (!(block instanceof RegisterItemBlock)) continue;
             val item = ((RegisterItemBlock) block).createItemBlock(block);
-            if (REGISTERED_ITEM_BLOCKS.add(item)) {
+            if (ALL_BLOCK_ITEMS.add(item)) {
                 val name = block.getRegistryName();
                 checkState(name != null, "Missing registry name: %s", block);
                 registry.register(item.setRegistryName(name));
@@ -78,7 +68,12 @@ public final class PSFItems {
     private static void register(final IForgeRegistry<Item> registry, final String name, final Item item) {
         val id = namespace(name);
         item.setRegistryName(id).setTranslationKey(namespace(name, '.'));
-        checkState(REGISTERED_ITEMS.add(item), "Already registered [%s: %s]", id, item);
+        checkState(ALL_ITEMS.add(item), "Already registered [%s: %s]", id, item);
         registry.register(item);
+    }
+
+    private static final class Name {
+        static final String TARGET_SELECTOR = "target_selector";
+        static final String CRAFTING_MATERIAL = "crafting_material";
     }
 }
