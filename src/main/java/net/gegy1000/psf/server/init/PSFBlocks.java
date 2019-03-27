@@ -76,39 +76,39 @@ public final class PSFBlocks {
     static void registerBlocks(final RegistryEvent.Register<Block> event) {
         @Nonnull val registry = event.getRegistry();
 
-        register(registry, Name.KEROSENE, new BlockPSFFluid(PSFFluids.kerosene(), Material.WATER));
-        register(registry, Name.LIQUID_OXYGEN, new BlockPSFFluid(PSFFluids.liquidOxygen(), Material.WATER));
-        register(registry, Name.LIQUID_NITROGEN, new BlockPSFFluid(PSFFluids.liquidNitrogen(), Material.WATER));
-        register(registry, Name.FILTERED_AIR, new BlockPSFFluid(PSFFluids.filteredAir(), Material.WATER));
-        register(registry, Name.COMPRESSED_AIR, new BlockPSFFluid(PSFFluids.compressedAir(), Material.WATER));
+        register(registry, "kerosene", new BlockPSFFluid(PSFFluids.kerosene(), Material.WATER));
+        register(registry, "liquid_oxygen", new BlockPSFFluid(PSFFluids.liquidOxygen(), Material.WATER));
+        register(registry, "liquid_nitrogen", new BlockPSFFluid(PSFFluids.liquidNitrogen(), Material.WATER));
+        register(registry, "filtered_air", new BlockPSFFluid(PSFFluids.filteredAir(), Material.WATER));
+        register(registry, "compressed_air", new BlockPSFFluid(PSFFluids.compressedAir(), Material.WATER));
 
-        register(registry, Name.STRUT_CUBE, new BlockStrutFixed(Name.STRUT_CUBE));
-        register(registry, Name.STRUT_SLOPE, new BlockStrutOrientable.Slope(Name.STRUT_SLOPE));
+        register(registry, "strut_cube", new BlockStrutFixed("strut_cube"));
+        register(registry, "strut_slope", new BlockStrutOrientable.Slope("strut_slope"));
 
-        register(registry, Name.CONTROLLER_SIMPLE, new BlockController(ControllerType.BASIC));
-        register(registry, Name.REMOTE_CONTROL_SYSTEM, new BlockRemoteControlSystem());
-        register(registry, Name.PAYLOAD_SEPARATOR, new BlockPayloadSeparator());
+        register(registry, "controller_simple", new BlockController(ControllerType.BASIC));
+        register(registry, "remote_control_system", new BlockRemoteControlSystem());
+        register(registry, "payload_separator", new BlockPayloadSeparator());
 
-        register(registry, Name.FUEL_LOADER, new BlockFuelLoader());
-        register(registry, Name.FUEL_VALVE, new BlockFuelValve());
-        register(registry, Name.FUEL_TANK, new BlockFuelTank());
-        register(registry, Name.THRUSTER_SIMPLE, new BlockThruster(Name.THRUSTER_SIMPLE));
+        register(registry, "fuel_loader", new BlockFuelLoader());
+        register(registry, "fuel_valve", new BlockFuelValve());
+        register(registry, "fuel_tank", new BlockFuelTank());
+        register(registry, "thruster_simple", new BlockThruster("thruster_simple"));
 
-        register(registry, Name.KEROSENE_EXTRACTOR, new BlockKeroseneExtractor());
-        register(registry, Name.AIR_INTAKE, new BlockAirIntake());
-        register(registry, Name.AIR_COMPRESSOR, new BlockAirCompressor());
-        register(registry, Name.AIR_SEPARATOR, new BlockAirSeparator());
+        register(registry, "kerosene_extractor", new BlockKeroseneExtractor());
+        register(registry, "air_intake", new BlockAirIntake());
+        register(registry, "air_compressor", new BlockAirCompressor());
+        register(registry, "air_separator", new BlockAirSeparator());
 
-        register(registry, Name.SOLAR_PANEL_SMALL, new BlockSmallSolarPanel());
-        register(registry, Name.SOLAR_PANEL_LARGE, new BlockLargeSolarPanel(Name.SOLAR_PANEL_LARGE));
-        register(registry, Name.BATTERY_SIMPLE, new BlockBattery(Name.BATTERY_SIMPLE));
+        register(registry, "solar_panel_small", new BlockSmallSolarPanel());
+        register(registry, "solar_panel_large", new BlockLargeSolarPanel("solar_panel_large"));
+        register(registry, "battery_simple", new BlockBattery("battery_simple"));
 
-        registerModule(registry, Name.ENTITY_DETECTOR_SIMPLE);
-        registerModule(registry, Name.ENTITY_MARKER);
-        registerModule(registry, Name.TERRAIN_SCANNER);
-        registerModule(registry, Name.WEATHER_SCANNER);
+        registerModule(registry, "entity_detector_simple");
+        registerModule(registry, "entity_marker");
+        registerModule(registry, "terrain_scanner");
+        registerModule(registry, "weather_scanner");
 
-        register(registry, Name.LASER, new BlockLaser(Name.LASER));
+        register(registry, "laser", new BlockLaser("laser"));
 
         // Register module TE only once
         registerTileEntity(TileModule.class, namespace("module"));
@@ -131,34 +131,5 @@ public final class PSFBlocks {
         if (block instanceof RegisterTileEntity) {
             registerTileEntity(((RegisterTileEntity) block).getEntityClass(), id);
         }
-    }
-
-    private static final class Name {
-        static final String KEROSENE = "kerosene";
-        static final String LIQUID_OXYGEN = "liquid_oxygen";
-        static final String LIQUID_NITROGEN = "liquid_nitrogen";
-        static final String FILTERED_AIR = "filtered_air";
-        static final String COMPRESSED_AIR = "compressed_air";
-        static final String STRUT_CUBE = "strut_cube";
-        static final String STRUT_SLOPE = "strut_slope";
-        static final String CONTROLLER_SIMPLE = "controller_simple";
-        static final String REMOTE_CONTROL_SYSTEM = "remote_control_system";
-        static final String PAYLOAD_SEPARATOR = "payload_separator";
-        static final String FUEL_LOADER = "fuel_loader";
-        static final String FUEL_VALVE = "fuel_valve";
-        static final String FUEL_TANK = "fuel_tank";
-        static final String THRUSTER_SIMPLE = "thruster_simple";
-        static final String KEROSENE_EXTRACTOR = "kerosene_extractor";
-        static final String AIR_INTAKE = "air_intake";
-        static final String AIR_COMPRESSOR = "air_compressor";
-        static final String AIR_SEPARATOR = "air_separator";
-        static final String SOLAR_PANEL_SMALL = "solar_panel_small";
-        static final String SOLAR_PANEL_LARGE = "solar_panel_large";
-        static final String BATTERY_SIMPLE = "battery_simple";
-        static final String ENTITY_DETECTOR_SIMPLE = "entity_detector_simple";
-        static final String ENTITY_MARKER = "entity_marker";
-        static final String TERRAIN_SCANNER = "terrain_scanner";
-        static final String WEATHER_SCANNER = "weather_scanner";
-        static final String LASER = "laser";
     }
 }

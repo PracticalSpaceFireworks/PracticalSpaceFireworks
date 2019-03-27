@@ -48,8 +48,8 @@ public final class PSFItems {
     @SubscribeEvent
     static void registerItems(final RegistryEvent.Register<Item> event) {
         val registry = event.getRegistry();
-        register(registry, Name.TARGET_SELECTOR, new ItemTargetSelector());
-        register(registry, Name.CRAFTING_MATERIAL, new ItemCraftingMaterial());
+        register(registry, "target_selector", new ItemTargetSelector());
+        register(registry, "crafting_material", new ItemCraftingMaterial());
         registerBlockItems(registry);
     }
 
@@ -70,10 +70,5 @@ public final class PSFItems {
         item.setRegistryName(id).setTranslationKey(namespace(name, '.'));
         checkState(ALL_ITEMS.add(item), "Already registered [%s: %s]", id, item);
         registry.register(item);
-    }
-
-    private static final class Name {
-        static final String TARGET_SELECTOR = "target_selector";
-        static final String CRAFTING_MATERIAL = "crafting_material";
     }
 }
