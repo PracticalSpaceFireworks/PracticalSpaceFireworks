@@ -1,12 +1,13 @@
 package net.gegy1000.psf.server.init;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.val;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.item.ItemCraftingMaterial;
 import net.gegy1000.psf.server.item.ItemTargetSelector;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,16 +15,15 @@ import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
 import static net.gegy1000.psf.PracticalSpaceFireworks.namespace;
 
+@Accessors(fluent = true)
 @ObjectHolder(MODID)
 @EventBusSubscriber(modid = MODID)
 public final class PSFItems {
@@ -33,26 +33,16 @@ public final class PSFItems {
     private static final Set<Item> REGISTERED_ITEMS = new LinkedHashSet<>();
     private static final Set<ItemBlock> REGISTERED_ITEM_BLOCKS = new LinkedHashSet<>();
 
-    @Nullable
+    @Getter
     @ObjectHolder(TARGET_SELECTOR)
     private static ItemTargetSelector targetSelector;
 
-    @Nullable
+    @Getter
     @ObjectHolder(CRAFTING_MATERIAL)
     private static ItemCraftingMaterial craftingMaterial;
 
     private PSFItems() {
         throw new UnsupportedOperationException();
-    }
-
-    @Nonnull
-    public static ItemTargetSelector targetSelector() {
-        return checkNotNull(targetSelector);
-    }
-
-    @Nonnull
-    public static ItemCraftingMaterial craftingMaterial() {
-        return checkNotNull(craftingMaterial);
     }
 
     @Nonnull

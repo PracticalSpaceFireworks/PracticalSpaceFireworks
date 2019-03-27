@@ -1,5 +1,7 @@
 package net.gegy1000.psf.server.init;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
@@ -23,16 +25,15 @@ import net.minecraftforge.fml.common.registry.GameRegistry.ObjectHolder;
 import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static net.gegy1000.psf.PracticalSpaceFireworks.namespace;
 import static net.minecraftforge.fml.common.registry.GameRegistry.registerTileEntity;
 
+@Accessors(fluent = true)
 @ObjectHolder(PracticalSpaceFireworks.MODID)
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public final class PSFBlocks {
@@ -73,242 +74,112 @@ public final class PSFBlocks {
 
     private static final Set<Block> ALL = new LinkedHashSet<>();
 
-    @Nullable
+    @Getter
     @ObjectHolder(KEROSENE)
     private static BlockFluidFinite kerosene;
 
-    @Nullable
+    @Getter
     @ObjectHolder(LIQUID_OXYGEN)
     private static BlockFluidFinite liquidOxygen;
 
-    @Nullable
+    @Getter
     @ObjectHolder(LIQUID_NITROGEN)
     private static BlockFluidFinite liquidNitrogen;
 
-    @Nullable
+    @Getter
     @ObjectHolder(FILTERED_AIR)
     private static BlockFluidFinite filteredAir;
 
-    @Nullable
+    @Getter
     @ObjectHolder(COMPRESSED_AIR)
     private static BlockFluidFinite compressedAir;
 
-    @Nullable
+    @Getter
     @ObjectHolder(STRUT_CUBE)
     private static BlockStrutFixed strutCube;
 
-    @Nullable
+    @Getter
     @ObjectHolder(STRUT_SLOPE)
     private static BlockStrutOrientable strutSlope;
 
-    @Nullable
+    @Getter
     @ObjectHolder(CONTROLLER_SIMPLE)
     private static BlockController controllerSimple;
 
-    @Nullable
+    @Getter
     @ObjectHolder(REMOTE_CONTROL_SYSTEM)
     private static BlockRemoteControlSystem remoteControlSystem;
 
-    @Nullable
+    @Getter
     @ObjectHolder(PAYLOAD_SEPARATOR)
     private static BlockPayloadSeparator payloadSeparator;
 
-    @Nullable
+    @Getter
     @ObjectHolder(FUEL_LOADER)
     private static BlockFuelLoader fuelLoader;
 
-    @Nullable
+    @Getter
     @ObjectHolder(FUEL_VALVE)
     private static BlockFuelValve fuelValve;
 
-    @Nullable
+    @Getter
     @ObjectHolder(FUEL_TANK)
     private static BlockFuelTank fuelTank;
 
-    @Nullable
+    @Getter
     @ObjectHolder(THRUSTER_SIMPLE)
     private static BlockModule thrusterSimple;
 
-    @Nullable
+    @Getter
     @ObjectHolder(KEROSENE_EXTRACTOR)
     private static BlockKeroseneExtractor keroseneExtractor;
 
-    @Nullable
+    @Getter
     @ObjectHolder(AIR_INTAKE)
     private static BlockAirIntake airIntake;
 
-    @Nullable
+    @Getter
     @ObjectHolder(AIR_COMPRESSOR)
     private static BlockAirCompressor airCompressor;
 
-    @Nullable
+    @Getter
     @ObjectHolder(AIR_SEPARATOR)
     private static BlockAirSeparator airSeparator;
 
-    @Nullable
+    @Getter
     @ObjectHolder(SOLAR_PANEL_SMALL)
     private static BlockModule solarPanelSmall;
 
-    @Nullable
+    @Getter
     @ObjectHolder(SOLAR_PANEL_LARGE)
     private static BlockMultiblockModule solarPanelLarge;
 
-    @Nullable
+    @Getter
     @ObjectHolder(BATTERY_SIMPLE)
     private static BlockBattery batterySimple;
 
-    @Nullable
+    @Getter
     @ObjectHolder(ENTITY_DETECTOR_SIMPLE)
     private static BlockModule entityDetectorSimple;
 
-    @Nullable
+    @Getter
     @ObjectHolder(ENTITY_MARKER)
     private static BlockModule entityMarker;
 
-    @Nullable
+    @Getter
     @ObjectHolder(TERRAIN_SCANNER)
     private static BlockModule terrainScanner;
 
-    @Nullable
+    @Getter
     @ObjectHolder(WEATHER_SCANNER)
     private static BlockModule weatherScanner;
 
-    @Nullable
+    @Getter
     @ObjectHolder(LASER)
     private static BlockMultiblockModule laser;
 
     private PSFBlocks() {
         throw new UnsupportedOperationException();
-    }
-
-    @Nonnull
-    public static BlockFluidFinite kerosene() {
-        return checkNotNull(kerosene);
-    }
-
-    @Nonnull
-    public static BlockFluidFinite liquidOxygen() {
-        return checkNotNull(liquidOxygen);
-    }
-
-    @Nonnull
-    public static BlockFluidFinite liquidNitrogen() {
-        return checkNotNull(liquidNitrogen);
-    }
-
-    @Nonnull
-    public static BlockFluidFinite filteredAir() {
-        return checkNotNull(filteredAir);
-    }
-
-    @Nonnull
-    public static BlockFluidFinite compressedAir() {
-        return checkNotNull(compressedAir);
-    }
-
-    @Nonnull
-    public static BlockStrutFixed strutCube() {
-        return checkNotNull(strutCube);
-    }
-
-    @Nonnull
-    public static BlockStrutOrientable strutSlope() {
-        return checkNotNull(strutSlope);
-    }
-
-    @Nonnull
-    public static BlockController controllerSimple() {
-        return checkNotNull(controllerSimple);
-    }
-
-    @Nonnull
-    public static BlockRemoteControlSystem remoteControlSystem() {
-        return checkNotNull(remoteControlSystem);
-    }
-
-    @Nonnull
-    public static BlockPayloadSeparator payloadSeparator() {
-        return checkNotNull(payloadSeparator);
-    }
-
-    @Nonnull
-    public static BlockFuelLoader fuelLoader() {
-        return checkNotNull(fuelLoader);
-    }
-
-    @Nonnull
-    public static BlockFuelValve fuelValve() {
-        return checkNotNull(fuelValve);
-    }
-
-    @Nonnull
-    public static BlockFuelTank fuelTank() {
-        return checkNotNull(fuelTank);
-    }
-
-    @Nonnull
-    public static BlockModule thrusterSimple() {
-        return checkNotNull(thrusterSimple);
-    }
-
-    @Nonnull
-    public static BlockKeroseneExtractor keroseneExtractor() {
-        return checkNotNull(keroseneExtractor);
-    }
-
-    @Nonnull
-    public static BlockAirIntake airIntake() {
-        return checkNotNull(airIntake);
-    }
-
-    @Nonnull
-    public static BlockAirCompressor airCompressor() {
-        return checkNotNull(airCompressor);
-    }
-
-    @Nonnull
-    public static BlockAirSeparator airSeparator() {
-        return checkNotNull(airSeparator);
-    }
-
-    @Nonnull
-    public static BlockModule solarPanelSmall() {
-        return checkNotNull(solarPanelSmall);
-    }
-
-    @Nonnull
-    public static BlockMultiblockModule solarPanelLarge() {
-        return checkNotNull(solarPanelLarge);
-    }
-
-    @Nonnull
-    public static BlockBattery batterySimple() {
-        return checkNotNull(batterySimple);
-    }
-
-    @Nonnull
-    public static BlockModule entityDetectorSimple() {
-        return checkNotNull(entityDetectorSimple);
-    }
-
-    @Nonnull
-    public static BlockModule entityMarker() {
-        return checkNotNull(entityMarker);
-    }
-
-    @Nonnull
-    public static BlockModule terrainScanner() {
-        return checkNotNull(terrainScanner);
-    }
-
-    @Nonnull
-    public static BlockModule weatherScanner() {
-        return checkNotNull(weatherScanner);
-    }
-
-    @Nonnull
-    public static BlockMultiblockModule laser() {
-        return checkNotNull(laser);
     }
 
     public static Set<Block> allBlocks() {
