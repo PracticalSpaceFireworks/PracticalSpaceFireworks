@@ -10,19 +10,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class BlockBattery extends BlockModule {
-    private static final AxisDirectionalBB BOUNDING_BOX = AxisDirectionalBB.of(
-            0.25D, 0.125D, 0.90625D, 0.75D, 0.875D, 1.0D
-    );
+    private static final AxisDirectionalBB BOUNDING_BOX =
+        AxisDirectionalBB.of(0.1875, 0.25, 0.75, 0.8125, 0.75, 1.0);
 
     public BlockBattery(String name) {
         super(Material.CIRCUITS, name);
-        this.setSoundType(SoundType.METAL);
-        this.setHardness(1.0F);
-        this.setCreativeTab(PracticalSpaceFireworks.TAB);
+        setSoundType(SoundType.METAL);
+        setHardness(1.0F);
+        setCreativeTab(PracticalSpaceFireworks.TAB);
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess access, BlockPos pos) {
         return BOUNDING_BOX.withFacing(state.getValue(DIRECTION));
     }
 }

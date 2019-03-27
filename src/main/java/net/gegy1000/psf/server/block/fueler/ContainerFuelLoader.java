@@ -1,7 +1,7 @@
 package net.gegy1000.psf.server.block.fueler;
 
 import lombok.Getter;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -39,8 +39,8 @@ public class ContainerFuelLoader extends Container {
         this.entity = entity;
 
         IItemHandler itemHandler = entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        this.addSlotToContainer(new SlotFluidContainer(itemHandler, 0, 26, 36, PSFFluidRegistry.KEROSENE));
-        this.addSlotToContainer(new SlotFluidContainer(itemHandler, 1, 134, 36, PSFFluidRegistry.LIQUID_OXYGEN));
+        this.addSlotToContainer(new SlotFluidContainer(itemHandler, 0, 26, 36, PSFFluids.kerosene()));
+        this.addSlotToContainer(new SlotFluidContainer(itemHandler, 1, 134, 36, PSFFluids.liquidOxygen()));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -58,8 +58,8 @@ public class ContainerFuelLoader extends Container {
         super.detectAndSendChanges();
 
         Map<Fluid, TileFuelLoader.FuelAmount> fuelAmounts = entity.collectFuelAmounts();
-        TileFuelLoader.FuelAmount keroseneAmount = fuelAmounts.getOrDefault(PSFFluidRegistry.KEROSENE, new TileFuelLoader.FuelAmount());
-        TileFuelLoader.FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluidRegistry.LIQUID_OXYGEN, new TileFuelLoader.FuelAmount());
+        TileFuelLoader.FuelAmount keroseneAmount = fuelAmounts.getOrDefault(PSFFluids.kerosene(), new TileFuelLoader.FuelAmount());
+        TileFuelLoader.FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidOxygen(), new TileFuelLoader.FuelAmount());
 
         boolean keroseneChanged = !this.keroseneAmount.equals(keroseneAmount);
         boolean liquidOxygenChanged = !this.liquidOxygenAmount.equals(liquidOxygenAmount);

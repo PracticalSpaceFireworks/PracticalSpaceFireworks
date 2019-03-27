@@ -1,7 +1,7 @@
 package net.gegy1000.psf.server.block.production;
 
 import net.gegy1000.psf.server.capability.TypedFluidTank;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -36,8 +36,8 @@ public class TileAirCompressor extends TileEntity implements ITickable {
 
     private static final int STATE_CHANGE_TIME = 20;
 
-    private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluidRegistry.FILTERED_AIR);
-    private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluidRegistry.COMPRESSED_AIR);
+    private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir());
+    private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
@@ -126,9 +126,9 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                     return State.DRAINING;
                 }
                 if (compressor.energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK) {
-                    FluidStack drained = compressor.inputStorage.drain(new FluidStack(PSFFluidRegistry.FILTERED_AIR, COMPRESS_PER_TICK), true);
+                    FluidStack drained = compressor.inputStorage.drain(new FluidStack(PSFFluids.filteredAir(), COMPRESS_PER_TICK), true);
                     if (drained != null && drained.amount > 0) {
-                        compressor.outputStorage.fill(new FluidStack(PSFFluidRegistry.COMPRESSED_AIR, drained.amount), true);
+                        compressor.outputStorage.fill(new FluidStack(PSFFluids.compressedAir(), drained.amount), true);
                     }
                 }
                 return this;

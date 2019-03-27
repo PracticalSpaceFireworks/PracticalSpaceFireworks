@@ -1,11 +1,12 @@
 package net.gegy1000.psf;
 
 import net.gegy1000.psf.server.ServerProxy;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
+import net.gegy1000.psf.server.init.PSFBlocks;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.datafix.IFixableData;
 import net.minecraftforge.common.util.ModFixs;
@@ -24,6 +25,8 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static net.gegy1000.psf.PracticalSpaceFireworks.*;
 
 @Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = "[1.12]")
@@ -54,7 +57,7 @@ public class PracticalSpaceFireworks {
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
         public @Nonnull ItemStack createIcon() {
-            return new ItemStack(PSFBlockRegistry.strut);
+            return new ItemStack(PSFBlocks.strutCube());
         }
     };
 
@@ -64,6 +67,16 @@ public class PracticalSpaceFireworks {
 
     public static boolean isDeobfuscatedEnvironment() {
         return deobfuscatedEnvironment;
+    }
+    
+    public static ResourceLocation namespace(final String path) {
+        checkArgument(!isNullOrEmpty(path));
+        return new ResourceLocation(MODID, path);
+    }
+
+    public static String namespace(final String path, final char delimiter) {
+        checkArgument(!isNullOrEmpty(path));
+        return MODID + delimiter + path;
     }
 
     @Mod.EventHandler
@@ -96,10 +109,13 @@ public class PracticalSpaceFireworks {
             }
 
             @Override
-            public NBTTagCompound fixTagCompound(NBTTagCompound compound) {
+            @Nonnull
+            public NBTTagCompound fixTagCompound(@Nonnull NBTTagCompound compound) {
                 String id = compound.getString("id");
-                if (id.contains(MODID + ".")) {
-                    compound.setString("id", MODID + ":" + id.replace(MODID + ".", ""));
+                if (id.startsWith(MODID + '.')) {
+                    compound.setString("id", id.replace(MODID + '.', MODID + ':'));
+                } else if (id.equals(MODID + ":controller.simple")) {
+                    compound.setString("id", MODID + ":controller_simple");
                 }
                 return compound;
             }

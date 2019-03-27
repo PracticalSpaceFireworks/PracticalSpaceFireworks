@@ -6,7 +6,7 @@ tile.psf.fuel_tank.name=Fuel Tank
 tile.psf.fuel_valve.name=Fuel Valve
 tile.psf.strut_cube.name=Cubic Strut
 tile.psf.strut_slope.name=Sloped Strut
-tile.psf.thruster.simple.name=Simple Thruster
+tile.psf.thruster_simple.name=Simple Thruster
 tile.psf.payload_separator.name=Payload Separator
 tile.psf.terrain_scanner.name=Terrain Scanner
 tile.psf.weather_scanner.name=Weather Scanner
@@ -14,14 +14,14 @@ tile.psf.laser.name=Laser
 tile.psf.solar_panel_small.name=Small Solar Panel
 tile.psf.solar_panel_large.name=Large Solar Panel
 
-tile.psf.entity_detector.simple.name=Simple Entity Detector
+tile.psf.entity_detector_simple.name=Simple Entity Detector
 tile.psf.entity_marker.name=Simple Entity Marker
 
-tile.psf.battery.simple.name=Simple Battery
-tile.psf.battery.advanced.name=Advanced Battery
-tile.psf.battery.custom.name=Battery
+tile.psf.battery_simple.name=Simple Battery
+tile.psf.battery_advanced.name=Advanced Battery
+tile.psf.battery_custom.name=Battery
 
-tile.psf.controller.simple.name=Satellite Controller
+tile.psf.controller_simple.name=Satellite Controller
 
 # Blocks
 

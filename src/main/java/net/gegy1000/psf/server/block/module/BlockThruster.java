@@ -8,6 +8,7 @@ import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -54,13 +55,11 @@ public class BlockThruster extends BlockModule {
     @Override
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
-        if (world.getTotalWorldTime() % 200 == 0) {
+        if (0 == world.getTotalWorldTime() % 200) {
             double x = (float) pos.getX() + 0.5F;
             double y = (float) pos.getY();
             double z = (float) pos.getZ() + 0.5F;
-            float v = 0.5F;
-            float p = 1.0F;
-            world.playSound(x, y, z, PSFSounds.THRUSTER_AMBIENT, SoundCategory.BLOCKS, v, p, false);
+            world.playSound(x, y, z, PSFSounds.THRUSTER_AMBIENT, SoundCategory.BLOCKS, 0.3F, 1.0F, false);
         }
     }
 

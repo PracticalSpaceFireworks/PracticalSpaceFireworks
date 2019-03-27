@@ -3,7 +3,7 @@ package net.gegy1000.psf.server.block.production;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -32,9 +32,9 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     private static final int TANK_SIZE = 1000;
     private static final int DISTILL_PER_TICK = 2;
 
-    private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluidRegistry.COMPRESSED_AIR);
-    private final IFluidHandler localOxygen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * OXYGEN_AMOUNT), PSFFluidRegistry.LIQUID_OXYGEN);
-    private final IFluidHandler localNitrogen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * NITROGEN_AMOUNT), PSFFluidRegistry.LIQUID_NITROGEN);
+    private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
+    private final IFluidHandler localOxygen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * OXYGEN_AMOUNT), PSFFluids.liquidOxygen());
+    private final IFluidHandler localNitrogen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * NITROGEN_AMOUNT), PSFFluids.liquidNitrogen());
 
     private MasterInfo masterInfo = null;
     private final List<TileAirSeparator> connected = new ArrayList<>();
@@ -180,8 +180,8 @@ public class TileAirSeparator extends TileEntity implements ITickable {
             @Override
             protected State update(MasterInfo master, IFluidTankProperties properties, @Nullable FluidStack contents) {
                 if (contents == null || contents.amount <= 0) {
-                    master.combinedOxygen.fill(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, (int) Math.round(master.oxygenRemainder)), true);
-                    master.combinedNitrogen.fill(new FluidStack(PSFFluidRegistry.LIQUID_NITROGEN, (int) Math.round(master.nitrogenRemainder)), true);
+                    master.combinedOxygen.fill(new FluidStack(PSFFluids.liquidOxygen(), (int) Math.round(master.oxygenRemainder)), true);
+                    master.combinedNitrogen.fill(new FluidStack(PSFFluids.liquidNitrogen(), (int) Math.round(master.nitrogenRemainder)), true);
                     master.oxygenRemainder = 0.0;
                     master.nitrogenRemainder = 0.0;
                     return State.DRAINING;
@@ -197,8 +197,8 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                     master.nitrogenRemainder = nitrogenAmount - nitrogenFillAmount;
 
                     // TODO: What if these outputs are full?
-                    master.combinedOxygen.fill(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, oxygenFillAmount), true);
-                    master.combinedNitrogen.fill(new FluidStack(PSFFluidRegistry.LIQUID_NITROGEN, nitrogenFillAmount), true);
+                    master.combinedOxygen.fill(new FluidStack(PSFFluids.liquidOxygen(), oxygenFillAmount), true);
+                    master.combinedNitrogen.fill(new FluidStack(PSFFluids.liquidNitrogen(), nitrogenFillAmount), true);
                 }
 
                 return this;

@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import net.gegy1000.psf.server.block.module.BlockFuelTank;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
@@ -116,7 +116,7 @@ public class TileFuelLoader extends TileEntity {
     }
 
     private boolean isAcceptableFluid(@Nullable FluidStack stack) {
-        return stack != null && (stack.getFluid() == PSFFluidRegistry.KEROSENE || stack.getFluid() == PSFFluidRegistry.LIQUID_OXYGEN);
+        return stack != null && (stack.getFluid() == PSFFluids.kerosene() || stack.getFluid() == PSFFluids.liquidOxygen());
     }
 
     @Override

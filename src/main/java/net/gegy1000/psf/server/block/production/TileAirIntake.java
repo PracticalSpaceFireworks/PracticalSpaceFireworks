@@ -1,6 +1,6 @@
 package net.gegy1000.psf.server.block.production;
 
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -44,7 +44,7 @@ public class TileAirIntake extends TileEntity implements ITickable {
             if (outputEntity != null) {
                 IFluidHandler output = outputEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing);
                 if (output != null) {
-                    output.fill(new FluidStack(PSFFluidRegistry.FILTERED_AIR, AIR_PER_TICK), true);
+                    output.fill(new FluidStack(PSFFluids.filteredAir(), AIR_PER_TICK), true);
                 }
             }
         }

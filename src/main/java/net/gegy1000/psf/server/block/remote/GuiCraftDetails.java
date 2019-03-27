@@ -13,7 +13,7 @@ import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
@@ -322,14 +322,14 @@ public class GuiCraftDetails extends GuiRemoteControl {
                 y -= drawWarning(x, y, width, Collections.singletonList("Needs Solar!"), mouseX, mouseY);
             }
 
-            ResourceAmount kerosene = fluidData.get(PSFFluidRegistry.KEROSENE);
+            ResourceAmount kerosene = fluidData.get(PSFFluids.kerosene());
             if (kerosene != null && kerosene.getCapacity() > 0) {
                 if ((float) kerosene.getAmount() / kerosene.getCapacity() < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low Kerosene!"), mouseX, mouseY);
                 }
             }
 
-            ResourceAmount lox = fluidData.get(PSFFluidRegistry.LIQUID_OXYGEN);
+            ResourceAmount lox = fluidData.get(PSFFluids.liquidOxygen());
             if (lox != null && lox.getCapacity() > 0) {
                 if ((float) lox.getAmount() / lox.getCapacity() < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low LOX!"), mouseX, mouseY);

@@ -1,8 +1,8 @@
 package net.gegy1000.psf.server.block.fueler;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.block.PSFBlockRegistry;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFBlocks;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -49,18 +49,18 @@ public class GuiFuelLoader extends GuiContainer {
         mouseX -= originX;
         mouseY -= originY;
 
-        String title = I18n.format(PSFBlockRegistry.fuelLoader.getTranslationKey() + ".name");
+        String title = I18n.format(PSFBlocks.fuelLoader().getTranslationKey() + ".name");
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
         TileFuelLoader.FuelAmount keroseneAmount = container.getKeroseneAmount();
         TileFuelLoader.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
 
-        drawTank(PSFFluidRegistry.KEROSENE, keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13);
-        drawTank(PSFFluidRegistry.LIQUID_OXYGEN, liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13);
+        drawTank(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13);
+        drawTank(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13);
 
-        drawTankTooltip(PSFFluidRegistry.KEROSENE, keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13, mouseX, mouseY);
-        drawTankTooltip(PSFFluidRegistry.LIQUID_OXYGEN, liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13, mouseX, mouseY);
+        drawTankTooltip(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13, mouseX, mouseY);
+        drawTankTooltip(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13, mouseX, mouseY);
     }
 
     @Override

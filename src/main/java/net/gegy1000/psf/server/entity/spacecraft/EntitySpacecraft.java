@@ -15,7 +15,7 @@ import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.minecraft.block.state.IBlockState;
@@ -468,8 +468,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 force = entity.dataManager.get(FORCE);
             } else {
                 int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
-                FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.KEROSENE, totalDrain), true);
-                FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, totalDrain), true);
+                FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluids.kerosene(), totalDrain), true);
+                FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluids.liquidOxygen(), totalDrain), true);
                 if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
                     double totalForce = entity.metadata.getTotalForce();
                     force = (totalForce - MIN_ACC) * Math.pow((double) MathHelper.clamp(stateTicks, 0, ENGINE_WARMUP) / ENGINE_WARMUP, 0.5) + MIN_ACC;

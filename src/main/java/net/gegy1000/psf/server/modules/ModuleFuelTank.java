@@ -3,7 +3,7 @@ package net.gegy1000.psf.server.modules;
 import com.google.common.collect.Lists;
 import net.gegy1000.psf.api.IAdditionalMass;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -30,16 +30,16 @@ public class ModuleFuelTank extends EmptyModule {
     public ModuleFuelTank() {
         super("fuel_tank");
 
-        this.keroseneTank = new FluidTank(PSFFluidRegistry.KEROSENE, 0, CAPACITY);
-        this.liquidOxygenTank = new FluidTank(PSFFluidRegistry.LIQUID_OXYGEN, 0, CAPACITY);
+        this.keroseneTank = new FluidTank(PSFFluids.kerosene(), 0, CAPACITY);
+        this.liquidOxygenTank = new FluidTank(PSFFluids.liquidOxygen(), 0, CAPACITY);
         this.storage = new FuelFluidHandler();
-        this.storage.addHandler(PSFFluidRegistry.KEROSENE, this.keroseneTank);
-        this.storage.addHandler(PSFFluidRegistry.LIQUID_OXYGEN, this.liquidOxygenTank);
+        this.storage.addHandler(PSFFluids.kerosene(), this.keroseneTank);
+        this.storage.addHandler(PSFFluids.liquidOxygen(), this.liquidOxygenTank);
     }
 
     public void setFull() {
-        this.keroseneTank.fill(new FluidStack(PSFFluidRegistry.KEROSENE, CAPACITY), true);
-        this.liquidOxygenTank.fill(new FluidStack(PSFFluidRegistry.LIQUID_OXYGEN, CAPACITY), true);
+        this.keroseneTank.fill(new FluidStack(PSFFluids.kerosene(), CAPACITY), true);
+        this.liquidOxygenTank.fill(new FluidStack(PSFFluids.liquidOxygen(), CAPACITY), true);
     }
 
     @Override

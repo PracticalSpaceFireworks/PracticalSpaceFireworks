@@ -3,10 +3,8 @@ package net.gegy1000.psf.server.block.production;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.block.BlockDirectional;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -116,7 +114,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                 @Override
                 @Nullable
                 public FluidStack drain(int maxDrain, boolean doDrain) {
-                    FluidStack ret = new FluidStack(PSFFluidRegistry.KEROSENE, Math.min(storedOutput, maxDrain));
+                    FluidStack ret = new FluidStack(PSFFluids.kerosene(), Math.min(storedOutput, maxDrain));
                     if (doDrain) {
                         storedOutput -= ret.amount;
                     }
@@ -126,7 +124,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                 @Override
                 @Nullable
                 public FluidStack drain(FluidStack resource, boolean doDrain) {
-                    if (resource.getFluid() == PSFFluidRegistry.KEROSENE) {
+                    if (resource.getFluid() == PSFFluids.kerosene()) {
                         return drain(resource.amount, doDrain);
                     }
                     return null;

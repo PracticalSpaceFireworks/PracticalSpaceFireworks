@@ -7,7 +7,7 @@ import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
-import net.gegy1000.psf.server.fluid.PSFFluidRegistry;
+import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.UniqueManager;
 import net.gegy1000.psf.server.util.BlockMassHandler;
@@ -25,7 +25,7 @@ public class ServerProxy {
     
     public void onPreInit() {
         BlockMassHandler.register();
-        PSFFluidRegistry.register();
+        PSFFluids.init();
 
         CapabilityWorldData.register();
         CapabilityController.register();
