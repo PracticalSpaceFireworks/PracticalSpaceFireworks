@@ -475,17 +475,45 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             }
         }
         
+        private static final float MAX_SOUND_DIST = 128;
+        private static final float MAX_SOUND_DIST_SQ = MAX_SOUND_DIST * MAX_SOUND_DIST;
+        
         @SideOnly(Side.CLIENT)
         private MovingSound initSound() {
             MovingSound ret = new MovingSound(PSFSounds.SPACECRAFT_LAUNCH, SoundCategory.BLOCKS) {
+                {
+                    this.attenuationType = AttenuationType.NONE;
+                }
+                
+                float startVol = -1;
+                int fadeOut = 20;
                 
                 @Override
                 public void update() {
-                    if (entity.isDead) {
-                        this.donePlaying = true;
+                    if (entity.isDead || entity.getState() != LaunchState.this) {
+                        if (--fadeOut == 0) {
+                            this.donePlaying = true;
+                        } else {
+                            if (startVol == -1) {
+                                startVol = this.volume;
+                            }
+                            this.volume = startVol * (fadeOut / 20F);
+                        }
                     } else {
                         this.xPosF = (float) entity.posX;
+                        this.yPosF = (float) entity.posY;
                         this.zPosF = (float) entity.posZ;
+                        
+                        Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+                        if (viewEntity == null) {
+                            return;
+                        }
+                        float distSq = (float) viewEntity.getDistanceSq(entity.posX, viewEntity.posY, entity.posZ);
+                        if (distSq > MAX_SOUND_DIST_SQ) {
+                            float dist = (float) Math.sqrt(distSq);
+                            this.volume = MathHelper.clamp((1 - ((dist - MAX_SOUND_DIST) / 64)), 0, 1);
+                        }
+                        System.out.println(Math.sqrt(distSq) + " (" + this.volume + ")");
                     }
                 }
             };
