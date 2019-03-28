@@ -1,4 +1,9 @@
 {
+  "entity.spacecraft.launch": {
+    "category": "ambient",
+    "subtitle": "subtitles.psf.entity.spacecraft.launch",
+    "sounds": [ "psf:ambient/launch" ]
+  },
   "block.thruster.ambient": {
     "category": "blocks",
     "subtitle": "subtitles.psf.block.thruster.ambient",

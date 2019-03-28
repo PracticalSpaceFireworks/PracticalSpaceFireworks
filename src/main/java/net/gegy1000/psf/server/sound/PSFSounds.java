@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public class PSFSounds {
 
+    public static final SoundEvent SPACECRAFT_LAUNCH = createSoundWithName("entity.spacecraft.launch", "spacecraft_launch");
     public static final SoundEvent THRUSTER_AMBIENT = createSoundWithName("block.thruster.ambient", "thruster_ambient");
     public static final SoundEvent LASER_FIRE = createSoundWithName("laser.fire", "laser_fire");
 

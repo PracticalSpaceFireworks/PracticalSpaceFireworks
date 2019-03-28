@@ -1,5 +1,13 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -18,8 +26,11 @@ import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
+import net.gegy1000.psf.server.sound.PSFSounds;
+import net.gegy1000.psf.server.util.LogisticGrowthCurve;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.MovingSound;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,6 +43,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -46,15 +58,8 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
-    public static final double AIR_RESISTANCE = 0.98;
+    public static final double BASE_AIR_RESISTANCE = 0.98;
     public static final double GRAVITY = 1.6;
 
     private static final DataParameter<Byte> STATE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.BYTE);
@@ -135,12 +140,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.dataManager.register(FORCE, 0.0F);
         this.dataManager.register(ACCELERATION, 0.0F);
     }
+    
+    private static final LogisticGrowthCurve AIR_RESISTANCE = new LogisticGrowthCurve(1 - BASE_AIR_RESISTANCE, 10, -0.015);
 
     @Override
     public void onUpdate() {
-        this.motionX *= AIR_RESISTANCE;
-        this.motionY *= AIR_RESISTANCE;
-        this.motionZ *= AIR_RESISTANCE;
+        double airResistance = BASE_AIR_RESISTANCE + AIR_RESISTANCE.get(posY);
+        this.motionX *= airResistance;
+        this.motionY *= airResistance;
+        this.motionZ *= airResistance;
 
         this.motionY -= GRAVITY / 20.0;
 
@@ -442,11 +450,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     }
 
     private static class LaunchState implements State {
+        private static final int IGNITION_TIME = 45;
         private static final int ENGINE_WARMUP = 80;
         private static final int MIN_ACC = ENGINE_WARMUP / 4;
 
         private final EntitySpacecraft entity;
         private final IFluidHandler fuelHandler;
+        
+        @SideOnly(Side.CLIENT)
+        private final MovingSound sound;
 
         private int stateTicks;
 
@@ -455,7 +467,33 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         LaunchState(EntitySpacecraft entity) {
             this.entity = entity;
             this.fuelHandler = entity.metadata.buildFuelHandler();
+            
+            if (entity.world.isRemote) {
+                sound = initSound();
+            } else {
+                sound = null;
+            }
         }
+        
+        @SideOnly(Side.CLIENT)
+        private MovingSound initSound() {
+            MovingSound ret = new MovingSound(PSFSounds.SPACECRAFT_LAUNCH, SoundCategory.BLOCKS) {
+                
+                @Override
+                public void update() {
+                    if (entity.isDead) {
+                        this.donePlaying = true;
+                    } else {
+                        this.xPosF = (float) entity.posX;
+                        this.zPosF = (float) entity.posZ;
+                    }
+                }
+            };
+            Minecraft.getMinecraft().getSoundHandler().playSound(ret);
+            return ret;
+        }
+        
+        private static final LogisticGrowthCurve FORCE_CURVE = new LogisticGrowthCurve(1, 8, -1.7);
 
         @Override
         public State update() {
@@ -468,12 +506,21 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 force = entity.dataManager.get(FORCE);
             } else {
                 int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
-                FluidStack keroseneResult = this.fuelHandler.drain(new FluidStack(PSFFluids.kerosene(), totalDrain), true);
-                FluidStack liquidOxygenResult = this.fuelHandler.drain(new FluidStack(PSFFluids.liquidOxygen(), totalDrain), true);
+                FluidStack keroseneDrain = new FluidStack(PSFFluids.kerosene(), totalDrain);
+                FluidStack liquidOxygenDrain = new FluidStack(PSFFluids.liquidOxygen(), totalDrain);
+                FluidStack keroseneResult = this.fuelHandler.drain(keroseneDrain, false);
+                FluidStack liquidOxygenResult = this.fuelHandler.drain(liquidOxygenDrain, false);
                 if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
                     double totalForce = entity.metadata.getTotalForce();
-                    force = (totalForce - MIN_ACC) * Math.pow((double) MathHelper.clamp(stateTicks, 0, ENGINE_WARMUP) / ENGINE_WARMUP, 0.5) + MIN_ACC;
+                    double forcePercentage = FORCE_CURVE.get(stateTicks / 20D);
+                    force = totalForce * forcePercentage;
+                    keroseneDrain.amount *= forcePercentage;
+                    liquidOxygenDrain.amount *= forcePercentage;
+                    this.fuelHandler.drain(keroseneDrain, true);
+                    this.fuelHandler.drain(liquidOxygenDrain, true);
+                    System.out.println("force @ " + stateTicks + ": " + force);
                     acceleration = force / entity.metadata.getMass() / 20.0;
+                    System.out.println("accel @ " + stateTicks + ": " + acceleration);
                 }
 
                 entity.dataManager.set(ACCELERATION, (float) acceleration);

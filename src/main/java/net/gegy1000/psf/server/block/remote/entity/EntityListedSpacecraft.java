@@ -4,6 +4,7 @@ import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
+import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft.StateType;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.math.BlockPos;
 
