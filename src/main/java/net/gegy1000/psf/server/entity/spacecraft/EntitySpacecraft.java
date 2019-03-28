@@ -42,6 +42,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -452,7 +453,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private static class LaunchState implements State {
         private static final int IGNITION_TIME = 45;
         private static final int ENGINE_WARMUP = 80;
-        private static final int MIN_ACC = ENGINE_WARMUP / 4;
 
         private final EntitySpacecraft entity;
         private final IFluidHandler fuelHandler;
@@ -518,22 +518,55 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     liquidOxygenDrain.amount *= forcePercentage;
                     this.fuelHandler.drain(keroseneDrain, true);
                     this.fuelHandler.drain(liquidOxygenDrain, true);
-                    System.out.println("force @ " + stateTicks + ": " + force);
                     acceleration = force / entity.metadata.getMass() / 20.0;
-                    System.out.println("accel @ " + stateTicks + ": " + acceleration);
-                }
 
-                entity.dataManager.set(ACCELERATION, (float) acceleration);
-                entity.dataManager.set(FORCE, (float) force);
+                    entity.dataManager.set(ACCELERATION, (float) acceleration);
+                    entity.dataManager.set(FORCE, (float) force);
+                } else {
+                    entity.dataManager.set(ACCELERATION, 0F);
+                    entity.dataManager.set(FORCE, 0F);
+                    return StateType.STATIC.create(entity);
+                }
             }
 
             this.lastForce = force;
+            this.entity.motionY += acceleration;
+            this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
-            if (acceleration > 1e-4 || stateTicks < ENGINE_WARMUP) {
-                this.entity.motionY += acceleration;
-                this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
-
-                if (world.isRemote) {
+            if (world.isRemote) {
+                if (stateTicks < IGNITION_TIME) {
+                    Random rand = this.entity.rand;
+                    for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
+                        BlockPos thrusterPos = thruster.getPos();
+                        Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                        this.entity.body.getRotationMatrix().transform(thrusterPoint);
+                        double posX = this.entity.posX + thrusterPoint.x + (rand.nextDouble() - 0.5);
+                        double posY = this.entity.posY + thrusterPoint.y + 0.5 + (rand.nextDouble() - 0.5);
+                        double posZ = this.entity.posZ + thrusterPoint.z + (rand.nextDouble() - 0.5);
+                        if (rand.nextBoolean()) {
+                            double motionX = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                            double motionY = rand.nextDouble() * 0.05;
+                            double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                            this.entity.world.spawnParticle(EnumParticleTypes.CRIT, posX, posY, posZ, motionX, motionY, motionZ);
+                        }
+                    }
+                } else if (stateTicks == IGNITION_TIME) {
+                    Random rand = this.entity.rand;
+                    for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
+                        BlockPos thrusterPos = thruster.getPos();
+                        Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                        this.entity.body.getRotationMatrix().transform(thrusterPoint);
+                        double posX = this.entity.posX + thrusterPoint.x;
+                        double posY = this.entity.posY + thrusterPoint.y;
+                        double posZ = this.entity.posZ + thrusterPoint.z;
+                        for (int i = 0; i < 60; i++) {
+                            double motionX = (rand.nextDouble() * 2.0 - 1) * 0.1;
+                            double motionY = -rand.nextDouble() * 0.2;
+                            double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.1;
+                            PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY + rand.nextDouble() * motionY, posZ + motionZ, motionX, motionY, motionZ);
+                        }
+                    }
+                } else if (acceleration > 1e-4 || stateTicks < IGNITION_TIME + ENGINE_WARMUP) {
                     Random rand = this.entity.rand;
                     for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
                         BlockPos thrusterPos = thruster.getPos();
@@ -550,13 +583,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         }
                     }
                 }
-
-                this.stateTicks++;
-
-                return this;
-            } else {
-                return StateType.STATIC.create(entity);
             }
+            this.stateTicks++;
+            return this;
         }
 
         @Override
