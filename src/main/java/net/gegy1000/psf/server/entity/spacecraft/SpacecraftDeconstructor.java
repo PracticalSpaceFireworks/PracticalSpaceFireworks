@@ -18,6 +18,8 @@ import java.util.Optional;
 
 public class SpacecraftDeconstructor {
     public static Optional<Result> deconstruct(World world, SpacecraftBodyData bodyData, double posX, double posY, double posZ, Matrix rotationMatrix) {
+        posY = Math.round(posY);
+
         Map<BlockPos, IBlockState> blocks = new HashMap<>();
         Map<BlockPos, TileEntity> entities = new HashMap<>();
         for (BlockPos pos : BlockPos.getAllInBoxMutable(bodyData.getMinPos(), bodyData.getMaxPos())) {

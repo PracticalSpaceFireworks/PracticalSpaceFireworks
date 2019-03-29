@@ -1,0 +1,18 @@
+{
+  "result": {
+    "item": "psf:air_intake"
+  },
+  "pattern": [
+    "III",
+    "RFR",
+    "PTP"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": {"item": "#IRON_INGOT"},
+    "R": {"item": "#REDSTONE"},
+    "F": {"item": "minecraft:paper"},
+    "P": {"item": "#IRON_PLATE"},
+    "T": {"item": "minecraft:redstone_torch"}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "result": {
+    "item": "psf:strut_slope"
+  },
+  "pattern": [
+    "X  ",
+    "XX ",
+    "XXX"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": { "item": "#IRON_BARS" }
+  }
+}

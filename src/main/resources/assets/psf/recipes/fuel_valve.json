@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:fuel_valve"
+  },
+  "pattern": [
+    "QIQ",
+    "IHI",
+    "QIQ"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "Q": { "item": "#QUARTZ" },
+    "H": { "item": "minecraft:hopper" }
+  }
+}
