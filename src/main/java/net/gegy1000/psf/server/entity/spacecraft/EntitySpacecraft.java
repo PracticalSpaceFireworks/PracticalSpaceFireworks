@@ -40,6 +40,8 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -63,7 +65,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     public static final double BASE_AIR_RESISTANCE = 0.98;
     public static final double GRAVITY = 1.6;
-
+    
     private static final DataParameter<Byte> STATE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.BYTE);
     private static final DataParameter<Float> ACCELERATION = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
     private static final DataParameter<Float> FORCE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
@@ -530,7 +532,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                             float dist = (float) Math.sqrt(distSq);
                             this.volume = MathHelper.clamp((1 - ((dist - MAX_SOUND_DIST) / 64)), 0, 1);
                         }
-                        System.out.println(Math.sqrt(distSq) + " (" + this.volume + ")");
                     }
                 }
             };
@@ -567,6 +568,26 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
                     entity.dataManager.set(ACCELERATION, (float) acceleration);
                     entity.dataManager.set(FORCE, (float) force);
+                    
+                    if (stateTicks > IGNITION_TIME) {
+                        for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
+                            double thrusterY = entity.posY + thruster.getPos().getY();
+                            AxisAlignedBB damageArea = new AxisAlignedBB(thruster.getPos())
+                                    .offset(entity.getPositionVector())
+                                    .offset(0, -1, 0)
+                                    .grow(0.25, 0, 0.25)
+                                    .expand(0, -force / 5_000, 0);
+                            
+                            for (Entity e : entity.getEntityWorld().getEntitiesWithinAABBExcludingEntity(entity, damageArea)) {
+                                float dist = (float) ((thrusterY - e.posY) / (damageArea.maxY - damageArea.minY));
+                                if (dist > 1) {
+                                    continue;
+                                }
+                                e.attackEntityFrom(new DamageSourceThruster(entity), (1 - dist) * 10);
+                                e.setFire(MathHelper.ceil(dist * 5));
+                            }
+                        }
+                    }
                 } else {
                     entity.dataManager.set(ACCELERATION, 0F);
                     entity.dataManager.set(FORCE, 0F);

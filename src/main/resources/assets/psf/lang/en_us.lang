@@ -52,6 +52,10 @@ fluid.psf.compressed_air=Compressed Air
 
 entity.psf.spacecraft.name=Spacecraft
 
+# Damage
+
+death.attack.psf.thruster=%s was atomized by %s
+
 # Waila
 
 tooltip.psf.waila.looking_at=Looking at: %s
