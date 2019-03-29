@@ -1,33 +1,20 @@
 package net.gegy1000.psf.server.block.module;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.server.sound.PSFSounds;
 import net.gegy1000.psf.server.util.AxisDirectionalBB;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Random;
-
-// todo ambient sound
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -53,17 +40,6 @@ public class BlockThruster extends BlockModule {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
-        if (0 == world.getTotalWorldTime() % 200) {
-            double x = (float) pos.getX() + 0.5F;
-            double y = (float) pos.getY();
-            double z = (float) pos.getZ() + 0.5F;
-            world.playSound(x, y, z, PSFSounds.THRUSTER_AMBIENT, SoundCategory.BLOCKS, 0.3F, 1.0F, false);
-        }
-    }
-
-    @Override
     protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, EnumFacing side) {
         if (EnumFacing.UP != side) {
             BlockPos offset = pos.offset(side.getOpposite());
@@ -75,15 +51,6 @@ public class BlockThruster extends BlockModule {
     }
 
     @Override
-    public void onEntityCollision(World world, BlockPos pos, IBlockState state, Entity entity) {
-        if (!entity.isImmuneToFire() && entity instanceof EntityLivingBase) {
-            if (!EnchantmentHelper.hasFrostWalkerEnchantment((EntityLivingBase) entity)) {
-                entity.attackEntityFrom(DamageSource.HOT_FLOOR, 1.0F);
-            }
-        }
-    }
-
-    @Override
     @Deprecated
     public float getAmbientOcclusionLightValue(IBlockState state) {
         return 1.0F;
@@ -92,16 +59,6 @@ public class BlockThruster extends BlockModule {
     @Override
     public boolean causesSuffocation(IBlockState state) {
         return false;
-    }
-
-    @Override
-    public void onEntityWalk(World world, BlockPos pos, Entity entity) {
-        if (!entity.isImmuneToFire() && entity instanceof EntityLivingBase) {
-            if (!EnchantmentHelper.hasFrostWalkerEnchantment((EntityLivingBase) entity)) {
-                entity.attackEntityFrom(DamageSource.HOT_FLOOR, 1.0F);
-            }
-        }
-        super.onEntityWalk(world, pos, entity);
     }
 
     @Override
