@@ -52,6 +52,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -343,6 +344,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         compound.setTag("satellite", this.satellite.serializeNBT());
 
         compound.setString("state", this.state.getType().name());
+        NBTTagCompound stateData = this.state.serializeNBT();
+        if (stateData != null) {
+            compound.setTag("state_data", stateData);
+        }
     }
 
     @Override
@@ -354,6 +359,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         String state = compound.getString("state");
         this.state = StateType.valueOf(state).create(this);
+        if (compound.hasKey("state_data")) {
+            this.state.deserializeNBT(compound.getCompoundTag("state_data"));
+        }
     }
 
     @Override
@@ -417,7 +425,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         protected abstract State create(EntitySpacecraft entity);
     }
 
-    public interface State {
+    public interface State extends INBTSerializable<NBTTagCompound> {
         default State update() {
             return this;
         }
@@ -427,6 +435,15 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         StateType getType();
+        
+        @Override
+        default NBTTagCompound serializeNBT() {
+            return null;
+        }
+        
+        @Override
+        default void deserializeNBT(NBTTagCompound nbt) {
+        }
     }
 
     private static class StaticState implements State {
@@ -624,6 +641,18 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         @Override
         public StateType getType() {
             return StateType.LAUNCH;
+        }
+        
+        @Override
+        public NBTTagCompound serializeNBT() {
+            NBTTagCompound ret = new NBTTagCompound();
+            ret.setInteger("prog", stateTicks);
+            return ret;
+        }
+        
+        @Override
+        public void deserializeNBT(NBTTagCompound nbt) {
+            this.stateTicks = nbt.getInteger("prog");
         }
     }
 }
