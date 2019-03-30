@@ -1,35 +1,43 @@
 package net.gegy1000.psf.server.block.remote.config;
 
-import lombok.Value;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.math.MathHelper;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @ParametersAreNonnullByDefault
 public class ModuleConfigButtonManager extends GuiButton {
-
-    @Value
+    
+    @Getter
+    @RequiredArgsConstructor
     private class TextHolder {
         
-        IModule module;
-        int x, y;
-        int height;
+        private final List<String> text;
+        private final int x, y;
+        private final int height;
+        @Accessors(fluent = true)
+        private final boolean centerFirstLine;
         
-        TextHolder(IModule module, int x, int y) {
-            this.module = module;
-            this.x = x;
-            this.y = y;
-            this.height = (module.getSummary().size() + 1) * lineHeight;
+        public TextHolder(IModule module, int x, int y) {
+            this(new ImmutableList.Builder().add(module.getLocalizedName()).addAll(module.getSummary()).build(), x, y, (module.getSummary().size() + 1) * lineHeight, true);
         }
     }
     
@@ -62,6 +70,11 @@ public class ModuleConfigButtonManager extends GuiButton {
     private final List<IModuleConfigButton<?>> buttons = new ArrayList<>();
     
     public IModuleConfigButton<?> create(IModule module, IModuleConfig cfg) {
+        if (cfg.getType() != IModuleConfig.ConfigType.ACTION) {
+            String key = module.getUnlocalizedName() + ".config." + cfg.getKey();
+            summaries.add(new TextHolder(Collections.singletonList(I18n.format(key) + ":"), startX, startY + y, 8, false));
+            y += 8;
+        }
         IModuleConfigButton<?> btn;
         switch (cfg.getType()) {
         default:
@@ -115,12 +128,15 @@ public class ModuleConfigButtonManager extends GuiButton {
         for (TextHolder holder : summaries) {
             if (holder.getY() - scroll + holder.getHeight() > startY && holder.getY() - scroll < startY + height) {
                 int renderY = holder.getY() - scroll;
-                String title = holder.getModule().getLocalizedName();
-                mc.fontRenderer.drawString(title, holder.getX() + (width / 2) - (mc.fontRenderer.getStringWidth(title) / 2), renderY, 0xFF000000);
-                renderY += lineHeight;
-                for (String s : holder.getModule().getSummary()) {
-                    mc.fontRenderer.drawString(s, holder.getX(), renderY, 0xFF000000);
+                boolean first = true;
+                for (String s : holder.getText()) {
+                    if (first && holder.centerFirstLine()) { 
+                        mc.fontRenderer.drawString(s, holder.getX() + (width / 2) - (mc.fontRenderer.getStringWidth(s) / 2), renderY, 0xFF000000);
+                    } else {
+                        mc.fontRenderer.drawString(s, holder.getX(), renderY, 0xFF000000);
+                    }
                     renderY += lineHeight;
+                    first = false;
                 }
             }
         }

@@ -5,26 +5,47 @@ import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.client.render.laser.LaserRenderer.LaserState;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
+import net.gegy1000.psf.server.modules.configs.ConfigBasicAction;
+import net.gegy1000.psf.server.modules.configs.ConfigBasicToggle;
 import net.gegy1000.psf.server.modules.data.PacketLaserState;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.Arrays;
 import java.util.Random;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @ParametersAreNonnullByDefault
 public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
-    private static final int POWER_REQ = 10000;
-    private static final int POWER_PER_TICK = 100;
+    @RequiredArgsConstructor
+    @Getter
+    enum Strength {
+        LOW(0.5),
+        NORMAL(1),
+        HIGH(2),
+        ;
+
+        private final double multiplier;
+    }
+    
+    private static final int POWER_REQ = 100_000;
+    private static final int POWER_PER_TICK = 250;
     
     private static final int DELAY_TIME = 5 * 20;
 
     private static final EnergyStats USAGE_STATS = new EnergyStats(POWER_PER_TICK, 0);
+    
+    private final ConfigBasicToggle strengthConfig = new ConfigBasicToggle("strength", 1, Arrays.stream(Strength.values()).map(Enum::name).toArray(String[]::new));
 
     @Nullable
     private BlockPos target;
@@ -35,6 +56,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
 
     public ModuleSpaceLaser() {
         super("laser");
+        registerConfigs(strengthConfig);
     }
 
     @Override
@@ -42,11 +64,14 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
         super.onSatelliteTick(satellite);
 
         if (isActive()) {
-            if (powerUsed < POWER_REQ) {
+            Strength str = Strength.valueOf(strengthConfig.getValue());
+            int power = (int) (POWER_REQ * str.getMultiplier());
+            
+            if (powerUsed < power) {
                 powerUsed += satellite.extractEnergy(POWER_PER_TICK);
             }
             
-            if (powerUsed >= POWER_REQ) {
+            if (powerUsed >= power) {
                 BlockPos landing = satellite.getWorld().getHeight(target);
                 if (fireDelay < DELAY_TIME) {
                     if (fireDelay == 0) {
@@ -54,15 +79,23 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
                     }
                     if (DELAY_TIME - fireDelay < 30) {
                         Random rand = satellite.getWorld().rand;
-                        if (rand.nextInt(5) == 0) {
+                        if (rand.nextInt((int) (5 / str.getMultiplier())) == 0) {
                             satellite.getWorld().createExplosion(null, landing.getX() + (rand.nextInt(7) - 3), landing.getY() + 1, landing.getZ() + (rand.nextInt(7) - 3), 1, true);
                         }
                     }
                     fireDelay++;
                 } else {
                     satellite.getWorld().createExplosion(null, landing.getX(), landing.getY(), landing.getZ(), 15, true);
-                    satellite.getWorld().createExplosion(null, landing.getX(), landing.getY() - 3, landing.getZ(), 15, true);
-                    satellite.getWorld().createExplosion(null, landing.getX(), landing.getY() - 6, landing.getZ(), 15, true);
+                    if (str == Strength.NORMAL || str == Strength.HIGH) {
+                        satellite.getWorld().createExplosion(null, landing.getX(), landing.getY() - 3, landing.getZ(), 15, true);
+                        satellite.getWorld().createExplosion(null, landing.getX(), landing.getY() - 6, landing.getZ(), 15, true);
+                    }
+                    if (str == Strength.HIGH) {
+                        satellite.getWorld().createExplosion(null, landing.getX() + 10, landing.getY() - 3, landing.getZ() + 10, 15, true);
+                        satellite.getWorld().createExplosion(null, landing.getX() + 10, landing.getY() - 3, landing.getZ() - 10, 15, true);
+                        satellite.getWorld().createExplosion(null, landing.getX() - 10, landing.getY() - 3, landing.getZ() + 10, 15, true);
+                        satellite.getWorld().createExplosion(null, landing.getX() - 10, landing.getY() - 3, landing.getZ() - 10, 15, true);
+                    }
 
                     sendState(satellite, LaserState.COMPLETE);
                     target = null;

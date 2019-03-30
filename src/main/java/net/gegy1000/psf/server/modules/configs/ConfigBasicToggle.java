@@ -17,8 +17,9 @@ public class ConfigBasicToggle extends AbstractConfig {
     @Getter(AccessLevel.PROTECTED)
     private int state;
     
-    public ConfigBasicToggle(String key, String... states) {
+    public ConfigBasicToggle(String key, int defaultState, String... states) {
         super(key);
+        this.state = defaultState;
         this.states = states;
     }
     

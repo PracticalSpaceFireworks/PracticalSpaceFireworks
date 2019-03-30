@@ -39,10 +39,14 @@ public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICap
     }
 
     String getName();
+    
+    default String getUnlocalizedName() {
+        return String.format("tile.%s.module.%s", PracticalSpaceFireworks.MODID, getName());
+    }
 
     @SideOnly(Side.CLIENT)
     default String getLocalizedName() {
-        return I18n.format(String.format("tile.%s.module.%s.name", PracticalSpaceFireworks.MODID, getName()));
+        return I18n.format(getUnlocalizedName() + ".name");
     }
 
     @Nullable

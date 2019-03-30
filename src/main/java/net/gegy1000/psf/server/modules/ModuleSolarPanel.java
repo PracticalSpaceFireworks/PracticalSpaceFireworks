@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.modules;
 
+import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
@@ -42,6 +43,11 @@ public class ModuleSolarPanel extends EmptyModule {
     @Override
     public int getTickInterval() {
         return 1;
+    }
+    
+    @Override
+    public boolean groupWith(IModule other) {
+        return super.groupWith(other) && other.getName().equals(getName());
     }
 
     @Override

@@ -167,7 +167,7 @@ public class CraftGraph implements Iterable<IModule> {
             }
         }
 
-        List<IModule> modules = adjacencies.keySet().stream().map(Vertex::getModule).collect(Collectors.toList());
+        List<IModule> modules = adjacencies.keySet().stream().map(Vertex::getModule).distinct().collect(Collectors.toList());
         for (IModule cap : modules) {
             cap.handleModuleChange(modules);
         }
@@ -179,7 +179,7 @@ public class CraftGraph implements Iterable<IModule> {
 
     @Override
     public Iterator<IModule> iterator() {
-        return adjacencies.keySet().stream().map(Vertex::getModule).iterator();
+        return adjacencies.keySet().stream().map(Vertex::getModule).distinct().iterator();
     }
 
     public boolean isEmpty() {

@@ -48,10 +48,9 @@ public class EmptyModule implements IModule {
     @Setter
     private ISatellite owner;
 
-    @SideOnly(Side.CLIENT)
     @Override
-    public @Nonnull String getLocalizedName() {
-        return I18n.format(String.format("tile.%s.%s.name", PracticalSpaceFireworks.MODID, getName()));
+    public String getUnlocalizedName() {
+        return String.format("tile.%s.%s", PracticalSpaceFireworks.MODID, getName());
     }
     
     @Override

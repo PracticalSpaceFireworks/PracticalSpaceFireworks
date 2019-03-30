@@ -40,7 +40,7 @@ public class ModuleEntityDetector extends EmptyModule {
     private static final int TICK_INTERVAL = 200;
     private static final EnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, TICK_INTERVAL);
 
-    private final ConfigBooleanToggle enabled = new ConfigBooleanToggle("enabled", "Enabled", "Disabled");
+    private final ConfigBooleanToggle enabled = new ConfigBooleanToggle("enabled", true, "Enabled", "Disabled");
 
     private final int chunkRange;
 
