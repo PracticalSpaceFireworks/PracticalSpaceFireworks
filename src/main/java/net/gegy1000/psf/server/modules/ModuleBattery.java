@@ -19,7 +19,7 @@ public class ModuleBattery extends EmptyModule {
 
     @RequiredArgsConstructor
     public enum BatteryTier implements IStringSerializable {
-        SIMPLE("simple", 100_000),
+        SIMPLE("simple", 125_000),
         ADVANCED("advanced", 10_000_000),
         CUSTOM("custom", 0),;
 

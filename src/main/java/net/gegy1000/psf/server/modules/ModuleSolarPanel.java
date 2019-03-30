@@ -1,25 +1,55 @@
 package net.gegy1000.psf.server.modules;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
+import net.gegy1000.psf.server.util.LogisticGrowthCurve;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
-
 public class ModuleSolarPanel extends EmptyModule {
+    
+    private static final LogisticGrowthCurve DN_CURVE = new LogisticGrowthCurve(-0.9, 0, -80);
+    private static final LogisticGrowthCurve UP_CURVE = new LogisticGrowthCurve(0.9, 0, -80);
+    
+    /**
+     * Slow piecewise calculation, based on https://www.desmos.com/calculator/z8zyaidfgh
+     * <p>
+     * ONLY call with 0 <= x <= 1
+     */
+    private static double calcMultiplier(double angle) {
+        if (angle <= 0.5) {
+            return 1 + DN_CURVE.get(angle - 0.25);
+        } else {
+            return 0.1 + UP_CURVE.get(angle - 0.75);
+        }
+    }
+    
+    private static long lastTick = -1;
+    private static double multCache;
+    public static double getMultiplier(World world) {
+        if (world.getWorldTime() != lastTick) {
+            lastTick = world.getWorldTime();
+            multCache = calcMultiplier(world.getCelestialAngle(0));
+        }
+        return multCache;
+    }
      
-    private final EnergyStats USAGE_STATS;
+    private final EnergyStats usageStats;
     
     public ModuleSolarPanel(String subtype, int perTick) {
         super("solar_panel_" + subtype);
-        USAGE_STATS = new EnergyStats(0, perTick);
+        usageStats = new EnergyStats(perTick, 0);
     }
 
     @Override
@@ -28,14 +58,11 @@ public class ModuleSolarPanel extends EmptyModule {
 
         Collection<IEnergyStorage> powerSources = satellite.getModuleCaps(CapabilityEnergy.ENERGY);
 
-        if (satellite.getWorld().isDaytime()) {
-            int powerToProvide = USAGE_STATS.getMaxDrain();
-            powerToProvide = -(int)((powerToProvide / (36000000.0)) * satellite.getWorld().getWorldTime() * (satellite.getWorld().getWorldTime() - 12000)) + 1;
-            for (IEnergyStorage source : powerSources) {
-                powerToProvide -= source.receiveEnergy(powerToProvide, false);
-                if (powerToProvide <= 0) {
-                    break;
-                }
+        int powerToProvide = MathHelper.ceil(usageStats.getMaxDrain() * getMultiplier(satellite.getWorld()));
+        for (IEnergyStorage source : powerSources) {
+            powerToProvide -= source.receiveEnergy(powerToProvide, false);
+            if (powerToProvide <= 0) {
+                break;
             }
         }
     }
@@ -59,7 +86,7 @@ public class ModuleSolarPanel extends EmptyModule {
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityModuleData.ENERGY_STATS) {
-            return CapabilityModuleData.ENERGY_STATS.cast(USAGE_STATS);
+            return CapabilityModuleData.ENERGY_STATS.cast(usageStats);
         }
         return super.getCapability(capability, facing);
     }
