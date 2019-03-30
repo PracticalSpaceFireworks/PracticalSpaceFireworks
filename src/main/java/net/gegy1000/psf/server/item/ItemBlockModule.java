@@ -73,7 +73,7 @@ public class ItemBlockModule extends ItemBlock {
                 float x = (float) (vec.x - (double) pos1.getX());
                 float y = (float) (vec.y - (double) pos1.getY());
                 float z = (float) (vec.z - (double) pos1.getZ());
-                IBlockState state = this.block.getStateForPlacement(world, pos, side, x, y, z, meta, player, player.getActiveHand());
+                IBlockState state = this.block.getStateForPlacement(world, pos, side, x, y, z, meta, player, EnumHand.MAIN_HAND);
                 return mayPlace(state, world, pos, side);
             }
         }
