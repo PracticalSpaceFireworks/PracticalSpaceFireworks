@@ -530,7 +530,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         if (viewEntity == null) {
                             return;
                         }
-                        float distSq = (float) viewEntity.getDistanceSq(entity.posX, viewEntity.posY, entity.posZ);
+                        float distSq = (float) viewEntity.getDistanceSq(entity.posX, entity.posY / 8, entity.posZ);
                         if (distSq > MAX_SOUND_DIST_SQ) {
                             float dist = (float) Math.sqrt(distSq);
                             this.volume = MathHelper.clamp((1 - ((dist - MAX_SOUND_DIST) / 64)), 0, 1);
