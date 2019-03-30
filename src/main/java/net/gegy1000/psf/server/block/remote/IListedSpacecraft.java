@@ -34,6 +34,8 @@ public interface IListedSpacecraft extends IUnique, IStringSerializable {
     default void launch() {
         throw new UnsupportedOperationException();
     }
+    
+    boolean isDestroyed();
 
     class Visual implements IVisualReceiver.IVisual {
         private final SpacecraftBodyData bodyData;

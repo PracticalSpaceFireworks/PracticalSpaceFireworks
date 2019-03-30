@@ -20,6 +20,7 @@ import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
 import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
+import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
@@ -221,6 +222,9 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         super.setDead();
         if (!converted && !world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().remove(satellite);
+            for (EntityPlayerMP player : satellite.getTrackingPlayers()) {
+                PSFNetworkHandler.network.sendTo(new PacketCraftState(SatelliteState.DESTROYED, satellite.toListedCraft()), player);
+            }
         }
     }
 

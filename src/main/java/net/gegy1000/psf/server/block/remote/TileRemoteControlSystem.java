@@ -39,6 +39,10 @@ public class TileRemoteControlSystem extends TileEntity {
         this.crafts.put(craft.getId(), craft);
     }
     
+    public void removeCraft(UUID id) {
+        this.crafts.remove(id);
+    }
+    
     public List<IListedSpacecraft> getCrafts() {
         return Lists.newArrayList(crafts.values());
     }

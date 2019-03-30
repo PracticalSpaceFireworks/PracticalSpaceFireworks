@@ -93,6 +93,11 @@ public class OrbitingSatellite extends AbstractSatellite {
     public boolean isOrbiting() {
         return true;
     }
+    
+    @Override
+    public boolean isDestroyed() {
+        return false;
+    }
 
     @Override
     public NBTTagCompound serializeNBT() {

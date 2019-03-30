@@ -1,13 +1,14 @@
 package net.gegy1000.psf.server.block.remote;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.TextFormatting;
-
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.TextFormatting;
 
 @ParametersAreNonnullByDefault
 public class GuiCraftList extends AbstractScrollingList<String> {
@@ -28,7 +29,7 @@ public class GuiCraftList extends AbstractScrollingList<String> {
 
         crafts = parent.getTe().getCrafts();
 
-        ground = crafts.stream().filter(c -> !c.isOrbiting()).collect(Collectors.toList());
+        ground = crafts.stream().filter(c -> !c.isOrbiting()).filter(c -> !c.isDestroyed()).collect(Collectors.toList());
         space = crafts.stream().filter(IListedSpacecraft::isOrbiting).collect(Collectors.toList());
 
         groundEntries = ground.stream().map(IListedSpacecraft::getName).collect(Collectors.toList());

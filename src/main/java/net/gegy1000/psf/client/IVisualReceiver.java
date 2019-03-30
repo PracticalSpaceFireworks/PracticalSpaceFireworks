@@ -22,6 +22,8 @@ public interface IVisualReceiver {
     void setVisual(IVisual visual);
     
     void updateCraft(IListedSpacecraft craft);
+    
+    void removeCraft(UUID id);
 
     void updateModule(UUID id, NBTTagCompound tag);
 }

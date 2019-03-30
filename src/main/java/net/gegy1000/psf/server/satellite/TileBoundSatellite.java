@@ -110,4 +110,9 @@ public class TileBoundSatellite extends AbstractSatellite {
     public boolean canLaunch() {
         return true;
     }
+    
+    @Override
+    public boolean isDestroyed() {
+        return controller.isInvalid();
+    }
 }

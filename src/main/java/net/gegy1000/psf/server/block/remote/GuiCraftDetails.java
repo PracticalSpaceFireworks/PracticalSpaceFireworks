@@ -595,6 +595,12 @@ public class GuiCraftDetails extends GuiRemoteControl {
         buttonLaunch.visible = craft.canLaunch();
         refreshWidgets();
     }
+    
+    @Override
+    public void removeCraft(UUID id) {
+        untrack();
+        mc.displayGuiScreen(getParent());
+    }
 
     @Override
     public void updateModule(@Nonnull UUID id, @Nonnull NBTTagCompound tag) {

@@ -17,6 +17,7 @@ import net.gegy1000.psf.server.block.remote.GuiSelectModule;
 import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class GuiModuleConfig extends GuiRemoteControl {
@@ -79,6 +80,15 @@ public class GuiModuleConfig extends GuiRemoteControl {
                 m.readUpdateTag(tag);
             }
         }
+    }
+    
+    @Override
+    public void removeCraft(UUID id) {
+        IListedSpacecraft current = getTe().getCrafts().get(craftIndex);
+        if (current == null || current.getId().equals(id)) {
+            Minecraft.getMinecraft().displayGuiScreen(parent.getParent());
+        }
+        super.removeCraft(id);
     }
     
     void updateConfig(IModule module, IModuleConfig cfg) {

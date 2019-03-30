@@ -53,4 +53,9 @@ public class EntityListedSpacecraft implements IListedSpacecraft {
     public void launch() {
         PSFNetworkHandler.network.sendToServer(new PacketLaunchCraft(spacecraft.getEntityId()));
     }
+    
+    @Override
+    public boolean isDestroyed() {
+        return spacecraft.isDead;
+    }
 }

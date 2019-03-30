@@ -39,6 +39,7 @@ public class PacketOpenRemoteControl implements IMessage {
         TILE(TileListedSpacecraft.class),
         ENTITY(EntityListedSpacecraft.class),
         ORBIT(OrbitingListedSpacecraft.class),
+        DESTROYED(null),
         ;
         
         private final Class<? extends IListedSpacecraft> clazz;

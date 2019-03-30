@@ -91,6 +91,11 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
         te.provideSingleCraft(craft);
     }
     
+    @Override
+    public void removeCraft(UUID id) {
+        te.removeCraft(id);
+    }
+    
     protected @Nullable IListedSpacecraft getCraft() {
         return null;
     }

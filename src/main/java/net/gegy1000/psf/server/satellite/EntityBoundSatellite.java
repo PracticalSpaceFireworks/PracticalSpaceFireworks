@@ -111,6 +111,11 @@ public class EntityBoundSatellite extends AbstractSatellite {
     public void launch() {
         PSFNetworkHandler.network.sendToServer(new PacketLaunchCraft(spacecraft.getEntityId()));
     }
+    
+    @Override
+    public boolean isDestroyed() {
+        return spacecraft.isDead;
+    }
 
     @Override
     public int hashCode() {

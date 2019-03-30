@@ -47,4 +47,9 @@ public class OrbitingListedSpacecraft implements IListedSpacecraft  {
     public boolean isOrbiting() {
         return true;
     }
+    
+    @Override
+    public boolean isDestroyed() {
+        return false;
+    }
 }

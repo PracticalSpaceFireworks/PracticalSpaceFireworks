@@ -50,7 +50,12 @@ public class PacketCraftState implements IMessage {
             PracticalSpaceFireworks.PROXY.handlePacket(ctx, player -> {
                 GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
                 if (currentScreen instanceof IVisualReceiver) {
-                    ((IVisualReceiver) currentScreen).updateCraft(SatelliteState.getCraft(player, message.type, message.craft));
+                    IVisualReceiver receiver = (IVisualReceiver) currentScreen;
+                    if (message.type == SatelliteState.DESTROYED) {
+                        receiver.removeCraft(message.craft.getId());
+                    } else {
+                        receiver.updateCraft(SatelliteState.getCraft(player, message.type, message.craft));
+                    }
                 }
             });
             return null;
