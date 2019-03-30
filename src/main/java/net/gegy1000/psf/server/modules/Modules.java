@@ -40,7 +40,7 @@ public class Modules {
         registry.register(new SimpleModuleFactory(ModuleFuelTank::new).setRegistryName("fuel_tank"));
         registry.register(new SimpleModuleFactory(() -> new EmptyModule("payload_separator")).setRegistryName("payload_separator"));
         registry.register(new SimpleModuleFactory(ModuleTerrainScanner::new).setRegistryName("terrain_scanner"));
-        registry.register(new SimpleModuleFactory(ModuleWeatherScanner::new).setRegistryName("weather_scanner"));
+//        registry.register(new SimpleModuleFactory(ModuleWeatherScanner::new).setRegistryName("weather_scanner"));
         registry.register(new SimpleModuleFactory(() -> new ModuleSolarPanel("small", 48)).setRegistryName("solar_panel_small"));
         registry.register(new SimpleModuleFactory(() -> new ModuleSolarPanel("large", 128)).setRegistryName("solar_panel_large"));
         registry.register(new SimpleModuleFactory(ModuleSpaceLaser::new).setRegistryName("laser"));
