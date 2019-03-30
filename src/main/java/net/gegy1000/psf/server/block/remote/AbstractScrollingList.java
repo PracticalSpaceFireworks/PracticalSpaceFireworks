@@ -39,6 +39,10 @@ public abstract class AbstractScrollingList<T> extends GuiScrollingList {
     @Override
     protected void drawBackground() {}
     
+    protected boolean canSelect(T ele) {
+        return true;
+    }
+    
     protected final boolean isHovering(int slotTop, int entryRight) {
         return mouseY >= slotTop && mouseY < slotTop + slotHeight && mouseX >= entryRight - listWidth && mouseX < entryRight;
     }
@@ -46,8 +50,9 @@ public abstract class AbstractScrollingList<T> extends GuiScrollingList {
     @Override
     protected void drawSlot(int slotIdx, int entryRight, int slotTop, int slotBuffer, @Nullable Tessellator tess) {
         T ele = getElement(slotIdx);
-        boolean hovered = isHovering(slotTop, entryRight);
+        boolean canSelect = canSelect(ele);
+        boolean hovered = canSelect && isHovering(slotTop, entryRight);
         FontRenderer fr = Minecraft.getMinecraft().fontRenderer;
-        fr.drawSplitString(getText(ele), left + slotBuffer, slotTop + (slotHeight / 2) - (fr.FONT_HEIGHT / 2), listWidth - (slotBuffer * 2), hovered ? 0xFFFFFF55 : -1);
+        fr.drawSplitString(getText(ele), left + slotBuffer, slotTop + (slotHeight / 2) - (fr.FONT_HEIGHT / 2), listWidth - (slotBuffer * 2), hovered ? 0xFFFFFF55 : canSelect ? -1 : 0xFFAAAAAA);
     }
 }

@@ -50,9 +50,17 @@ public class GuiModuleList extends AbstractScrollingList<List<IModule>> {
         }
         return title;
     }
+    
+    @Override
+    protected boolean canSelect(List<IModule> ele) {
+        return ele.stream().anyMatch(m -> !m.getSummary().isEmpty() || !m.getConfigs().isEmpty());
+    }
 
     @Override
     protected void elementClicked(int index, boolean doubleClick) {
-        parent.selectModuleGroup(getElement(index));
+        List<IModule> group = getElement(index);
+        if (canSelect(group)) {
+            parent.selectModuleGroup(group);
+        }
     }
 }
