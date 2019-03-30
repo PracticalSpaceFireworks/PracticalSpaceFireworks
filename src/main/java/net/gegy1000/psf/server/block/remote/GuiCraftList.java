@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,9 @@ public class GuiCraftList extends AbstractScrollingList<String> {
 
         crafts = parent.getTe().getCrafts();
 
-        ground = crafts.stream().filter(c -> !c.isOrbiting()).filter(c -> !c.isDestroyed()).collect(Collectors.toList());
-        space = crafts.stream().filter(IListedSpacecraft::isOrbiting).collect(Collectors.toList());
+        Comparator<IListedSpacecraft> sorter = Comparator.comparing(IListedSpacecraft::getName);
+        ground = crafts.stream().filter(c -> !c.isOrbiting()).filter(c -> !c.isDestroyed()).sorted(sorter).collect(Collectors.toList());
+        space = crafts.stream().filter(IListedSpacecraft::isOrbiting).sorted(sorter).collect(Collectors.toList());
 
         groundEntries = ground.stream().map(IListedSpacecraft::getName).collect(Collectors.toList());
         if (!groundEntries.isEmpty()) {
