@@ -187,8 +187,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         if (posY > 1000) {
-            setDead();
-
             if (!world.isRemote) {
                 SatelliteWorldData capability = world.getCapability(CapabilityWorldData.SATELLITE_INSTANCE, null);
                 if (capability != null) {
@@ -201,6 +199,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     }
                 }
             }
+            setDead();
         }
 
         if (!world.isRemote) {
