@@ -2,7 +2,6 @@ package net.gegy1000.psf.api.module;
 
 import javax.annotation.Nonnull;
 
-import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 
@@ -25,7 +24,7 @@ public class ModuleCapabilities {
     @Nonnull
     public static final Capability<ILaser> SPACE_LASER = null;
 
-    @CapabilityInject(EnergyStats.class)
+    @CapabilityInject(IEnergyStats.class)
     @Nonnull
     public static final Capability<IEnergyStats> ENERGY_STATS = null;
 
