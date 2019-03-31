@@ -1,6 +1,6 @@
 package net.gegy1000.psf.server.modules.data;
 
-import net.gegy1000.psf.api.data.IEntityList;
+import net.gegy1000.psf.api.module.IEntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 

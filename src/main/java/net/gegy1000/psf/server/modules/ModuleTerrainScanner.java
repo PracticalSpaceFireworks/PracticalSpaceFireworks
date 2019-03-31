@@ -1,8 +1,12 @@
 package net.gegy1000.psf.server.modules;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.data.ITerrainScan;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.api.module.IEnergyStats;
+import net.gegy1000.psf.api.module.ITerrainScan;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.modules.data.TerrainScanData;
@@ -15,16 +19,13 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class ModuleTerrainScanner extends EmptyModule {
     public static final int SCAN_RANGE = 2;
 
     private static final int SCAN_INTERVAL = 1200;
     private static final int POWER_PER_TICK = 288000;
 
-    private static final EnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, SCAN_INTERVAL);
+    private static final IEnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, SCAN_INTERVAL);
 
     private TerrainScanData scanData;
     private boolean scanned;
@@ -112,7 +113,7 @@ public class ModuleTerrainScanner extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.TERRAIN_SCAN || capability == CapabilityModuleData.ENERGY_STATS) {
+        if (capability == ModuleCapabilities.TERRAIN_SCAN || capability == ModuleCapabilities.ENERGY_STATS) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -121,11 +122,11 @@ public class ModuleTerrainScanner extends EmptyModule {
     @Nullable
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.TERRAIN_SCAN) {
+        if (capability == ModuleCapabilities.TERRAIN_SCAN) {
             ITerrainScan terrainScan = this.scanData != null ? this.scanData : new EmptyTerrainScan(SCAN_RANGE);
-            return CapabilityModuleData.TERRAIN_SCAN.cast(terrainScan);
-        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
-            return CapabilityModuleData.ENERGY_STATS.cast(ENERGY_STATS);
+            return ModuleCapabilities.TERRAIN_SCAN.cast(terrainScan);
+        } else if (capability == ModuleCapabilities.ENERGY_STATS) {
+            return ModuleCapabilities.ENERGY_STATS.cast(ENERGY_STATS);
         }
         return super.getCapability(capability, facing);
     }

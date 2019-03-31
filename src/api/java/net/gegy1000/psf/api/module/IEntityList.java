@@ -1,4 +1,4 @@
-package net.gegy1000.psf.api.data;
+package net.gegy1000.psf.api.module;
 
 import net.minecraft.entity.EntityLivingBase;
 

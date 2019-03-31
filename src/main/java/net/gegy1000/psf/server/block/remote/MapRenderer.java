@@ -2,8 +2,8 @@ package net.gegy1000.psf.server.block.remote;
 
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.data.IScannedChunk;
-import net.gegy1000.psf.api.data.ITerrainScan;
+import net.gegy1000.psf.api.module.IScannedChunk;
+import net.gegy1000.psf.api.module.ITerrainScan;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.BufferBuilder;

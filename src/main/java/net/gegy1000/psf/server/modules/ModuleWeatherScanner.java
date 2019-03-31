@@ -1,8 +1,12 @@
 package net.gegy1000.psf.server.modules;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.data.IWeatherData;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.api.module.IEnergyStats;
+import net.gegy1000.psf.api.module.IWeatherData;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.data.WeatherScanData;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,14 +16,11 @@ import net.minecraft.world.World;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.capabilities.Capability;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class ModuleWeatherScanner extends EmptyModule {
     private static final int SCAN_INTERVAL = 1200;
     private static final int POWER_PER_TICK = 288000;
 
-    private static final EnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, SCAN_INTERVAL);
+    private static final IEnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, SCAN_INTERVAL);
 
     private WeatherScanData scanData;
     private boolean scanned;
@@ -76,7 +77,7 @@ public class ModuleWeatherScanner extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.WEATHER_DATA || capability == CapabilityModuleData.ENERGY_STATS) {
+        if (capability == ModuleCapabilities.WEATHER_DATA || capability == ModuleCapabilities.ENERGY_STATS) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -85,11 +86,11 @@ public class ModuleWeatherScanner extends EmptyModule {
     @Nullable
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.WEATHER_DATA) {
+        if (capability == ModuleCapabilities.WEATHER_DATA) {
             IWeatherData weatherData = this.scanData != null ? this.scanData : new WeatherScanData();
-            return CapabilityModuleData.WEATHER_DATA.cast(weatherData);
-        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
-            return CapabilityModuleData.ENERGY_STATS.cast(ENERGY_STATS);
+            return ModuleCapabilities.WEATHER_DATA.cast(weatherData);
+        } else if (capability == ModuleCapabilities.ENERGY_STATS) {
+            return ModuleCapabilities.ENERGY_STATS.cast(ENERGY_STATS);
         }
         return super.getCapability(capability, facing);
     }

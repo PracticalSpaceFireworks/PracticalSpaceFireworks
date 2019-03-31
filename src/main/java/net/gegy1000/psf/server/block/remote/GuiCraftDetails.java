@@ -28,16 +28,15 @@ import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISpacecraftBodyData;
 import net.gegy1000.psf.api.ISpacecraftMetadata;
-import net.gegy1000.psf.api.data.ITerrainScan;
+import net.gegy1000.psf.api.module.ITerrainScan;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
 import net.gegy1000.psf.server.block.remote.widget.WidgetEnergyBar;
 import net.gegy1000.psf.server.block.remote.widget.WidgetFluidBar;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
@@ -402,7 +401,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     private void renderMap(SyncedData syncedData) {
         Optional<ITerrainScan> terrainScan = syncedData.terrainScannerModules.stream()
-                .map(module -> module.getCapability(CapabilityModuleData.TERRAIN_SCAN, null))
+                .map(module -> module.getCapability(ModuleCapabilities.TERRAIN_SCAN, null))
                 .filter(Objects::nonNull)
                 .findFirst();
 
@@ -630,7 +629,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             modules.forEach(module -> module.handleModuleChange(modules));
 
             terrainScannerModules = modules.stream()
-                    .filter(module -> module.hasCapability(CapabilityModuleData.TERRAIN_SCAN, null))
+                    .filter(module -> module.hasCapability(ModuleCapabilities.TERRAIN_SCAN, null))
                     .collect(Collectors.toList());
             tankModules = modules.stream()
                     .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
@@ -638,8 +637,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
             metadata = body.buildSpacecraftMetadata(Minecraft.getMinecraft().world);
 
             energyNetUsage = modules.stream()
-                    .filter(m -> m.hasCapability(CapabilityModuleData.ENERGY_STATS, null))
-                    .map(m -> m.getCapability(CapabilityModuleData.ENERGY_STATS, null))
+                    .filter(m -> m.hasCapability(ModuleCapabilities.ENERGY_STATS, null))
+                    .map(m -> m.getCapability(ModuleCapabilities.ENERGY_STATS, null))
                     .reduce(0, (val, handler) -> val + handler.getMaxFill() - handler.getMaxDrain(), (a, b) -> a + b);
         }
     }

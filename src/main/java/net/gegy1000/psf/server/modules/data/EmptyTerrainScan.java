@@ -1,8 +1,8 @@
 package net.gegy1000.psf.server.modules.data;
 
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.data.IScannedChunk;
-import net.gegy1000.psf.api.data.ITerrainScan;
+import net.gegy1000.psf.api.module.IScannedChunk;
+import net.gegy1000.psf.api.module.ITerrainScan;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.ChunkPos;

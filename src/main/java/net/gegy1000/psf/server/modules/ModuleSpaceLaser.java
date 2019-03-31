@@ -1,19 +1,5 @@
 package net.gegy1000.psf.server.modules;
 
-import net.gegy1000.psf.api.ILaser;
-import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.client.render.laser.LaserRenderer.LaserState;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.gegy1000.psf.server.modules.cap.EnergyStats;
-import net.gegy1000.psf.server.modules.configs.ConfigBasicAction;
-import net.gegy1000.psf.server.modules.configs.ConfigBasicToggle;
-import net.gegy1000.psf.server.modules.data.PacketLaserState;
-import net.gegy1000.psf.server.network.PSFNetworkHandler;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.common.capabilities.Capability;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -23,6 +9,18 @@ import java.util.Random;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.gegy1000.psf.api.ILaser;
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.module.IEnergyStats;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.client.render.laser.LaserRenderer.LaserState;
+import net.gegy1000.psf.server.modules.cap.EnergyStats;
+import net.gegy1000.psf.server.modules.configs.ConfigBasicToggle;
+import net.gegy1000.psf.server.modules.data.PacketLaserState;
+import net.gegy1000.psf.server.network.PSFNetworkHandler;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
 
 @ParametersAreNonnullByDefault
 public class ModuleSpaceLaser extends EmptyModule implements ILaser {
@@ -43,7 +41,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
     private static final int DELAY_TIME = 5 * 20;
 
-    private static final EnergyStats USAGE_STATS = new EnergyStats(POWER_PER_TICK, 0);
+    private static final IEnergyStats USAGE_STATS = new EnergyStats(POWER_PER_TICK, 0);
     
     private final ConfigBasicToggle strengthConfig = new ConfigBasicToggle("strength", 1, Arrays.stream(Strength.values()).map(Enum::name).toArray(String[]::new));
 
@@ -143,7 +141,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.SPACE_LASER || capability == CapabilityModuleData.ENERGY_STATS) {
+        if (capability == ModuleCapabilities.SPACE_LASER || capability == ModuleCapabilities.ENERGY_STATS) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -152,10 +150,10 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     @Nullable
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.SPACE_LASER) {
-            return CapabilityModuleData.SPACE_LASER.cast(this);
-        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
-            return CapabilityModuleData.ENERGY_STATS.cast(USAGE_STATS);
+        if (capability == ModuleCapabilities.SPACE_LASER) {
+            return ModuleCapabilities.SPACE_LASER.cast(this);
+        } else if (capability == ModuleCapabilities.ENERGY_STATS) {
+            return ModuleCapabilities.ENERGY_STATS.cast(USAGE_STATS);
         }
         return super.getCapability(capability, facing);
     }

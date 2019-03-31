@@ -1,6 +1,8 @@
 package net.gegy1000.psf.server.modules.cap;
 
-public class EnergyStats {
+import net.gegy1000.psf.api.module.IEnergyStats;
+
+public class EnergyStats implements IEnergyStats {
     private final int maxDrain;
     private final int maxFill;
 
@@ -14,10 +16,12 @@ public class EnergyStats {
         this.maxFill = maxFill / interval;
     }
 
+    @Override
     public int getMaxFill() {
         return this.maxFill;
     }
 
+    @Override
     public int getMaxDrain() {
         return this.maxDrain;
     }

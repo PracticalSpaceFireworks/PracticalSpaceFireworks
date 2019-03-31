@@ -1,10 +1,17 @@
 package net.gegy1000.psf.server.item;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.ILaser;
+import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.api.RegisterItemModel;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -19,12 +26,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 
 public class ItemTargetSelector extends Item implements RegisterItemModel {
 
@@ -55,13 +56,13 @@ public class ItemTargetSelector extends Item implements RegisterItemModel {
                 ISatellite closest = PracticalSpaceFireworks.PROXY.getSatellites().getAll().stream()
                         .filter(ISatellite::isOrbiting)
                         .filter(s -> s.getWorld() == worldIn)
-                        .filter(s -> !s.getModuleCaps(CapabilityModuleData.SPACE_LASER).isEmpty())
+                        .filter(s -> !s.getModuleCaps(ModuleCapabilities.SPACE_LASER).isEmpty())
                         .min(Comparator.comparingDouble(s -> s.getPosition().distanceSq(p)))
                     .orElse(null);
 
                 if (closest != null) {
                     boolean activated = false;
-                    Collection<ILaser> moduleCaps = closest.getModuleCaps(CapabilityModuleData.SPACE_LASER);
+                    Collection<ILaser> moduleCaps = closest.getModuleCaps(ModuleCapabilities.SPACE_LASER);
                     for (ILaser laser : moduleCaps) {
                         activated |= laser.activate(closest, p);
                     }

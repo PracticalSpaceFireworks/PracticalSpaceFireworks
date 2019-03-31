@@ -1,15 +1,16 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
 import com.google.common.collect.ImmutableList;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISpacecraftMetadata;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 
 import javax.vecmath.Point3d;
+
 import java.util.List;
+
+import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISpacecraftMetadata;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 
 public class SpacecraftMetadata implements ISpacecraftMetadata {
     private final ImmutableList<IModule> modules;
@@ -60,8 +61,8 @@ public class SpacecraftMetadata implements ISpacecraftMetadata {
     public double getMass() {
         double mass = this.mass;
         for (IModule module : this.modules) {
-            if (module.hasCapability(CapabilityModuleData.ADDITIONAL_MASS, null)) {
-                double additionalMass = module.getCapability(CapabilityModuleData.ADDITIONAL_MASS, null).getAdditionalMass();
+            if (module.hasCapability(ModuleCapabilities.ADDITIONAL_MASS, null)) {
+                double additionalMass = module.getCapability(ModuleCapabilities.ADDITIONAL_MASS, null).getAdditionalMass();
                 mass += additionalMass;
             }
         }

@@ -7,7 +7,8 @@ import java.util.Collection;
 
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.api.module.IEnergyStats;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.util.LogisticGrowthCurve;
 import net.minecraft.util.EnumFacing;
@@ -45,7 +46,7 @@ public class ModuleSolarPanel extends EmptyModule {
         return multCache;
     }
      
-    private final EnergyStats usageStats;
+    private final IEnergyStats usageStats;
     
     public ModuleSolarPanel(String subtype, int perTick) {
         super("solar_panel_" + subtype);
@@ -79,14 +80,14 @@ public class ModuleSolarPanel extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return super.hasCapability(capability, facing) || capability == CapabilityModuleData.ENERGY_STATS;
+        return super.hasCapability(capability, facing) || capability == ModuleCapabilities.ENERGY_STATS;
     }
 
     @Nullable
     @Override
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.ENERGY_STATS) {
-            return CapabilityModuleData.ENERGY_STATS.cast(usageStats);
+        if (capability == ModuleCapabilities.ENERGY_STATS) {
+            return ModuleCapabilities.ENERGY_STATS.cast(usageStats);
         }
         return super.getCapability(capability, facing);
     }

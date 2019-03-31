@@ -1,6 +1,6 @@
 package net.gegy1000.psf.server.modules.data;
 
-import net.gegy1000.psf.api.data.IWeatherData;
+import net.gegy1000.psf.api.module.IWeatherData;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class WeatherScanData implements IWeatherData {

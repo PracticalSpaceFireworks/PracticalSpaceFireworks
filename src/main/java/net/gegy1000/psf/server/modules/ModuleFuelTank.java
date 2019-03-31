@@ -1,8 +1,15 @@
 package net.gegy1000.psf.server.modules;
 
 import com.google.common.collect.Lists;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.List;
+import java.util.Map;
+
 import net.gegy1000.psf.api.IAdditionalMass;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -14,11 +21,6 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerFluidMap;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
 
 public class ModuleFuelTank extends EmptyModule {
     private static final int CAPACITY = 500;
@@ -64,7 +66,7 @@ public class ModuleFuelTank extends EmptyModule {
 
     @Override
     public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return super.hasCapability(capability, facing) || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || capability == CapabilityModuleData.ADDITIONAL_MASS;
+        return super.hasCapability(capability, facing) || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY || capability == ModuleCapabilities.ADDITIONAL_MASS;
     }
 
     @Nullable
@@ -72,8 +74,8 @@ public class ModuleFuelTank extends EmptyModule {
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(storage);
-        } else if (capability == CapabilityModuleData.ADDITIONAL_MASS) {
-            return CapabilityModuleData.ADDITIONAL_MASS.cast(this.storage);
+        } else if (capability == ModuleCapabilities.ADDITIONAL_MASS) {
+            return ModuleCapabilities.ADDITIONAL_MASS.cast(this.storage);
         }
         return super.getCapability(capability, facing);
     }

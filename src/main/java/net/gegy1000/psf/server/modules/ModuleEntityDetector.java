@@ -1,9 +1,17 @@
 package net.gegy1000.psf.server.modules;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.Collection;
+import java.util.Collections;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.capability.CapabilityModuleData;
+import net.gegy1000.psf.api.module.IEnergyStats;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.configs.ConfigBooleanToggle;
 import net.gegy1000.psf.server.modules.data.EntityListData;
@@ -14,12 +22,6 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
-import java.util.Collections;
 
 @ParametersAreNonnullByDefault
 public class ModuleEntityDetector extends EmptyModule {
@@ -38,7 +40,7 @@ public class ModuleEntityDetector extends EmptyModule {
 
     private static final int POWER_PER_TICK = 6000;
     private static final int TICK_INTERVAL = 200;
-    private static final EnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, TICK_INTERVAL);
+    private static final IEnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, TICK_INTERVAL);
 
     private final ConfigBooleanToggle enabled = new ConfigBooleanToggle("enabled", true, "Enabled", "Disabled");
 
@@ -93,18 +95,18 @@ public class ModuleEntityDetector extends EmptyModule {
 
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityModuleData.ENTITY_LIST
-                || capability == CapabilityModuleData.ENERGY_STATS
+        return capability == ModuleCapabilities.ENTITY_LIST
+                || capability == ModuleCapabilities.ENERGY_STATS
                 || super.hasCapability(capability, facing);
     }
 
     @Nullable
     @Override
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityModuleData.ENTITY_LIST) {
-            return CapabilityModuleData.ENTITY_LIST.cast(this.listData);
-        } else if (capability == CapabilityModuleData.ENERGY_STATS) {
-            return CapabilityModuleData.ENERGY_STATS.cast(ENERGY_STATS);
+        if (capability == ModuleCapabilities.ENTITY_LIST) {
+            return ModuleCapabilities.ENTITY_LIST.cast(this.listData);
+        } else if (capability == ModuleCapabilities.ENERGY_STATS) {
+            return ModuleCapabilities.ENERGY_STATS.cast(ENERGY_STATS);
         }
         return super.getCapability(capability, facing);
     }
