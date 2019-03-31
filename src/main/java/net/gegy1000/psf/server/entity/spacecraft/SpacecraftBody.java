@@ -8,9 +8,9 @@ import java.util.Optional;
 
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.ISpacecraftBodyData;
-import net.gegy1000.psf.api.ISpacecraftMetadata;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;

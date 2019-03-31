@@ -1,6 +1,6 @@
 package net.gegy1000.psf.server.modules;
 
-import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;

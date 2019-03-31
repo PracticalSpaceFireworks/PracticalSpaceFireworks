@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import net.gegy1000.psf.api.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.GuiSelectCraft;
 import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;

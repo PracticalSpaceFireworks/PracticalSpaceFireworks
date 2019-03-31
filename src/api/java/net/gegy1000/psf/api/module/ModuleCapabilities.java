@@ -2,8 +2,6 @@ package net.gegy1000.psf.api.module;
 
 import javax.annotation.Nonnull;
 
-import net.gegy1000.psf.api.IAdditionalMass;
-import net.gegy1000.psf.api.ILaser;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;

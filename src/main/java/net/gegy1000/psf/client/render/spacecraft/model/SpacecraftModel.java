@@ -5,7 +5,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.api.ISpacecraftBodyData;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

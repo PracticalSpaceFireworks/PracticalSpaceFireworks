@@ -3,10 +3,10 @@ package net.gegy1000.psf.server.modules;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.module.IEnergyStats;
 import net.gegy1000.psf.api.module.ITerrainScan;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
 import net.gegy1000.psf.server.modules.data.TerrainScanData;

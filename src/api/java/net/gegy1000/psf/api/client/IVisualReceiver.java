@@ -1,6 +1,8 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.client;
 
-import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.ParametersAreNonnullByDefault;

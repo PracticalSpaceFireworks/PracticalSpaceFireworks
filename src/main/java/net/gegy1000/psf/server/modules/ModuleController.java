@@ -1,8 +1,8 @@
 package net.gegy1000.psf.server.modules;
 
 import lombok.Setter;
-import net.gegy1000.psf.api.IController;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.IController;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;

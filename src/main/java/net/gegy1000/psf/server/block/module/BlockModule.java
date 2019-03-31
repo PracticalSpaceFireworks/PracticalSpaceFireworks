@@ -2,9 +2,9 @@ package net.gegy1000.psf.server.block.module;
 
 import com.google.common.base.MoreObjects;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IModuleFactory;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.module.IModuleFactory;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.controller.BlockController;

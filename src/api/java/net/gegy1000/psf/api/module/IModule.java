@@ -1,4 +1,4 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.module;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -8,7 +8,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.gegy1000.psf.api.module.IModuleData;
+import net.gegy1000.psf.api.PSFAPIProps;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
+import net.gegy1000.psf.api.util.IUnique;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;

@@ -1,4 +1,4 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.spacecraft;
 
 import com.google.common.base.Functions;
 
@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.util.IUnique;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;

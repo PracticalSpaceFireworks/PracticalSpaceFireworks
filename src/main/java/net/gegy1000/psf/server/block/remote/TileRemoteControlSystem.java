@@ -13,8 +13,8 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IListedSpacecraft;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.minecraft.tileentity.TileEntity;
 
 @ParametersAreNonnullByDefault

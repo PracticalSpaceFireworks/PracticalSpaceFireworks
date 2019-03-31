@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;

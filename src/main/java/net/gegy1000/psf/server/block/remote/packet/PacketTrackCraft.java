@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;

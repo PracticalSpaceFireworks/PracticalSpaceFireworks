@@ -1,6 +1,6 @@
 package net.gegy1000.psf.server.entity.world;
 
-import net.gegy1000.psf.api.IWorldData;
+import net.gegy1000.psf.api.util.IWorldData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;

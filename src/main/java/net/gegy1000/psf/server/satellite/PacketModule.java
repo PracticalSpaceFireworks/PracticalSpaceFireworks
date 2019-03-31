@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IVisualReceiver;
+import net.gegy1000.psf.api.client.IVisualReceiver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;

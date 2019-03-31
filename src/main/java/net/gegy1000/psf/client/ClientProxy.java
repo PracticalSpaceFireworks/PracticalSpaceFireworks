@@ -1,6 +1,6 @@
 package net.gegy1000.psf.client;
 
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.client.render.spacecraft.RenderSpacecraft;
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;

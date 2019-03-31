@@ -9,7 +9,7 @@ import java.util.Map;
 
 import lombok.Getter;
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.api.ISpacecraftBodyData;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;

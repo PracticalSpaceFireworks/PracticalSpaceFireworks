@@ -2,9 +2,9 @@ package net.gegy1000.psf.server.capability;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.gegy1000.psf.api.IAdditionalMass;
-import net.gegy1000.psf.api.ILaser;
+import net.gegy1000.psf.api.module.IAdditionalMass;
 import net.gegy1000.psf.api.module.IEntityList;
+import net.gegy1000.psf.api.module.ILaser;
 import net.gegy1000.psf.api.module.ITerrainScan;
 import net.gegy1000.psf.api.module.IWeatherData;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;

@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import java.util.UUID;
 
-import net.gegy1000.psf.api.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;

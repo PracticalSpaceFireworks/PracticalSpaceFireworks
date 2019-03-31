@@ -1,4 +1,4 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.spacecraft;
 
 import javax.vecmath.Point3d;
 

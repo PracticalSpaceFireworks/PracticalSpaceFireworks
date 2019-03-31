@@ -24,12 +24,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IListedSpacecraft;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISpacecraftBodyData;
-import net.gegy1000.psf.api.ISpacecraftMetadata;
+import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.api.module.ITerrainScan;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;

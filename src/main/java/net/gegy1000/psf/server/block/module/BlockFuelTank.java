@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.server.block.property.FuelTankBorder;
 import net.gegy1000.psf.server.modules.ModuleFuelTank;
 import net.minecraft.block.Block;

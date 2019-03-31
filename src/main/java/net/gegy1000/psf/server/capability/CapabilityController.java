@@ -2,7 +2,7 @@ package net.gegy1000.psf.server.capability;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.spacecraft.IController;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;

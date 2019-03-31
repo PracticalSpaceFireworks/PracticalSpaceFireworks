@@ -5,8 +5,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.util.UUID;
 
-import net.gegy1000.psf.api.IListedSpacecraft;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;

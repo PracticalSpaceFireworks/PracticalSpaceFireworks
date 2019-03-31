@@ -6,9 +6,9 @@ import javax.vecmath.Point3d;
 
 import java.util.List;
 
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISpacecraftMetadata;
+import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 

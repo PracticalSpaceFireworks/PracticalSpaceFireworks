@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;

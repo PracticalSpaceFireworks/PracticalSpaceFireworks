@@ -6,10 +6,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.util.Collection;
 
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.module.IEnergyStats;
 import net.gegy1000.psf.api.module.IEntityList;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.MobEffects;

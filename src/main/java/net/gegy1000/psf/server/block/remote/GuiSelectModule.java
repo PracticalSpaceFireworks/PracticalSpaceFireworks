@@ -8,7 +8,7 @@ import org.lwjgl.input.Mouse;
 
 import com.google.common.collect.Lists;
 
-import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.server.block.remote.config.GuiModuleConfig;
 import net.minecraft.client.Minecraft;
 

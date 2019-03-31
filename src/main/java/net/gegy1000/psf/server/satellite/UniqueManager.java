@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 import lombok.val;
-import net.gegy1000.psf.api.IUnique;
+import net.gegy1000.psf.api.util.IUnique;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

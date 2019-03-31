@@ -8,9 +8,9 @@ import java.util.UUID;
 
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IListedSpacecraft;
-import net.gegy1000.psf.api.IVisualReceiver;
-import net.gegy1000.psf.api.IVisualReceiver.IVisual;
+import net.gegy1000.psf.api.client.IVisualReceiver;
+import net.gegy1000.psf.api.client.IVisualReceiver.IVisual;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.Minecraft;

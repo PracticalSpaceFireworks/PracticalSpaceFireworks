@@ -1,10 +1,13 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.spacecraft;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.util.Collection;
 
+import net.gegy1000.psf.api.client.IVisualReceiver;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.util.IUnique;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 

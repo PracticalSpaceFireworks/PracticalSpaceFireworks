@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-import net.gegy1000.psf.api.IAdditionalMass;
+import net.gegy1000.psf.api.module.IAdditionalMass;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.nbt.NBTTagCompound;

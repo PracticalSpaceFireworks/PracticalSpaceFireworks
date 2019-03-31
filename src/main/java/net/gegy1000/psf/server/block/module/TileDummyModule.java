@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import lombok.Getter;
-import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

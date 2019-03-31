@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IModuleFactory;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.module.IModuleFactory;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 @RequiredArgsConstructor

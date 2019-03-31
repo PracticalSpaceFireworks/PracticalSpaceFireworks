@@ -9,10 +9,10 @@ import java.util.Random;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.gegy1000.psf.api.ILaser;
-import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.api.module.IEnergyStats;
+import net.gegy1000.psf.api.module.ILaser;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.client.render.laser.LaserRenderer.LaserState;
 import net.gegy1000.psf.server.modules.cap.EnergyStats;
 import net.gegy1000.psf.server.modules.configs.ConfigBasicToggle;

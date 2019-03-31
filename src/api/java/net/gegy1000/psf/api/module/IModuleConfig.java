@@ -1,4 +1,4 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.module;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -1,4 +1,4 @@
-package net.gegy1000.psf.api;
+package net.gegy1000.psf.api.util;
 
 import net.minecraft.util.math.BlockPos;
 

@@ -1,7 +1,7 @@
 package net.gegy1000.psf.server.capability.world;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.satellite.OrbitingSatellite;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

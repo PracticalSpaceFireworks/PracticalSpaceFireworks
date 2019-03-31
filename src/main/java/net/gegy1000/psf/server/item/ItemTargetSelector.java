@@ -8,9 +8,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.ILaser;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.module.ILaser;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;

@@ -1,7 +1,7 @@
 package net.gegy1000.psf.server.satellite;
 
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;

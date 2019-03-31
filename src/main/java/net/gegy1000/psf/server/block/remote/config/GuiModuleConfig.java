@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import net.gegy1000.psf.api.IListedSpacecraft;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.module.IModuleConfig;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.GuiRemoteControl;
 import net.gegy1000.psf.server.block.remote.GuiSelectModule;
 import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;

@@ -3,7 +3,7 @@ package net.gegy1000.psf.server;
 import java.util.function.Consumer;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;

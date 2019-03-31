@@ -9,7 +9,7 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.IFixedSizeWorldData;
+import net.gegy1000.psf.api.util.IFixedSizeWorldData;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;

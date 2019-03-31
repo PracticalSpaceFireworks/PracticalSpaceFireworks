@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.gegy1000.psf.api.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextFormatting;
 

@@ -9,11 +9,11 @@ import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.gegy1000.psf.api.IController;
-import net.gegy1000.psf.api.IListedSpacecraft;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.api.ISpacecraftBodyData;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.spacecraft.IController;
+import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
+import net.gegy1000.psf.api.spacecraft.ISatellite;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.entity.player.EntityPlayerMP;

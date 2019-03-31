@@ -7,8 +7,8 @@ import org.lwjgl.input.Mouse;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IModuleConfig;
+import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.module.IModuleConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
