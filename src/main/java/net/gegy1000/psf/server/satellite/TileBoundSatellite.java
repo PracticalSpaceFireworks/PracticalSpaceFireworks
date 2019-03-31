@@ -1,26 +1,28 @@
 package net.gegy1000.psf.server.satellite;
 
 import com.google.common.collect.Lists;
+
+import javax.annotation.Nonnull;
+
+import java.util.Collection;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
 import net.gegy1000.psf.server.block.controller.TileController;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
 import net.gegy1000.psf.server.capability.CapabilityController;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class TileBoundSatellite extends AbstractSatellite {
@@ -62,7 +64,7 @@ public class TileBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftBodyData buildBodyData(@Nonnull World world) {
+    public ISpacecraftBodyData buildBodyData(@Nonnull World world) {
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
         builder.copyFrom(world, origin, controller.getModules());

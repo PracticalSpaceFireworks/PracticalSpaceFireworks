@@ -1,8 +1,8 @@
 package net.gegy1000.psf.server.block.remote;
 
-import java.io.IOException;
-
 import org.lwjgl.input.Mouse;
+
+import java.io.IOException;
 
 import net.minecraftforge.fml.client.GuiScrollingList;
 

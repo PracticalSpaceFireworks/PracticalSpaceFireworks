@@ -1,11 +1,20 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
+import javax.annotation.Nonnull;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.GuiSelectCraft;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
@@ -22,14 +31,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @NoArgsConstructor
 public class PacketOpenRemoteControl implements IMessage {

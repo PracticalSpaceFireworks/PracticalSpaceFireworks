@@ -1,19 +1,11 @@
 package net.gegy1000.psf.api;
 
 import com.google.common.base.Functions;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 
 @ParametersAreNonnullByDefault
 public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable<NBTTagCompound> {
@@ -67,7 +67,7 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
         return caps;
     }
 
-    SpacecraftBodyData buildBodyData(World world);
+    ISpacecraftBodyData buildBodyData(World world);
 
     IListedSpacecraft toListedCraft();
 

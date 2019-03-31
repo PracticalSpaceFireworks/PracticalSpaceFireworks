@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import net.gegy1000.psf.api.PSFAPIProps;
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.minecraft.creativetab.CreativeTabs;
@@ -37,7 +38,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 @ParametersAreNonnullByDefault
 public class PracticalSpaceFireworks {
     @Nonnull
-    public static final String MODID = "psf";
+    public static final String MODID = PSFAPIProps.MODID;
     public static final String VERSION = "0.2.0";
     public static final String NAME = "Practical Space Fireworks";
     public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2807,15);required-after-client:ctm@[MC1.12.2-0.3.2.18,)";

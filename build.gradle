@@ -64,6 +64,23 @@ dependencies {
     runtime "mezz.jei:jei_1.12.2:4.15.0.271"
 }
 
+jar {
+    from sourceSets.api.output
+    from sourceSets.main.output
+}
+
+task apiJar(type: Jar) {
+    from sourceSets.api.allSource
+    from sourceSets.api.output
+    classifier = 'api'
+}
+
+reobf {
+    apiJar { mappingType = 'SEARGE' }
+}
+
+tasks.build.dependsOn apiJar, reobfApiJar
+
 processResources {
   inputs.property "version", project.version
   inputs.property "mcversion", project.minecraft.version

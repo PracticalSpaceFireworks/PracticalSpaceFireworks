@@ -1,5 +1,11 @@
 package net.gegy1000.psf.server.entity.world;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.Map;
+
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -7,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IFixedSizeWorldData;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -14,29 +21,27 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Map;
-
 @ParametersAreNonnullByDefault
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FixedSizeWorldData implements DelegatedWorld.Data {
+public class FixedSizeWorldData implements IFixedSizeWorldData {
     protected int[] blockData;
     protected int[] lightData;
     protected Long2ObjectMap<TileEntity> entities;
 
     protected Biome biome;
 
-    @Getter
+    @Getter(onMethod = @__({@Override}))
     protected BlockPos minPos;
-    @Getter
+    @Getter(onMethod = @__({@Override}))
     protected BlockPos maxPos;
 
     protected FixedSizeWorldData(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, Biome biome, BlockPos minPos, BlockPos maxPos) {
@@ -82,12 +87,13 @@ public class FixedSizeWorldData implements DelegatedWorld.Data {
     }
 
     @Override
-    public int getLight(BlockPos pos) {
+    public int getCombinedLight(BlockPos pos, int lightValue) {
         int posIndex = getPosIndex(pos, this.minPos, this.maxPos);
         if (posIndex > -1) {
             return lightData[posIndex];
+        } else {
+            return 15 << 20 | lightValue << 4;
         }
-        return 15 << 20;
     }
 
     @Nonnull
@@ -102,7 +108,9 @@ public class FixedSizeWorldData implements DelegatedWorld.Data {
                 && pos.getX() <= maxPos.getX() && pos.getY() <= maxPos.getY() && pos.getZ() <= maxPos.getZ();
     }
 
-    public NBTTagCompound serialize(NBTTagCompound compound) {
+    @Override
+    public NBTTagCompound serializeNBT() {
+        NBTTagCompound compound = new NBTTagCompound();
         compound.setInteger("min_x", this.minPos.getX());
         compound.setInteger("min_y", this.minPos.getY());
         compound.setInteger("min_z", this.minPos.getZ());
@@ -128,7 +136,8 @@ public class FixedSizeWorldData implements DelegatedWorld.Data {
         return compound;
     }
 
-    public void deserialize(NBTTagCompound compound) {
+    @Override
+    public void deserializeNBT(NBTTagCompound compound) {
         minPos = new BlockPos(compound.getInteger("min_x"), compound.getInteger("min_y"), compound.getInteger("min_z"));
         maxPos = new BlockPos(compound.getInteger("max_x"), compound.getInteger("max_y"), compound.getInteger("max_z"));
         biome = Biome.REGISTRY.getObject(new ResourceLocation(compound.getString("biome")));
@@ -164,6 +173,7 @@ public class FixedSizeWorldData implements DelegatedWorld.Data {
         }
     }
 
+    @Override
     public void serialize(ByteBuf buffer) {
         buffer.writeLong(this.minPos.toLong());
         buffer.writeLong(this.maxPos.toLong());
@@ -183,6 +193,7 @@ public class FixedSizeWorldData implements DelegatedWorld.Data {
         }
     }
 
+    @Override
     public void deserialize(ByteBuf buffer) {
         minPos = BlockPos.fromLong(buffer.readLong());
         maxPos = BlockPos.fromLong(buffer.readLong());
@@ -227,5 +238,31 @@ public class FixedSizeWorldData implements DelegatedWorld.Data {
 
     public static int getDataSize(BlockPos minPos, BlockPos maxPos) {
         return (maxPos.getX() - minPos.getX() + 1) * (maxPos.getY() - minPos.getY() + 1) * (maxPos.getZ() - minPos.getZ() + 1);
+    }
+
+    @Override
+    public boolean isAirBlock(BlockPos pos) {
+        IBlockState state = getBlockState(pos);
+        return state.getBlock().isAir(state, this, pos);
+    }
+
+    @Override
+    public int getStrongPower(BlockPos pos, EnumFacing direction) {
+        return 0;
+    }
+
+    @Override
+    public @Nonnull WorldType getWorldType() {
+        return WorldType.DEFAULT;
+    }
+
+    @Override
+    public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
+        return !getBlockState(pos).isSideSolid(this, pos, side);
+    }
+
+    @Override
+    public World buildWorld(World parent) {
+        return new DelegatedWorld(parent, this);
     }
 }

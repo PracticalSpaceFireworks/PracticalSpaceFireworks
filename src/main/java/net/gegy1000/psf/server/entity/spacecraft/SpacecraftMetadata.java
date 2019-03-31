@@ -2,6 +2,7 @@ package net.gegy1000.psf.server.entity.spacecraft;
 
 import com.google.common.collect.ImmutableList;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISpacecraftMetadata;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -10,7 +11,7 @@ import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 import javax.vecmath.Point3d;
 import java.util.List;
 
-public class SpacecraftMetadata {
+public class SpacecraftMetadata implements ISpacecraftMetadata {
     private final ImmutableList<IModule> modules;
     private final ImmutableList<IFluidHandler> fuelTanks;
     private final ImmutableList<Thruster> thrusters;
@@ -29,29 +30,33 @@ public class SpacecraftMetadata {
 
         double totalForce = 0.0;
         for (Thruster thruster : this.thrusters) {
-            totalForce += thruster.force;
+            totalForce += thruster.getForce();
         }
         this.totalForce = totalForce;
 
         int totalDrain = 0;
         for (Thruster thruster : this.thrusters) {
-            totalDrain += thruster.drain;
+            totalDrain += thruster.getDrain();
         }
         this.totalDrain = totalDrain;
     }
 
+    @Override
     public List<Thruster> getThrusters() {
         return this.thrusters;
     }
 
+    @Override
     public double getTotalForce() {
         return this.totalForce;
     }
 
+    @Override
     public int getTotalFuelDrain() {
         return this.totalDrain;
     }
 
+    @Override
     public double getMass() {
         double mass = this.mass;
         for (IModule module : this.modules) {
@@ -63,35 +68,13 @@ public class SpacecraftMetadata {
         return mass;
     }
 
+    @Override
     public Point3d getCoM() {
         return com;
     }
 
+    @Override
     public IFluidHandler buildFuelHandler() {
         return new FluidHandlerConcatenate(this.fuelTanks);
-    }
-
-    public static class Thruster {
-        private final BlockPos pos;
-        private final double force;
-        private final int drain;
-
-        public Thruster(BlockPos pos, double force, int drain) {
-            this.pos = pos;
-            this.force = force;
-            this.drain = drain;
-        }
-
-        public BlockPos getPos() {
-            return this.pos;
-        }
-
-        public double getForce() {
-            return this.force;
-        }
-
-        public int getDrain() {
-            return this.drain;
-        }
     }
 }

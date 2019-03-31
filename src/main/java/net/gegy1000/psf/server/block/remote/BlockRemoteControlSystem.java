@@ -1,6 +1,13 @@
 package net.gegy1000.psf.server.block.remote;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
@@ -23,11 +30,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
 public class BlockRemoteControlSystem extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {

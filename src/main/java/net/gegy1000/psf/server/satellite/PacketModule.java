@@ -1,8 +1,8 @@
 package net.gegy1000.psf.server.satellite;
 
-import java.util.UUID;
-
 import javax.annotation.Nonnull;
+
+import java.util.UUID;
 
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.client.IVisualReceiver;
+import net.gegy1000.psf.api.IVisualReceiver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;

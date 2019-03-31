@@ -1,7 +1,33 @@
 package net.gegy1000.psf.server.block.remote;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
+import net.gegy1000.psf.api.ISpacecraftMetadata;
 import net.gegy1000.psf.api.data.ITerrainScan;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
@@ -12,7 +38,6 @@ import net.gegy1000.psf.server.block.remote.widget.WidgetFluidBar;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftMetadata;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
@@ -40,27 +65,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class GuiCraftDetails extends GuiRemoteControl {
 
@@ -302,7 +306,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         IListedSpacecraft craft = getCraft();
         SyncedData synced = this.synced;
         if (craft != null && !craft.isOrbiting() && synced != null) {
-            SpacecraftMetadata metadata = synced.metadata;
+            ISpacecraftMetadata metadata = synced.metadata;
 
             int x = panel.getX() + 4;
             int y = panel.getY() + panel.getHeight() - 4;
@@ -447,7 +451,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     }
 
     private void renderCraft(SpacecraftModel model) {
-        SpacecraftBodyData body = model.getBody();
+        ISpacecraftBodyData body = model.getBody();
         BlockPos minPos = body.getMinPos();
         BlockPos maxPos = body.getMaxPos();
         AxisAlignedBB bb = new AxisAlignedBB(new Vec3d(minPos), new Vec3d(maxPos).add(1, 1, 1));
@@ -615,11 +619,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
         final Collection<IModule> terrainScannerModules;
         final Collection<IModule> tankModules;
         final SpacecraftModel model;
-        final SpacecraftMetadata metadata;
+        final ISpacecraftMetadata metadata;
         final int energyNetUsage;
 
         public SyncedData(IVisual visual) {
-            SpacecraftBodyData body = visual.getBodyData();
+            ISpacecraftBodyData body = visual.getBodyData();
 
             model = SpacecraftModel.build(body);
             modules = visual.getModules();

@@ -12,6 +12,7 @@ import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.ISpacecraftMetadata;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.controller.CraftGraph;
@@ -91,7 +92,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private State state = new StaticState(this);
 
     private boolean converted;
-    private SpacecraftMetadata metadata;
+    private ISpacecraftMetadata metadata;
 
     public EntitySpacecraft(World world) {
         this(world, null, BlockPos.ORIGIN, null);

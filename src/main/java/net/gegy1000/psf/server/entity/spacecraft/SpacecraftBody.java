@@ -1,8 +1,16 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import javax.annotation.Nonnull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
+import net.gegy1000.psf.api.ISpacecraftMetadata;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
@@ -15,16 +23,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 public class SpacecraftBody {
     @Getter
     private final DelegatedWorld world;
     @Getter
-    private final SpacecraftBodyData data;
+    private final ISpacecraftBodyData data;
 
     @Getter
     private final Matrix rotationMatrix = new Matrix(3);
@@ -37,7 +40,7 @@ public class SpacecraftBody {
     private float lastRecalcYaw = Float.MAX_VALUE;
     private float lastRecalcPitch = Float.MAX_VALUE;
 
-    public SpacecraftBody(World parent, SpacecraftBodyData data) {
+    public SpacecraftBody(World parent, ISpacecraftBodyData data) {
         this.data = data;
         this.world = new DelegatedWorld(parent, data);
     }
@@ -133,12 +136,12 @@ public class SpacecraftBody {
         return rotationMatrix.transformPoint(point);
     }
 
-    public SpacecraftMetadata buildSpacecraftMetadata() {
+    public ISpacecraftMetadata buildSpacecraftMetadata() {
         return data.buildSpacecraftMetadata(world.getParent());
     }
 
     public NBTTagCompound serialize(NBTTagCompound compound) {
-        compound.setTag("body_data", data.serialize(new NBTTagCompound()));
+        compound.setTag("body_data", data.serializeNBT());
         return compound;
     }
 

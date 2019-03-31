@@ -1,8 +1,15 @@
 package net.gegy1000.psf.client.render.spacecraft.model;
 
+import org.lwjgl.opengl.GL11;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.EnumMap;
+import java.util.Map;
+
 import lombok.Getter;
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -10,23 +17,18 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.EnumMap;
-import java.util.Map;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class VboSpacecraftModel implements SpacecraftModel {
     @Getter
-    private final SpacecraftBodyData body;
+    private final ISpacecraftBodyData body;
 
     private final Map<BlockRenderLayer, VertexBuffer> buffers = new EnumMap<>(BlockRenderLayer.class);
 
     private boolean available = true;
 
-    VboSpacecraftModel(SpacecraftBodyData body) {
+    VboSpacecraftModel(ISpacecraftBodyData body) {
         this.body = body;
 
         BlockRenderLayer original = MinecraftForgeClient.getRenderLayer();

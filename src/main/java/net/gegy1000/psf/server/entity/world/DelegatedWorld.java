@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.entity.world;
 
+import net.gegy1000.psf.api.IWorldData;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -29,9 +30,9 @@ import java.io.File;
 @ParametersAreNonnullByDefault
 public class DelegatedWorld extends World {
     private final World parent;
-    private final Data data;
+    private final IWorldData data;
 
-    public DelegatedWorld(World parent, Data data) {
+    public DelegatedWorld(World parent, IWorldData data) {
         super(new SaveHandler(), parent.getWorldInfo(), parent.provider, parent.profiler, parent.isRemote);
         this.parent = parent;
         this.data = data;
@@ -114,7 +115,7 @@ public class DelegatedWorld extends World {
     @SideOnly(Side.CLIENT)
     public int getCombinedLight(BlockPos pos, int lightValue) {
         if (data.containsBlock(pos)) {
-            return data.getLight(pos);
+            return data.getCombinedLight(pos, lightValue);
         }
         return 15 << 20;
     }
@@ -146,29 +147,6 @@ public class DelegatedWorld extends World {
     @Override
     public boolean spawnEntity(Entity entity) {
         return false;
-    }
-
-    public interface Data {
-        void setBlockState(BlockPos pos, IBlockState state);
-
-        void setTileEntity(BlockPos pos, @Nullable TileEntity entity);
-
-        @Nonnull
-        IBlockState getBlockState(BlockPos pos);
-
-        @Nullable
-        TileEntity getTileEntity(BlockPos pos);
-
-        int getLight(BlockPos pos);
-
-        @Nonnull
-        Biome getBiome(BlockPos pos);
-
-        boolean containsBlock(BlockPos pos);
-
-        default DelegatedWorld buildWorld(World parent) {
-            return new DelegatedWorld(parent, this);
-        }
     }
 
     private static class ChunkProvider implements IChunkProvider {

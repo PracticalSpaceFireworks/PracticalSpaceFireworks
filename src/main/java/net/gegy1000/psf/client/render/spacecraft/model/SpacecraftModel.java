@@ -1,7 +1,11 @@
 package net.gegy1000.psf.client.render.spacecraft.model;
 
+import org.lwjgl.opengl.GL11;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import mcp.MethodsReturnNonnullByDefault;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -11,11 +15,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -24,7 +26,7 @@ public interface SpacecraftModel {
     BufferBuilder BUILDER = new BufferBuilder(0x20000);
 
     @SideOnly(Side.CLIENT)
-    static SpacecraftModel build(SpacecraftBodyData body) {
+    static SpacecraftModel build(ISpacecraftBodyData body) {
         if (Minecraft.getMinecraft().gameSettings.useVbo) {
             return new VboSpacecraftModel(body);
         } else {
@@ -32,10 +34,10 @@ public interface SpacecraftModel {
         }
     }
 
-    default void drawBlocks(SpacecraftBodyData body, BlockRenderLayer layer, BufferBuilder builder) {
+    default void drawBlocks(ISpacecraftBodyData body, BlockRenderLayer layer, BufferBuilder builder) {
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-        DelegatedWorld world = body.buildWorld(Minecraft.getMinecraft().world);
+        World world = body.buildWorld(Minecraft.getMinecraft().world);
         for (BlockPos pos : BlockPos.getAllInBoxMutable(body.getMinPos(), body.getMaxPos())) {
             IBlockState state = world.getBlockState(pos);
             if (state.getBlock() != Blocks.AIR && state.getBlock().canRenderInLayer(state, layer)) {
@@ -52,5 +54,5 @@ public interface SpacecraftModel {
 
     boolean isAvailable();
 
-    SpacecraftBodyData getBody();
+    ISpacecraftBodyData getBody();
 }

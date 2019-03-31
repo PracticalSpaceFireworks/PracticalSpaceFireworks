@@ -1,12 +1,13 @@
 package net.gegy1000.psf.server.block.remote.orbiting;
 
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import javax.annotation.Nonnull;
+
+import java.util.UUID;
+
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.math.BlockPos;
-
-import javax.annotation.Nonnull;
-import java.util.UUID;
 
 public class OrbitingListedSpacecraft implements IListedSpacecraft  {
     private String name;

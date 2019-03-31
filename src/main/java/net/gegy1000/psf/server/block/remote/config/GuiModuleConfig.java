@@ -1,20 +1,20 @@
 package net.gegy1000.psf.server.block.remote.config;
 
+import org.lwjgl.input.Mouse;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.lwjgl.input.Mouse;
-
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
 import net.gegy1000.psf.server.block.remote.GuiRemoteControl;
 import net.gegy1000.psf.server.block.remote.GuiSelectModule;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.TileRemoteControlSystem;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.client.Minecraft;

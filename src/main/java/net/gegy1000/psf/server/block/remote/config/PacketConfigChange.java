@@ -1,20 +1,20 @@
 package net.gegy1000.psf.server.block.remote.config;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import io.netty.buffer.ByteBuf;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.IModuleConfig;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @NoArgsConstructor
 public class PacketConfigChange implements IMessage {

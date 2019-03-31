@@ -1,31 +1,33 @@
 package net.gegy1000.psf.server.satellite;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+
 import lombok.Setter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
 import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.block.controller.CraftGraph.SearchFilter;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
 
 public class EntityBoundSatellite extends AbstractSatellite {
 
@@ -45,7 +47,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public void detectModules() {
-        SpacecraftBodyData bodyData = this.spacecraft.getBody().getData();
+        ISpacecraftBodyData bodyData = this.spacecraft.getBody().getData();
 
         this.modules.clear();
         this.modules.addAll(bodyData.findModules());
@@ -88,7 +90,7 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftBodyData buildBodyData(@Nonnull World world) {
+    public ISpacecraftBodyData buildBodyData(@Nonnull World world) {
         return this.spacecraft.getBody().getData();
     }
 

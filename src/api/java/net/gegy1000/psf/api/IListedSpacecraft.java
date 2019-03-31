@@ -1,15 +1,12 @@
-package net.gegy1000.psf.server.block.remote;
-
-import net.gegy1000.psf.api.IModule;
-import net.gegy1000.psf.api.IUnique;
-import net.gegy1000.psf.client.IVisualReceiver;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.math.BlockPos;
+package net.gegy1000.psf.api;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
 import java.util.Collection;
+
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.BlockPos;
 
 @ParametersAreNonnullByDefault
 public interface IListedSpacecraft extends IUnique, IStringSerializable {
@@ -38,10 +35,10 @@ public interface IListedSpacecraft extends IUnique, IStringSerializable {
     boolean isDestroyed();
 
     class Visual implements IVisualReceiver.IVisual {
-        private final SpacecraftBodyData bodyData;
+        private final ISpacecraftBodyData bodyData;
         private final Collection<IModule> modules;
 
-        public Visual(SpacecraftBodyData bodyData, Collection<IModule> modules) {
+        public Visual(ISpacecraftBodyData bodyData, Collection<IModule> modules) {
             this.bodyData = bodyData;
             this.modules = modules;
         }
@@ -53,7 +50,7 @@ public interface IListedSpacecraft extends IUnique, IStringSerializable {
         }
 
         @Override
-        public SpacecraftBodyData getBodyData() {
+        public ISpacecraftBodyData getBodyData() {
             return bodyData;
         }
     }

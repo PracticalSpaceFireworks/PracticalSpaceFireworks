@@ -1,23 +1,25 @@
 package net.gegy1000.psf.server.satellite;
 
+import javax.annotation.Nonnull;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
 import lombok.Getter;
 import lombok.Setter;
 import net.gegy1000.psf.api.IController;
+import net.gegy1000.psf.api.IListedSpacecraft;
 import net.gegy1000.psf.api.IModule;
 import net.gegy1000.psf.api.ISatellite;
-import net.gegy1000.psf.server.block.remote.IListedSpacecraft;
+import net.gegy1000.psf.api.ISpacecraftBodyData;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 public class OrbitingSatellite extends AbstractSatellite {
     private final World world;
@@ -75,7 +77,7 @@ public class OrbitingSatellite extends AbstractSatellite {
     }
 
     @Override
-    public SpacecraftBodyData buildBodyData(@Nonnull World world) {
+    public ISpacecraftBodyData buildBodyData(@Nonnull World world) {
         return bodyData;
     }
 
@@ -109,7 +111,7 @@ public class OrbitingSatellite extends AbstractSatellite {
         compound.setInteger("y", this.position.getY());
         compound.setInteger("z", this.position.getZ());
 
-        compound.setTag("body_data", this.bodyData.serialize(new NBTTagCompound()));
+        compound.setTag("body_data", this.bodyData.serializeNBT());
 
         return compound;
     }
