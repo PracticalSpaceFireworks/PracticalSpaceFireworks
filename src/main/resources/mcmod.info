@@ -2,13 +2,14 @@
   {
     "modid": "psf",
     "name": "Practical Space Fireworks",
-    "description": "Space Fireworks but Practical. Makes sense right?",
+    "description": "Build your own rockets and launch them into orbit.",
     "version": "${version}",
-    "url": "https://github.com/gegy1000/PracticalSpaceFireworks/",
+    "url": "https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks/",
     "authorList": [
       "ExpensiveKoala",
       "gegy1000",
-      "tterrag"
+      "tterrag",
+      "InsomniaKitten"
     ],
     "dependencies": [],
     "credits": "",

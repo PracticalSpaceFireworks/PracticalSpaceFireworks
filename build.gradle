@@ -44,7 +44,7 @@ archivesBaseName = "practical-space-fireworks"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-    version = '1.12.2-14.23.5.2807'
+    version = "${minecraft_version}-${forge_version}"
     runDir = 'minecraft'
     mappings = 'stable_39'
 }

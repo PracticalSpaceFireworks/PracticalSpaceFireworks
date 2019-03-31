@@ -1,8 +1,20 @@
 package net.gegy1000.psf;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static net.gegy1000.psf.PracticalSpaceFireworks.DEPENDENCIES;
+import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
+import static net.gegy1000.psf.PracticalSpaceFireworks.NAME;
+import static net.gegy1000.psf.PracticalSpaceFireworks.VERSION;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.init.PSFBlocks;
-import net.gegy1000.psf.server.util.LogisticGrowthCurve;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
@@ -20,15 +32,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static net.gegy1000.psf.PracticalSpaceFireworks.*;
 
 @Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = "[1.12]")
 @ParametersAreNonnullByDefault
@@ -37,7 +40,7 @@ public class PracticalSpaceFireworks {
     public static final String MODID = "psf";
     public static final String VERSION = "0.2.0";
     public static final String NAME = "Practical Space Fireworks";
-    public static final String DEPENDENCIES = "required-after-client:ctm@[MC1.12.2-0.3.2.18,)";
+    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2807,15);required-after-client:ctm@[MC1.12.2-0.3.2.18,)";
 
     public static final String CLIENT_PROXY = "net.gegy1000.psf.client.ClientProxy";
     public static final String SERVER_PROXY = "net.gegy1000.psf.server.ServerProxy";
