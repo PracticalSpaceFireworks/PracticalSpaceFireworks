@@ -106,7 +106,7 @@ public final class PSFBlocks {
         registerModule(registry, "entity_detector_simple");
         registerModule(registry, "entity_marker");
         registerModule(registry, "terrain_scanner");
-        registerModule(registry, "weather_scanner");
+//        registerModule(registry, "weather_scanner");
 
         register(registry, "laser", new BlockLaser("laser"));
 
