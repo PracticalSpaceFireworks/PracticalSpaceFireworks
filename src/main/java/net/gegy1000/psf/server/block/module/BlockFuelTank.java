@@ -1,13 +1,12 @@
 package net.gegy1000.psf.server.block.module;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.block.property.FuelTankBorder;
+import net.gegy1000.psf.server.block.property.Part;
 import net.gegy1000.psf.server.modules.ModuleFuelTank;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -22,21 +21,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.EnumSet;
-import java.util.Locale;
 import java.util.function.Function;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockFuelTank extends BlockModule {
-    private static final PropertyEnum<Rim> RIM = PropertyEnum.create("rim", Rim.class, Rim.RIMS);
+    private static final PropertyEnum<Part> PART = PropertyEnum.create("part", Part.class, Part.PARTS);
 
     private static final ImmutableMap<FuelTankBorder, PropertyBool> BORDERS = FuelTankBorder.BORDERS.stream()
         .collect(Maps.toImmutableEnumMap(Function.identity(), b -> PropertyBool.create(b.getName())));
@@ -74,7 +70,7 @@ public class BlockFuelTank extends BlockModule {
     protected BlockStateContainer createBlockState() {
         val builder = new BlockStateContainer.Builder(this);
         BORDERS.values().forEach(builder::add);
-        return builder.add(DIRECTION, RIM).build();
+        return builder.add(DIRECTION, PART).build();
     }
 
     @Override
@@ -90,9 +86,9 @@ public class BlockFuelTank extends BlockModule {
     @Override
     @Deprecated
     public IBlockState getActualState(IBlockState state, IBlockAccess access, BlockPos pos) {
-        val rim = rimForPosition(access, pos);
-        state = state.withProperty(RIM, rim);
-        if (Rim.TOP == rim || Rim.BOTH == rim) {
+        val part = Part.forPosition(access, pos, this);
+        state = state.withProperty(PART, part);
+        if (Part.TOP == part || Part.BOTH == part) {
             for (val border : FuelTankBorder.CARDINALS) {
                 val block = access.getBlockState(border.offset(pos)).getBlock();
                 state = state.withProperty(BORDERS.get(border), this != block);
@@ -114,7 +110,7 @@ public class BlockFuelTank extends BlockModule {
     public BlockFaceShape getBlockFaceShape(IBlockAccess access, IBlockState state, BlockPos pos, EnumFacing side) {
         if (EnumFacing.UP != side) {
             state = state.getActualState(access, pos);
-            if (Rim.TOP != state.getValue(RIM)) {
+            if (Part.TOP != state.getValue(PART)) {
                 return BlockFaceShape.SOLID;
             }
             if (state.getValue(BORDERS.get(FuelTankBorder.forDirection(side)))) {
@@ -153,8 +149,8 @@ public class BlockFuelTank extends BlockModule {
     @Override
     public boolean doesSideBlockRendering(IBlockState state, IBlockAccess access, BlockPos pos, EnumFacing side) {
         state = state.getActualState(access, pos);
-        val rim = state.getValue(RIM);
-        if (Rim.TOP == rim || Rim.BOTH == rim) {
+        val part = state.getValue(PART);
+        if (Part.TOP == part || Part.BOTH == part) {
             if (side.getAxis().isHorizontal()) {
                 val offset = pos.offset(side);
                 return this != access.getBlockState(offset).getBlock()
@@ -176,36 +172,6 @@ public class BlockFuelTank extends BlockModule {
             val offset = pos.offset(facing);
             val other = world.getBlockState(offset).getBlock();
             world.notifyNeighborsOfStateChange(offset, other, true);
-        }
-    }
-
-    private Rim rimForPosition(IBlockAccess access, BlockPos pos) {
-        if (this == access.getBlockState(pos.up()).getBlock()) {
-            if (this == access.getBlockState(pos.down()).getBlock()) {
-                return Rim.NONE;
-            }
-            return Rim.BOTTOM;
-        }
-        if (this == access.getBlockState(pos.down()).getBlock()) {
-            return Rim.TOP;
-        }
-        return Rim.BOTH;
-    }
-
-    public enum Rim implements IStringSerializable {
-        BOTTOM, TOP, NONE, BOTH;
-
-        public static final ImmutableSet<Rim> RIMS =
-            Sets.immutableEnumSet(EnumSet.allOf(Rim.class));
-
-        @Override
-        public final String getName() {
-            return toString();
-        }
-
-        @Override
-        public final String toString() {
-            return name().toLowerCase(Locale.ROOT);
         }
     }
 }
