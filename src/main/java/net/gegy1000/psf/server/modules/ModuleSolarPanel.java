@@ -50,7 +50,7 @@ public class ModuleSolarPanel extends EmptyModule {
     
     public ModuleSolarPanel(String subtype, int perTick) {
         super("solar_panel_" + subtype);
-        usageStats = new EnergyStats(perTick, 0);
+        usageStats = new EnergyStats(0, perTick);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ModuleSolarPanel extends EmptyModule {
 
         Collection<IEnergyStorage> powerSources = satellite.getModuleCaps(CapabilityEnergy.ENERGY);
 
-        int powerToProvide = MathHelper.ceil(usageStats.getMaxDrain() * getMultiplier(satellite.getWorld()));
+        int powerToProvide = MathHelper.ceil(usageStats.getMaxFill() * getMultiplier(satellite.getWorld()));
         for (IEnergyStorage source : powerSources) {
             powerToProvide -= source.receiveEnergy(powerToProvide, false);
             if (powerToProvide <= 0) {

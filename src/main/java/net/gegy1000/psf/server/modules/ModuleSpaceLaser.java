@@ -41,7 +41,7 @@ public class ModuleSpaceLaser extends EmptyModule implements ILaser {
     
     private static final int DELAY_TIME = 5 * 20;
 
-    private static final IEnergyStats USAGE_STATS = new EnergyStats(POWER_PER_TICK, 0);
+    private static final IEnergyStats USAGE_STATS = new EnergyStats(0, 0);
     
     private final ConfigBasicToggle strengthConfig = new ConfigBasicToggle("strength", 1, Arrays.stream(Strength.values()).map(Enum::name).toArray(String[]::new));
 
