@@ -2,8 +2,8 @@
   "__comment": "Copyright © InsomniaKitten 2018",
   "parent": "block/cube_bottom_top",
   "textures": {
-    "bottom": "psf:blocks/fuel_tank_bottom",
-    "top": "psf:blocks/fuel_tank_top",
+    "bottom": "psf:blocks/fuel_tank_cap",
+    "top": "psf:blocks/fuel_tank_cap",
     "side": "psf:blocks/fuel_tank_side_none"
   }
 }

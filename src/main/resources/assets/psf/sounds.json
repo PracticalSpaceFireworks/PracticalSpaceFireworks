@@ -1,22 +1,23 @@
 {
+  "payload_separator.connect": {
+    "category": "blocks",
+    "subtitle": "subtitles.psf.payload_separator.connect",
+    "sounds": [ "minecraft:tile/piston/out" ]
+  },
+  "payload_separator.disconnect": {
+    "category": "blocks",
+    "subtitle": "subtitles.psf.payload_separator.disconnect",
+    "sounds": [ "minecraft:random/fizz" ]
+  },
   "entity.spacecraft.launch": {
     "category": "ambient",
     "subtitle": "subtitles.psf.entity.spacecraft.launch",
     "sounds": [ "psf:ambient/launch" ]
   },
-  "block.thruster.ambient": {
-    "category": "blocks",
-    "subtitle": "subtitles.psf.block.thruster.ambient",
-    "sounds": [
-      "psf:ambient/thruster_idle"
-    ]
-  },
   "laser.fire": {
     "category": "blocks",
     "subtitle": "subtitles.psf.laser.fire",
-    "sounds": [
-      "psf:laser"
-    ]
+    "sounds": [ "psf:laser" ]
   },
   "metal.break": {
     "category": "block",

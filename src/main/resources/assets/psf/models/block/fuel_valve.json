@@ -1,6 +1,22 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "__comment": "Copyright © InsomniaKitten 2019",
+  "parent": "minecraft:block/block",
   "textures": {
-    "all": "minecraft:blocks/debug"
-  }
+    "particle": "psf:blocks/fuel_valve_side",
+    "cap": "psf:blocks/fuel_valve_cap"
+  },
+  "elements": [
+    {
+      "from": [ 4, 4, 4 ],
+      "to": [ 12, 12, 12 ],
+      "faces": {
+        "down": { "texture": "#cap" },
+        "up": { "texture": "#cap" },
+        "north": { "texture": "#particle" },
+        "south": { "texture": "#particle" },
+        "west": { "texture": "#particle" },
+        "east": { "texture": "#particle" }
+      }
+    }
+  ]
 }

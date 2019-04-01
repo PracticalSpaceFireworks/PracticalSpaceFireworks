@@ -2,8 +2,7 @@ package net.gegy1000.psf.client.init;
 
 import lombok.val;
 import net.gegy1000.psf.server.api.RegisterItemModel;
-import net.gegy1000.psf.server.block.BlockPSFFluid;
-import net.gegy1000.psf.server.block.controller.BlockController;
+import net.gegy1000.psf.server.block.fluid.BlockPSFFluid;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.BlockMultiblockModule;
 import net.gegy1000.psf.server.init.PSFBlocks;
@@ -40,11 +39,6 @@ public final class PSFClient {
     }
 
     private static void registerStateMappers() { // fixme cleanup
-        //noinspection ConstantConditions
-        ModelLoader.setCustomStateMapper(PSFBlocks.CONTROLLER_SIMPLE,
-            new StateMap.Builder().ignore(BlockController.TYPE).build()
-        );
-
         for (val block : PSFBlocks.allBlocks()) {
             if (block == PSFBlocks.CONTROLLER_SIMPLE) continue;
 
@@ -75,7 +69,6 @@ public final class PSFClient {
         for (val material : CraftingMaterial.values()) {
             val path = new ResourceLocation(MODID, material.getName());
             val model = new ModelResourceLocation(path, "inventory");
-            //noinspection ConstantConditions
             ModelLoader.setCustomModelResourceLocation(PSFItems.CRAFTING_MATERIAL, material.ordinal(), model);
         }
 

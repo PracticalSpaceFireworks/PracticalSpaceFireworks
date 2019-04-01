@@ -16,12 +16,15 @@
 
 package net.gegy1000.psf.server.block.module;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.material.Material;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BlockLaser extends BlockMultiblockModule {
-    public BlockLaser(@Nonnull String module) {
+    public BlockLaser(String module) {
         super(Material.IRON, module);
     }
 

@@ -2,6 +2,7 @@ package net.gegy1000.psf.server.block.module;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
@@ -17,35 +18,34 @@ import java.util.function.Function;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockStrutFixed extends BlockStrutAbstract {
-    private static final ImmutableMap<EnumFacing, PropertyBool> SIDE_PROPS = Arrays.stream(EnumFacing.VALUES)
-            .collect(Maps.toImmutableEnumMap(Function.identity(), f -> PropertyBool.create(f.getName())));
+    private static final ImmutableMap<EnumFacing, PropertyBool> SIDE_PROPS = Arrays.stream(EnumFacing.values())
+        .collect(Maps.toImmutableEnumMap(Function.identity(), f -> PropertyBool.create(f.getName())));
 
     public BlockStrutFixed(String name) {
         super(name);
     }
 
     @Override
+    @Deprecated
     public boolean isFullCube(IBlockState state) {
         return true;
     }
 
     @Override
     protected BlockStateContainer createBlockState() {
-        BlockStateContainer.Builder builder = new BlockStateContainer.Builder(this);
-        for (PropertyBool prop : SIDE_PROPS.values()) {
-            builder.add(prop);
-        }
+        val builder = new BlockStateContainer.Builder(this);
+        SIDE_PROPS.values().forEach(builder::add);
         return builder.add(DIRECTION).build();
     }
 
     @Override
     @Deprecated
-    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        for (EnumFacing side : EnumFacing.VALUES) {
-            PropertyBool property = SIDE_PROPS.get(side);
-            BlockPos offset = pos.offset(side);
-            IBlockState target = world.getBlockState(offset);
-            state = state.withProperty(property, target.getBlock() != this);
+    public IBlockState getActualState(IBlockState state, IBlockAccess access, BlockPos pos) {
+        for (val entry : SIDE_PROPS.entrySet()) {
+            val property = entry.getValue();
+            val offset = pos.offset(entry.getKey());
+            val target = access.getBlockState(offset);
+            state = state.withProperty(property, this != target.getBlock());
         }
         return state;
     }

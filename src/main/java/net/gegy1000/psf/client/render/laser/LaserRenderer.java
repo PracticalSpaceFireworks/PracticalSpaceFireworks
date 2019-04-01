@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.longs.Long2IntArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.sound.PSFSounds;
+import net.gegy1000.psf.server.init.PSFSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;

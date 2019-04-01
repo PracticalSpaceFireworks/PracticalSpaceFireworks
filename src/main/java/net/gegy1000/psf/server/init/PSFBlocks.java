@@ -3,9 +3,8 @@ package net.gegy1000.psf.server.init;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
-import net.gegy1000.psf.server.block.BlockPSFFluid;
+import net.gegy1000.psf.server.block.fluid.BlockPSFFluid;
 import net.gegy1000.psf.server.block.controller.BlockController;
-import net.gegy1000.psf.server.block.controller.ControllerType;
 import net.gegy1000.psf.server.block.fueler.BlockFuelLoader;
 import net.gegy1000.psf.server.block.module.*;
 import net.gegy1000.psf.server.block.production.BlockAirCompressor;
@@ -85,7 +84,7 @@ public final class PSFBlocks {
         register(registry, "strut_cube", new BlockStrutFixed("strut_cube"));
         register(registry, "strut_slope", new BlockStrutOrientable.Slope("strut_slope"));
 
-        register(registry, "controller_simple", new BlockController(ControllerType.BASIC));
+        register(registry, "controller_simple", new BlockController());
         register(registry, "remote_control_system", new BlockRemoteControlSystem());
         register(registry, "payload_separator", new BlockPayloadSeparator());
 

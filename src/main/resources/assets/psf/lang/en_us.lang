@@ -42,7 +42,9 @@ tile.psf.kerosene_extractor.name=Kerosene Extractor
 item.psf.target_selector.name=Target Selector
 
 item.psf.mirror.name=Mirror
-item.psf.light_source.name=Light Source
+item.psf.light_filament.name=Light Filament
+
+message.psf.target_selector.activated=%s firing at [x:%s, y:%s, z:%s]
 
 # Fluids
 
@@ -68,3 +70,10 @@ tooltip.psf.waila.looking_at=Looking at: %s
 
 advancements.psf.strut_your_stuff.title=Strut Your Stuff
 advancements.psf.strut_your_stuff.desc=Craft a strut cube
+
+# Sounds
+
+subtitles.psf.payload_separator.connect=Payload separator connects
+subtitles.psf.payload_separator.disconnect=Payload separator disconnects
+subtitles.psf.entity.spacecraft.launch=Spacecraft launches
+subtitles.psf.laser.fire=Laser fires

@@ -1,8 +1,12 @@
 {
   "variants": {
-    "facing=north": { "model": "psf:fuel_loader" },
-    "facing=south": { "model": "psf:fuel_loader", "y": 180 },
-    "facing=west": { "model": "psf:fuel_loader", "y": 270 },
-    "facing=east": { "model": "psf:fuel_loader", "y": 90 }
+    "active=false,facing=north": { "model": "psf:fuel_loader" },
+    "active=false,facing=east": { "model": "psf:fuel_loader", "y": 90 },
+    "active=false,facing=south": { "model": "psf:fuel_loader", "y": 180 },
+    "active=false,facing=west": { "model": "psf:fuel_loader", "y": 270 },
+    "active=true,facing=north": { "model": "psf:fuel_loader" },
+    "active=true,facing=east": { "model": "psf:fuel_loader", "y": 90 },
+    "active=true,facing=south": { "model": "psf:fuel_loader", "y": 180 },
+    "active=true,facing=west": { "model": "psf:fuel_loader", "y": 270 }
   }
 }

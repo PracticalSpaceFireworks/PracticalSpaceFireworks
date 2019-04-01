@@ -1,5 +1,6 @@
 package net.gegy1000.psf.server.block.module;
 
+import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.server.block.PSFSoundType;
 import net.gegy1000.psf.server.util.AxisDirectionalBB;
@@ -18,48 +19,48 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockSmallSolarPanel extends BlockModule {
-    private static final AxisDirectionalBB BOUNDING_BOX = AxisDirectionalBB.of(0.0, 0.0, 0.75, 1.0, 1.0, 1.0);
+    private static final AxisDirectionalBB AABB = new AxisDirectionalBB(0.0, 0.0, 0.75, 1.0, 1.0, 1.0);
 
     public BlockSmallSolarPanel() {
         super(Material.GLASS, MapColor.LAPIS, "solar_panel_small");
-        this.setSoundType(PSFSoundType.SOLAR_PANEL);
+        setSoundType(PSFSoundType.SMALL_DEVICE);
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        return BOUNDING_BOX.withFacing(state.getValue(DIRECTION));
-    }
-
-    @Override
-    public MapColor getMapColor(IBlockState state, IBlockAccess world, BlockPos pos) {
+    @Deprecated
+    public MapColor getMapColor(IBlockState state, IBlockAccess access, BlockPos pos) {
         switch (state.getValue(DIRECTION)) {
-            case DOWN:
-                return MapColor.SILVER;
-            case UP:
-                return MapColor.LAPIS;
-            default:
-                return MapColor.AIR;
+            case DOWN: return MapColor.BLACK;
+            case UP: return MapColor.LAPIS;
+            default: return MapColor.AIR;
         }
     }
 
     @Override
-    protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, EnumFacing side) {
-        BlockPos offset = pos.offset(side.getOpposite());
-        return BlockFaceShape.SOLID == world.getBlockState(offset).getBlockFaceShape(world, offset, side);
+    @Deprecated
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess access, BlockPos pos) {
+        return AABB.withDirection(state.getValue(DIRECTION));
     }
 
     @Override
-    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
-        EnumFacing facing = state.getValue(DIRECTION);
+    @Deprecated
+    public BlockFaceShape getBlockFaceShape(IBlockAccess access, IBlockState state, BlockPos pos, EnumFacing side) {
+        return side == state.getValue(DIRECTION).getOpposite() ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+    }
+
+    @Override
+    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess access, BlockPos pos, EnumFacing side) {
+        val facing = state.getValue(DIRECTION);
         if (side != facing.getOpposite()) {
-            IBlockState other = world.getBlockState(pos.offset(side));
+            val other = access.getBlockState(pos.offset(side));
             return this == other.getBlock() && facing.getAxis() == other.getValue(DIRECTION).getAxis();
         }
         return true;
     }
 
     @Override
-    public BlockFaceShape getBlockFaceShape(IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing face) {
-        return face == state.getValue(DIRECTION).getOpposite() ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+    protected boolean canAttachOnSide(World world, BlockPos pos, IBlockState state, IBlockState on, EnumFacing side) {
+        val offset = pos.offset(side.getOpposite());
+        return BlockFaceShape.SOLID == world.getBlockState(offset).getBlockFaceShape(world, offset, side);
     }
 }

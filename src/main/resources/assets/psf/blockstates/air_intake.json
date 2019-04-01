@@ -1,10 +1,16 @@
 {
   "variants": {
-    "facing=down": { "model": "psf:air_intake", "x": 180 },
-    "facing=up": { "model": "psf:air_intake" },
-    "facing=north": { "model": "psf:air_intake", "x": 90 },
-    "facing=south": { "model": "psf:air_intake", "x": 90, "y": 180 },
-    "facing=east": { "model": "psf:air_intake", "x": 90, "y": 90 },
-    "facing=west": { "model": "psf:air_intake", "x": 90, "y": 270 }
+    "active=false,facing=down": { "model": "psf:air_intake", "x": 90 },
+    "active=false,facing=up": { "model": "psf:air_intake", "x": 270 },
+    "active=false,facing=north": { "model": "psf:air_intake" },
+    "active=false,facing=east": { "model": "psf:air_intake", "y": 90 },
+    "active=false,facing=south": { "model": "psf:air_intake", "y": 180 },
+    "active=false,facing=west": { "model": "psf:air_intake", "y": 270 },
+    "active=true,facing=down": { "model": "psf:air_intake", "x": 90 },
+    "active=true,facing=up": { "model": "psf:air_intake", "x": 270 },
+    "active=true,facing=north": { "model": "psf:air_intake" },
+    "active=true,facing=east": { "model": "psf:air_intake", "y": 90 },
+    "active=true,facing=south": { "model": "psf:air_intake", "y": 180 },
+    "active=true,facing=west": { "model": "psf:air_intake", "y": 270 }
   }
 }

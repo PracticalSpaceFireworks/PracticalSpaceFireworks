@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.var;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.server.util.AxisDirectionalBB;
 import net.minecraft.block.properties.PropertyEnum;
@@ -15,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.Rotation;
@@ -28,7 +31,11 @@ import net.minecraftforge.common.ForgeModContainer;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 // todo matrix based computation for collision boxes? optimize them, pls
 // todo placement orientation (getStateForPlacement)
@@ -37,14 +44,75 @@ import java.util.*;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public abstract class BlockStrutOrientable extends BlockStrutAbstract {
-    private static final PropertyEnum<Orientation> ORIENTATION = PropertyEnum.create("orientation", Orientation.class, Orientation.ALL);
+    private static final PropertyEnum<Orientation> ORIENTATION =
+        PropertyEnum.create("orientation", Orientation.class, Orientation.ALL);
 
     public BlockStrutOrientable(String name) {
         super(name);
         setDefaultState(getDefaultState().withProperty(ORIENTATION, Orientation.SOUTH_WEST));
     }
 
+    @Override
+    @Deprecated
+    public BlockFaceShape getBlockFaceShape(IBlockAccess access, IBlockState state, BlockPos pos, EnumFacing side) {
+        return state.getValue(ORIENTATION).contains(side) ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+    }
+
+    @Override
+    @Deprecated
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> boxes, @Nullable Entity entityIn, boolean isActualState) {
+        for (val box : getCollisionBoxes(state.getValue(ORIENTATION), ForgeModContainer.fullBoundingBoxLadders)) {
+            addCollisionBoxToList(pos, entityBox, boxes, box);
+        }
+    }
+
     protected abstract ImmutableSet<AxisAlignedBB> getCollisionBoxes(Orientation orientation, boolean full);
+
+    @Override
+    @Nullable
+    @Deprecated
+    public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {
+        val hits = new HashSet<RayTraceResult>();
+        val a = start.subtract(pos.getX(), pos.getY(), pos.getZ());
+        val b = end.subtract(pos.getX(), pos.getY(), pos.getZ());
+        for (val box : getCollisionBoxes(state.getValue(ORIENTATION), true)) {
+            @Nullable val hit = box.calculateIntercept(a, b);
+            if (hit != null) {
+                val vec = hit.hitVec.add(pos.getX(), pos.getY(), pos.getZ());
+                hits.add(new RayTraceResult(vec, hit.sideHit, pos));
+            }
+        }
+        RayTraceResult nearest = null;
+        var sqrDis = 0.0;
+        for (val hit : hits) {
+            val newSqrDis = hit.hitVec.squareDistanceTo(end);
+            if (newSqrDis > sqrDis) {
+                nearest = hit;
+                sqrDis = newSqrDis;
+            }
+        }
+        return nearest;
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, DIRECTION, ORIENTATION);
+    }
+
+    @Override // fixme
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+        if (side.getAxis().isVertical()) {
+            return getDefaultState().withProperty(ORIENTATION, Orientation.from(placer.getHorizontalFacing(), side.getOpposite()));
+        }
+        val offset = side.getAxis() == Axis.X ? hitZ : hitX;
+        EnumFacing secondary;
+        if (side.getAxisDirection() == AxisDirection.NEGATIVE) {
+            secondary = (side.getAxis() == Axis.Z ? offset < 0.5 : offset >= 0.5) ? side.rotateY() : side.rotateYCCW();
+        } else {
+            secondary = (side.getAxis() == Axis.Z ? offset >= 0.5 : offset < 0.5) ? side.rotateY() : side.rotateYCCW();
+        }
+        return getDefaultState().withProperty(ORIENTATION, Orientation.from(side.getOpposite(), secondary.getOpposite()));
+    }
 
     @Override
     public int getMetaFromState(IBlockState state) {
@@ -52,70 +120,9 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
     }
 
     @Override
-    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> boxes, @Nullable Entity entityIn, boolean isActualState) {
-        for (AxisAlignedBB box : getCollisionBoxes(state.getValue(ORIENTATION), ForgeModContainer.fullBoundingBoxLadders)) {
-            addCollisionBoxToList(pos, entityBox, boxes, box);
-        }
-    }
-
-    @Override
     @Deprecated
-    @Nullable
-    public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos position, Vec3d start, Vec3d end) {
-        int x = position.getX();
-        int y = position.getY();
-        int z = position.getZ();
-        Set<RayTraceResult> hits = new HashSet<>();
-        Vec3d a = start.subtract(x, y, z);
-        Vec3d b = end.subtract(x, y, z);
-        for (AxisAlignedBB box : getCollisionBoxes(state.getValue(ORIENTATION), true)) {
-            @Nullable RayTraceResult hit = box.calculateIntercept(a, b);
-            if (hit != null) {
-                Vec3d vec = hit.hitVec.add(x, y, z);
-                hits.add(new RayTraceResult(vec, hit.sideHit, position));
-            }
-        }
-        RayTraceResult ret = null;
-        double sqrDis = 0.0D;
-        for (RayTraceResult hit : hits) {
-            double newSqrDis = hit.hitVec.squareDistanceTo(end);
-            if (newSqrDis > sqrDis) {
-                ret = hit;
-                sqrDis = newSqrDis;
-            }
-        }
-        return ret;
-    }
-
-    @Override
-    public BlockFaceShape getBlockFaceShape(IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing side) {
-        return state.getValue(ORIENTATION).contains(side) ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
-    }
-
-    @Override
     public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(ORIENTATION, Orientation.valueOf(meta));
-    }
-
-    @Override // fixme
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
-        if (side.getAxis().isVertical()) {
-            return getDefaultState().withProperty(ORIENTATION, Orientation.from(placer.getHorizontalFacing(), side.getOpposite()));
-        } else {
-            float offset = side.getAxis() == Axis.X ? hitZ : hitX;
-            EnumFacing secondary;
-            if (side.getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE) {
-                secondary = (side.getAxis() == Axis.Z ? offset < 0.5 : offset >= 0.5) ? side.rotateY() : side.rotateYCCW();
-            } else {
-                secondary = (side.getAxis() == Axis.Z ? offset >= 0.5 : offset < 0.5) ? side.rotateY() : side.rotateYCCW();
-            }
-            return getDefaultState().withProperty(ORIENTATION, Orientation.from(side.getOpposite(), secondary.getOpposite()));
-        }
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, DIRECTION, ORIENTATION);
     }
 
     @Getter
@@ -135,7 +142,9 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
         EAST_UP(EnumFacing.EAST, EnumFacing.UP, Rotation.CLOCKWISE_180);
 
         private static final Orientation[] VALUES = values();
-        private static final ImmutableSet<Orientation> ALL = Sets.immutableEnumSet(EnumSet.allOf(Orientation.class));
+
+        private static final ImmutableSet<Orientation> ALL =
+            Sets.immutableEnumSet(EnumSet.allOf(Orientation.class));
 
         private final EnumFacing primary;
         private final EnumFacing secondary;
@@ -146,7 +155,7 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
         }
 
         public static Orientation from(EnumFacing primary, EnumFacing secondary) {
-            for (Orientation orientation : ALL) {
+            for (val orientation : ALL) {
                 if (primary == orientation.getPrimary() && secondary == orientation.getSecondary()) {
                     return orientation;
                 }
@@ -172,26 +181,30 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
         private static final Map<Orientation, ImmutableSet<AxisAlignedBB>> INSET;
 
         static {
-            ImmutableMap.Builder<Orientation, ImmutableSet<AxisAlignedBB>> full = new ImmutableMap.Builder<>();
-            ImmutableMap.Builder<Orientation, ImmutableSet<AxisAlignedBB>> inset = new ImmutableMap.Builder<>();
+            val full = ImmutableMap.<Orientation, ImmutableSet<AxisAlignedBB>>builder();
+            val inset = ImmutableMap.<Orientation, ImmutableSet<AxisAlignedBB>>builder();
 
-            for (Orientation orientation : Orientation.ALL) {
-                ImmutableSet.Builder<AxisAlignedBB> boxes = new ImmutableSet.Builder<>();
-                for (int i = 0; i <= 63; ++i) {
+            for (val orientation : Orientation.ALL) {
+                val boxes = ImmutableSet.<AxisAlignedBB>builder();
+                for (var i = 0; i <= 63; ++i) {
                     if (i < 4) continue;
                     if (i > 59) continue;
-                    AxisAlignedBB rot = rotateBox(orientation, new AxisAlignedBB((i / 4.0D) / 16.0D, 0.0625, (i / 4.0D) / 16.0D, (i / 4.0D + 0.25D) / 16.0D, 0.9375, 0.9375));
-                    double minY = orientation.getSecondary() != EnumFacing.UP ? 0.0 : rot.minY;
-                    double maxY = orientation.getSecondary() != EnumFacing.DOWN ? 1.0 : rot.maxY;
+                    val rot = rotateBox(orientation, new AxisAlignedBB(
+                        (i / 4.0) / 16.0, 0.0625, (i / 4.0) / 16.0, (i / 4.0 + 0.25) / 16.0, 0.9375, 0.9375)
+                    );
+                    val minY = orientation.getSecondary() != EnumFacing.UP ? 0.0 : rot.minY;
+                    val maxY = orientation.getSecondary() != EnumFacing.DOWN ? 1.0 : rot.maxY;
                     boxes.add(new AxisAlignedBB(rot.minX, minY, rot.minZ, rot.maxX, maxY, rot.maxZ));
                 }
                 inset.put(orientation, boxes.build());
             }
 
-            for (Orientation orientation : Orientation.ALL) {
-                ImmutableSet.Builder<AxisAlignedBB> boxes = new ImmutableSet.Builder<>();
+            for (val orientation : Orientation.ALL) {
+                val boxes = ImmutableSet.<AxisAlignedBB>builder();
                 for (int i = 0; i <= 63; ++i) {
-                    boxes.add(rotateBox(orientation, new AxisAlignedBB((i / 4.0D) / 16.0D, 0.0, (i / 4.0D) / 16.0D, (i / 4.0D + 0.25D) / 16.0D, 1.0, 1.0)));
+                    boxes.add(rotateBox(orientation, new AxisAlignedBB(
+                        (i / 4.0) / 16.0, 0.0, (i / 4.0) / 16.0, (i / 4.0 + 0.25) / 16.0, 1.0, 1.0))
+                    );
                 }
                 full.put(orientation, boxes.build());
             }
@@ -207,10 +220,10 @@ public abstract class BlockStrutOrientable extends BlockStrutAbstract {
         // fixme
         private static AxisAlignedBB rotateBox(Orientation orientation, AxisAlignedBB box) {
             if (orientation.getSecondary().getAxis().isVertical()) {
-                box = AxisDirectionalBB.copyOf(box).withFacing(orientation.getSecondary().getOpposite());
+                box = new AxisDirectionalBB(box).withDirection(orientation.getSecondary().getOpposite());
             }
-            return AxisDirectionalBB.copyOf(box).withFacing(orientation.getRotation().rotate(
-                    orientation.getSecondary() == EnumFacing.UP ? EnumFacing.SOUTH : EnumFacing.NORTH
+            return new AxisDirectionalBB(box).withDirection(orientation.getRotation().rotate(
+                orientation.getSecondary() == EnumFacing.UP ? EnumFacing.SOUTH : EnumFacing.NORTH
             ));
         }
 

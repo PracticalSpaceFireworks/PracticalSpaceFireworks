@@ -2,8 +2,7 @@
   "__comment": "Copyright © InsomniaKitten 2018",
   "parent": "minecraft:block/block",
   "textures": {
-    "bottom": "psf:blocks/fuel_tank_bottom",
-    "top": "psf:blocks/fuel_tank_top",
+    "cap": "psf:blocks/fuel_tank_cap",
     "side": "psf:blocks/fuel_tank_side_both"
   },
   "elements": [
@@ -11,8 +10,8 @@
       "from": [ 0, 0, 0 ],
       "to": [ 16, 13, 16 ],
       "faces": {
-        "down": { "texture": "#bottom", "cullface": "down" },
-        "up": { "texture": "#top" },
+        "down": { "texture": "#cap", "cullface": "down" },
+        "up": { "texture": "#cap" },
         "north": { "texture": "#side", "cullface": "north" },
         "south": { "texture": "#side", "cullface": "south" },
         "west": { "texture": "#side", "cullface": "west" },

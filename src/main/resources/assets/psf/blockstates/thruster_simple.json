@@ -1,65 +1,10 @@
 {
-  "forge_marker": 1,
   "variants": {
-    "facing=down": {
-      "model": "forge:multi-layer",
-      "custom": {
-        "base": "psf:thruster_simple#center_solid",
-        "Solid": "psf:thruster_simple#center_solid",
-        "Cutout": "psf:thruster_simple#center_cutout"
-      }
-    },
-    "facing=up": {
-      "model": "forge:multi-layer",
-      "custom": {
-        "base": "psf:thruster_simple#center_solid",
-        "Solid": "psf:thruster_simple#center_solid",
-        "Cutout": "psf:thruster_simple#center_cutout"
-      }
-    },
-    "facing=north": {
-      "model": "forge:multi-layer",
-      "custom": {
-        "base": "psf:thruster_simple#wall_solid",
-        "Solid": "psf:thruster_simple#wall_solid",
-        "Cutout": "psf:thruster_simple#wall_cutout"
-      }
-    },
-    "facing=south": {
-      "model": "forge:multi-layer", "y": 180,
-      "custom": {
-        "base": "psf:thruster_simple#wall_solid",
-        "Solid": "psf:thruster_simple#wall_solid",
-        "Cutout": "psf:thruster_simple#wall_cutout"
-      }
-    },
-    "facing=west": {
-      "model": "forge:multi-layer", "y": 270,
-      "custom": {
-        "base": "psf:thruster_simple#wall_solid",
-        "Solid": "psf:thruster_simple#wall_solid",
-        "Cutout": "psf:thruster_simple#wall_cutout"
-      }
-    },
-    "facing=east": {
-      "model": "forge:multi-layer", "y": 90,
-      "custom": {
-        "base": "psf:thruster_simple#wall_solid",
-        "Solid": "psf:thruster_simple#wall_solid",
-        "Cutout": "psf:thruster_simple#wall_cutout"
-      }
-    },
-    "center_solid": {
-      "model": "psf:thruster_simple_center"
-    },
-    "center_cutout": {
-      "model": "psf:thruster_simple_center_flame"
-    },
-    "wall_solid": {
-      "model": "psf:thruster_simple_wall"
-    },
-    "wall_cutout": {
-      "model": "psf:thruster_simple_wall_flame"
-    }
+    "facing=down": { "model": "psf:thruster_simple" },
+    "facing=up": { "model": "psf:thruster_simple" },
+    "facing=north": { "model": "psf:thruster_simple_wall" },
+    "facing=east": { "model": "psf:thruster_simple_wall", "y": 90 },
+    "facing=south": { "model": "psf:thruster_simple_wall", "y": 180 },
+    "facing=west": { "model": "psf:thruster_simple_wall", "y": 270 }
   }
 }

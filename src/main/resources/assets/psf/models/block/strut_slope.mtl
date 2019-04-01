@@ -4,14 +4,8 @@ Kd 1.0 1.0 1.0
 d 1.0
 map_Kd psf:blocks/strut_slope
 
-newmtl side
+newmtl cube
 Ka 1.0 1.0 1.0
 Kd 1.0 1.0 1.0
 d 1.0
-map_Kd psf:blocks/strut_slope_side
-
-newmtl cap
-Ka 1.0 1.0 1.0
-Kd 1.0 1.0 1.0
-d 1.0
-map_Kd psf:blocks/strut_slope_cap
+map_Kd psf:blocks/strut_cube

@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -66,7 +66,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     @Nonnull
     private EnumFacing getFacing() {
         if (facing == null) {
-            facing = world.getBlockState(pos).getValue(BlockDirectional.FACING);
+            facing = world.getBlockState(pos).getValue(BlockHorizontal.FACING);
         }
         return facing;
     }

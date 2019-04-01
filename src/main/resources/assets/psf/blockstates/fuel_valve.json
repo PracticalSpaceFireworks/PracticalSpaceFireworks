@@ -1,5 +1,36 @@
 {
-  "variants": {
-    "normal": { "model": "psf:fuel_valve" }
-  }
+  "multipart": [
+    {
+      "when": { "active": false },
+      "apply": { "model": "psf:fuel_valve" }
+    },
+    {
+      "when": { "active": true },
+      "apply": { "model": "psf:fuel_valve_active" }
+    },
+    {
+      "when": { "down": true },
+      "apply": { "model": "psf:fuel_valve_side", "x": 90, "uvlock": true }
+    },
+    {
+      "when": { "up": true },
+      "apply": { "model": "psf:fuel_valve_side", "x": 270, "uvlock": true }
+    },
+    {
+      "when": { "north": true },
+      "apply": { "model": "psf:fuel_valve_side" }
+    },
+    {
+      "when": { "east": true },
+      "apply": { "model": "psf:fuel_valve_side", "y": 90, "uvlock": true }
+    },
+    {
+      "when": { "south": true },
+      "apply": { "model": "psf:fuel_valve_side", "y": 180, "uvlock": true }
+    },
+    {
+      "when": { "west": true },
+      "apply": { "model": "psf:fuel_valve_side", "y": 270, "uvlock": true }
+    }
+  ]
 }

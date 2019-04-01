@@ -1,6 +1,78 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "__comment": "Copyright © InsomniaKitten 2019",
+  "parent": "minecraft:block/block",
   "textures": {
-    "all": "minecraft:blocks/debug"
+    "particle": "psf:blocks/air_compressor_front",
+    "top": "psf:blocks/air_compressor_top",
+    "bottom": "psf:blocks/air_compressor_bottom",
+    "front": "psf:blocks/air_compressor_front",
+    "back": "psf:blocks/air_compressor_back",
+    "left": "psf:blocks/air_compressor_left",
+    "right": "psf:blocks/air_compressor_right"
+  },
+  "elements": [
+    {
+      "from": [ 5, 9, 6 ],
+      "to": [ 14, 13, 10 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#left" },
+        "east": { "texture": "#left" }
+      }
+    },
+    {
+      "from": [ 2, 11, 7 ],
+      "to": [ 5, 13, 9 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" }
+      }
+    },
+    {
+      "from": [ 2, 8, 6 ],
+      "to": [ 4, 11, 10 ],
+      "faces": {
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#right" }
+      }
+    },
+    {
+      "from": [ 7, 8, 7 ],
+      "to": [ 12, 9, 9 ],
+      "faces": {
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left" }
+      }
+    },
+    {
+      "from": [ 0, 0, 4 ],
+      "to": [ 16, 8, 12 ],
+      "faces": {
+        "down": { "texture": "#bottom", "cullface": "down" },
+        "up": { "texture": "#bottom" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left", "cullface": "east" }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [ 30, 225, 0 ],
+      "translation": [ 0, 1, 0 ],
+      "scale": [ 0.625, 0.625, 0.625 ]
+    }
   }
 }

@@ -1,19 +1,10 @@
 package net.gegy1000.psf;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static net.gegy1000.psf.PracticalSpaceFireworks.DEPENDENCIES;
-import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
-import static net.gegy1000.psf.PracticalSpaceFireworks.NAME;
-import static net.gegy1000.psf.PracticalSpaceFireworks.VERSION;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import lombok.Getter;
+import lombok.val;
+import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.api.PSFAPIProps;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.minecraft.creativetab.CreativeTabs;
@@ -27,17 +18,29 @@ import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = "[1.12]")
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static net.gegy1000.psf.PracticalSpaceFireworks.DEPENDENCIES;
+import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
+import static net.gegy1000.psf.PracticalSpaceFireworks.NAME;
+import static net.gegy1000.psf.PracticalSpaceFireworks.VERSION;
+
+@MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, acceptedMinecraftVersions = "[1.12]")
 public class PracticalSpaceFireworks {
-    @Nonnull
     public static final String MODID = PSFAPIProps.MODID;
     public static final String VERSION = "0.2.0";
     public static final String NAME = "Practical Space Fireworks";
@@ -48,62 +51,59 @@ public class PracticalSpaceFireworks {
 
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
-    private static final ModFixs DATA_FIXER = FMLCommonHandler.instance().getDataFixer().init(MODID, 1);
-
-    @SidedProxy(clientSide = CLIENT_PROXY, serverSide = SERVER_PROXY)
-    public static ServerProxy PROXY;
-    
-    @Instance
-    public static PracticalSpaceFireworks instance;
-
-    private static boolean deobfuscatedEnvironment;
-
-    @Nonnull
     public static final CreativeTabs TAB = new CreativeTabs(MODID) {
         @Override
-        public @Nonnull ItemStack createIcon() {
-            //noinspection ConstantConditions
+        public ItemStack createIcon() {
             return new ItemStack(PSFBlocks.STRUT_CUBE);
         }
     };
+
+    private static final ModFixs DATA_FIXER =
+        FMLCommonHandler.instance().getDataFixer().init(MODID, 1);
+
+    @SidedProxy(clientSide = CLIENT_PROXY, serverSide = SERVER_PROXY)
+    public static ServerProxy PROXY; // todo encapsulate
+
+    @Getter
+    @Instance
+    private static PracticalSpaceFireworks instance;
+
+    @Getter
+    private static boolean deobfuscatedEnvironment;
 
     static {
         FluidRegistry.enableUniversalBucket();
     }
 
-    public static boolean isDeobfuscatedEnvironment() {
-        return deobfuscatedEnvironment;
-    }
-    
-    public static ResourceLocation namespace(final String path) {
+    public static ResourceLocation namespace(String path) {
         checkArgument(!isNullOrEmpty(path));
         return new ResourceLocation(MODID, path);
     }
 
-    public static String namespace(final String path, final char delimiter) {
+    public static String namespace(String path, char delimiter) {
         checkArgument(!isNullOrEmpty(path));
         return MODID + delimiter + path;
     }
 
-    @Mod.EventHandler
-    public static void onPreInit(FMLPreInitializationEvent event) {
+    @EventHandler
+    static void onPreInitialization(FMLPreInitializationEvent event) {
+        deobfuscatedEnvironment = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
         initDataFixers();
         PROXY.onPreInit();
-        deobfuscatedEnvironment = (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
     }
 
-    @Mod.EventHandler
-    public static void onInit(FMLInitializationEvent event) {
+    @EventHandler 
+    static void onInitialization(FMLInitializationEvent event) {
         PROXY.onInit();
     }
 
-    @Mod.EventHandler
-    public static void onPostInit(FMLPostInitializationEvent event) {
+    @EventHandler 
+    static void onPostInitialization(FMLPostInitializationEvent event) {
         PROXY.onPostInit();
     }
-    
-    @Mod.EventHandler
-    public static void onServerStopped(FMLServerStoppedEvent event) {
+
+    @EventHandler
+    static void onServerStopped(FMLServerStoppedEvent event) {
         PROXY.getSatellites().flush();
     }
 
@@ -115,9 +115,8 @@ public class PracticalSpaceFireworks {
             }
 
             @Override
-            @Nonnull
-            public NBTTagCompound fixTagCompound(@Nonnull NBTTagCompound compound) {
-                String id = compound.getString("id");
+            public NBTTagCompound fixTagCompound(NBTTagCompound compound) {
+                val id = compound.getString("id");
                 if (id.startsWith(MODID + '.')) {
                     compound.setString("id", id.replace(MODID + '.', MODID + ':'));
                 } else if (id.equals(MODID + ":controller.simple")) {

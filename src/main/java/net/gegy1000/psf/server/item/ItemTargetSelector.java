@@ -1,18 +1,12 @@
 package net.gegy1000.psf.server.item;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-
+import lombok.val;
+import lombok.var;
+import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.api.module.ILaser;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.api.RegisterItemModel;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,14 +14,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Comparator;
+import java.util.Optional;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTargetSelector extends Item implements RegisterItemModel {
+    private static final double REACH = 500.0;
 
     public ItemTargetSelector() {
         super();
@@ -35,44 +32,35 @@ public class ItemTargetSelector extends Item implements RegisterItemModel {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
-        tooltip.add(TextFormatting.DARK_GRAY.toString() + TextFormatting.ITALIC + "I heard you liked dev textures...");
+    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+        if (!world.isRemote) {
+            val start = player.getPositionEyes(1.0F);
+            val look = player.getLook(1.0F);
+            val end = start.add(look.x * REACH, look.y * REACH, look.z * REACH);
+            Optional.ofNullable(world.rayTraceBlocks(start, end)).map(RayTraceResult::getBlockPos).ifPresent(pos ->
+                PracticalSpaceFireworks.PROXY.getSatellites().getAll().stream()
+                    .filter(ISatellite::isOrbiting)
+                    .filter(s -> s.getWorld() == world)
+                    .filter(s -> !s.getModuleCaps(ModuleCapabilities.SPACE_LASER).isEmpty())
+                    .min(Comparator.comparingDouble(s -> s.getPosition().distanceSq(pos))).ifPresent(s -> {
+                    var activated = false;
+                    for (val laser : s.getModuleCaps(ModuleCapabilities.SPACE_LASER)) {
+                        activated |= laser.activate(s, pos);
+                    }
+                    if (activated) {
+                        sendActivationMessage(player, s, pos);
+                    }
+                }));
+        }
+        return super.onItemRightClick(world, player, hand);
     }
 
-    @Override
-    public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World worldIn, @Nonnull EntityPlayer playerIn, @Nonnull EnumHand handIn) {
-        if (!worldIn.isRemote) {
-            Vec3d headVec = playerIn.getPositionEyes(1);
-            Vec3d start = headVec;
-            Vec3d lookVec = playerIn.getLook(1);
-            double reach = 500;
-            headVec = headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
-            RayTraceResult mop = worldIn.rayTraceBlocks(start, headVec);
-            if (mop != null) {
-                playerIn.swingArm(handIn);
-                BlockPos p = mop.getBlockPos();
-
-                ISatellite closest = PracticalSpaceFireworks.PROXY.getSatellites().getAll().stream()
-                        .filter(ISatellite::isOrbiting)
-                        .filter(s -> s.getWorld() == worldIn)
-                        .filter(s -> !s.getModuleCaps(ModuleCapabilities.SPACE_LASER).isEmpty())
-                        .min(Comparator.comparingDouble(s -> s.getPosition().distanceSq(p)))
-                    .orElse(null);
-
-                if (closest != null) {
-                    boolean activated = false;
-                    Collection<ILaser> moduleCaps = closest.getModuleCaps(ModuleCapabilities.SPACE_LASER);
-                    for (ILaser laser : moduleCaps) {
-                        activated |= laser.activate(closest, p);
-                    }
-
-                    if (activated) {
-                        playerIn.sendStatusMessage(new TextComponentString(closest.getName() + " firing at " + p), true);
-                    }
-                }
-            }
-        }
-        return super.onItemRightClick(worldIn, playerIn, handIn);
+    private void sendActivationMessage(EntityPlayer player, ISatellite satellite, BlockPos target) {
+        val name = satellite.getName();
+        val x = target.getX();
+        val y = target.getY();
+        val z = target.getZ();
+        val key = "message.psf.target_selector.activated";
+        player.sendStatusMessage(new TextComponentTranslation(key, name, x, y, z), true);
     }
 }

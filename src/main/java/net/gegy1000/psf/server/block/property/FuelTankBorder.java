@@ -43,6 +43,15 @@ public enum FuelTankBorder implements IStringSerializable {
         return VALUES[ordinal % VALUES.length];
     }
 
+    public static FuelTankBorder forDirection(EnumFacing dir) {
+        for (val border : CARDINALS) {
+            if (dir == border.primary) {
+                return border;
+            }
+        }
+        throw new Error(String.valueOf(dir));
+    }
+
     @Nonnull
     public final FuelTankBorder primary() {
         switch (this) {

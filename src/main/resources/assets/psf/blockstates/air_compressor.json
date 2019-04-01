@@ -1,5 +1,12 @@
 {
   "variants": {
-    "normal": { "model": "psf:air_compressor" }
+    "active=false,facing=north": { "model": "psf:air_compressor" },
+    "active=false,facing=east": { "model": "psf:air_compressor", "y": 90 },
+    "active=false,facing=south": { "model": "psf:air_compressor", "y": 180 },
+    "active=false,facing=west": { "model": "psf:air_compressor", "y": 270 },
+    "active=true,facing=north": { "model": "psf:air_compressor" },
+    "active=true,facing=east": { "model": "psf:air_compressor", "y": 90 },
+    "active=true,facing=south": { "model": "psf:air_compressor", "y": 180 },
+    "active=true,facing=west": { "model": "psf:air_compressor", "y": 270 }
   }
 }

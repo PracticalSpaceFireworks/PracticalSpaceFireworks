@@ -1,11 +1,11 @@
 {
   "__comment": "Copyright © InsomniaKitten 2018",
   "textures": {
-    "particle": "psf:blocks/thruster_simple_center_side",
+    "particle": "psf:blocks/thruster_simple_side",
     "bottom": "psf:blocks/thruster_simple_wall_bottom",
     "top": "psf:blocks/thruster_simple_wall_top",
-    "front": "psf:blocks/thruster_simple_center_side",
-    "back": "psf:blocks/thruster_simple_center_side",
+    "front": "psf:blocks/thruster_simple_side",
+    "back": "psf:blocks/thruster_simple_side",
     "west": "psf:blocks/thruster_simple_wall_west",
     "east": "psf:blocks/thruster_simple_wall_east"
   },
@@ -47,10 +47,10 @@
       "from": [ 1, 2, 5 ],
       "to": [ 13, 7, 7 ],
       "faces": {
-        "down": { "texture": "#bottom", "tintindex": 3 },
+        "down": { "texture": "#bottom" },
         "up": { "texture": "#top" },
         "north": { "texture": "#front" },
-        "south": { "texture": "#back", "tintindex": 2 },
+        "south": { "texture": "#back" },
         "west": { "texture": "#west" }
       }
     },
@@ -58,11 +58,11 @@
       "from": [ 13, 2, 5 ],
       "to": [ 15, 7, 16 ],
       "faces": {
-        "down": { "texture": "#bottom", "tintindex": 3 },
+        "down": { "texture": "#bottom" },
         "up": { "texture": "#top" },
         "north": { "texture": "#front" },
         "south": { "texture": "#back", "cullface": "south" },
-        "west": { "texture": "#west", "tintindex": 2 },
+        "west": { "texture": "#west" },
         "east": { "texture": "#east" }
       }
     },
@@ -70,53 +70,20 @@
       "from": [ 1, 2, 7 ],
       "to": [ 3, 7, 16 ],
       "faces": {
-        "down": { "texture": "#bottom", "tintindex": 3 },
+        "down": { "texture": "#bottom" },
         "up": { "texture": "#top" },
         "south": { "texture": "#back", "cullface": "south" },
         "west": { "texture": "#west" },
-        "east": { "texture": "#east", "tintindex": 2 }
+        "east": { "texture": "#east" }
       }
     },
     {
       "from": [ 3, 4, 7 ],
       "to": [ 13, 7, 16 ],
       "faces": {
-        "down": { "texture": "#bottom", "tintindex": 1 },
+        "down": { "texture": "#bottom" },
         "south": { "texture": "#back", "cullface": "south" }
       }
     }
-  ],
-  "ctm_version": 1,
-  "ctm_overrides": {
-    "1": {
-      "type": "normal",
-      "layer": "SOLID",
-      "extra": {
-        "light": {
-          "block": 15,
-          "sky": 0
-        }
-      }
-    },
-    "2": {
-      "type": "normal",
-      "layer": "SOLID",
-      "extra": {
-        "light": {
-          "block": 8,
-          "sky": 0
-        }
-      }
-    },
-    "3": {
-      "type": "normal",
-      "layer": "SOLID",
-      "extra": {
-        "light": {
-          "block": 6,
-          "sky": 0
-        }
-      }
-    }
-  }
+  ]
 }

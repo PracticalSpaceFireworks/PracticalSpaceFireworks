@@ -1,6 +1,120 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "__comment": "Copyright © InsomniaKitten 2019",
+  "parent": "minecraft:block/block",
   "textures": {
-    "all": "minecraft:blocks/debug"
+    "particle": "psf:blocks/air_separator_z",
+    "top": "psf:blocks/air_separator_top",
+    "bottom": "psf:blocks/air_separator_bottom",
+    "x": "psf:blocks/air_separator_x",
+    "z": "psf:blocks/air_separator_z"
+  },
+  "elements": [
+    {
+      "from": [ 4, 0, 4 ],
+      "to": [ 12, 12, 12 ],
+      "faces": {
+        "down": { "texture": "#bottom", "cullface": "down" },
+        "up": { "texture": "#top", "cullface": "up" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "west": { "texture": "#x" },
+        "east": { "texture": "#x" }
+      }
+    },
+    {
+      "from": [ 12, 1, 5 ],
+      "to": [ 14, 7, 11 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "east": { "texture": "#x" }
+      }
+    },
+    {
+      "from": [ 14, 2, 6 ],
+      "to": [ 15, 6, 10 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" }
+      }
+    },
+    {
+      "from": [ 15, 1, 5 ],
+      "to": [ 16, 7, 11 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "west": { "texture": "#x" },
+        "east": { "texture": "#x", "cullface": "east" }
+      }
+    },
+    {
+      "from": [ 2, 1, 5 ],
+      "to": [ 4, 7, 11 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "west": { "texture": "#x" }
+      }
+    },
+    {
+      "from": [ 1, 2, 6 ],
+      "to": [ 2, 6, 10 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" }
+      }
+    },
+    {
+      "from": [ 0, 1, 5 ],
+      "to": [ 1, 7, 11 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "west": { "texture": "#x", "cullface": "west" },
+        "east": { "texture": "#x" }
+      }
+    },
+    {
+      "from": [ 5, 12, 5 ],
+      "to": [ 11, 13, 11 ],
+      "faces": {
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "west": { "texture": "#x" },
+        "east": { "texture": "#x" }
+      }
+    },
+    {
+      "from": [ 6, 13, 6 ],
+      "to": [ 10, 14, 10 ],
+      "faces": {
+        "up": { "texture": "#top" },
+        "north": { "texture": "#z" },
+        "south": { "texture": "#z" },
+        "west": { "texture": "#x" },
+        "east": { "texture": "#x" }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [ 30, 225, 0 ],
+      "translation": [ 0, 1, 0 ],
+      "scale": [ 0.625, 0.625, 0.625 ]
+    }
   }
 }

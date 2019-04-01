@@ -1,10 +1,12 @@
 {
   "variants": {
-    "facing=down": { "model": "psf:kerosene_extractor", "x": 180 },
-    "facing=up": { "model": "psf:kerosene_extractor" },
-    "facing=north": { "model": "psf:kerosene_extractor", "x": 90 },
-    "facing=south": { "model": "psf:kerosene_extractor", "x": 90, "y": 180 },
-    "facing=east": { "model": "psf:kerosene_extractor", "x": 90, "y": 90 },
-    "facing=west": { "model": "psf:kerosene_extractor", "x": 90, "y": 270 }
+    "active=false,facing=north": { "model": "psf:kerosene_extractor" },
+    "active=false,facing=east": { "model": "psf:kerosene_extractor", "y": 90 },
+    "active=false,facing=south": { "model": "psf:kerosene_extractor", "y": 180 },
+    "active=false,facing=west": { "model": "psf:kerosene_extractor", "y": 270 },
+    "active=true,facing=north": { "model": "psf:kerosene_extractor" },
+    "active=true,facing=east": { "model": "psf:kerosene_extractor", "y": 90 },
+    "active=true,facing=south": { "model": "psf:kerosene_extractor", "y": 180 },
+    "active=true,facing=west": { "model": "psf:kerosene_extractor", "y": 270 }
   }
 }

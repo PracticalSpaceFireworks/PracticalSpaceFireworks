@@ -1,42 +1,78 @@
 {
+  "__comment": "Copyright © InsomniaKitten 2019",
   "parent": "minecraft:block/block",
   "textures": {
-    "particle": "psf:blocks/battery_simple"
+    "particle": "psf:blocks/battery_simple_top",
+    "top": "psf:blocks/battery_simple_top",
+    "bottom": "psf:blocks/battery_simple_bottom",
+    "front": "psf:blocks/battery_simple_end",
+    "back": "psf:blocks/battery_simple_end",
+    "left": "psf:blocks/battery_simple_left",
+    "right": "psf:blocks/batter_simple_right"
   },
   "elements": [
     {
-      "from": [ 4, 0, 2 ],
-      "to": [ 12, 1.5, 14 ],
+      "from": [ 2, 0, 1 ],
+      "to": [ 14, 2, 15 ],
       "faces": {
-        "down": { "uv": [ 0, 0, 8, 12 ], "texture": "#particle" },
-        "up": { "uv": [ 0, 0, 8, 12 ], "texture": "#particle" },
-        "north": { "uv": [ 0, 12.5, 8, 14 ], "texture": "#particle" },
-        "south": { "uv": [ 0, 12.5, 8, 14 ], "texture": "#particle" },
-        "west": { "uv": [ 0, 14.5, 12, 16 ], "texture": "#particle" },
-        "east": { "uv": [ 0, 14.5, 12, 16 ], "texture": "#particle" }
+        "down": { "texture": "#bottom", "cullface": "down" },
+        "up": { "texture": "#bottom" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left" }
       }
     },
     {
-      "from": [ 5, 1.5, 8.75 ],
-      "to": [ 11, 2.1, 12.75 ],
+      "from": [ 3, 2, 2 ],
+      "to": [ 7, 6, 12 ],
       "faces": {
-        "up": { "uv": [ 8, 0, 14, 4 ], "texture": "#particle" },
-        "north": { "uv": [ 8, 5, 14, 6 ], "texture": "#particle" },
-        "south": { "uv": [ 8, 5, 14, 6 ], "texture": "#particle" },
-        "west": { "uv": [ 8, 6, 12, 7 ], "texture": "#particle" },
-        "east": { "uv": [ 12, 6, 8, 7 ], "texture": "#particle" }
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left" }
       }
     },
     {
-      "from": [ 5, 1.5, 3.25 ],
-      "to": [ 11, 2.1, 7.25 ],
+      "from": [ 4, 3, 12 ],
+      "to": [ 6, 5, 13 ],
       "faces": {
-        "up": { "uv": [ 8, 0, 14, 4 ], "texture": "#particle" },
-        "north": { "uv": [ 8, 5, 14, 6 ], "texture": "#particle" },
-        "south": { "uv": [ 8, 5, 14, 6 ], "texture": "#particle" },
-        "west": { "uv": [ 8, 6, 12, 7 ], "texture": "#particle" },
-        "east": { "uv": [ 12, 6, 8, 7 ], "texture": "#particle" }
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left" }
+      }
+    },
+    {
+      "from": [ 9, 2, 2 ],
+      "to": [ 13, 6, 12 ],
+      "faces": {
+        "up": { "texture": "#top" },
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left" }
+      }
+    },
+    {
+      "from": [ 10, 3, 12 ],
+      "to": [ 12, 5, 13 ],
+      "faces": {
+        "down": { "texture": "#bottom" },
+        "up": { "texture": "#top" },
+        "south": { "texture": "#back" },
+        "west": { "texture": "#right" },
+        "east": { "texture": "#left" }
       }
     }
-  ]
+  ],
+  "display": {
+    "gui": {
+      "rotation": [ 30, 225, 0 ],
+      "translation": [ 0, 3, 0 ],
+      "scale": [ 0.625, 0.625, 0.625 ]
+    }
+  }
 }

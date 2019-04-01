@@ -1,6 +1,28 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "ctm_version": 1,
   "textures": {
-    "all": "psf:blocks/strut_cube"
+    "particle": "psf:blocks/strut_cube"
+  },
+  "elements": [
+    {
+      "from": [ 0, 0, 0 ],
+      "to": [ 16, 16, 16 ],
+      "faces": {
+        "down": { "texture": "#particle", "tintindex": 0, "cullface": "down" },
+        "up": { "texture": "#particle", "tintindex": 0, "cullface": "up" },
+        "north": { "texture": "#particle", "tintindex": 0, "cullface": "north" },
+        "south": { "texture": "#particle", "tintindex": 0, "cullface": "south" },
+        "west": { "texture": "#particle", "tintindex": 0, "cullface": "west" },
+        "east": { "texture": "#particle", "tintindex": 0, "cullface": "east" }
+      }
+    }
+  ],
+  "ctm_overrides": {
+    "0": {
+      "type": "CTM",
+      "layer": "CUTOUT",
+      "textures": [ "psf:blocks/strut_cube_ctm" ],
+      "extra": { "connect_inside": true }
+    }
   }
 }
