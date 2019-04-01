@@ -1,10 +1,15 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "transform": "forge:default-block",
+    "custom": { "flip-v": true }
+  },
   "variants": {
-    "facing=down": { "model": "psf:entity_detector_simple", "x": 180 },
-    "facing=up": { "model": "psf:entity_detector_simple" },
-    "facing=north": { "model": "psf:entity_detector_simple", "x": 90 },
-    "facing=south": { "model": "psf:entity_detector_simple", "x": 90, "y": 180 },
-    "facing=east": { "model": "psf:entity_detector_simple", "x": 90, "y": 90 },
-    "facing=west": { "model": "psf:entity_detector_simple", "x": 90, "y": 270 }
+    "facing=down": { "model": "psf:entity_detector_simple.obj", "x": 180 },
+    "facing=up": { "model": "psf:entity_detector_simple.obj" },
+    "facing=north": { "model": "psf:entity_detector_simple.obj", "x": 90 },
+    "facing=south": { "model": "psf:entity_detector_simple.obj", "x": 90, "y": 180 },
+    "facing=east": { "model": "psf:entity_detector_simple.obj", "x": 90, "y": 90 },
+    "facing=west": { "model": "psf:entity_detector_simple.obj", "x": 90, "y": 270 }
   }
 }

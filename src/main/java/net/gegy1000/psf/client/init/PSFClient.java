@@ -1,5 +1,6 @@
 package net.gegy1000.psf.client.init;
 
+import com.google.common.collect.ImmutableSet;
 import lombok.val;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.block.fluid.BlockPSFFluid;
@@ -27,6 +28,10 @@ import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
 @SideOnly(Side.CLIENT)
 @EventBusSubscriber(value = Side.CLIENT, modid = MODID)
 public final class PSFClient {
+    private static final ImmutableSet<String> OBJ_MODELS = ImmutableSet.of(
+        "entity_detector_simple", "entity_marker", "laser", "terrain_scanner"
+    );
+
     private PSFClient() {
         throw new UnsupportedOperationException();
     }
@@ -75,6 +80,10 @@ public final class PSFClient {
         for (val item : PSFItems.allBlockItems()) {
             val path = Objects.requireNonNull(item.getRegistryName());
             val model = new ModelResourceLocation(path, "inventory");
+            if (OBJ_MODELS.contains(path.getPath())) { // fixme strip out hardcoding when implementing json models
+                ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation(path, "facing=up"));
+                continue;
+            }
             ModelLoader.setCustomModelResourceLocation(item, 0, model);
         }
     }

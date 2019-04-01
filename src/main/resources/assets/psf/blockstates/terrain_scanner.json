@@ -1,10 +1,15 @@
 {
+  "forge_marker": 1,
+  "defaults": {
+    "transform": "forge:default-block",
+    "custom": { "flip-v": true }
+  },
   "variants": {
-    "facing=down": { "model": "psf:terrain_scanner", "x": 180 },
-    "facing=up": { "model": "psf:terrain_scanner" },
-    "facing=north": { "model": "psf:terrain_scanner", "x": 90 },
-    "facing=south": { "model": "psf:terrain_scanner", "x": 90, "y": 180 },
-    "facing=east": { "model": "psf:terrain_scanner", "x": 90, "y": 90 },
-    "facing=west": { "model": "psf:terrain_scanner", "x": 90, "y": 270 }
+    "facing=down": { "model": "psf:terrain_scanner.obj", "x": 180 },
+    "facing=up": { "model": "psf:terrain_scanner.obj" },
+    "facing=north": { "model": "psf:terrain_scanner.obj", "x": 90 },
+    "facing=south": { "model": "psf:terrain_scanner.obj", "x": 90, "y": 180 },
+    "facing=east": { "model": "psf:terrain_scanner.obj", "x": 90, "y": 90 },
+    "facing=west": { "model": "psf:terrain_scanner.obj", "x": 90, "y": 270 }
   }
 }
