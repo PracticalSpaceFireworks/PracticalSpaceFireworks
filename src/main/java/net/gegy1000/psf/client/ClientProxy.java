@@ -18,8 +18,6 @@ import java.util.function.Consumer;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends ServerProxy {
 
-    private final UniqueManager<ISatellite> controllerManager = new UniqueManager<>();
-
     @Override
     public void onPreInit() {
         super.onPreInit();
@@ -32,7 +30,7 @@ public class ClientProxy extends ServerProxy {
         if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             throw new IllegalStateException("Cannot get satellite cache on client");
         }
-        return controllerManager;
+        return super.getSatellites();
     }
 
     @Override
