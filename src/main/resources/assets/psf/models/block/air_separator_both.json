@@ -1,0 +1,8 @@
+{
+  "parent": "psf:block/air_separator",
+  "textures": {
+    "cap": "psf:blocks/air_separator_cap",
+    "x": "psf:blocks/air_separator_both_port",
+    "z": "psf:blocks/air_separator_both"
+  }
+}

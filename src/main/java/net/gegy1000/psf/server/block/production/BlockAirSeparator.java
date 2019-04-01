@@ -7,11 +7,13 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.Machine;
+import net.gegy1000.psf.server.block.property.Part;
 import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -19,11 +21,9 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -37,8 +37,7 @@ import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockAirSeparator extends BlockHorizontal implements Machine, RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
-    private static final AxisAlignedBB AABB_X = new AxisAlignedBB(0.25, 0.0, 0.0, 0.75, 0.875, 1.0);
-    private static final AxisAlignedBB AABB_Z = new AxisAlignedBB(0.0, 0.0, 0.25, 1.0, 0.875, 0.75);
+    private static final PropertyEnum<Part> PART = PropertyEnum.create("part", Part.class, Part.PARTS);
 
     public BlockAirSeparator() {
         super(Material.IRON);
@@ -68,6 +67,12 @@ public class BlockAirSeparator extends BlockHorizontal implements Machine, Regis
 
     @Override
     @Deprecated
+    public IBlockState getActualState(IBlockState state, IBlockAccess access, BlockPos pos) {
+        return state.withProperty(PART, Part.forPosition(access, pos, this));
+    }
+
+    @Override
+    @Deprecated
     public IBlockState withRotation(IBlockState state, Rotation rotation) {
         return state.withProperty(FACING, rotation.rotate(state.getValue(FACING)));
     }
@@ -82,12 +87,6 @@ public class BlockAirSeparator extends BlockHorizontal implements Machine, Regis
     @Deprecated
     public boolean isFullCube(IBlockState state) {
         return false;
-    }
-
-    @Override
-    @Deprecated
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess access, BlockPos pos) {
-        return Axis.X == state.getValue(FACING).getAxis() ? AABB_X : AABB_Z;
     }
 
     @Override
@@ -140,7 +139,7 @@ public class BlockAirSeparator extends BlockHorizontal implements Machine, Regis
 
     @Override
     protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, ACTIVE, FACING);
+        return new BlockStateContainer(this, ACTIVE, FACING, PART);
     }
 
     @Override
