@@ -7,14 +7,14 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MultiTankFluidHandler implements IFluidHandler {
-    private final List<IFluidHandler> internal;
+    private final Collection<IFluidHandler> internal;
 
-    public MultiTankFluidHandler(List<IFluidHandler> internal) {
+    public MultiTankFluidHandler(Collection<IFluidHandler> internal) {
         this.internal = internal;
     }
 

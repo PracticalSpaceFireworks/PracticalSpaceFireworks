@@ -1,4 +1,4 @@
-package net.gegy1000.psf.server.block.fueler;
+package net.gegy1000.psf.server.block.valve;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;

@@ -1,25 +1,36 @@
-package net.gegy1000.psf.server.block.fueler;
+package net.gegy1000.psf.server.block.valve;
 
 import lombok.Getter;
 import net.gegy1000.psf.server.init.PSFFluids;
+import net.gegy1000.psf.server.modules.ModuleFuelValve;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 @ParametersAreNonnullByDefault
-public class ContainerFuelLoader extends Container {
+public class ContainerFuelValve extends Container {
     public static final int KEROSENE_AMOUNT = 0;
     public static final int KEROSENE_CAPACITY = 1;
 
@@ -28,19 +39,31 @@ public class ContainerFuelLoader extends Container {
 
     private static final int PLAYER_INVENTORY_SIZE = 36;
 
-    private final TileFuelLoader entity;
+    private final World world;
+    private final ModuleFuelValve module;
+    private final IFluidHandler fluidHandler;
+
+    private final IItemHandler inputHandler = new ItemStackHandler(2) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            this.stacks.set(slot, fillFromInput(getStackInSlot(slot)));
+            detectAndSendChanges();
+        }
+    };
 
     @Getter
-    private TileFuelLoader.FuelAmount keroseneAmount = new TileFuelLoader.FuelAmount();
+    private ModuleFuelValve.FuelAmount keroseneAmount = new ModuleFuelValve.FuelAmount();
     @Getter
-    private TileFuelLoader.FuelAmount liquidOxygenAmount = new TileFuelLoader.FuelAmount();
+    private ModuleFuelValve.FuelAmount liquidOxygenAmount = new ModuleFuelValve.FuelAmount();
 
-    public ContainerFuelLoader(TileFuelLoader entity, InventoryPlayer playerInventory) {
-        this.entity = entity;
+    public ContainerFuelValve(World world, ModuleFuelValve module, InventoryPlayer playerInventory) {
+        this.world = world;
+        this.module = module;
 
-        IItemHandler itemHandler = entity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        this.addSlotToContainer(new SlotFluidContainer(itemHandler, 0, 26, 36, PSFFluids.kerosene()));
-        this.addSlotToContainer(new SlotFluidContainer(itemHandler, 1, 134, 36, PSFFluids.liquidOxygen()));
+        this.fluidHandler = module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+
+        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 0, 26, 36, PSFFluids.kerosene()));
+        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 1, 134, 36, PSFFluids.liquidOxygen()));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -53,13 +76,48 @@ public class ContainerFuelLoader extends Container {
         }
     }
 
+    private ItemStack fillFromInput(ItemStack stack) {
+        IFluidHandlerItem handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+        if (handler == null) return stack;
+
+        Stream<FluidStack> allContents = Arrays.stream(handler.getTankProperties())
+                .map(IFluidTankProperties::getContents)
+                .filter(Objects::nonNull);
+
+        allContents.forEach(contents -> {
+            int originalAmount = contents.amount;
+            int filled = fluidHandler.fill(handler.drain(contents, true), true);
+            if (filled < originalAmount) {
+                handler.fill(new FluidStack(contents.getFluid(), originalAmount - filled), true);
+            }
+        });
+
+        return handler.getContainer();
+    }
+
+    @Override
+    public void onContainerClosed(EntityPlayer player) {
+        super.onContainerClosed(player);
+        if (!world.isRemote) {
+            boolean drop = !player.isEntityAlive() || player instanceof EntityPlayerMP && ((EntityPlayerMP) player).hasDisconnected();
+            for (int i = 0; i < inputHandler.getSlots(); i++) {
+                ItemStack stack = inputHandler.getStackInSlot(i);
+                if (drop) {
+                    player.dropItem(stack, false);
+                } else {
+                    player.inventory.placeItemBackInInventory(world, stack);
+                }
+            }
+        }
+    }
+
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
 
-        Map<Fluid, TileFuelLoader.FuelAmount> fuelAmounts = entity.collectFuelAmounts();
-        TileFuelLoader.FuelAmount keroseneAmount = fuelAmounts.getOrDefault(PSFFluids.kerosene(), new TileFuelLoader.FuelAmount());
-        TileFuelLoader.FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidOxygen(), new TileFuelLoader.FuelAmount());
+        Map<Fluid, ModuleFuelValve.FuelAmount> fuelAmounts = module.collectFuelAmounts();
+        ModuleFuelValve.FuelAmount keroseneAmount = fuelAmounts.getOrDefault(PSFFluids.kerosene(), new ModuleFuelValve.FuelAmount());
+        ModuleFuelValve.FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidOxygen(), new ModuleFuelValve.FuelAmount());
 
         boolean keroseneChanged = !this.keroseneAmount.equals(keroseneAmount);
         boolean liquidOxygenChanged = !this.liquidOxygenAmount.equals(liquidOxygenAmount);
@@ -82,10 +140,10 @@ public class ContainerFuelLoader extends Container {
         super.updateProgressBar(id, data);
 
         if (this.keroseneAmount == null) {
-            this.keroseneAmount = new TileFuelLoader.FuelAmount();
+            this.keroseneAmount = new ModuleFuelValve.FuelAmount();
         }
         if (this.liquidOxygenAmount == null) {
-            this.liquidOxygenAmount = new TileFuelLoader.FuelAmount();
+            this.liquidOxygenAmount = new ModuleFuelValve.FuelAmount();
         }
 
         switch (id) {
@@ -135,6 +193,6 @@ public class ContainerFuelLoader extends Container {
 
     @Override
     public boolean canInteractWith(EntityPlayer player) {
-        return player.getDistanceSqToCenter(entity.getPos()) < 64.0;
+        return true;
     }
 }

@@ -52,12 +52,14 @@ public class UniqueManager<T extends IUnique> {
                 .collect(Collectors.toList());
     }
     
-    public void onAdd(Consumer<T> callback) {
+    public UniqueManager<T> onAdd(Consumer<T> callback) {
         this.addCallbacks.add(callback);
+        return this;
     }
     
-    public void onRemove(Consumer<T> callback) {
+    public UniqueManager<T> onRemove(Consumer<T> callback) {
         this.removeCallbacks.add(callback);
+        return this;
     }
     
     private void onRemoved(RemovalNotification<UUID, T> notif) {

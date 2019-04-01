@@ -40,6 +40,9 @@ public class PSFNetworkHandler {
         network.registerMessage(PacketModule.Handler.class, PacketModule.class, nextID(), Side.CLIENT);
         network.registerMessage(PacketLaserState.Handler.class, PacketLaserState.class, nextID(), Side.CLIENT);
 
+        /* Misc */
+        network.registerMessage(PacketDisplayContainerMessage.Handler.class,PacketDisplayContainerMessage.class, nextID(), Side.CLIENT);
+
         Reflection.initialize(EntitySpacecraft.class);
     }
 }

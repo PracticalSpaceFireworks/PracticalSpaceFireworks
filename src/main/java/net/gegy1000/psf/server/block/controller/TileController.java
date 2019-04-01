@@ -1,14 +1,6 @@
 package net.gegy1000.psf.server.block.controller;
 
 import com.google.common.base.Stopwatch;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import lombok.Value;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.module.IModule;
@@ -41,6 +33,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class TileController extends TileEntity implements ITickable {
 

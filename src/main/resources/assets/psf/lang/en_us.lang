@@ -30,7 +30,6 @@ tile.psf.controller_simple.name=Satellite Controller
 # Blocks
 
 tile.psf.remote_control_system.name=Remote Control System
-tile.psf.fuel_loader.name=Fuel Loader
 
 tile.psf.air_intake.name=Air Intake
 tile.psf.air_compressor.name=Air Compressor
@@ -77,3 +76,8 @@ subtitles.psf.payload_separator.connect=Payload separator connects
 subtitles.psf.payload_separator.disconnect=Payload separator disconnects
 subtitles.psf.entity.spacecraft.launch=Spacecraft launches
 subtitles.psf.laser.fire=Laser fires
+
+# Gui
+
+gui.psf.fuel_valve.controller_not_present.0=No controller!
+gui.psf.fuel_valve.controller_not_present.1=Cannot load fuel

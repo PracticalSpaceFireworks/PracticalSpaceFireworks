@@ -1,19 +1,6 @@
 package net.gegy1000.psf.api.spacecraft;
 
 import com.google.common.base.Functions;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.api.util.IUnique;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -23,6 +10,17 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ParametersAreNonnullByDefault
 public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable<NBTTagCompound> {
@@ -114,4 +112,11 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
     default void untrack(EntityPlayerMP player) {}
 
     default void markDirty() {} // For TE
+
+    default void onRemove() {
+        for (IModule module : getModules()) {
+            module.setOwner(null);
+            module.handleModuleChange(Collections.emptyList());
+        }
+    }
 }

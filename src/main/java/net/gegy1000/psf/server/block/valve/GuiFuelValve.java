@@ -1,8 +1,9 @@
-package net.gegy1000.psf.server.block.fueler;
+package net.gegy1000.psf.server.block.valve;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.gegy1000.psf.server.init.PSFFluids;
+import net.gegy1000.psf.server.modules.ModuleFuelValve;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,16 +20,17 @@ import org.lwjgl.opengl.GLContext;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiFuelLoader extends GuiContainer {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/fuel_loader.png");
+public class GuiFuelValve extends GuiContainer {
+    private static final ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/fuel_valve.png");
+
     private static final boolean SCISSOR_AVAILABLE = GLContext.getCapabilities().OpenGL20;
 
     private static final int TANK_WIDTH = 20;
     private static final int TANK_HEIGHT = 63;
 
-    private final ContainerFuelLoader container;
+    private final ContainerFuelValve container;
 
-    public GuiFuelLoader(ContainerFuelLoader container) {
+    public GuiFuelValve(ContainerFuelValve container) {
         super(container);
         this.container = container;
     }
@@ -49,12 +51,12 @@ public class GuiFuelLoader extends GuiContainer {
         mouseX -= originX;
         mouseY -= originY;
 
-        String title = I18n.format(PSFBlocks.FUEL_LOADER.getTranslationKey() + ".name");
+        String title = I18n.format(PSFBlocks.FUEL_VALVE.getTranslationKey() + ".name");
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
-        TileFuelLoader.FuelAmount keroseneAmount = container.getKeroseneAmount();
-        TileFuelLoader.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
+        ModuleFuelValve.FuelAmount keroseneAmount = container.getKeroseneAmount();
+        ModuleFuelValve.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
 
         drawTank(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13);
         drawTank(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13);
