@@ -27,7 +27,7 @@ public class ModuleThruster extends EmptyModule {
     private ThrusterTier tier;
 
     public ModuleThruster(ThrusterTier tier) {
-        super("thruster." + tier.getName());
+        super("thruster_" + tier.getName());
         this.tier = tier;
     }
 

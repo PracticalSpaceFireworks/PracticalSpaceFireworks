@@ -35,7 +35,7 @@ public class ModuleController extends EmptyModule implements IController {
     boolean deorbiting;
     
     public ModuleController() {
-        super("controller.simple");
+        super("controller_simple");
         registerConfigs(deorbit);
     }
 

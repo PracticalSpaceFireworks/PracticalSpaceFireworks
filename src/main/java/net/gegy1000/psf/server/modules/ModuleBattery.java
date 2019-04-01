@@ -39,7 +39,7 @@ public class ModuleBattery extends EmptyModule {
     }
 
     public ModuleBattery(BatteryTier tier, int capacity) {
-        super("battery." + tier.getName());
+        super("battery_" + tier.getName());
         this.storage = new EnergyStorage(capacity, capacity, capacity, capacity) {
             @Override
             public int receiveEnergy(int maxReceive, boolean simulate) {
