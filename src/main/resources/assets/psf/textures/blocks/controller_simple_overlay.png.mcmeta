@@ -1,6 +1,6 @@
 {
-  "ctm_version": 1,
   "ctm": {
+    "ctm_version": 1,
     "type": "normal",
     "layer": "CUTOUT",
     "extra": {
