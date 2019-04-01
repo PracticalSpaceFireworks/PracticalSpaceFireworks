@@ -57,7 +57,7 @@ public class ModuleEntityDetector extends EmptyModule {
     }
 
     public ModuleEntityDetector(EntityDetectorTier tier, int chunkRange) {
-        super("entity_detector." + tier.getName());
+        super("entity_detector_" + tier.getName());
         this.chunkRange = chunkRange;
         enabled.modified(null); // Flip to enabled by default
         registerConfigs(enabled);

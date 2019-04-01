@@ -18,7 +18,7 @@ tile.psf.solar_panel_small.name=Small Solar Panel
 tile.psf.solar_panel_large.name=Large Solar Panel
 
 tile.psf.entity_detector_simple.name=Simple Entity Detector
-tile.psf.entity_detector.simple.config.enabled=State
+tile.psf.entity_detector_simple.config.enabled=State
 tile.psf.entity_marker.name=Simple Entity Marker
 
 tile.psf.battery_simple.name=Simple Battery
