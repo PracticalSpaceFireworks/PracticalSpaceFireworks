@@ -97,6 +97,7 @@ processResources {
 
 lombok {
     version = '1.18.6'
+    sha256 = ''
 }
 
 tasks.eclipse.dependsOn installLombok
