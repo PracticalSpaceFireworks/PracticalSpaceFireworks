@@ -28,8 +28,6 @@ public class TileAirIntake extends TileEntity implements ITickable {
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
 
-    private EnumFacing facing;
-
     private TileEntity outputEntity;
 
     @Override
@@ -67,23 +65,28 @@ public class TileAirIntake extends TileEntity implements ITickable {
 
     @Nonnull
     private EnumFacing getFacing() {
-        if (facing == null) {
-            facing = world.getBlockState(pos).getValue(BlockDirectional.FACING);
-        }
-        return facing;
+        return world.getBlockState(pos).getValue(BlockDirectional.FACING);
+    }
+    
+    private boolean canAcceptEnergy(@Nullable EnumFacing facing) {
+        return facing == null || facing != getFacing();
+    }
+    
+    private boolean canOutputFluid(@Nullable EnumFacing facing) {
+        return facing == null || facing == getFacing().getOpposite();
     }
 
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityEnergy.ENERGY || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+        return (capability == CapabilityEnergy.ENERGY && canAcceptEnergy(facing)) || (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && canOutputFluid(facing));
     }
 
     @Nullable
     @Override
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityEnergy.ENERGY) {
+        if (capability == CapabilityEnergy.ENERGY && canAcceptEnergy(facing)) {
             return CapabilityEnergy.ENERGY.cast(energyStorage);
-        } else if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+        } else if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && canOutputFluid(facing)) {
             return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(EmptyFluidHandler.INSTANCE);
         }
         return super.getCapability(capability, facing);

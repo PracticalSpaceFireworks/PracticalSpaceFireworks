@@ -3,6 +3,8 @@ package net.gegy1000.psf.server.block.production;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.util.FluidTransferUtils;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -18,13 +20,13 @@ import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumMap;
 
 @ParametersAreNonnullByDefault
 public class TileAirCompressor extends TileEntity implements ITickable {
-    private static final EnumFacing[] OUTPUT_SIDES = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
 
     private static final int TANK_SIZE = 1000;
     private static final int COMPRESS_PER_TICK = 2;
@@ -83,30 +85,49 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     public void handleUpdateTag(NBTTagCompound tag) {
         super.readFromNBT(tag);
     }
+    
+    @Nonnull
+    private EnumFacing getInputSide() {
+        return world.getBlockState(pos).getValue(BlockHorizontal.FACING).rotateY();
+    }
+    
+    @Nonnull
+    private EnumFacing getOutputSide() {
+        return getInputSide().getOpposite();
+    }
+    
+    private boolean canDoEnergy(@Nullable EnumFacing facing) {
+        return canDoFluid(facing) || facing == EnumFacing.DOWN;
+    }
+    
+    private boolean canDoFluid(@Nullable EnumFacing facing) {
+        return facing == null || facing == getOutputSide() || facing == getInputSide();
+    }
 
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return capability == CapabilityEnergy.ENERGY || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+        return (capability == CapabilityEnergy.ENERGY && canDoEnergy(facing)) 
+                || (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && canDoFluid(facing));
     }
 
     @Nullable
     @Override
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityEnergy.ENERGY) {
+        if (capability == CapabilityEnergy.ENERGY && canDoEnergy(facing)) {
             return CapabilityEnergy.ENERGY.cast(energyStorage);
-        } else if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+        } else if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && canDoFluid(facing)) {
             return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(getFluidHandler(facing));
         }
         return super.getCapability(capability, facing);
     }
 
     private IFluidHandler getFluidHandler(@Nullable EnumFacing facing) {
-        if (facing != null && state != State.FILLING) {
+        if (!canDoFluid(facing) || state != State.FILLING) {
             return EmptyFluidHandler.INSTANCE;
         } else if (facing == null) {
             return combinedStorage;
         }
-        return inputStorage;
+        return facing == getOutputSide() ? outputStorage : inputStorage;
     }
 
     private enum State {
@@ -137,23 +158,22 @@ public class TileAirCompressor extends TileEntity implements ITickable {
         DRAINING {
             @Override
             protected State update(TileAirCompressor compressor, IFluidTankProperties properties, @Nullable FluidStack contents) {
-                for (EnumFacing facing : OUTPUT_SIDES) {
-                    TileEntity outputEntity = compressor.outputs.get(facing);
+                EnumFacing facing = compressor.getOutputSide();
+                TileEntity outputEntity = compressor.outputs.get(facing);
 
-                    if (outputEntity == null || outputEntity.isInvalid()) {
-                        outputEntity = compressor.world.getTileEntity(compressor.pos.offset(facing));
-                        if (outputEntity == null) {
-                            compressor.outputs.remove(facing);
-                        } else {
-                            compressor.outputs.put(facing, outputEntity);
-                        }
+                if (outputEntity == null || outputEntity.isInvalid()) {
+                    outputEntity = compressor.world.getTileEntity(compressor.pos.offset(facing));
+                    if (outputEntity == null) {
+                        compressor.outputs.remove(facing);
+                    } else {
+                        compressor.outputs.put(facing, outputEntity);
                     }
+                }
 
-                    if (outputEntity != null) {
-                        IFluidHandler output = outputEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
-                        if (output != null) {
-                            FluidTransferUtils.transfer(compressor.outputStorage, output, DRAIN_PER_TICK);
-                        }
+                if (outputEntity != null) {
+                    IFluidHandler output = outputEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
+                    if (output != null) {
+                        FluidTransferUtils.transfer(compressor.outputStorage, output, DRAIN_PER_TICK);
                     }
                 }
 

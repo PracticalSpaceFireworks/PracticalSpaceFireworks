@@ -4,6 +4,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -17,6 +18,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -80,16 +82,25 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     public void handleUpdateTag(NBTTagCompound tag) {
         super.readFromNBT(tag);
     }
+    
+    @Nonnull
+    private EnumFacing getFacing() {
+        return world.getBlockState(getPos()).getValue(BlockHorizontal.FACING);
+    }
+    
+    private boolean canDoFluid(@Nullable EnumFacing facing) {
+        return facing == null || facing.getAxis().isVertical() || facing.getAxis() == getFacing().rotateY().getAxis();
+    }
 
     @Override
     public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing) {
-        return masterInfo != null && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+        return masterInfo != null && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && canDoFluid(facing);
     }
 
     @Nullable
     @Override
     public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing) {
-        if (masterInfo != null && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
+        if (masterInfo != null && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY && canDoFluid(facing)) {
             return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(getFluidHandler(masterInfo, facing));
         }
         return super.getCapability(capability, facing);
@@ -100,16 +111,15 @@ public class TileAirSeparator extends TileEntity implements ITickable {
             return masterInfo.combinedStorage;
         }
 
-        if (facing.getAxis() == EnumFacing.Axis.Y) {
-            if (masterInfo.state == State.DRAINING) {
-                if (facing == EnumFacing.UP) {
-                    return masterInfo.combinedNitrogen;
-                } else if (facing == EnumFacing.DOWN) {
-                    return masterInfo.combinedOxygen;
-                }
-            }
-        } else if (masterInfo.state == State.FILLING) {
+        if (facing.getAxis() == EnumFacing.Axis.Y && masterInfo.state == State.FILLING) {
             return masterInfo.combinedInput;
+        } else if (masterInfo.state == State.DRAINING) {
+            EnumFacing output = getFacing().rotateY();
+            if (facing == output) {
+                return masterInfo.combinedNitrogen;
+            } else if (facing == output.getOpposite()) {
+                return masterInfo.combinedOxygen;
+            }
         }
 
         return EmptyFluidHandler.INSTANCE;
