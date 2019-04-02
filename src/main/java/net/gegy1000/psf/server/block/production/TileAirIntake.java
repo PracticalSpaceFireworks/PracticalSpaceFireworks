@@ -1,6 +1,5 @@
 package net.gegy1000.psf.server.block.production;
 
-import net.gegy1000.psf.server.block.Machine;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.nbt.NBTTagCompound;
@@ -9,7 +8,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -27,20 +25,15 @@ public class TileAirIntake extends TileEntity implements ITickable {
 
     private static final int AIR_PER_TICK = 1;
 
-    private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
+    private final IEnergyStorage energyStorage = new MachineEnergyStorage(this, ENERGY_BUFFER);
 
     private TileEntity outputEntity;
-
-    // TODO: Extract into common base-class
-    private boolean active;
 
     @Override
     public void update() {
         if (world.isRemote) return;
 
         if (energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK) {
-            checkActivity(true);
-
             EnumFacing facing = getFacing();
 
             if (outputEntity == null || outputEntity.isInvalid()) {
@@ -53,15 +46,6 @@ public class TileAirIntake extends TileEntity implements ITickable {
                     output.fill(new FluidStack(PSFFluids.filteredAir(), AIR_PER_TICK), true);
                 }
             }
-        } else {
-            checkActivity(false);
-        }
-    }
-
-    private void checkActivity(boolean active) {
-        if (this.active != active) {
-            this.active = active;
-            world.setBlockState(pos, world.getBlockState(pos).withProperty(Machine.ACTIVE, active));
         }
     }
 
@@ -69,7 +53,6 @@ public class TileAirIntake extends TileEntity implements ITickable {
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         compound = super.writeToNBT(compound);
         compound.setTag("energy", CapabilityEnergy.ENERGY.writeNBT(energyStorage, null));
-        compound.setBoolean("active", active);
         return compound;
     }
 
@@ -79,7 +62,6 @@ public class TileAirIntake extends TileEntity implements ITickable {
         if (compound.hasKey("energy")) {
             CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
         }
-        active = compound.getBoolean("active");
     }
 
     @Nonnull

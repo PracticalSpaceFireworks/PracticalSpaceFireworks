@@ -6,7 +6,6 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
-import net.gegy1000.psf.server.block.Machine;
 import net.gegy1000.psf.server.block.property.Part;
 import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.minecraft.block.Block;
@@ -36,7 +35,7 @@ import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class BlockAirSeparator extends BlockHorizontal implements Machine, RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
+public class BlockAirSeparator extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
     private static final PropertyEnum<Part> PART = PropertyEnum.create("part", Part.class, Part.PARTS);
 
     public BlockAirSeparator() {
@@ -47,22 +46,18 @@ public class BlockAirSeparator extends BlockHorizontal implements Machine, Regis
         setResistance(3.0F);
         setLightOpacity(1);
         setCreativeTab(PracticalSpaceFireworks.TAB);
-        setDefaultState(getDefaultState().withProperty(ACTIVE, false));
     }
 
     @Override
     @Deprecated
     public IBlockState getStateFromMeta(int meta) {
-        val active = 1 == (meta & 0b1);
-        val facing = EnumFacing.byHorizontalIndex(meta >> 1);
-        return getDefaultState().withProperty(ACTIVE, active).withProperty(FACING, facing);
+        val facing = EnumFacing.byHorizontalIndex(meta & 3);
+        return getDefaultState().withProperty(FACING, facing);
     }
 
     @Override
     public int getMetaFromState(IBlockState state) {
-        val active = state.getValue(ACTIVE) ? 1 : 0;
-        val facing = state.getValue(FACING).getHorizontalIndex() << 1;
-        return active | facing;
+        return state.getValue(FACING).getHorizontalIndex();
     }
 
     @Override
@@ -139,7 +134,7 @@ public class BlockAirSeparator extends BlockHorizontal implements Machine, Regis
 
     @Override
     protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, ACTIVE, FACING, PART);
+        return new BlockStateContainer(this, FACING, PART);
     }
 
     @Override

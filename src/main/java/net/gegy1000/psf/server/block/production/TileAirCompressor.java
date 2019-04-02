@@ -1,9 +1,9 @@
 package net.gegy1000.psf.server.block.production;
 
+import lombok.Getter;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.util.FluidTransferUtils;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -11,7 +11,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -24,8 +23,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumMap;
-
-import lombok.Getter;
 
 @ParametersAreNonnullByDefault
 public class TileAirCompressor extends TileEntity implements ITickable {
@@ -44,7 +41,7 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
-    private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
+    private final IEnergyStorage energyStorage = new MachineEnergyStorage(this, ENERGY_BUFFER);
 
     private final EnumMap<EnumFacing, TileEntity> outputs = new EnumMap<>(EnumFacing.class);
 
