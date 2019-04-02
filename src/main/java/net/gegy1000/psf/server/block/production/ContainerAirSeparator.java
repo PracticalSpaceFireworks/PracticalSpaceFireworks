@@ -1,9 +1,16 @@
-package net.gegy1000.psf.server.block.valve;
+package net.gegy1000.psf.server.block.production;
+
+import javax.annotation.Nonnull;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import lombok.Getter;
+import net.gegy1000.psf.server.block.valve.SlotFluidContainer;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.modules.FuelAmount;
-import net.gegy1000.psf.server.modules.ModuleFuelValve;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -11,9 +18,10 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
@@ -23,48 +31,46 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
-
-@ParametersAreNonnullByDefault
-public class ContainerFuelValve extends Container {
-    public static final int KEROSENE_AMOUNT = 0;
-    public static final int KEROSENE_CAPACITY = 1;
-
-    public static final int LIQUID_OXYGEN_AMOUNT = 2;
-    public static final int LIQUID_OXYGEN_CAPACITY = 3;
+public class ContainerAirSeparator extends Container {
+    public static final int COMPRESSED_AIR_AMOUNT = 0;
+    public static final int COMPRESSED_AIR_CAPACITY = 1;
+    public static final int LIQUID_NITROGEN_AMOUNT = 2;
+    public static final int LIQUID_NITROGEN_CAPACITY = 3;
+    public static final int LIQUID_OXYGEN_AMOUNT = 4;
+    public static final int LIQUID_OXYGEN_CAPACITY = 5;
+    public static final int ACTIVE = 6;
 
     private static final int PLAYER_INVENTORY_SIZE = 36;
 
-    private final World world;
-    private final ModuleFuelValve module;
-    private final IFluidHandler fluidHandler;
+    private final TileAirSeparator te;
 
     private final IItemHandler inputHandler = new ItemStackHandler(2) {
         @Override
         protected void onContentsChanged(int slot) {
-            this.stacks.set(slot, fillFromInput(getStackInSlot(slot)));
+            this.stacks.set(slot, drainToInput(slot == 0 ? te.getNitrogenTank() : te.getOxygenTank(), getStackInSlot(slot)));
             detectAndSendChanges();
+        }
+        
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
         }
     };
 
     @Getter
-    private FuelAmount keroseneAmount = new FuelAmount();
+    private FuelAmount compressedAirAmount = new FuelAmount();
+    @Getter
+    private FuelAmount liquidNitrogenAmount = new FuelAmount();
     @Getter
     private FuelAmount liquidOxygenAmount = new FuelAmount();
+    @Getter
+    private boolean active;
 
-    public ContainerFuelValve(World world, ModuleFuelValve module, InventoryPlayer playerInventory) {
-        this.world = world;
-        this.module = module;
+    public ContainerAirSeparator(TileAirSeparator te, InventoryPlayer playerInventory) {
+        this.te = te;
 
-        this.fluidHandler = module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-
-        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 0, 26, 36, PSFFluids.kerosene()));
-        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 1, 134, 36, PSFFluids.liquidOxygen()));
+        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 0, 8, 37, null));
+        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 1, 152, 37, null));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -77,36 +83,25 @@ public class ContainerFuelValve extends Container {
         }
     }
 
-    private ItemStack fillFromInput(ItemStack stack) {
-        IFluidHandlerItem handler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
-        if (handler == null) return stack;
-
-        Stream<FluidStack> allContents = Arrays.stream(handler.getTankProperties())
-                .map(IFluidTankProperties::getContents)
-                .filter(Objects::nonNull);
-
-        allContents.forEach(contents -> {
-            int originalAmount = contents.amount;
-            int filled = fluidHandler.fill(handler.drain(contents, true), true);
-            if (filled < originalAmount) {
-                handler.fill(new FluidStack(contents.getFluid(), originalAmount - filled), true);
-            }
-        });
-
-        return handler.getContainer();
+    private ItemStack drainToInput(IFluidHandler from, ItemStack stack) {
+        FluidActionResult res = FluidUtil.tryFillContainer(stack, from, 1000, null, true);
+        if (res.isSuccess()) {
+            return res.getResult();
+        }
+        return stack;
     }
 
     @Override
     public void onContainerClosed(EntityPlayer player) {
         super.onContainerClosed(player);
-        if (!world.isRemote) {
+        if (!te.getWorld().isRemote) {
             boolean drop = !player.isEntityAlive() || player instanceof EntityPlayerMP && ((EntityPlayerMP) player).hasDisconnected();
             for (int i = 0; i < inputHandler.getSlots(); i++) {
                 ItemStack stack = inputHandler.getStackInSlot(i);
                 if (drop) {
                     player.dropItem(stack, false);
                 } else {
-                    player.inventory.placeItemBackInInventory(world, stack);
+                    player.inventory.placeItemBackInInventory(te.getWorld(), stack);
                 }
             }
         }
@@ -115,24 +110,43 @@ public class ContainerFuelValve extends Container {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
+        if (te.getWorld().isRemote) {
+            return;
+        }
 
-        Map<Fluid, FuelAmount> fuelAmounts = module.collectFuelAmounts();
-        FuelAmount keroseneAmount = fuelAmounts.getOrDefault(PSFFluids.kerosene(), new FuelAmount());
+        Map<Fluid, FuelAmount> fuelAmounts = te.collectFuelAmounts();
+        FuelAmount compressedAirAmount = fuelAmounts.getOrDefault(PSFFluids.compressedAir(), new FuelAmount());
+        FuelAmount liquidNitrogenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidNitrogen(), new FuelAmount());
         FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidOxygen(), new FuelAmount());
+        boolean active = te.isActive();
 
-        boolean keroseneChanged = !this.keroseneAmount.equals(keroseneAmount);
-        boolean liquidOxygenChanged = !this.liquidOxygenAmount.equals(liquidOxygenAmount);
+        boolean compressedAirChanged = !compressedAirAmount.equals(this.compressedAirAmount);
+        boolean liquidNitrogenChanged = liquidNitrogenAmount != this.liquidNitrogenAmount;
+        boolean liquidOxygenChanged = liquidOxygenAmount != this.liquidOxygenAmount;
+        boolean activeChanged = active != this.active;
 
         for (IContainerListener listener : this.listeners) {
-            if (keroseneChanged) {
-                listener.sendWindowProperty(this, KEROSENE_AMOUNT, keroseneAmount.getAmount());
-                listener.sendWindowProperty(this, KEROSENE_CAPACITY, keroseneAmount.getCapacity());
+            if (compressedAirChanged) {
+                listener.sendWindowProperty(this, COMPRESSED_AIR_AMOUNT, compressedAirAmount.getAmount());
+                listener.sendWindowProperty(this, COMPRESSED_AIR_CAPACITY, compressedAirAmount.getCapacity());
+            }
+            if (liquidNitrogenChanged) {
+                listener.sendWindowProperty(this, LIQUID_NITROGEN_AMOUNT, liquidNitrogenAmount.getAmount());
+                listener.sendWindowProperty(this, LIQUID_NITROGEN_CAPACITY, liquidNitrogenAmount.getCapacity());
             }
             if (liquidOxygenChanged) {
                 listener.sendWindowProperty(this, LIQUID_OXYGEN_AMOUNT, liquidOxygenAmount.getAmount());
                 listener.sendWindowProperty(this, LIQUID_OXYGEN_CAPACITY, liquidOxygenAmount.getCapacity());
             }
+            if (activeChanged) {
+                listener.sendWindowProperty(this, ACTIVE, active ? 1 : 0);
+            }
         }
+        
+        this.compressedAirAmount = compressedAirAmount;
+        this.liquidNitrogenAmount = liquidNitrogenAmount;
+        this.liquidOxygenAmount = liquidOxygenAmount;
+        this.active = active;
     }
 
     @Override
@@ -140,25 +154,27 @@ public class ContainerFuelValve extends Container {
     public void updateProgressBar(int id, int data) {
         super.updateProgressBar(id, data);
 
-        if (this.keroseneAmount == null) {
-            this.keroseneAmount = new FuelAmount();
-        }
-        if (this.liquidOxygenAmount == null) {
-            this.liquidOxygenAmount = new FuelAmount();
-        }
-
         switch (id) {
-            case KEROSENE_AMOUNT:
-                this.keroseneAmount.setAmount(data);
+            case COMPRESSED_AIR_AMOUNT:
+                this.compressedAirAmount.setAmount(data);;
                 break;
-            case KEROSENE_CAPACITY:
-                this.keroseneAmount.setCapacity(data);
+            case COMPRESSED_AIR_CAPACITY:
+                this.compressedAirAmount.setCapacity(data);
+                break;
+            case LIQUID_NITROGEN_AMOUNT:
+                this.liquidNitrogenAmount.setAmount(data);
+                break;
+            case LIQUID_NITROGEN_CAPACITY:
+                this.liquidNitrogenAmount.setCapacity(data);
                 break;
             case LIQUID_OXYGEN_AMOUNT:
                 this.liquidOxygenAmount.setAmount(data);
                 break;
             case LIQUID_OXYGEN_CAPACITY:
                 this.liquidOxygenAmount.setCapacity(data);
+                break;
+            case ACTIVE:
+                this.active = data == 1;
                 break;
         }
     }
@@ -186,6 +202,7 @@ public class ContainerFuelValve extends Container {
                 slot.onTake(player, copy);
                 slot.putStack(ItemStack.EMPTY);
             } else {
+                slot.putStack(copy);
                 slot.onSlotChanged();
             }
         }

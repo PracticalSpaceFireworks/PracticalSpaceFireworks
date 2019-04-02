@@ -4,7 +4,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.client.gui.TankRenderer;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.modules.ModuleFuelValve;
+import net.gegy1000.psf.server.modules.FuelAmount;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -53,8 +53,8 @@ public class GuiFuelValve extends GuiContainer {
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
-        ModuleFuelValve.FuelAmount keroseneAmount = container.getKeroseneAmount();
-        ModuleFuelValve.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
+        FuelAmount keroseneAmount = container.getKeroseneAmount();
+        FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
 
         keroseneTank.drawTooltip(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), mouseX, mouseY);
         loxTank.drawTooltip(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), mouseX, mouseY);
@@ -71,8 +71,8 @@ public class GuiFuelValve extends GuiContainer {
         drawTexturedModalRect(originX, originY, 0, 0, xSize, ySize);
         
         GlStateManager.color(1, 1, 1, 1);
-        ModuleFuelValve.FuelAmount keroseneAmount = container.getKeroseneAmount();
-        ModuleFuelValve.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
+        FuelAmount keroseneAmount = container.getKeroseneAmount();
+        FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
         
         keroseneTank.draw(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), originX, originY);
         loxTank.draw(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), originX, originY);

@@ -1,8 +1,5 @@
 package net.gegy1000.psf.server.modules;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.minecraft.util.EnumFacing;
@@ -44,8 +41,8 @@ public class ModuleFuelValve extends ModuleFuelTank {
             FluidStack contents = tank.getContents();
             if (contents != null) {
                 FuelAmount quantity = amounts.computeIfAbsent(contents.getFluid(), fluid -> new FuelAmount());
-                quantity.amount += contents.amount;
-                quantity.capacity += tank.getCapacity();
+                quantity.addAmount(contents.amount);
+                quantity.addCapacity(tank.getCapacity());
             }
         }
         return amounts;
@@ -74,15 +71,5 @@ public class ModuleFuelValve extends ModuleFuelTank {
             return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(fuelHandler);
         }
         return super.getCapability(capability, facing);
-    }
-
-    @EqualsAndHashCode
-    public static class FuelAmount {
-        @Getter
-        @Setter
-        private int amount;
-        @Getter
-        @Setter
-        private int capacity;
     }
 }

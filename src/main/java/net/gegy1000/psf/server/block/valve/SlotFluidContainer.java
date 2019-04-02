@@ -27,7 +27,7 @@ public class SlotFluidContainer extends SlotItemHandler {
             if (tankProperties.length == 1) {
                 IFluidTankProperties properties = tankProperties[0];
                 FluidStack contents = properties.getContents();
-                return contents != null && contents.getFluid() == this.fluidType;
+                return this.fluidType == null ? contents == null : contents != null && contents.getFluid() == this.fluidType && super.isItemValid(stack);
             }
         }
         return false;

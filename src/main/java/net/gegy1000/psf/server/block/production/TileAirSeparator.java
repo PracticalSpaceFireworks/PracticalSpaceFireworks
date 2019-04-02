@@ -8,6 +8,7 @@ import net.gegy1000.psf.server.block.production.state.StateType;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
+import net.gegy1000.psf.server.modules.FuelAmount;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -29,14 +31,16 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ParametersAreNonnullByDefault
 public class TileAirSeparator extends TileEntity implements ITickable {
     private static final double OXYGEN_AMOUNT = 0.21;
     private static final double NITROGEN_AMOUNT = 0.78;
 
-    private static final int TANK_SIZE = 1000;
+    static final int TANK_SIZE = 1000;
     private static final int DISTILL_PER_TICK = 2;
 
     public static final StateType FILLING_STATE = new StateType("filling");
@@ -46,19 +50,26 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     private static final StateMachineBuilder<StepCtx> STATE_MACHINE_BUILDER = new StateMachineBuilder<StepCtx>()
             .withInitState(DRAINING_STATE)
             .withStep(FILLING_STATE, ctx -> {
-                if (ctx.inputContents != null && ctx.inputContents.amount >= ctx.inputProperties.getCapacity()) {
+                if (ctx.inputContents != null && ctx.inputContents.amount >= TANK_SIZE) {
                     return DISTILLING_STATE;
                 }
                 return FILLING_STATE;
             })
             .withStep(DISTILLING_STATE, ctx -> {
                 MasterInfo master = ctx.master;
+                IFluidTankProperties nitrogenProps = master.combinedNitrogen.getTankProperties()[0];
+                IFluidTankProperties oxygenProps = master.combinedOxygen.getTankProperties()[0];
+                // If tanks are full, wait for drain
+                if ((nitrogenProps.getContents() != null && nitrogenProps.getCapacity() == nitrogenProps.getContents().amount)
+                 || (oxygenProps.getContents() != null && oxygenProps.getCapacity() == oxygenProps.getContents().amount)) {
+                    return DRAINING_STATE;
+                }
                 if (ctx.inputContents == null || ctx.inputContents.amount <= 0) {
                     master.combinedOxygen.fill(new FluidStack(PSFFluids.liquidOxygen(), (int) Math.round(master.oxygenRemainder)), true);
                     master.combinedNitrogen.fill(new FluidStack(PSFFluids.liquidNitrogen(), (int) Math.round(master.nitrogenRemainder)), true);
                     master.oxygenRemainder = 0.0;
                     master.nitrogenRemainder = 0.0;
-                    return DRAINING_STATE;
+                    return FILLING_STATE;
                 }
 
                 FluidStack drainedInput = master.combinedInput.drain(DISTILL_PER_TICK, true);
@@ -76,20 +87,22 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                 }
 
                 return DISTILLING_STATE;
-            })
-            .withStep(DRAINING_STATE, ctx -> {
-                FluidStack nitrogenContents = ctx.master.combinedNitrogen.getTankProperties()[0].getContents();
-                FluidStack oxygenContents = ctx.master.combinedOxygen.getTankProperties()[0].getContents();
-                if ((nitrogenContents == null || nitrogenContents.amount <= 0) && (oxygenContents == null || oxygenContents.amount <= 0)) {
+            }).withStep(DRAINING_STATE, ctx -> {
+                MasterInfo master = ctx.master;
+
+                IFluidTankProperties nitrogenProps = master.combinedNitrogen.getTankProperties()[0];
+                IFluidTankProperties oxygenProps = master.combinedOxygen.getTankProperties()[0];
+                // If tanks have been drained a significant amount, reactivate
+                if ((nitrogenProps.getContents() == null || nitrogenProps.getContents().amount + 100 < nitrogenProps.getCapacity())
+                 && (oxygenProps.getContents() == null || oxygenProps.getContents().amount + 100 < oxygenProps.getCapacity())) {
                     return FILLING_STATE;
                 }
-
                 return DRAINING_STATE;
             });
 
     private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
-    private final IFluidHandler localOxygen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * OXYGEN_AMOUNT), PSFFluids.liquidOxygen());
-    private final IFluidHandler localNitrogen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * NITROGEN_AMOUNT), PSFFluids.liquidNitrogen());
+    private final IFluidHandler localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen());
+    private final IFluidHandler localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen());
 
     private MasterInfo masterInfo = null;
     private final List<TileAirSeparator> connected = new ArrayList<>();
@@ -144,6 +157,10 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     public void handleUpdateTag(NBTTagCompound tag) {
         super.readFromNBT(tag);
     }
+    
+    public boolean isActive() {
+        return masterInfo != null && masterInfo.stateMachine.getState() == DISTILLING_STATE;
+    }
 
     @Nonnull
     private EnumFacing getFacing() {
@@ -167,6 +184,31 @@ public class TileAirSeparator extends TileEntity implements ITickable {
         }
         return super.getCapability(capability, facing);
     }
+    
+    public Map<Fluid, FuelAmount> collectFuelAmounts() {
+        Map<Fluid, FuelAmount> amounts = new HashMap<>();
+        if (masterInfo == null) {
+            return amounts;
+        }
+        IFluidTankProperties[] tankProperties = masterInfo.combinedStorage.getTankProperties();
+        for (IFluidTankProperties tank : tankProperties) {
+            FluidStack contents = tank.getContents();
+            if (contents != null) {
+                FuelAmount quantity = amounts.computeIfAbsent(contents.getFluid(), fluid -> new FuelAmount());
+                quantity.addAmount(contents.amount);
+                quantity.addCapacity(tank.getCapacity());
+            }
+        }
+        return amounts;
+    }
+
+    IFluidHandler getNitrogenTank() {
+        return masterInfo == null ? EmptyFluidHandler.INSTANCE : masterInfo.combinedNitrogen;
+    }
+    
+    IFluidHandler getOxygenTank() {
+        return masterInfo == null ? EmptyFluidHandler.INSTANCE : masterInfo.combinedOxygen;
+    }
 
     private IFluidHandler getFluidHandler(MasterInfo masterInfo, @Nullable EnumFacing facing) {
         if (facing == null) {
@@ -175,7 +217,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
 
         if (facing.getAxis() == EnumFacing.Axis.Y && masterInfo.stateMachine.getState() == FILLING_STATE) {
             return masterInfo.combinedInput;
-        } else if (masterInfo.stateMachine.getState() == DRAINING_STATE) {
+        } else if (masterInfo.stateMachine.getState() != DISTILLING_STATE) {
             EnumFacing output = getFacing().rotateY();
             if (facing == output) {
                 return masterInfo.combinedNitrogen;
