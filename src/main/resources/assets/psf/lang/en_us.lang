@@ -45,6 +45,7 @@ item.psf.light_filament.name=Light Filament
 item.psf.fuel_valve.name=Fuel Valve
 
 message.psf.target_selector.activated=%s firing at [x:%s, y:%s, z:%s]
+tooltip.psf.fuel_valve.help=Use on a fuel tank to attach in-place
 
 # Fluids
 

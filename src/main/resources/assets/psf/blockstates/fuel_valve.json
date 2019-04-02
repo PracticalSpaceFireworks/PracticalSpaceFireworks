@@ -1,23 +1,20 @@
 {
   "multipart": [
     {
-      "apply": { "model": "psf:fuel_valve" }
-    },
-    {
       "when": { "part": "bottom" },
-      "apply": { "model": "psf:fuel_tank_bottom" }
+      "apply": { "model": "psf:fuel_valve_bottom" }
     },
     {
       "when": { "part": "top" },
-      "apply": { "model": "psf:fuel_tank_top" }
+      "apply": { "model": "psf:fuel_valve_top" }
     },
     {
       "when": { "part": "none" },
-      "apply": { "model": "psf:fuel_tank_none" }
+      "apply": { "model": "psf:fuel_valve_none" }
     },
     {
       "when": { "part": "both" },
-      "apply": { "model": "psf:fuel_tank_both" }
+      "apply": { "model": "psf:fuel_valve_both" }
     },
     {
       "when": {

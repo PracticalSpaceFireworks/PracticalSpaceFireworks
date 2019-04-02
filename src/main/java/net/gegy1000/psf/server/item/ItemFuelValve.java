@@ -2,9 +2,12 @@ package net.gegy1000.psf.server.item;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,12 +17,16 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ItemFuelValve extends Item {
+public class ItemFuelValve extends Item implements RegisterItemModel {
     public ItemFuelValve() {
         setCreativeTab(PracticalSpaceFireworks.TAB);
     }
@@ -36,5 +43,11 @@ public class ItemFuelValve extends Item {
             return EnumActionResult.SUCCESS;
         }
         return super.onItemUse(player, world, pos, hand, side, hitX, hitY, hitZ);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, @Nullable World world, List<String> tooltip, ITooltipFlag flag) {
+        tooltip.add(I18n.format("tooltip.psf.fuel_valve.help"));
     }
 }

@@ -1,3 +1,6 @@
 {
-  "parent": "psf:block/fuel_valve"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "psf:blocks/fuel_valve"
+  }
 }
