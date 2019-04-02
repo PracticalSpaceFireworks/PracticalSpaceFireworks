@@ -46,28 +46,37 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     @Override
     public void update() {
         if (world.isRemote) return;
-        if (fluidTank.getFluidAmount() >= fluidTank.getCapacity()) return;
 
         boolean hasEnergy = energyStorage.extractEnergy(ENERGY_PER_TICK, true) >= ENERGY_PER_TICK;
 
         if (hasEnergy) {
             if (!isExtracting()) {
-                ItemStack extractedStack = itemHandler.extractItem(0, 1, false);
-                if (!extractedStack.isEmpty()) {
-                    extractionTime = 0;
-                    totalExtractionAmount = getFuelAmount(extractedStack);
-                }
-            }
-
-            if (isExtracting()) {
+                beginExtracting();
+            } else {
                 energyStorage.extractEnergy(ENERGY_PER_TICK, false);
+                System.out.println("pulled energy: " + fluidTank.getFluidAmount());
                 if (++extractionTime > totalExtractionAmount) {
                     extractionTime = 0;
                     fluidTank.fill(new FluidStack(PSFFluids.kerosene(), totalExtractionAmount), true);
-                    totalExtractionAmount = -1;
+                    beginExtracting();
                 }
             }
         }
+    }
+    
+    private void beginExtracting() {
+        ItemStack extractedStack = itemHandler.extractItem(0, 1, true);
+        if (!extractedStack.isEmpty()) {
+            extractionTime = 0;
+            int space = fluidTank.getCapacity() - fluidTank.getFluidAmount();
+            int fuel = getFuelAmount(extractedStack);
+            if (fuel <= space) {
+                itemHandler.extractItem(0, 1, false);
+                totalExtractionAmount = fuel;
+                return;
+            }
+        }
+        totalExtractionAmount = -1;
     }
 
     private boolean isExtracting() {
@@ -75,7 +84,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     }
 
     public boolean isActive() {
-        return energyStorage.isActive();
+        return energyStorage.isActive() && isExtracting();
     }
 
     public int getKeroseneAmount() {
