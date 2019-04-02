@@ -1,29 +1,17 @@
 package net.gegy1000.psf.server.block.valve;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.client.gui.TankRenderer;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.modules.ModuleFuelValve;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fml.client.config.GuiUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GuiFuelValve extends GuiContainer {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/fuel_valve.png");
-
-    private static final boolean SCISSOR_AVAILABLE = GLContext.getCapabilities().OpenGL20;
 
     private static final int TANK_WIDTH = 20;
     private static final int TANK_HEIGHT = 63;
@@ -33,6 +21,16 @@ public class GuiFuelValve extends GuiContainer {
     public GuiFuelValve(ContainerFuelValve container) {
         super(container);
         this.container = container;
+    }
+    
+    private TankRenderer keroseneTank, loxTank;
+    
+    @Override
+    public void initGui() {
+        super.initGui();
+        
+        keroseneTank = new TankRenderer(61, 13, TANK_WIDTH, TANK_HEIGHT, this.width, this.height);
+        loxTank = new TankRenderer(91, 13, TANK_WIDTH, TANK_HEIGHT, this.width, this.height);
     }
 
     @Override
@@ -58,11 +56,8 @@ public class GuiFuelValve extends GuiContainer {
         ModuleFuelValve.FuelAmount keroseneAmount = container.getKeroseneAmount();
         ModuleFuelValve.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
 
-        drawTank(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13);
-        drawTank(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13);
-
-        drawTankTooltip(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), 61, 13, mouseX, mouseY);
-        drawTankTooltip(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), 91, 13, mouseX, mouseY);
+        keroseneTank.draw(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), mouseX, mouseY);
+        loxTank.draw(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), mouseX, mouseY);
     }
 
     @Override
@@ -74,58 +69,5 @@ public class GuiFuelValve extends GuiContainer {
 
         GlStateManager.color(1, 1, 1, 1);
         drawTexturedModalRect(originX, originY, 0, 0, xSize, ySize);
-    }
-
-    private void drawTank(Fluid fluid, int amount, int capacity, int x, int y) {
-        GlStateManager.enableBlend();
-
-        TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
-
-        float scale = (float) amount / capacity;
-        int height = (int) (scale * TANK_HEIGHT);
-        drawSpriteTiled(sprite, x + 1, y + 1 + (TANK_HEIGHT - height), TANK_WIDTH, height);
-
-        GlStateManager.disableBlend();
-    }
-
-    private void drawTankTooltip(Fluid fluid, int amount, int capacity, int x, int y, int mouseX, int mouseY) {
-        if (mouseX >= x && mouseY >= y && mouseX <= x + TANK_WIDTH && mouseY <= y + TANK_HEIGHT) {
-            List<String> lines = new ArrayList<>();
-            lines.add(fluid.getRarity().color + I18n.format(fluid.getUnlocalizedName()));
-            lines.add(TextFormatting.BLUE.toString() + amount + "/" + capacity + " mB");
-
-            float percentage = capacity == 0 ? 0 : (float) amount / capacity * 100;
-            lines.add(TextFormatting.GRAY.toString() + TextFormatting.ITALIC + String.format("%.1f%%", percentage));
-
-            GuiUtils.drawHoveringText(lines, mouseX, mouseY, width, height, 100, fontRenderer);
-        }
-    }
-
-    private void drawSpriteTiled(TextureAtlasSprite sprite, int x, int y, int width, int height) {
-        if (SCISSOR_AVAILABLE) {
-            ScaledResolution resolution = new ScaledResolution(mc);
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            GL11.glScissor((guiLeft + x) * resolution.getScaleFactor(), mc.displayHeight - ((guiTop + y + height) * resolution.getScaleFactor()), width * resolution.getScaleFactor(), height * resolution.getScaleFactor());
-        }
-
-        mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-
-        int textureSize = 16;
-
-        int countX = (int) Math.ceil((float) width / textureSize);
-        int countY = (int) Math.ceil((float) height / textureSize);
-
-        int originX = x + (width - (countX * textureSize)) / 2;
-        int originY = y + (height - (countY * textureSize)) / 2;
-
-        for (int spriteY = 0; spriteY < countY; spriteY++) {
-            for (int spriteX = 0; spriteX < countX; spriteX++) {
-                drawTexturedModalRect(originX + spriteX * textureSize, originY + spriteY * textureSize, sprite, 16, 16);
-            }
-        }
-
-        if (SCISSOR_AVAILABLE) {
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        }
     }
 }
