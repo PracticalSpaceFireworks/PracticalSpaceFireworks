@@ -30,9 +30,6 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
-import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY;
-
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockAirSeparator extends BlockHorizontal implements RegisterItemModel, RegisterItemBlock, RegisterTileEntity {
@@ -110,20 +107,7 @@ public class BlockAirSeparator extends BlockHorizontal implements RegisterItemMo
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        @Nullable val fluidItem = player.getHeldItem(hand).getCapability(FLUID_HANDLER_ITEM_CAPABILITY, null);
-        if (fluidItem != null) {
-            @Nullable val te = world.getTileEntity(pos);
-            if (te != null) {
-                @Nullable val fluidTank = te.getCapability(FLUID_HANDLER_CAPABILITY, facing);
-                if (fluidTank != null) {
-                    val capacity = fluidTank.getTankProperties()[0].getCapacity();
-                    FluidTransferUtils.transfer(fluidTank, fluidItem, capacity);
-                    player.setHeldItem(hand, fluidItem.getContainer());
-                    return true;
-                }
-            }
-        }
-        return false;
+        return FluidTransferUtils.extractIntoHeldItem(world, pos, player, hand, facing);
     }
 
     @Override

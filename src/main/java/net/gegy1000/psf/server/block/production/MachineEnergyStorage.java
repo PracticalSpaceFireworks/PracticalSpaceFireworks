@@ -21,9 +21,7 @@ public final class MachineEnergyStorage extends EnergyStorage {
     @Override
     public int extractEnergy(int maxExtract, boolean simulate) {
         int amount = super.extractEnergy(maxExtract, simulate);
-        if (!simulate) {
-            setActive(amount >= maxExtract ? ActivityState.ACTIVE : ActivityState.INACTIVE);
-        }
+        setActive(amount >= maxExtract ? ActivityState.ACTIVE : ActivityState.INACTIVE);
 
         return amount;
     }

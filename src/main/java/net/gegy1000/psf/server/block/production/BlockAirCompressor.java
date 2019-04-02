@@ -7,6 +7,7 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.Machine;
+import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
@@ -45,12 +46,17 @@ public class BlockAirCompressor extends BlockHorizontal implements Machine, Regi
         setCreativeTab(PracticalSpaceFireworks.TAB);
         setDefaultState(getDefaultState().withProperty(ACTIVE, false));
     }
-    
+
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (!worldIn.isRemote) {
-            playerIn.openGui(PracticalSpaceFireworks.getInstance(), PSFGuiHandler.ID_AIR_COMPRESSOR, worldIn, pos.getX(), pos.getY(), pos.getZ());
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        if (FluidTransferUtils.extractIntoHeldItem(world, pos, player, hand, facing)) {
+            return true;
         }
+
+        if (!world.isRemote) {
+            player.openGui(PracticalSpaceFireworks.getInstance(), PSFGuiHandler.ID_AIR_COMPRESSOR, world, pos.getX(), pos.getY(), pos.getZ());
+        }
+
         return true;
     }
 
