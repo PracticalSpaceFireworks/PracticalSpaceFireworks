@@ -1,13 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -20,15 +12,15 @@ import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl;
-import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
 import net.gegy1000.psf.server.block.remote.packet.PacketOpenRemoteControl.SatelliteState;
+import net.gegy1000.psf.server.block.remote.packet.PacketVisualData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.init.PSFFluids;
+import net.gegy1000.psf.server.init.PSFSounds;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
-import net.gegy1000.psf.server.init.PSFSounds;
 import net.gegy1000.psf.server.util.LogisticGrowthCurve;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -62,10 +54,18 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Stream;
+
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     public static final double BASE_AIR_RESISTANCE = 0.98;
     public static final double GRAVITY = 1.6;
-    
+
     private static final DataParameter<Byte> STATE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.BYTE);
     private static final DataParameter<Float> ACCELERATION = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
     private static final DataParameter<Float> FORCE = EntityDataManager.createKey(EntitySpacecraft.class, DataSerializers.FLOAT);
@@ -144,7 +144,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.dataManager.register(FORCE, 0.0F);
         this.dataManager.register(ACCELERATION, 0.0F);
     }
-    
+
     private static final LogisticGrowthCurve AIR_RESISTANCE = new LogisticGrowthCurve(1 - BASE_AIR_RESISTANCE, 10, -0.015);
 
     @Override
@@ -309,12 +309,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.TILE, satellite.toListedCraft()), p);
                 }
 
-                // TODO improve IController API to avoid this
-                satellite.getController().getPosition()
-                        .map(world::getTileEntity)
+                Stream<TileController> controllers = entities.values().stream()
                         .filter(TileController.class::isInstance)
-                        .map(TileController.class::cast)
-                        .ifPresent(TileController::scanStructure);
+                        .map(TileController.class::cast);
+
+                controllers.forEach(TileController::scanStructure);
 
                 setDead();
             } else {
@@ -439,12 +438,12 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         }
 
         StateType getType();
-        
+
         @Override
         default NBTTagCompound serializeNBT() {
             return null;
         }
-        
+
         @Override
         default void deserializeNBT(NBTTagCompound nbt) {
         }
@@ -477,7 +476,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         private final EntitySpacecraft entity;
         private final IFluidHandler fuelHandler;
-        
+
         @SideOnly(Side.CLIENT)
         private final MovingSound sound;
 
@@ -488,27 +487,27 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         LaunchState(EntitySpacecraft entity) {
             this.entity = entity;
             this.fuelHandler = entity.metadata.buildFuelHandler();
-            
+
             if (entity.world.isRemote) {
                 sound = initSound();
             } else {
                 sound = null;
             }
         }
-        
+
         private static final float MAX_SOUND_DIST = 128;
         private static final float MAX_SOUND_DIST_SQ = MAX_SOUND_DIST * MAX_SOUND_DIST;
-        
+
         @SideOnly(Side.CLIENT)
         private MovingSound initSound() {
             MovingSound ret = new MovingSound(PSFSounds.SPACECRAFT_LAUNCH, SoundCategory.BLOCKS) {
                 {
                     this.attenuationType = AttenuationType.NONE;
                 }
-                
+
                 float startVol = -1;
                 int fadeOut = 20;
-                
+
                 @Override
                 public void update() {
                     if (entity.isDead || entity.getState() != LaunchState.this) {
@@ -524,7 +523,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                         this.xPosF = (float) entity.posX;
                         this.yPosF = (float) entity.posY;
                         this.zPosF = (float) entity.posZ;
-                        
+
                         Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
                         if (viewEntity == null) {
                             return;
@@ -540,7 +539,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             Minecraft.getMinecraft().getSoundHandler().playSound(ret);
             return ret;
         }
-        
+
         private static final LogisticGrowthCurve FORCE_CURVE = new LogisticGrowthCurve(1, 8, -1.7);
 
         @Override
@@ -570,7 +569,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
                     entity.dataManager.set(ACCELERATION, (float) acceleration);
                     entity.dataManager.set(FORCE, (float) force);
-                    
+
                     if (stateTicks > IGNITION_TIME) {
                         for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
                             double thrusterY = entity.posY + thruster.getPos().getY();
@@ -579,7 +578,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                                     .offset(0, -1, 0)
                                     .grow(0.25, 0, 0.25)
                                     .expand(0, -force / 5_000, 0);
-                            
+
                             for (Entity e : entity.getEntityWorld().getEntitiesWithinAABBExcludingEntity(entity, damageArea)) {
                                 float dist = (float) ((thrusterY - e.posY) / (damageArea.maxY - damageArea.minY));
                                 if (dist > 1) {
@@ -665,14 +664,14 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         public StateType getType() {
             return StateType.LAUNCH;
         }
-        
+
         @Override
         public NBTTagCompound serializeNBT() {
             NBTTagCompound ret = new NBTTagCompound();
             ret.setInteger("prog", stateTicks);
             return ret;
         }
-        
+
         @Override
         public void deserializeNBT(NBTTagCompound nbt) {
             this.stateTicks = nbt.getInteger("prog");

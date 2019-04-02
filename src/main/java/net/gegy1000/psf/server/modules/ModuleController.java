@@ -1,6 +1,5 @@
 package net.gegy1000.psf.server.modules;
 
-import lombok.Setter;
 import net.gegy1000.psf.api.spacecraft.IController;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.block.remote.packet.PacketCraftState;
@@ -16,7 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 public class ModuleController extends EmptyModule implements IController {
     
@@ -28,10 +26,6 @@ public class ModuleController extends EmptyModule implements IController {
         }
     };
     
-    @Setter
-    @Nonnull
-    private BlockPos pos = BlockPos.ORIGIN;
-    
     boolean deorbiting;
     
     public ModuleController() {
@@ -39,25 +33,15 @@ public class ModuleController extends EmptyModule implements IController {
         registerConfigs(deorbit);
     }
 
-    public ModuleController(BlockPos pos) {
-        this();
-        this.pos = pos;
-    }
-
-    @Override
-    public Optional<BlockPos> getPosition() {
-        return Optional.of(pos);
-    }
-    
     @Override
     public void onSatelliteTick(@Nonnull ISatellite satellite) {
         super.onSatelliteTick(satellite);
         
         if (deorbiting && satellite.isOrbiting()) {
             deorbiting = false;
-            
+
             EntitySpacecraft entity = new EntitySpacecraft(satellite);
-            BlockPos pos = getPosition().get();
+            BlockPos pos = satellite.getPosition();
             entity.setPosition(pos.getX() + 0.5, 1000, pos.getZ() + 0.5);
             satellite.getWorld().spawnEntity(entity);
             
@@ -74,16 +58,11 @@ public class ModuleController extends EmptyModule implements IController {
     
     @Override
     public NBTTagCompound serializeNBT() {
-        NBTTagCompound ret = super.serializeNBT();
-        ret.setInteger("controller_x", pos.getX());
-        ret.setInteger("controller_y", pos.getY());
-        ret.setInteger("controller_z", pos.getZ());
-        return ret;
+        return super.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(@Nonnull NBTTagCompound nbt) {
         super.deserializeNBT(nbt);
-        setPos(new BlockPos(nbt.getInteger("controller_x"), nbt.getInteger("controller_y"), nbt.getInteger("controller_z")));
     }
 }
