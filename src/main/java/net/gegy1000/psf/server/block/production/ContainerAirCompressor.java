@@ -1,16 +1,7 @@
 package net.gegy1000.psf.server.block.production;
 
-import javax.annotation.Nonnull;
-
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import lombok.Getter;
-import net.gegy1000.psf.server.block.valve.SlotFluidContainer;
-import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
@@ -19,12 +10,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+
+import javax.annotation.Nonnull;
 
 public class ContainerAirCompressor extends Container {
     public static final int AIR_AMOUNT = 0;
@@ -66,7 +55,7 @@ public class ContainerAirCompressor extends Container {
         FluidStack compressedAir = fluidHandler.getTankProperties()[1].getContents();
         int airAmount = air == null ? 0 : air.amount;
         int compressedAirAmount = compressedAir == null ? 0 : compressedAir.amount;
-        boolean active = te.getState() == TileAirCompressor.State.COMPRESSING;
+        boolean active = te.getState() == TileAirCompressor.COMPRESSING_STATE;
 
         boolean airChanged = airAmount != this.airAmount;
         boolean compressedAirChanged = compressedAirAmount != this.compressedAirAmount;
