@@ -38,6 +38,8 @@ public class FluidTransferUtils {
             InventoryUtils.returnStack(player, hand, fluidItem.getContainer());
 
             return true;
+        } else {
+            InventoryUtils.returnStack(player, hand, heldItem);
         }
 
         return false;
