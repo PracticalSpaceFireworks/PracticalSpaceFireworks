@@ -8,6 +8,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -25,7 +26,8 @@ public class TileAirIntake extends TileEntity implements ITickable {
 
     private static final int AIR_PER_TICK = 1;
 
-    private final IEnergyStorage energyStorage = new MachineEnergyStorage(this, ENERGY_BUFFER);
+    private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
+    private final MachineStateTracker stateTracker = new MachineStateTracker(this);
 
     private TileEntity outputEntity;
 
@@ -33,7 +35,10 @@ public class TileAirIntake extends TileEntity implements ITickable {
     public void update() {
         if (world.isRemote) return;
 
-        if (energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK) {
+        stateTracker.resetActivity();
+
+        boolean active = energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK;
+        if (active) {
             EnumFacing facing = getFacing();
 
             if (outputEntity == null || outputEntity.isInvalid()) {
@@ -41,6 +46,7 @@ public class TileAirIntake extends TileEntity implements ITickable {
             }
 
             if (outputEntity != null) {
+                stateTracker.markActive();
                 IFluidHandler output = outputEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing);
                 if (output != null) {
                     output.fill(new FluidStack(PSFFluids.filteredAir(), AIR_PER_TICK), true);

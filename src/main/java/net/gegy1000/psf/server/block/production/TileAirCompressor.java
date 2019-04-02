@@ -1,8 +1,8 @@
 package net.gegy1000.psf.server.block.production;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.server.block.production.state.StateMachine;
-import net.gegy1000.psf.server.block.production.state.StateSet;
+import net.gegy1000.psf.server.block.production.state.StateMachineBuilder;
 import net.gegy1000.psf.server.block.production.state.StateType;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
@@ -14,6 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -42,8 +43,9 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     public static final StateType COMPRESSING_STATE = new StateType("compressing");
     public static final StateType DRAINING_STATE = new StateType("draining");
 
-    private static final StateSet<StepCtx> STATE_SET = new StateSet.Builder<StepCtx>()
+    private static final StateMachineBuilder<StepCtx> STATE_MACHINE_BUILDER = new StateMachineBuilder<StepCtx>()
             .withInitState(FILLING_STATE)
+            .withStateChangeInterval(20)
             .withStep(FILLING_STATE, ctx -> {
                 if (ctx.tankContents != null && ctx.tankContents.amount >= ctx.tankProperties.getCapacity()) {
                     return COMPRESSING_STATE;
@@ -58,11 +60,14 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                     FluidStack drained = ctx.tile.inputStorage.drain(new FluidStack(PSFFluids.filteredAir(), COMPRESS_PER_TICK), true);
                     if (drained != null && drained.amount > 0) {
                         ctx.tile.outputStorage.fill(new FluidStack(PSFFluids.compressedAir(), drained.amount), true);
+                        ctx.markActive();
                     }
                 }
                 return COMPRESSING_STATE;
             })
             .withStep(DRAINING_STATE, ctx -> {
+                ctx.markActive();
+
                 EnumFacing facing = ctx.tile.getOutputSide();
                 TileEntity outputEntity = ctx.tile.outputs.get(facing);
 
@@ -88,30 +93,25 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                 }
 
                 return DRAINING_STATE;
-            })
-            .build();
+            });
 
     private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir());
     private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
-    private final IEnergyStorage energyStorage = new MachineEnergyStorage(this, ENERGY_BUFFER);
+    private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
+    private final MachineStateTracker stateTracker = new MachineStateTracker(this);
 
     private final EnumMap<EnumFacing, TileEntity> outputs = new EnumMap<>(EnumFacing.class);
 
-    private final StateMachine<StepCtx> stateMachine = new StateMachine<>(STATE_SET, () -> {
-        IFluidTankProperties inputProperties = inputStorage.getTankProperties()[0];
-        return new StepCtx(this, inputProperties, inputProperties.getContents());
-    });
-
-    public TileAirCompressor() {
-        stateMachine.setStateChangeInterval(20);
-    }
+    private final StateMachine<StepCtx> stateMachine = STATE_MACHINE_BUILDER.build();
 
     @Override
     public void update() {
         if (!world.isRemote) {
-            stateMachine.update(world.getTotalWorldTime());
+            IFluidTankProperties inputProperties = inputStorage.getTankProperties()[0];
+            StepCtx ctx = new StepCtx(this, inputProperties, inputProperties.getContents());
+            stateMachine.update(ctx, world.getTotalWorldTime());
         }
     }
 
@@ -187,11 +187,15 @@ public class TileAirCompressor extends TileEntity implements ITickable {
         return facing == getOutputSide() ? outputStorage : inputStorage;
     }
 
-    @AllArgsConstructor
+    @RequiredArgsConstructor
     static class StepCtx {
         final TileAirCompressor tile;
         final IFluidTankProperties tankProperties;
         @Nullable
         final FluidStack tankContents;
+
+        void markActive() {
+            tile.stateTracker.markActive();
+        }
     }
 }

@@ -5,30 +5,28 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.energy.EnergyStorage;
 
 // TODO: Name subject to change with `Machine`
-public final class MachineEnergyStorage extends EnergyStorage {
+public final class MachineStateTracker {
     private final TileEntity entity;
 
-    private ActivityState active = ActivityState.UNKNOWN;
+    private ActivityState state = ActivityState.UNKNOWN;
 
-    public MachineEnergyStorage(TileEntity entity, int capacity) {
-        super(capacity);
+    public MachineStateTracker(TileEntity entity) {
         this.entity = entity;
     }
 
-    @Override
-    public int extractEnergy(int maxExtract, boolean simulate) {
-        int amount = super.extractEnergy(maxExtract, simulate);
-        setActive(amount >= maxExtract ? ActivityState.ACTIVE : ActivityState.INACTIVE);
-
-        return amount;
+    public void resetActivity() {
+        setState(ActivityState.INACTIVE);
     }
 
-    private void setActive(ActivityState state) {
-        if (this.active != state) {
-            this.active = state;
+    public void markActive() {
+        setState(ActivityState.ACTIVE);
+    }
+
+    private void setState(ActivityState state) {
+        if (this.state != state) {
+            this.state = state;
             updateBlockState(state == ActivityState.ACTIVE);
         }
     }
@@ -46,10 +44,10 @@ public final class MachineEnergyStorage extends EnergyStorage {
     }
 
     public boolean isActive() {
-        if (active == ActivityState.UNKNOWN) {
-            active = getStateFromWorld();
+        if (state == ActivityState.UNKNOWN) {
+            state = getStateFromWorld();
         }
-        return active == ActivityState.ACTIVE;
+        return state == ActivityState.ACTIVE;
     }
 
     private ActivityState getStateFromWorld() {

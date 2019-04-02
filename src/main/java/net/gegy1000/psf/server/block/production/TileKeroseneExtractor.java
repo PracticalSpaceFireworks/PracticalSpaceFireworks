@@ -9,6 +9,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.EnergyStorage;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -41,15 +43,16 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
         }
     };
 
-    private final MachineEnergyStorage energyStorage = new MachineEnergyStorage(this, ENERGY_BUFFER);
+    private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
+    private final MachineStateTracker stateTracker = new MachineStateTracker(this);
 
     @Override
     public void update() {
         if (world.isRemote) return;
 
         boolean hasEnergy = energyStorage.extractEnergy(ENERGY_PER_TICK, true) >= ENERGY_PER_TICK;
-
         if (hasEnergy) {
+            stateTracker.markActive();
             if (!isExtracting()) {
                 beginExtracting();
             } else {
@@ -60,9 +63,11 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                     beginExtracting();
                 }
             }
+        } else {
+            stateTracker.resetActivity();
         }
     }
-    
+
     private void beginExtracting() {
         ItemStack extractedStack = itemHandler.extractItem(0, 1, true);
         if (!extractedStack.isEmpty()) {
@@ -83,7 +88,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     }
 
     public boolean isActive() {
-        return energyStorage.isActive() && isExtracting();
+        return stateTracker.isActive() && isExtracting();
     }
 
     public int getKeroseneAmount() {

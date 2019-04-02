@@ -1,34 +1,31 @@
 package net.gegy1000.psf.server.block.production.state;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.nbt.NBTTagCompound;
 
-import java.util.function.Supplier;
-
 public final class StateMachine<C> {
-    private final StateSet<C> stateSet;
-    private final Supplier<C> contextSupplier;
+    private final ImmutableMap<String, StateType> idToState;
+    private final ImmutableMap<StateType, StateStepFunction<C>> stepFunctions;
+    private final long stateChangeInterval;
 
     @Getter
     private StateType state;
 
-    @Setter
-    private long stateChangeInterval;
-
     private long nextStateTick;
 
-    public StateMachine(StateSet<C> stateSet, Supplier<C> contextSupplier) {
-        this.stateSet = stateSet;
-        this.state = stateSet.getInitState();
-        this.contextSupplier = contextSupplier;
+    StateMachine(StateType initState, ImmutableMap<String, StateType> idToState, ImmutableMap<StateType, StateStepFunction<C>> stepFunctions, long stateChangeInterval) {
+        this.state = initState;
+        this.idToState = idToState;
+        this.stepFunctions = stepFunctions;
+        this.stateChangeInterval = stateChangeInterval;
     }
 
-    public void update(long time) {
+    public void update(C ctx, long time) {
         if (time >= nextStateTick) {
             StateType last = state;
-            StateStepFunction<C> function = stateSet.getStepFunction(state);
-            state = function.step(contextSupplier.get());
+            StateStepFunction<C> function = stepFunctions.get(state);
+            state = function.step(ctx);
             if (last != state) {
                 nextStateTick = time + stateChangeInterval;
             }
@@ -41,7 +38,7 @@ public final class StateMachine<C> {
     }
 
     public void deserialize(NBTTagCompound compound) {
-        StateType parsedState = stateSet.byId(compound.getString("id"));
+        StateType parsedState = idToState.get(compound.getString("id"));
         if (parsedState != null) {
             state = parsedState;
         }

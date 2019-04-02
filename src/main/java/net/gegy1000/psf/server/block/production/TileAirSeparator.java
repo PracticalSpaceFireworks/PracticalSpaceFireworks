@@ -3,7 +3,7 @@ package net.gegy1000.psf.server.block.production;
 import lombok.AllArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.block.production.state.StateMachine;
-import net.gegy1000.psf.server.block.production.state.StateSet;
+import net.gegy1000.psf.server.block.production.state.StateMachineBuilder;
 import net.gegy1000.psf.server.block.production.state.StateType;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
@@ -43,7 +43,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     public static final StateType DISTILLING_STATE = new StateType("distilling");
     public static final StateType DRAINING_STATE = new StateType("draining");
 
-    private static final StateSet<StepCtx> STATE_SET = new StateSet.Builder<StepCtx>()
+    private static final StateMachineBuilder<StepCtx> STATE_MACHINE_BUILDER = new StateMachineBuilder<StepCtx>()
             .withInitState(DRAINING_STATE)
             .withStep(FILLING_STATE, ctx -> {
                 if (ctx.inputContents != null && ctx.inputContents.amount >= ctx.inputProperties.getCapacity()) {
@@ -85,8 +85,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                 }
 
                 return DRAINING_STATE;
-            })
-            .build();
+            });
 
     private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
     private final IFluidHandler localOxygen = new TypedFluidTank(MathHelper.floor(TANK_SIZE * OXYGEN_AMOUNT), PSFFluids.liquidOxygen());
@@ -246,11 +245,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
         private IFluidHandler combinedOxygen = EmptyFluidHandler.INSTANCE;
         private IFluidHandler combinedStorage = EmptyFluidHandler.INSTANCE;
 
-        private final StateMachine<StepCtx> stateMachine = new StateMachine<>(STATE_SET, () -> {
-            IFluidTankProperties inputProperties = combinedInput.getTankProperties()[0];
-            FluidStack inputContents = inputProperties.getContents();
-            return new StepCtx(this, inputProperties, inputContents);
-        });
+        private final StateMachine<StepCtx> stateMachine = STATE_MACHINE_BUILDER.build();
 
         private double oxygenRemainder;
         private double nitrogenRemainder;
@@ -264,7 +259,11 @@ public class TileAirSeparator extends TileEntity implements ITickable {
         }
 
         void update(World world) {
-            stateMachine.update(world.getTotalWorldTime());
+            IFluidTankProperties inputProperties = combinedInput.getTankProperties()[0];
+            FluidStack inputContents = inputProperties.getContents();
+
+            StepCtx ctx = new StepCtx(this, inputProperties, inputContents);
+            stateMachine.update(ctx, world.getTotalWorldTime());
         }
 
         void buildTotalStorage(List<TileAirSeparator> connected) {
