@@ -13,6 +13,7 @@ import net.gegy1000.psf.server.init.PSFBlocks;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.network.PacketDisplayContainerMessage;
 import net.gegy1000.psf.server.util.AxisDirectionalBB;
+import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
@@ -71,8 +72,11 @@ public class BlockFuelValve extends BlockModule implements Machine {
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         IModule module = TileModule.getModule(world.getTileEntity(pos));
         if (module == null) return false;
-
         if (world.isRemote) return true;
+
+        if (FluidTransferUtils.transferWithHeldItem(world, pos, player, hand, side)) {
+            return true;
+        }
 
         if (module.getOwner() != null) {
             player.openGui(PracticalSpaceFireworks.getInstance(), PSFGuiHandler.ID_FUEL_VALVE, world, pos.getX(), pos.getY(), pos.getZ());

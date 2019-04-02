@@ -49,7 +49,7 @@ public class BlockAirCompressor extends BlockHorizontal implements Machine, Regi
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (FluidTransferUtils.extractIntoHeldItem(world, pos, player, hand, facing)) {
+        if (FluidTransferUtils.transferWithHeldItem(world, pos, player, hand, facing)) {
             return true;
         }
 

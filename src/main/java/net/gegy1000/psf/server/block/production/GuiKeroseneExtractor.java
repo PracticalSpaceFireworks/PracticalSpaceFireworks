@@ -48,7 +48,7 @@ public class GuiKeroseneExtractor extends GuiContainer {
         mouseY -= originY;
 
         String title = I18n.format(PSFBlocks.KEROSENE_EXTRACTOR.getTranslationKey() + ".name");
-        fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
+        fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 5, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
         keroseneTank.drawTooltip(PSFFluids.kerosene(), container.getKeroseneAmount(), TileKeroseneExtractor.MAX_STORAGE, mouseX, mouseY);

@@ -39,7 +39,10 @@ public final class MachineEnergyStorage extends EnergyStorage {
         if (world.isRemote) return;
 
         IBlockState state = world.getBlockState(pos);
-        world.setBlockState(pos, state.withProperty(Machine.ACTIVE, active));
+        world.setBlockState(pos, state.withProperty(Machine.ACTIVE, active), 3);
+
+        entity.validate();
+        world.setTileEntity(pos, entity);
     }
 
     public boolean isActive() {

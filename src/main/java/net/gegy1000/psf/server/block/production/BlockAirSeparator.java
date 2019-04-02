@@ -107,7 +107,7 @@ public class BlockAirSeparator extends BlockHorizontal implements RegisterItemMo
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        return FluidTransferUtils.extractIntoHeldItem(world, pos, player, hand, facing);
+        return FluidTransferUtils.transferWithHeldItem(world, pos, player, hand, facing);
     }
 
     @Override
