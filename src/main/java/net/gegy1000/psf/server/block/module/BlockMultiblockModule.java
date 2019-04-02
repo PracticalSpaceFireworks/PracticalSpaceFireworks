@@ -34,7 +34,7 @@ public class BlockMultiblockModule extends BlockModule {
     @Override
     @Deprecated
     public IBlockState getStateFromMeta(int meta) {
-        return super.getStateFromMeta(meta).withProperty(DUMMY, (meta & 8) > 0);
+        return super.getStateFromMeta(meta & 7).withProperty(DUMMY, (meta & 8) > 0);
     }
 
     @Override
