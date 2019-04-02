@@ -1,8 +1,5 @@
 package net.gegy1000.psf.client.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -16,9 +13,14 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.client.config.GuiUtils;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class TankRenderer extends Gui {
+    private static final Minecraft CLIENT = Minecraft.getMinecraft();
 
     private final int x, y;
     private final int width, height;
@@ -27,7 +29,7 @@ public class TankRenderer extends Gui {
     public void draw(Fluid fluid, int amount, int capacity, int guiLeft, int guiTop) {
         GlStateManager.enableBlend();
 
-        TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
+        TextureAtlasSprite sprite = CLIENT.getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
 
         float scale = (float) amount / capacity;
         int fluidHeight = (int) (scale * height);
@@ -45,12 +47,12 @@ public class TankRenderer extends Gui {
             float percentage = capacity == 0 ? 0 : (float) amount / capacity * 100;
             lines.add(TextFormatting.GRAY.toString() + TextFormatting.ITALIC + String.format("%.1f%%", percentage));
 
-            GuiUtils.drawHoveringText(lines, mouseX, mouseY, screenWidth, screenHeight, -1, Minecraft.getMinecraft().fontRenderer);
+            GuiUtils.drawHoveringText(lines, mouseX, mouseY, screenWidth, screenHeight, -1, CLIENT.fontRenderer);
         }
     }
 
     private void drawSpriteTiled(TextureAtlasSprite sprite, int x, int y, int width, int height) {
-        Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        CLIENT.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
         int textureSize = 16;
 
@@ -62,7 +64,7 @@ public class TankRenderer extends Gui {
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 
         for (int spriteY = 0; spriteY < countY; spriteY++) {
             for (int spriteX = 0; spriteX < countX; spriteX++) {

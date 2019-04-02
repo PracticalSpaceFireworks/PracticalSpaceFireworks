@@ -8,6 +8,9 @@ import net.minecraft.world.World;
 public enum PSFParticles {
     ROCKET_PLUME((particleID, world, posX, posY, posZ, motionX, motionY, motionZ, parameters) -> {
         return new ParticleRocketPlume(world, posX, posY, posZ, motionX, motionY, motionZ);
+    }),
+    AIR_INTAKE((particleID, world, posX, posY, posZ, motionX, motionY, motionZ, parameters) -> {
+        return new ParticleAirIntake(world, posX, posY, posZ, motionX, motionY, motionZ);
     });
 
     final IParticleFactory factory;
