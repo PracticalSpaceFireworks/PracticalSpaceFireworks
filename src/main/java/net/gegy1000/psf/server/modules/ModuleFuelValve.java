@@ -1,76 +1,80 @@
 package net.gegy1000.psf.server.modules;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.server.capability.MultiFluidHandler;
-import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class ModuleFuelValve extends ModuleFuelTank {
-    private IFluidHandler fuelHandler = EmptyFluidHandler.INSTANCE;
+import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class ModuleFuelValve extends EmptyModule {
+    private IFluidHandler tanks = EmptyFluidHandler.INSTANCE;
 
     public ModuleFuelValve() {
         super("fuel_valve");
     }
 
     @Override
-    public void handleModuleChange(@Nonnull Collection<IModule> modules) {
-        if (!modules.isEmpty()) {
-            fuelHandler = new MultiFluidHandler<>(collectFuelHandlers(modules));
+    public void handleModuleChange(Collection<IModule> modules) {
+        if (modules.isEmpty()) {
+            tanks = EmptyFluidHandler.INSTANCE;
         } else {
-            fuelHandler = EmptyFluidHandler.INSTANCE;
+            tanks = new MultiFluidHandler<>(findFuelHandlers(modules));
         }
     }
 
-    public Map<Fluid, FuelAmount> collectFuelAmounts() {
-        Map<Fluid, FuelAmount> amounts = new HashMap<>();
-        IFluidTankProperties[] tankProperties = fuelHandler.getTankProperties();
-        for (IFluidTankProperties tank : tankProperties) {
-            FluidStack contents = tank.getContents();
-            if (contents != null) {
-                FuelAmount quantity = amounts.computeIfAbsent(contents.getFluid(), fluid -> new FuelAmount());
-                quantity.addAmount(contents.amount);
-                quantity.addCapacity(tank.getCapacity());
-            }
-        }
-        return amounts;
-    }
-
-    private Collection<IFluidHandler> collectFuelHandlers(@Nonnull Collection<IModule> modules) {
-        Collection<IFluidHandler> fuelHandlers = new ArrayList<>();
+    private Collection<IFluidHandler> findFuelHandlers( Collection<IModule> modules) {
+        List<IFluidHandler> list = new ArrayList<>();
         for (IModule module : modules) {
-            IFluidHandler fluidHandler = module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-            if (fluidHandler != null) {
-                fuelHandlers.add(fluidHandler);
+            if (!(module instanceof ModuleFuelValve)) {
+                IFluidHandler handler = module.getCapability(FLUID_HANDLER_CAPABILITY, null);
+                if (handler != null) {
+                    list.add(handler);
+                }
             }
         }
-        return fuelHandlers;
+        return list;
     }
 
     @Override
-    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-        return super.hasCapability(capability, facing) || capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+    public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing side) {
+        return super.hasCapability(capability, side) || FLUID_HANDLER_CAPABILITY == capability;
     }
 
+    @Override
     @Nullable
-    @Override
-    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
-        if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
-            return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(fuelHandler);
+    public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing side) {
+        if (FLUID_HANDLER_CAPABILITY == capability) {
+            return FLUID_HANDLER_CAPABILITY.cast(tanks);
         }
-        return super.getCapability(capability, facing);
+        return super.getCapability(capability, side);
+    }
+
+    public Map<Fluid, FuelState> computeFuelStates() {
+        Map<Fluid, FuelState> states = new HashMap<>();
+        for (IFluidTankProperties properties : tanks.getTankProperties()) {
+            FluidStack stack = properties.getContents();
+            if (stack != null) {
+                FuelState state = states.computeIfAbsent(stack.getFluid(), FuelState::new);
+                state.addAmount(stack.amount).addCapacity(properties.getCapacity());
+            }
+        }
+        return states;
     }
 }

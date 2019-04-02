@@ -2,15 +2,12 @@ package net.gegy1000.psf.server.block.production;
 
 import javax.annotation.Nonnull;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 import lombok.Getter;
 import net.gegy1000.psf.server.block.valve.SlotFluidContainer;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.modules.FuelAmount;
+import net.gegy1000.psf.server.modules.FuelState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -20,12 +17,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidActionResult;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.IItemHandler;
@@ -58,11 +51,11 @@ public class ContainerAirSeparator extends Container {
     };
 
     @Getter
-    private FuelAmount compressedAirAmount = new FuelAmount();
+    private FuelState compressedAirState = new FuelState();
     @Getter
-    private FuelAmount liquidNitrogenAmount = new FuelAmount();
+    private FuelState liquidNitrogenState = new FuelState();
     @Getter
-    private FuelAmount liquidOxygenAmount = new FuelAmount();
+    private FuelState liquidOxygenState = new FuelState();
     @Getter
     private boolean active;
 
@@ -114,38 +107,38 @@ public class ContainerAirSeparator extends Container {
             return;
         }
 
-        Map<Fluid, FuelAmount> fuelAmounts = te.collectFuelAmounts();
-        FuelAmount compressedAirAmount = fuelAmounts.getOrDefault(PSFFluids.compressedAir(), new FuelAmount());
-        FuelAmount liquidNitrogenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidNitrogen(), new FuelAmount());
-        FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidOxygen(), new FuelAmount());
+        Map<Fluid, FuelState> fuelStates = te.computeFuelStates();
+        FuelState compressedAirState = fuelStates.getOrDefault(PSFFluids.compressedAir(), new FuelState());
+        FuelState liquidNitrogenState = fuelStates.getOrDefault(PSFFluids.liquidNitrogen(), new FuelState());
+        FuelState liquidOxygenState = fuelStates.getOrDefault(PSFFluids.liquidOxygen(), new FuelState());
         boolean active = te.isActive();
 
-        boolean compressedAirChanged = !compressedAirAmount.equals(this.compressedAirAmount);
-        boolean liquidNitrogenChanged = liquidNitrogenAmount != this.liquidNitrogenAmount;
-        boolean liquidOxygenChanged = liquidOxygenAmount != this.liquidOxygenAmount;
+        boolean compressedAirChanged = !compressedAirState.equals(this.compressedAirState);
+        boolean liquidNitrogenChanged = liquidNitrogenState != this.liquidNitrogenState;
+        boolean liquidOxygenChanged = liquidOxygenState != this.liquidOxygenState;
         boolean activeChanged = active != this.active;
 
         for (IContainerListener listener : this.listeners) {
             if (compressedAirChanged) {
-                listener.sendWindowProperty(this, COMPRESSED_AIR_AMOUNT, compressedAirAmount.getAmount());
-                listener.sendWindowProperty(this, COMPRESSED_AIR_CAPACITY, compressedAirAmount.getCapacity());
+                listener.sendWindowProperty(this, COMPRESSED_AIR_AMOUNT, compressedAirState.getAmount());
+                listener.sendWindowProperty(this, COMPRESSED_AIR_CAPACITY, compressedAirState.getCapacity());
             }
             if (liquidNitrogenChanged) {
-                listener.sendWindowProperty(this, LIQUID_NITROGEN_AMOUNT, liquidNitrogenAmount.getAmount());
-                listener.sendWindowProperty(this, LIQUID_NITROGEN_CAPACITY, liquidNitrogenAmount.getCapacity());
+                listener.sendWindowProperty(this, LIQUID_NITROGEN_AMOUNT, liquidNitrogenState.getAmount());
+                listener.sendWindowProperty(this, LIQUID_NITROGEN_CAPACITY, liquidNitrogenState.getCapacity());
             }
             if (liquidOxygenChanged) {
-                listener.sendWindowProperty(this, LIQUID_OXYGEN_AMOUNT, liquidOxygenAmount.getAmount());
-                listener.sendWindowProperty(this, LIQUID_OXYGEN_CAPACITY, liquidOxygenAmount.getCapacity());
+                listener.sendWindowProperty(this, LIQUID_OXYGEN_AMOUNT, liquidOxygenState.getAmount());
+                listener.sendWindowProperty(this, LIQUID_OXYGEN_CAPACITY, liquidOxygenState.getCapacity());
             }
             if (activeChanged) {
                 listener.sendWindowProperty(this, ACTIVE, active ? 1 : 0);
             }
         }
         
-        this.compressedAirAmount = compressedAirAmount;
-        this.liquidNitrogenAmount = liquidNitrogenAmount;
-        this.liquidOxygenAmount = liquidOxygenAmount;
+        this.compressedAirState = compressedAirState;
+        this.liquidNitrogenState = liquidNitrogenState;
+        this.liquidOxygenState = liquidOxygenState;
         this.active = active;
     }
 
@@ -156,22 +149,22 @@ public class ContainerAirSeparator extends Container {
 
         switch (id) {
             case COMPRESSED_AIR_AMOUNT:
-                this.compressedAirAmount.setAmount(data);;
+                this.compressedAirState.setAmount(data);;
                 break;
             case COMPRESSED_AIR_CAPACITY:
-                this.compressedAirAmount.setCapacity(data);
+                this.compressedAirState.setCapacity(data);
                 break;
             case LIQUID_NITROGEN_AMOUNT:
-                this.liquidNitrogenAmount.setAmount(data);
+                this.liquidNitrogenState.setAmount(data);
                 break;
             case LIQUID_NITROGEN_CAPACITY:
-                this.liquidNitrogenAmount.setCapacity(data);
+                this.liquidNitrogenState.setCapacity(data);
                 break;
             case LIQUID_OXYGEN_AMOUNT:
-                this.liquidOxygenAmount.setAmount(data);
+                this.liquidOxygenState.setAmount(data);
                 break;
             case LIQUID_OXYGEN_CAPACITY:
-                this.liquidOxygenAmount.setCapacity(data);
+                this.liquidOxygenState.setCapacity(data);
                 break;
             case ACTIVE:
                 this.active = data == 1;

@@ -5,11 +5,10 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.block.production.state.StateMachine;
 import net.gegy1000.psf.server.block.production.state.StateMachineBuilder;
 import net.gegy1000.psf.server.block.production.state.StateType;
-import net.gegy1000.psf.server.capability.MultiFluidHandler;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.modules.FuelAmount;
+import net.gegy1000.psf.server.modules.FuelState;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -187,18 +186,16 @@ public class TileAirSeparator extends TileEntity implements ITickable {
         return super.getCapability(capability, facing);
     }
     
-    public Map<Fluid, FuelAmount> collectFuelAmounts() {
-        Map<Fluid, FuelAmount> amounts = new HashMap<>();
+    public Map<Fluid, FuelState> computeFuelStates() {
+        Map<Fluid, FuelState> amounts = new HashMap<>();
         if (masterInfo == null) {
             return amounts;
         }
-        IFluidTankProperties[] tankProperties = masterInfo.combinedStorage.getTankProperties();
-        for (IFluidTankProperties tank : tankProperties) {
-            FluidStack contents = tank.getContents();
-            if (contents != null) {
-                FuelAmount quantity = amounts.computeIfAbsent(contents.getFluid(), fluid -> new FuelAmount());
-                quantity.addAmount(contents.amount);
-                quantity.addCapacity(tank.getCapacity());
+        for (IFluidTankProperties properties : masterInfo.combinedStorage.getTankProperties()) {
+            FluidStack stack = properties.getContents();
+            if (stack != null) {
+                FuelState state = amounts.computeIfAbsent(stack.getFluid(), fluid -> new FuelState());
+                state.addAmount(stack.amount).addCapacity(properties.getCapacity());
             }
         }
         return amounts;

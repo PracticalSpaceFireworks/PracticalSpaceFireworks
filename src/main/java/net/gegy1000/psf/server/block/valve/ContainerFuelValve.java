@@ -2,7 +2,7 @@ package net.gegy1000.psf.server.block.valve;
 
 import lombok.Getter;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.modules.FuelAmount;
+import net.gegy1000.psf.server.modules.FuelState;
 import net.gegy1000.psf.server.modules.ModuleFuelValve;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -53,9 +53,9 @@ public class ContainerFuelValve extends Container {
     };
 
     @Getter
-    private FuelAmount keroseneAmount = new FuelAmount();
+    private FuelState keroseneState = new FuelState();
     @Getter
-    private FuelAmount liquidOxygenAmount = new FuelAmount();
+    private FuelState liquidOxygenState = new FuelState();
 
     public ContainerFuelValve(World world, ModuleFuelValve module, InventoryPlayer playerInventory) {
         this.world = world;
@@ -116,21 +116,21 @@ public class ContainerFuelValve extends Container {
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
 
-        Map<Fluid, FuelAmount> fuelAmounts = module.collectFuelAmounts();
-        FuelAmount keroseneAmount = fuelAmounts.getOrDefault(PSFFluids.kerosene(), new FuelAmount());
-        FuelAmount liquidOxygenAmount = fuelAmounts.getOrDefault(PSFFluids.liquidOxygen(), new FuelAmount());
+        Map<Fluid, FuelState> states = module.computeFuelStates();
+        FuelState keroseneState = states.getOrDefault(PSFFluids.kerosene(), new FuelState());
+        FuelState liquidOxygenState = states.getOrDefault(PSFFluids.liquidOxygen(), new FuelState());
 
-        boolean keroseneChanged = !this.keroseneAmount.equals(keroseneAmount);
-        boolean liquidOxygenChanged = !this.liquidOxygenAmount.equals(liquidOxygenAmount);
+        boolean keroseneChanged = !this.keroseneState.equals(keroseneState);
+        boolean liquidOxygenChanged = !this.liquidOxygenState.equals(liquidOxygenState);
 
         for (IContainerListener listener : this.listeners) {
             if (keroseneChanged) {
-                listener.sendWindowProperty(this, KEROSENE_AMOUNT, keroseneAmount.getAmount());
-                listener.sendWindowProperty(this, KEROSENE_CAPACITY, keroseneAmount.getCapacity());
+                listener.sendWindowProperty(this, KEROSENE_AMOUNT, keroseneState.getAmount());
+                listener.sendWindowProperty(this, KEROSENE_CAPACITY, keroseneState.getCapacity());
             }
             if (liquidOxygenChanged) {
-                listener.sendWindowProperty(this, LIQUID_OXYGEN_AMOUNT, liquidOxygenAmount.getAmount());
-                listener.sendWindowProperty(this, LIQUID_OXYGEN_CAPACITY, liquidOxygenAmount.getCapacity());
+                listener.sendWindowProperty(this, LIQUID_OXYGEN_AMOUNT, liquidOxygenState.getAmount());
+                listener.sendWindowProperty(this, LIQUID_OXYGEN_CAPACITY, liquidOxygenState.getCapacity());
             }
         }
     }
@@ -140,25 +140,25 @@ public class ContainerFuelValve extends Container {
     public void updateProgressBar(int id, int data) {
         super.updateProgressBar(id, data);
 
-        if (this.keroseneAmount == null) {
-            this.keroseneAmount = new FuelAmount();
+        if (this.keroseneState == null) {
+            this.keroseneState = new FuelState();
         }
-        if (this.liquidOxygenAmount == null) {
-            this.liquidOxygenAmount = new FuelAmount();
+        if (this.liquidOxygenState == null) {
+            this.liquidOxygenState = new FuelState();
         }
 
         switch (id) {
             case KEROSENE_AMOUNT:
-                this.keroseneAmount.setAmount(data);
+                this.keroseneState.setAmount(data);
                 break;
             case KEROSENE_CAPACITY:
-                this.keroseneAmount.setCapacity(data);
+                this.keroseneState.setCapacity(data);
                 break;
             case LIQUID_OXYGEN_AMOUNT:
-                this.liquidOxygenAmount.setAmount(data);
+                this.liquidOxygenState.setAmount(data);
                 break;
             case LIQUID_OXYGEN_CAPACITY:
-                this.liquidOxygenAmount.setCapacity(data);
+                this.liquidOxygenState.setCapacity(data);
                 break;
         }
     }
