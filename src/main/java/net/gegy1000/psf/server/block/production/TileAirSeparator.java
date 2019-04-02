@@ -122,9 +122,18 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(localInput, null, compound.getTag("input_fluid"));
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(localOxygen, null, compound.getTag("output_oxygen"));
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(localNitrogen, null, compound.getTag("output_nitrogen"));
+        Capability<IFluidHandler> cap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+
+        if (compound.hasKey("input_fluid")) {
+            cap.readNBT(localInput, null, compound.getTag("input_fluid"));
+        }
+        if (compound.hasKey("output_oxygen")) {
+            cap.readNBT(localOxygen, null, compound.getTag("output_oxygen"));
+        }
+        if (compound.hasKey("output_nitrogen")) {
+            cap.readNBT(localNitrogen, null, compound.getTag("output_nitrogen"));
+        }
+
         if (compound.hasKey("master")) {
             masterInfo = MasterInfo.deserialize(compound.getCompoundTag("master"));
         }

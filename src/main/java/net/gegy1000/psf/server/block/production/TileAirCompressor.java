@@ -128,9 +128,16 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     @Override
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(inputStorage, null, compound.getTag("input_fluid"));
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.readNBT(outputStorage, null, compound.getTag("output_fluid"));
-        CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
+        Capability<IFluidHandler> fluidCap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+        if (compound.hasKey("input_fluid")) {
+            fluidCap.readNBT(inputStorage, null, compound.getTag("input_fluid"));
+        }
+        if (compound.hasKey("output_fluid")) {
+            fluidCap.readNBT(outputStorage, null, compound.getTag("output_fluid"));
+        }
+        if (compound.hasKey("energy")) {
+            CapabilityEnergy.ENERGY.readNBT(energyStorage, null, compound.getTag("energy"));
+        }
         stateMachine.deserialize(compound);
     }
 

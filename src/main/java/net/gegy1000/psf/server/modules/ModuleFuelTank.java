@@ -1,13 +1,6 @@
 package net.gegy1000.psf.server.modules;
 
 import com.google.common.collect.Lists;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
-
 import net.gegy1000.psf.api.module.IAdditionalMass;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.init.PSFFluids;
@@ -21,6 +14,11 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerFluidMap;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Map;
 
 public class ModuleFuelTank extends EmptyModule {
     private static final int CAPACITY = 500;
@@ -53,8 +51,8 @@ public class ModuleFuelTank extends EmptyModule {
         NBTTagCompound tag = super.serializeNBT();
 
         Capability<IFluidHandler> cap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
-        tag.setTag("kerosene_tank", cap.getStorage().writeNBT(cap, this.keroseneTank, null));
-        tag.setTag("liquid_oxygen_tank", cap.getStorage().writeNBT(cap, this.liquidOxygenTank, null));
+        tag.setTag("kerosene_tank", cap.writeNBT(this.keroseneTank, null));
+        tag.setTag("liquid_oxygen_tank", cap.writeNBT(this.liquidOxygenTank, null));
 
         return tag;
     }
@@ -64,8 +62,13 @@ public class ModuleFuelTank extends EmptyModule {
         super.deserializeNBT(nbt);
 
         Capability<IFluidHandler> cap = CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
-        cap.getStorage().readNBT(cap, this.keroseneTank, null, nbt.getTag("kerosene_tank"));
-        cap.getStorage().readNBT(cap, this.liquidOxygenTank, null, nbt.getTag("liquid_oxygen_tank"));
+        if (nbt.hasKey("kerosene_tank")) {
+            cap.readNBT(this.keroseneTank, null, nbt.getCompoundTag("kerosene_tank"));
+        }
+
+        if (nbt.hasKey("liquid_oxygen_tank")) {
+            cap.readNBT(this.liquidOxygenTank, null, nbt.getCompoundTag("liquid_oxygen_tank"));
+        }
     }
 
     @Override
