@@ -187,18 +187,18 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     }
     
     public Map<Fluid, FuelState> computeFuelStates() {
-        Map<Fluid, FuelState> amounts = new HashMap<>();
+        Map<Fluid, FuelState> states = new HashMap<>();
         if (masterInfo == null) {
-            return amounts;
+            return states;
         }
         for (IFluidTankProperties properties : masterInfo.combinedStorage.getTankProperties()) {
             FluidStack stack = properties.getContents();
             if (stack != null) {
-                FuelState state = amounts.computeIfAbsent(stack.getFluid(), FuelState::new);
+                FuelState state = states.computeIfAbsent(stack.getFluid(), FuelState::new);
                 state.addAmount(stack.amount).addCapacity(properties.getCapacity());
             }
         }
-        return amounts;
+        return states;
     }
 
     IFluidHandler getNitrogenTank() {
