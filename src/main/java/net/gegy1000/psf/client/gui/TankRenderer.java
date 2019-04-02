@@ -24,17 +24,19 @@ public class TankRenderer extends Gui {
     private final int width, height;
     private final int screenWidth, screenHeight;
 
-    public void draw(Fluid fluid, int amount, int capacity, int mouseX, int mouseY) {
+    public void draw(Fluid fluid, int amount, int capacity, int guiLeft, int guiTop) {
         GlStateManager.enableBlend();
 
         TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
 
         float scale = (float) amount / capacity;
         int fluidHeight = (int) (scale * height);
-        drawSpriteTiled(sprite, x + 1, y + 1 + (height - fluidHeight), width, fluidHeight);
+        drawSpriteTiled(sprite, guiLeft + x + 1, guiTop + y + 1 + (height - fluidHeight), width, fluidHeight);
 
         GlStateManager.disableBlend();
-
+    }
+    
+    public void drawTooltip(Fluid fluid, int amount, int capacity, int mouseX, int mouseY) {
         if (mouseX >= x && mouseY >= y && mouseX <= x + width && mouseY <= y + height) {
             List<String> lines = new ArrayList<>();
             lines.add(fluid.getRarity().color + I18n.format(fluid.getUnlocalizedName()));

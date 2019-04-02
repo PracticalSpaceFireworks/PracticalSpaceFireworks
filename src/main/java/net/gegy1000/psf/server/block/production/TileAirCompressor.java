@@ -25,10 +25,12 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.EnumMap;
 
+import lombok.Getter;
+
 @ParametersAreNonnullByDefault
 public class TileAirCompressor extends TileEntity implements ITickable {
 
-    private static final int TANK_SIZE = 1000;
+    static final int TANK_SIZE = 1000;
     private static final int COMPRESS_PER_TICK = 2;
 
     private static final int DRAIN_PER_TICK = 60;
@@ -46,6 +48,7 @@ public class TileAirCompressor extends TileEntity implements ITickable {
 
     private final EnumMap<EnumFacing, TileEntity> outputs = new EnumMap<>(EnumFacing.class);
 
+    @Getter
     private State state = State.FILLING;
     private long nextStateTickTime;
 
@@ -122,15 +125,15 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     }
 
     private IFluidHandler getFluidHandler(@Nullable EnumFacing facing) {
-        if (!canDoFluid(facing) || state != State.FILLING) {
-            return EmptyFluidHandler.INSTANCE;
-        } else if (facing == null) {
+        if (facing == null) {
             return combinedStorage;
+        } else if (!canDoFluid(facing) || state != State.FILLING) {
+            return EmptyFluidHandler.INSTANCE;
         }
         return facing == getOutputSide() ? outputStorage : inputStorage;
     }
 
-    private enum State {
+    enum State {
         FILLING {
             @Override
             protected State update(TileAirCompressor compressor, IFluidTankProperties properties, @Nullable FluidStack contents) {

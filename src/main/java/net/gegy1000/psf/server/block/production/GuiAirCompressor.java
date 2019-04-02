@@ -1,36 +1,35 @@
-package net.gegy1000.psf.server.block.valve;
+package net.gegy1000.psf.server.block.production;
 
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.client.gui.TankRenderer;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.modules.ModuleFuelValve;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiFuelValve extends GuiContainer {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/fuel_valve.png");
+public class GuiAirCompressor extends GuiContainer {
+    private static final ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/air_compressor.png");
 
-    private static final int TANK_WIDTH = 20;
+    private static final int TANK_WIDTH = 16;
     private static final int TANK_HEIGHT = 63;
 
-    private final ContainerFuelValve container;
+    private final ContainerAirCompressor container;
 
-    public GuiFuelValve(ContainerFuelValve container) {
+    public GuiAirCompressor(ContainerAirCompressor container) {
         super(container);
         this.container = container;
     }
     
-    private TankRenderer keroseneTank, loxTank;
+    private TankRenderer airTank, compressedAirTank;
     
     @Override
     public void initGui() {
         super.initGui();
         
-        keroseneTank = new TankRenderer(61, 13, TANK_WIDTH, TANK_HEIGHT, this.width, this.height);
-        loxTank = new TankRenderer(91, 13, TANK_WIDTH, TANK_HEIGHT, this.width, this.height);
+        airTank = new TankRenderer(52, 14, TANK_WIDTH, TANK_HEIGHT, this.width, this.height);
+        compressedAirTank = new TankRenderer(106, 14, TANK_WIDTH, TANK_HEIGHT, this.width, this.height);
     }
 
     @Override
@@ -49,15 +48,12 @@ public class GuiFuelValve extends GuiContainer {
         mouseX -= originX;
         mouseY -= originY;
 
-        String title = I18n.format(PSFBlocks.FUEL_VALVE.getTranslationKey() + ".name");
+        String title = I18n.format(PSFBlocks.AIR_COMPRESSOR.getTranslationKey() + ".name");
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
-        ModuleFuelValve.FuelAmount keroseneAmount = container.getKeroseneAmount();
-        ModuleFuelValve.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
-
-        keroseneTank.drawTooltip(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), mouseX, mouseY);
-        loxTank.drawTooltip(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), mouseX, mouseY);
+        airTank.drawTooltip(PSFFluids.filteredAir(), container.getAirAmount(), TileAirCompressor.TANK_SIZE, mouseX, mouseY);
+        compressedAirTank.drawTooltip(PSFFluids.compressedAir(), container.getCompressedAirAmount(), TileAirCompressor.TANK_SIZE, mouseX, mouseY);
     }
 
     @Override
@@ -70,11 +66,11 @@ public class GuiFuelValve extends GuiContainer {
         GlStateManager.color(1, 1, 1, 1);
         drawTexturedModalRect(originX, originY, 0, 0, xSize, ySize);
         
-        GlStateManager.color(1, 1, 1, 1);
-        ModuleFuelValve.FuelAmount keroseneAmount = container.getKeroseneAmount();
-        ModuleFuelValve.FuelAmount liquidOxygenAmount = container.getLiquidOxygenAmount();
+        if (container.isActive()) {
+            drawTexturedModalRect(originX + 72, originY + 31, 176, 0, 33, 33);
+        }
         
-        keroseneTank.draw(PSFFluids.kerosene(), keroseneAmount.getAmount(), keroseneAmount.getCapacity(), originX, originY);
-        loxTank.draw(PSFFluids.liquidOxygen(), liquidOxygenAmount.getAmount(), liquidOxygenAmount.getCapacity(), originX, originY);
+        airTank.draw(PSFFluids.filteredAir(), container.getAirAmount(), TileAirCompressor.TANK_SIZE, originX, originY);
+        compressedAirTank.draw(PSFFluids.compressedAir(), container.getCompressedAirAmount(), TileAirCompressor.TANK_SIZE, originX, originY);
     }
 }
