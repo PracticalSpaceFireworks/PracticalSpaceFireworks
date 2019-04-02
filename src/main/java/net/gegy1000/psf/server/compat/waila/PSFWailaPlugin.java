@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.compat.waila;
 
 import lombok.val;
+import mcp.MethodsReturnNonnullByDefault;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaEntityAccessor;
 import mcp.mobius.waila.api.IWailaEntityProvider;
@@ -19,12 +20,12 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
 @WailaPlugin
+@MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public final class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin {
@@ -43,7 +44,6 @@ public final class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin 
     }
 
     @Override
-    @Nonnull
     public List<String> getWailaHead(Entity entity, List<String> tooltip, IWailaEntityAccessor accessor, IWailaConfigHandler cfg) {
         val hitVec = accessor.getMOP().hitVec;
         if (lastHitVec != hitVec) {
@@ -59,7 +59,6 @@ public final class PSFWailaPlugin implements IWailaEntityProvider, IWailaPlugin 
     }
 
     @Override
-    @Nonnull
     public List<String> getWailaBody(Entity entity, List<String> tooltip, IWailaEntityAccessor accessor, IWailaConfigHandler cfg) {
         if (subHit != null && Type.BLOCK == subHit.typeOfHit) {
             val world = ((EntitySpacecraft) entity).getBody().getWorld();
