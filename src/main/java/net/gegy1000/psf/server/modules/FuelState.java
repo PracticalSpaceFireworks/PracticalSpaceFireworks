@@ -11,7 +11,7 @@ import net.minecraftforge.fluids.Fluid;
 public final class FuelState {
     private int amount, capacity;
 
-    FuelState(Fluid fluid) {
+    public FuelState(Fluid fluid) {
         super();
     }
 

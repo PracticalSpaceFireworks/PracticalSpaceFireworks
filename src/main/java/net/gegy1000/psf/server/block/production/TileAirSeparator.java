@@ -194,7 +194,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
         for (IFluidTankProperties properties : masterInfo.combinedStorage.getTankProperties()) {
             FluidStack stack = properties.getContents();
             if (stack != null) {
-                FuelState state = amounts.computeIfAbsent(stack.getFluid(), fluid -> new FuelState());
+                FuelState state = amounts.computeIfAbsent(stack.getFluid(), FuelState::new);
                 state.addAmount(stack.amount).addCapacity(properties.getCapacity());
             }
         }
