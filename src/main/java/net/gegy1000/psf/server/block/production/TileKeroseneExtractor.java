@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.block.production;
 
 import lombok.Getter;
+import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,7 +35,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     @Getter
     private int totalExtractionAmount = -1;
 
-    private final FluidTank fluidTank = new FluidTank(PSFFluids.kerosene(), 0, MAX_STORAGE);
+    private final FluidTank fluidTank = new TypedFluidTank(MAX_STORAGE, PSFFluids.kerosene(), TypedFluidTank.IO.OUT);
 
     private final IItemHandler itemHandler = new ItemStackHandler(1) {
         @Override

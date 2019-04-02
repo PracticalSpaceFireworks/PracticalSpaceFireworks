@@ -1,5 +1,8 @@
 package net.gegy1000.psf.server.block.production;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -7,7 +10,6 @@ import net.gegy1000.psf.server.api.RegisterItemBlock;
 import net.gegy1000.psf.server.api.RegisterItemModel;
 import net.gegy1000.psf.server.api.RegisterTileEntity;
 import net.gegy1000.psf.server.block.property.Part;
-import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
@@ -27,9 +29,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import net.minecraftforge.fluids.FluidUtil;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -108,7 +108,7 @@ public class BlockAirSeparator extends BlockHorizontal implements RegisterItemMo
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (FluidTransferUtils.transferWithHeldItem(world, pos, player, hand, facing)) {
+        if (FluidUtil.interactWithFluidHandler(player, hand, world, pos, facing)) {
             return true;
         }
         if (!world.isRemote) {

@@ -1,12 +1,17 @@
 package net.gegy1000.psf.server.block.production;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.util.EnumMap;
+
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.server.block.production.state.StateMachine;
 import net.gegy1000.psf.server.block.production.state.StateMachineBuilder;
 import net.gegy1000.psf.server.block.production.state.StateType;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -17,16 +22,12 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fluids.capability.templates.EmptyFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.EnumMap;
 
 @ParametersAreNonnullByDefault
 public class TileAirCompressor extends TileEntity implements ITickable {
@@ -83,7 +84,7 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                 if (outputEntity != null) {
                     IFluidHandler output = outputEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing.getOpposite());
                     if (output != null) {
-                        FluidTransferUtils.transfer(ctx.tile.outputStorage, output, DRAIN_PER_TICK);
+                        FluidUtil.tryFluidTransfer(output, ctx.tile.outputStorage, DRAIN_PER_TICK, true);
                     }
                 }
 
@@ -95,8 +96,8 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                 return DRAINING_STATE;
             });
 
-    private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir());
-    private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
+    private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir(), TypedFluidTank.IO.IN);
+    private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.OUT);
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
@@ -149,6 +150,14 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     public StateType getState() {
         return stateMachine.getState();
     }
+    
+    IFluidHandler getAirTank() {
+        return inputStorage;
+    }
+    
+    IFluidHandler getCompressedAirTank() {
+        return outputStorage;
+    }
 
     @Nonnull
     private EnumFacing getInputSide() {
@@ -188,7 +197,7 @@ public class TileAirCompressor extends TileEntity implements ITickable {
     private IFluidHandler getFluidHandler(@Nullable EnumFacing facing) {
         if (facing == null) {
             return combinedStorage;
-        } else if (!canDoFluid(facing) || stateMachine.getState() != FILLING_STATE) {
+        } else if (!canDoFluid(facing) || stateMachine.getState() == COMPRESSING_STATE) {
             return EmptyFluidHandler.INSTANCE;
         }
         return facing == getOutputSide() ? outputStorage : inputStorage;

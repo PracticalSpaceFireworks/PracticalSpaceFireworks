@@ -23,7 +23,6 @@ public class ContainerAirCompressor extends Container {
     private static final int PLAYER_INVENTORY_SIZE = 36;
 
     private final TileAirCompressor te;
-    private final IFluidHandler fluidHandler;
 
     @Getter
     private int airAmount;
@@ -34,7 +33,6 @@ public class ContainerAirCompressor extends Container {
 
     public ContainerAirCompressor(TileAirCompressor te, InventoryPlayer playerInventory) {
         this.te = te;
-        this.fluidHandler = te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -50,9 +48,12 @@ public class ContainerAirCompressor extends Container {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
+        if (te.getWorld().isRemote) {
+            return;
+        }
 
-        FluidStack air = fluidHandler.getTankProperties()[0].getContents();
-        FluidStack compressedAir = fluidHandler.getTankProperties()[1].getContents();
+        FluidStack air = te.getAirTank().getTankProperties()[0].getContents();
+        FluidStack compressedAir = te.getCompressedAirTank().getTankProperties()[0].getContents();
         int airAmount = air == null ? 0 : air.amount;
         int compressedAirAmount = compressedAir == null ? 0 : compressedAir.amount;
         boolean active = te.getState() == TileAirCompressor.COMPRESSING_STATE;
@@ -60,6 +61,8 @@ public class ContainerAirCompressor extends Container {
         boolean airChanged = airAmount != this.airAmount;
         boolean compressedAirChanged = compressedAirAmount != this.compressedAirAmount;
         boolean activeChanged = active != this.active;
+        
+        System.out.println(compressedAirAmount + " " + compressedAirChanged);
 
         for (IContainerListener listener : this.listeners) {
             if (airChanged) {

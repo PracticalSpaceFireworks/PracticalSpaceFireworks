@@ -1,5 +1,7 @@
 package net.gegy1000.psf.server.block.module;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -8,7 +10,6 @@ import net.gegy1000.psf.server.init.PSFBlocks;
 import net.gegy1000.psf.server.init.PSFItems;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.network.PacketDisplayContainerMessage;
-import net.gegy1000.psf.server.util.FluidTransferUtils;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
@@ -26,8 +27,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+import net.minecraftforge.fluids.FluidUtil;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -54,7 +54,7 @@ public class BlockFuelValve extends BlockFuelTank implements Machine {
         val module = TileModule.getModule(world.getTileEntity(pos));
         if (module == null) return false;
         if (world.isRemote) return true;
-        if (FluidTransferUtils.transferWithHeldItem(world, pos, player, hand, side)) {
+        if (FluidUtil.interactWithFluidHandler(player, hand, world, pos, side)) {
             return true;
         }
         if (module.getOwner() == null) {

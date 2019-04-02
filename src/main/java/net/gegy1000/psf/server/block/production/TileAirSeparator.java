@@ -100,9 +100,9 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                 return DRAINING_STATE;
             });
 
-    private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir());
-    private final IFluidHandler localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen());
-    private final IFluidHandler localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen());
+    private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.IN);
+    private final IFluidHandler localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen(), TypedFluidTank.IO.OUT);
+    private final IFluidHandler localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen(), TypedFluidTank.IO.OUT);
 
     private MasterInfo masterInfo = null;
     private final List<TileAirSeparator> connected = new ArrayList<>();
@@ -215,7 +215,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
             return masterInfo.combinedStorage;
         }
 
-        if (facing.getAxis() == EnumFacing.Axis.Y && masterInfo.stateMachine.getState() == FILLING_STATE) {
+        if (facing.getAxis() == EnumFacing.Axis.Y && masterInfo.stateMachine.getState() != DISTILLING_STATE) {
             return masterInfo.combinedInput;
         } else if (masterInfo.stateMachine.getState() != DISTILLING_STATE) {
             EnumFacing output = getFacing().rotateY();
