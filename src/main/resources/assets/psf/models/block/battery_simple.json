@@ -1,78 +1,100 @@
 {
-  "__comment": "Copyright © InsomniaKitten 2019",
-  "parent": "minecraft:block/block",
-  "textures": {
-    "particle": "psf:blocks/battery_simple_top",
-    "top": "psf:blocks/battery_simple_top",
-    "bottom": "psf:blocks/battery_simple_bottom",
-    "front": "psf:blocks/battery_simple_end",
-    "back": "psf:blocks/battery_simple_end",
-    "left": "psf:blocks/battery_simple_left",
-    "right": "psf:blocks/batter_simple_right"
-  },
-  "elements": [
-    {
-      "from": [ 2, 0, 1 ],
-      "to": [ 14, 2, 15 ],
-      "faces": {
-        "down": { "texture": "#bottom", "cullface": "down" },
-        "up": { "texture": "#bottom" },
-        "north": { "texture": "#front" },
-        "south": { "texture": "#back" },
-        "west": { "texture": "#right" },
-        "east": { "texture": "#left" }
-      }
-    },
-    {
-      "from": [ 3, 2, 2 ],
-      "to": [ 7, 6, 12 ],
-      "faces": {
-        "up": { "texture": "#top" },
-        "north": { "texture": "#front" },
-        "south": { "texture": "#back" },
-        "west": { "texture": "#right" },
-        "east": { "texture": "#left" }
-      }
-    },
-    {
-      "from": [ 4, 3, 12 ],
-      "to": [ 6, 5, 13 ],
-      "faces": {
-        "down": { "texture": "#bottom" },
-        "up": { "texture": "#top" },
-        "south": { "texture": "#back" },
-        "west": { "texture": "#right" },
-        "east": { "texture": "#left" }
-      }
-    },
-    {
-      "from": [ 9, 2, 2 ],
-      "to": [ 13, 6, 12 ],
-      "faces": {
-        "up": { "texture": "#top" },
-        "north": { "texture": "#front" },
-        "south": { "texture": "#back" },
-        "west": { "texture": "#right" },
-        "east": { "texture": "#left" }
-      }
-    },
-    {
-      "from": [ 10, 3, 12 ],
-      "to": [ 12, 5, 13 ],
-      "faces": {
-        "down": { "texture": "#bottom" },
-        "up": { "texture": "#top" },
-        "south": { "texture": "#back" },
-        "west": { "texture": "#right" },
-        "east": { "texture": "#left" }
-      }
-    }
-  ],
-  "display": {
-    "gui": {
-      "rotation": [ 30, 225, 0 ],
-      "translation": [ 0, 3, 0 ],
-      "scale": [ 0.625, 0.625, 0.625 ]
-    }
-  }
+	"__comment": "Copyright © InsomniaKitten 2019",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"particle": "psf:blocks/battery_simple_top",
+		"top": "psf:blocks/battery_simple_top",
+		"bottom": "psf:blocks/battery_simple_bottom",
+		"end": "psf:blocks/battery_simple_end",
+		"end_1": "psf:blocks/battery_simple_end_1",
+		"left": "psf:blocks/battery_simple_left",
+		"right": "psf:blocks/batter_simple_right"
+	},
+	"elements": [ 	 
+		{
+			"from": [ 2, 0, 1 ],
+			"to": [ 14, 2, 15 ],
+			"faces": {
+				"down": { "texture": "#bottom", "cullface": "down" },
+				"up": { "texture": "#top" },
+				"north": { "texture": "#end" },
+				"south": { "texture": "#end" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		},
+		{
+			"from": [ 3, 2, 1 ],
+			"to": [ 7, 6, 12 ],
+			"faces": {
+				"up": { "texture": "#top" },
+				"north": { "texture": "#end" },
+				"south": { "texture": "#end_1" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		},
+		{
+			"from": [ 4, 3, 12 ],
+			"to": [ 6, 5, 13 ],
+			"faces": {
+				"down": { "texture": "#bottom" },
+				"up": { "texture": "#top" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		},
+		{
+			"from": [ 9, 2, 1 ],
+			"to": [ 13, 6, 12 ],
+			"faces": {
+				"up": { "texture": "#top" },
+				"north": { "texture": "#end" },
+				"south": { "texture": "#end_1" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		},
+		{
+			"from": [ 10, 3, 12 ],
+			"to": [ 12, 5, 13 ],
+			"faces": {
+				"down": { "texture": "#bottom" },
+				"up": { "texture": "#top" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		},
+		{
+			"from": [ 3, 2, 13 ],
+			"to": [ 7, 6, 15 ],
+			"faces": {
+				"down": { "texture": "#top" },
+				"up": { "texture": "#top" },
+				"north": { "texture": "#end" },
+				"south": { "texture": "#end" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		},
+		{
+			"from": [ 9, 2, 13 ],
+			"to": [ 13, 6, 15 ],
+			"faces": {
+				"down": { "texture": "#top" },
+				"up": { "texture": "#top" },
+				"north": { "texture": "#end" },
+				"south": { "texture": "#end" },
+				"west": { "texture": "#right" },
+				"east": { "texture": "#left" }
+			}
+		}
+	],
+	"display": {
+		"gui": {
+			"rotation":  [ 30, 225, 0 ],
+			"translation":  [ 0, 3, 0 ],
+			"scale":  [ 0.625, 0.625, 0.625 ]
+		}
+	}
 }
