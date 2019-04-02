@@ -1,6 +1,7 @@
 package net.gegy1000.psf.server.modules;
 
 import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.server.capability.MultiFluidHandler;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -28,7 +29,7 @@ public class ModuleFuelValve extends ModuleFuelTank {
     @Override
     public void handleModuleChange(@Nonnull Collection<IModule> modules) {
         if (!modules.isEmpty()) {
-            fuelHandler = new MultiTankFluidHandler(collectFuelHandlers(modules));
+            fuelHandler = new MultiFluidHandler<>(collectFuelHandlers(modules));
         } else {
             fuelHandler = EmptyFluidHandler.INSTANCE;
         }

@@ -5,6 +5,7 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.block.production.state.StateMachine;
 import net.gegy1000.psf.server.block.production.state.StateMachineBuilder;
 import net.gegy1000.psf.server.block.production.state.StateType;
+import net.gegy1000.psf.server.capability.MultiFluidHandler;
 import net.gegy1000.psf.server.capability.MultiTankFluidHandler;
 import net.gegy1000.psf.server.capability.TypedFluidTank;
 import net.gegy1000.psf.server.init.PSFFluids;
@@ -20,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -65,14 +67,14 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                     return DRAINING_STATE;
                 }
                 if (ctx.inputContents == null || ctx.inputContents.amount <= 0) {
-                    master.combinedOxygen.fill(new FluidStack(PSFFluids.liquidOxygen(), (int) Math.round(master.oxygenRemainder)), true);
-                    master.combinedNitrogen.fill(new FluidStack(PSFFluids.liquidNitrogen(), (int) Math.round(master.nitrogenRemainder)), true);
+                    master.combinedOxygen.fillInternal(new FluidStack(PSFFluids.liquidOxygen(), (int) Math.round(master.oxygenRemainder)), true);
+                    master.combinedNitrogen.fillInternal(new FluidStack(PSFFluids.liquidNitrogen(), (int) Math.round(master.nitrogenRemainder)), true);
                     master.oxygenRemainder = 0.0;
                     master.nitrogenRemainder = 0.0;
                     return FILLING_STATE;
                 }
 
-                FluidStack drainedInput = master.combinedInput.drain(DISTILL_PER_TICK, true);
+                FluidStack drainedInput = master.combinedInput.drainInternal(DISTILL_PER_TICK, true);
                 if (drainedInput != null && drainedInput.amount > 0) {
                     double oxygenAmount = drainedInput.amount * OXYGEN_AMOUNT + master.oxygenRemainder;
                     double nitrogenAmount = drainedInput.amount * NITROGEN_AMOUNT + master.nitrogenRemainder;
@@ -82,8 +84,8 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                     master.nitrogenRemainder = nitrogenAmount - nitrogenFillAmount;
 
                     // TODO: What if these outputs are full?
-                    master.combinedOxygen.fill(new FluidStack(PSFFluids.liquidOxygen(), oxygenFillAmount), true);
-                    master.combinedNitrogen.fill(new FluidStack(PSFFluids.liquidNitrogen(), nitrogenFillAmount), true);
+                    master.combinedOxygen.fillInternal(new FluidStack(PSFFluids.liquidOxygen(), oxygenFillAmount), true);
+                    master.combinedNitrogen.fillInternal(new FluidStack(PSFFluids.liquidNitrogen(), nitrogenFillAmount), true);
                 }
 
                 return DISTILLING_STATE;
@@ -100,9 +102,9 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                 return DRAINING_STATE;
             });
 
-    private final IFluidHandler localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.IN);
-    private final IFluidHandler localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen(), TypedFluidTank.IO.OUT);
-    private final IFluidHandler localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen(), TypedFluidTank.IO.OUT);
+    private final FluidTank localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.IN);
+    private final FluidTank localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen(), TypedFluidTank.IO.OUT);
+    private final FluidTank localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen(), TypedFluidTank.IO.OUT);
 
     private MasterInfo masterInfo = null;
     private final List<TileAirSeparator> connected = new ArrayList<>();
@@ -291,10 +293,10 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     private static class MasterInfo {
         private BlockPos masterPos;
 
-        private IFluidHandler combinedInput = EmptyFluidHandler.INSTANCE;
-        private IFluidHandler combinedNitrogen = EmptyFluidHandler.INSTANCE;
-        private IFluidHandler combinedOxygen = EmptyFluidHandler.INSTANCE;
-        private IFluidHandler combinedStorage = EmptyFluidHandler.INSTANCE;
+        private MultiTankFluidHandler combinedInput = MultiTankFluidHandler.EMPTY;
+        private MultiTankFluidHandler combinedNitrogen = MultiTankFluidHandler.EMPTY;
+        private MultiTankFluidHandler combinedOxygen = MultiTankFluidHandler.EMPTY;
+        private MultiTankFluidHandler combinedStorage = MultiTankFluidHandler.EMPTY;
 
         private final StateMachine<StepCtx> stateMachine = STATE_MACHINE_BUILDER.build();
 
@@ -318,16 +320,16 @@ public class TileAirSeparator extends TileEntity implements ITickable {
         }
 
         void buildTotalStorage(List<TileAirSeparator> connected) {
-            List<IFluidHandler> inputHandlers = new ArrayList<>();
-            List<IFluidHandler> nitrogenHandlers = new ArrayList<>();
-            List<IFluidHandler> oxygenHandlers = new ArrayList<>();
+            List<FluidTank> inputHandlers = new ArrayList<>();
+            List<FluidTank> nitrogenHandlers = new ArrayList<>();
+            List<FluidTank> oxygenHandlers = new ArrayList<>();
             for (TileAirSeparator separator : connected) {
                 inputHandlers.add(separator.localInput);
                 nitrogenHandlers.add(separator.localNitrogen);
                 oxygenHandlers.add(separator.localOxygen);
             }
 
-            List<IFluidHandler> allHandlers = new ArrayList<>(inputHandlers.size() + nitrogenHandlers.size() + oxygenHandlers.size());
+            List<FluidTank> allHandlers = new ArrayList<>(inputHandlers.size() + nitrogenHandlers.size() + oxygenHandlers.size());
             allHandlers.addAll(inputHandlers);
             allHandlers.addAll(nitrogenHandlers);
             allHandlers.addAll(oxygenHandlers);

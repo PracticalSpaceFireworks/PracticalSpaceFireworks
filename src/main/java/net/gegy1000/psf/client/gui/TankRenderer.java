@@ -27,6 +27,9 @@ public class TankRenderer extends Gui {
     private final int screenWidth, screenHeight;
 
     public void draw(Fluid fluid, int amount, int capacity, int guiLeft, int guiTop) {
+        if (capacity <= 0) {
+            return;
+        }
         GlStateManager.enableBlend();
 
         TextureAtlasSprite sprite = CLIENT.getTextureMapBlocks().getAtlasSprite(fluid.getStill().toString());
@@ -39,6 +42,9 @@ public class TankRenderer extends Gui {
     }
     
     public void drawTooltip(Fluid fluid, int amount, int capacity, int mouseX, int mouseY) {
+        if (capacity <= 0) {
+            return;
+        }
         if (mouseX >= x && mouseY >= y && mouseX <= x + width && mouseY <= y + height) {
             List<String> lines = new ArrayList<>();
             lines.add(fluid.getRarity().color + I18n.format(fluid.getUnlocalizedName()));

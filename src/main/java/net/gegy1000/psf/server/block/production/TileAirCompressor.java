@@ -22,6 +22,7 @@ import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -58,13 +59,14 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                     return DRAINING_STATE;
                 }
                 if (ctx.tile.energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK) {
-                    FluidStack drained = ctx.tile.inputStorage.drain(new FluidStack(PSFFluids.filteredAir(), COMPRESS_PER_TICK), true);
+                    FluidStack drained = ctx.tile.inputStorage.drainInternal(new FluidStack(PSFFluids.filteredAir(), COMPRESS_PER_TICK), true);
                     if (drained != null && drained.amount > 0) {
-                        ctx.tile.outputStorage.fill(new FluidStack(PSFFluids.compressedAir(), drained.amount), true);
+                        ctx.tile.outputStorage.fillInternal(new FluidStack(PSFFluids.compressedAir(), drained.amount), true);
                         ctx.markActive();
                     }
+                    return COMPRESSING_STATE;
                 }
-                return COMPRESSING_STATE;
+                return DRAINING_STATE;
             })
             .withStep(DRAINING_STATE, ctx -> {
                 ctx.markActive();
@@ -96,8 +98,8 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                 return DRAINING_STATE;
             });
 
-    private final IFluidHandler inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir(), TypedFluidTank.IO.IN);
-    private final IFluidHandler outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.OUT);
+    private final FluidTank inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir(), TypedFluidTank.IO.IN);
+    private final FluidTank outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.OUT);
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);
