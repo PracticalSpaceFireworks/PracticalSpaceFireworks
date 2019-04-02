@@ -24,7 +24,7 @@ public class FluidTransferUtils {
         @Nullable val source = te.getCapability(FLUID_HANDLER_CAPABILITY, facing);
         if (source == null) return false;
 
-        ItemStack heldItem = takeHeld(player, hand);
+        ItemStack heldItem = InventoryUtils.extractHeld(player, hand, 1);
 
         IFluidHandlerItem fluidItem = heldItem.getCapability(FLUID_HANDLER_ITEM_CAPABILITY, null);
         if (fluidItem != null) {
@@ -63,18 +63,6 @@ public class FluidTransferUtils {
             }
         }
         return transferred;
-    }
-
-    private static ItemStack takeHeld(EntityPlayer player, EnumHand hand) {
-        ItemStack heldItem = player.getHeldItem(hand);
-        ItemStack taken = heldItem.copy();
-
-        heldItem.shrink(1);
-        taken.setCount(1);
-
-        player.setHeldItem(hand, heldItem);
-
-        return taken;
     }
 
     public static int transfer(IFluidHandler source, IFluidHandler target, int amount) {
