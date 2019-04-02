@@ -8,12 +8,15 @@ import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.datafix.IFixableData;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ModFixs;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -83,6 +86,10 @@ public class PracticalSpaceFireworks {
     public static String namespace(String path, char delimiter) {
         checkArgument(!isNullOrEmpty(path));
         return MODID + delimiter + path;
+    }
+
+    public static void openGui(int guiId, EntityPlayer player, World world, BlockPos pos) {
+        player.openGui(getInstance(), guiId, world, pos.getX(), pos.getY(), pos.getZ());
     }
 
     @EventHandler

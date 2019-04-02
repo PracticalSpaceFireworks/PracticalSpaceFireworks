@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModuleFuelValve extends EmptyModule {
+public class ModuleFuelValve extends ModuleFuelTank {
     private IFluidHandler fuelHandler = EmptyFluidHandler.INSTANCE;
 
     public ModuleFuelValve() {
@@ -54,9 +54,6 @@ public class ModuleFuelValve extends EmptyModule {
     private Collection<IFluidHandler> collectFuelHandlers(@Nonnull Collection<IModule> modules) {
         Collection<IFluidHandler> fuelHandlers = new ArrayList<>();
         for (IModule module : modules) {
-            if (module instanceof ModuleFuelValve) {
-                continue;
-            }
             IFluidHandler fluidHandler = module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
             if (fluidHandler != null) {
                 fuelHandlers.add(fluidHandler);

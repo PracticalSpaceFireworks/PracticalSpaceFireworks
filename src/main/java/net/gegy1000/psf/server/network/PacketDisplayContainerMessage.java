@@ -1,8 +1,11 @@
 package net.gegy1000.psf.server.network;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.client.gui.GuiContainerMessage;
 import net.minecraft.client.Minecraft;
@@ -16,33 +19,33 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
 
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PacketDisplayContainerMessage implements IMessage {
     private ITextComponent title;
-    private ITextComponent[] lines;
+    @Singular
+    private ImmutableList<ITextComponent> lines;
 
     @Override
     public void toBytes(ByteBuf buf) {
         PacketBuffer packetBuf = new PacketBuffer(buf);
         packetBuf.writeTextComponent(this.title);
-
-        packetBuf.writeByte(this.lines.length & 0xFF);
-        for (ITextComponent component : this.lines) {
-            packetBuf.writeTextComponent(component);
-        }
+        packetBuf.writeByte(this.lines.size() & 0xFF);
+        this.lines.forEach(packetBuf::writeTextComponent);
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        PacketBuffer packetBuf = new PacketBuffer(buf);
+        final PacketBuffer packetBuf = new PacketBuffer(buf);
         try {
             this.title = packetBuf.readTextComponent();
-
-            this.lines = new ITextComponent[packetBuf.readUnsignedByte()];
-            for (int i = 0; i < this.lines.length; i++) {
-                this.lines[i] = packetBuf.readTextComponent();
+            ImmutableList.Builder<ITextComponent> lines = ImmutableList.builder();
+            short size = packetBuf.readUnsignedByte();
+            for (int i = 0; i < size; i++) {
+                lines.add(packetBuf.readTextComponent());
             }
+            this.lines = lines.build();
         } catch (IOException e) {
             PracticalSpaceFireworks.LOGGER.error("Failed to parse text components", e);
         }
@@ -56,9 +59,9 @@ public class PacketDisplayContainerMessage implements IMessage {
         }
 
         @SideOnly(Side.CLIENT)
-        private void displayGuiClient(PacketDisplayContainerMessage message) {
+        private void displayGuiClient(PacketDisplayContainerMessage msg) {
             Minecraft client = Minecraft.getMinecraft();
-            client.addScheduledTask(() -> client.displayGuiScreen(new GuiContainerMessage(message.title, message.lines)));
+            client.addScheduledTask(() -> client.displayGuiScreen(new GuiContainerMessage(msg.title, msg.lines)));
         }
     }
 }

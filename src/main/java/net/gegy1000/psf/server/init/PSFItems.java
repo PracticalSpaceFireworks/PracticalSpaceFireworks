@@ -3,7 +3,9 @@ package net.gegy1000.psf.server.init;
 import lombok.val;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.api.RegisterItemBlock;
+import net.gegy1000.psf.server.block.module.BlockFuelValve;
 import net.gegy1000.psf.server.item.ItemCraftingMaterial;
+import net.gegy1000.psf.server.item.ItemFuelValve;
 import net.gegy1000.psf.server.item.ItemTargetSelector;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -27,6 +29,7 @@ import static net.gegy1000.psf.PracticalSpaceFireworks.namespace;
 public final class PSFItems {
     public static final ItemTargetSelector TARGET_SELECTOR = null;
     public static final ItemCraftingMaterial CRAFTING_MATERIAL = null;
+    public static final ItemFuelValve FUEL_VALVE = null;
 
     private static final Set<Item> ALL_ITEMS = new LinkedHashSet<>();
     private static final Set<ItemBlock> ALL_BLOCK_ITEMS = new LinkedHashSet<>();
@@ -50,12 +53,15 @@ public final class PSFItems {
         val registry = event.getRegistry();
         register(registry, "target_selector", new ItemTargetSelector());
         register(registry, "crafting_material", new ItemCraftingMaterial());
+        register(registry, "fuel_valve", new ItemFuelValve());
         registerBlockItems(registry);
     }
 
     private static void registerBlockItems(final IForgeRegistry<Item> registry) {
         for (val block : PSFBlocks.allBlocks()) {
             if (!(block instanceof RegisterItemBlock)) continue;
+            // fixme get rid of this damn RegisterItemBlock, christ
+            if (block == PSFBlocks.FUEL_VALVE) continue;
             val item = ((RegisterItemBlock) block).createItemBlock(block);
             if (ALL_BLOCK_ITEMS.add(item)) {
                 val name = block.getRegistryName();

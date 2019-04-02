@@ -1,36 +1,95 @@
 {
   "multipart": [
     {
-      "when": { "active": false },
       "apply": { "model": "psf:fuel_valve" }
     },
     {
-      "when": { "active": true },
-      "apply": { "model": "psf:fuel_valve_active" }
+      "when": { "part": "bottom" },
+      "apply": { "model": "psf:fuel_tank_bottom" }
     },
     {
-      "when": { "down": true },
-      "apply": { "model": "psf:fuel_valve_side", "x": 90, "uvlock": true }
+      "when": { "part": "top" },
+      "apply": { "model": "psf:fuel_tank_top" }
     },
     {
-      "when": { "up": true },
-      "apply": { "model": "psf:fuel_valve_side", "x": 270, "uvlock": true }
+      "when": { "part": "none" },
+      "apply": { "model": "psf:fuel_tank_none" }
     },
     {
-      "when": { "north": true },
-      "apply": { "model": "psf:fuel_valve_side" }
+      "when": { "part": "both" },
+      "apply": { "model": "psf:fuel_tank_both" }
     },
     {
-      "when": { "east": true },
-      "apply": { "model": "psf:fuel_valve_side", "y": 90, "uvlock": true }
+      "when": {
+        "OR": [
+          { "part": "top", "north": "true" },
+          { "part": "both", "north": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_side", "uvlock": true }
     },
     {
-      "when": { "south": true },
-      "apply": { "model": "psf:fuel_valve_side", "y": 180, "uvlock": true }
+      "when": {
+        "OR": [
+          { "part": "top", "north_east": "true" },
+          { "part": "both", "north_east": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_corner", "uvlock": true }
     },
     {
-      "when": { "west": true },
-      "apply": { "model": "psf:fuel_valve_side", "y": 270, "uvlock": true }
+      "when": {
+        "OR": [
+          { "part": "top", "east": "true" },
+          { "part": "both", "east": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_side", "uvlock": true, "y": 90 }
+    },
+    {
+      "when": {
+        "OR": [
+          { "part": "top", "south_east": "true" },
+          { "part": "both", "south_east": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_corner", "uvlock": true, "y": 90 }
+    },
+    {
+      "when": {
+        "OR": [
+          { "part": "top", "south": "true" },
+          { "part": "both", "south": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_side", "uvlock": true, "y": 180 }
+    },
+    {
+      "when": {
+        "OR": [
+          { "part": "top", "south_west": "true" },
+          { "part": "both", "south_west": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_corner", "uvlock": true, "y": 180 }
+    },
+    {
+      "when": {
+        "OR": [
+          { "part": "top", "west": "true" },
+          { "part": "both", "west": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_side", "uvlock": true, "y": 270 }
+    },
+    {
+      "when": {
+        "OR": [
+          { "part": "top", "north_west": "true" },
+          { "part": "both", "north_west": "true" }
+        ]
+      },
+      "apply": { "model": "psf:fuel_tank_corner", "uvlock": true, "y": 270 }
     }
   ]
 }

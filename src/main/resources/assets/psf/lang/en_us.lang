@@ -3,7 +3,6 @@ itemGroup.psf=Practical Space Fireworks
 # Modules
 
 tile.psf.fuel_tank.name=Fuel Tank
-tile.psf.fuel_valve.name=Fuel Valve
 tile.psf.strut_cube.name=Cubic Strut
 tile.psf.strut_slope.name=Sloped Strut
 tile.psf.thruster_simple.name=Simple Thruster
@@ -42,6 +41,7 @@ item.psf.target_selector.name=Target Selector
 
 item.psf.mirror.name=Mirror
 item.psf.light_filament.name=Light Filament
+item.psf.fuel_valve.name=Fuel Valve
 
 message.psf.target_selector.activated=%s firing at [x:%s, y:%s, z:%s]
 
@@ -64,6 +64,7 @@ death.attack.psf.thruster=%s was atomized by %s
 # Waila
 
 tooltip.psf.waila.looking_at=Looking at: %s
+tooltip.psf.waila.fuel_valve=Has fuel valve
 
 # Advancements
 
@@ -79,5 +80,6 @@ subtitles.psf.laser.fire=Laser fires
 
 # Gui
 
-gui.psf.fuel_valve.controller_not_present.0=No controller!
-gui.psf.fuel_valve.controller_not_present.1=Cannot load fuel
+gui.psf.fuel_valve=Fuel Valve
+gui.psf.fuel_valve.no_controller.0=No controller!
+gui.psf.fuel_valve.no_controller.1=Cannot load fuel

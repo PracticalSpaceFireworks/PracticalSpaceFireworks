@@ -4,7 +4,11 @@
     "type": "ctm_horizontal",
     "layer": "SOLID",
     "extra": {
-      "connect_inside": true
+      "connect_inside": true,
+      "connect_to": [
+        { "block": "psf:fuel_tank" },
+        { "block": "psf:fuel_valve" }
+      ]
     }
   }
 }

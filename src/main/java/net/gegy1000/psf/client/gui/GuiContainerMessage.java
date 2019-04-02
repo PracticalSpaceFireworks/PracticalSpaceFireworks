@@ -1,24 +1,24 @@
 package net.gegy1000.psf.client.gui;
 
-import net.gegy1000.psf.PracticalSpaceFireworks;
+import com.google.common.collect.ImmutableList;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import org.lwjgl.input.Keyboard;
 
+import static net.gegy1000.psf.PracticalSpaceFireworks.namespace;
+
+@RequiredArgsConstructor
 public class GuiContainerMessage extends GuiScreen {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PracticalSpaceFireworks.MODID, "textures/gui/empty_container.png");
+    private static final ResourceLocation TEXTURE = namespace("textures/gui/empty_container.png");
 
     private final ITextComponent title;
-    private final ITextComponent[] lines;
+    private final ImmutableList<ITextComponent> lines;
 
     private static final int SIZE_X = 176;
     private static final int SIZE_Y = 166;
-
-    public GuiContainerMessage(ITextComponent title, ITextComponent[] lines) {
-        this.title = title;
-        this.lines = lines;
-    }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -37,11 +37,11 @@ public class GuiContainerMessage extends GuiScreen {
         fontRenderer.drawString(title, (width - fontRenderer.getStringWidth(title)) / 2, minY + 6, 0x404040);
 
         int textLineHeight = fontRenderer.FONT_HEIGHT + 1;
-        int textBlockHeight = this.lines.length * textLineHeight;
+        int textBlockHeight = this.lines.size() * textLineHeight;
 
         int textOriginY = (height - textBlockHeight) / 2;
-        for (int i = 0; i < this.lines.length; i++) {
-            String line = this.lines[i].getFormattedText();
+        for (int i = 0; i < this.lines.size(); i++) {
+            String line = this.lines.get(i).getFormattedText();
 
             int lineX = (width - fontRenderer.getStringWidth(line)) / 2;
             int lineY = textOriginY + textLineHeight * i;
@@ -51,7 +51,7 @@ public class GuiContainerMessage extends GuiScreen {
 
     @Override
     protected void keyTyped(char typedChar, int keyCode) {
-        if (keyCode == 1 || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) { 
+        if (keyCode == Keyboard.KEY_ESCAPE || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) { 
             mc.player.closeScreen(); 
         }
     }

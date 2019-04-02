@@ -100,7 +100,7 @@ public final class PSFBlocks {
         register(registry, "payload_separator", new BlockPayloadSeparator());
 
         register(registry, "fuel_valve", new BlockFuelValve());
-        register(registry, "fuel_tank", new BlockFuelTank());
+        register(registry, "fuel_tank", new BlockFuelTank("fuel_tank"));
         register(registry, "thruster_simple", new BlockThruster("thruster_simple"));
 
         register(registry, "kerosene_extractor", new BlockKeroseneExtractor());

@@ -4,16 +4,20 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.EnumSet;
 import java.util.Locale;
 
 @RequiredArgsConstructor
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public enum FuelTankBorder implements IStringSerializable {
     SOUTH(EnumFacing.SOUTH, null),
     SOUTH_WEST(EnumFacing.SOUTH, EnumFacing.WEST),
@@ -24,24 +28,17 @@ public enum FuelTankBorder implements IStringSerializable {
     EAST(EnumFacing.EAST, null),
     SOUTH_EAST(EnumFacing.SOUTH, EnumFacing.EAST);
 
-    private static final FuelTankBorder[] VALUES = values();
-
     public static final ImmutableCollection<FuelTankBorder> BORDERS =
-        Arrays.stream(VALUES).collect(Sets.toImmutableEnumSet());
+        Sets.immutableEnumSet(EnumSet.allOf(FuelTankBorder.class));
 
     public static final ImmutableCollection<FuelTankBorder> CARDINALS =
-        Arrays.stream(VALUES).filter(FuelTankBorder::isCardinal).collect(Sets.toImmutableEnumSet());
+        BORDERS.stream().filter(FuelTankBorder::isCardinal).collect(Sets.toImmutableEnumSet());
 
     public static final ImmutableCollection<FuelTankBorder> ORDINALS =
-        Arrays.stream(VALUES).filter(FuelTankBorder::isOrdinal).collect(Sets.toImmutableEnumSet());
+        BORDERS.stream().filter(FuelTankBorder::isOrdinal).collect(Sets.toImmutableEnumSet());
 
     @Nonnull private final EnumFacing primary;
     @Nullable private final EnumFacing secondary;
-
-    @Nonnull
-    public static FuelTankBorder valueOf(int ordinal) {
-        return VALUES[ordinal % VALUES.length];
-    }
 
     public static FuelTankBorder forDirection(EnumFacing dir) {
         for (val border : CARDINALS) {
@@ -52,7 +49,6 @@ public enum FuelTankBorder implements IStringSerializable {
         throw new Error(String.valueOf(dir));
     }
 
-    @Nonnull
     public final FuelTankBorder primary() {
         switch (this) {
             case SOUTH: return SOUTH;
@@ -67,7 +63,6 @@ public enum FuelTankBorder implements IStringSerializable {
         throw new Error(toString());
     }
 
-    @Nonnull
     public final FuelTankBorder secondary() {
         switch (this) {
             case SOUTH_WEST: return WEST;
@@ -86,8 +81,7 @@ public enum FuelTankBorder implements IStringSerializable {
         return secondary != null;
     }
 
-    @Nonnull
-    public final BlockPos offset(@Nonnull BlockPos origin) {
+    public final BlockPos offset(BlockPos origin) {
         val offset = origin.offset(primary);
         if (secondary != null) {
             return offset.offset(secondary);
@@ -96,13 +90,11 @@ public enum FuelTankBorder implements IStringSerializable {
     }
 
     @Override
-    @Nonnull
     public final String getName() {
         return name().toLowerCase(Locale.ROOT);
     }
 
     @Override
-    @Nonnull
     public final String toString() {
         return getClass().getSimpleName() + '.' + name();
     }

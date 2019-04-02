@@ -29,14 +29,18 @@ public class ModuleFuelTank extends EmptyModule {
     private final FluidTank liquidOxygenTank;
     private final FuelFluidHandler storage;
 
-    public ModuleFuelTank() {
-        super("fuel_tank");
+    public ModuleFuelTank(String name) {
+        super(name);
 
         this.keroseneTank = new FluidTank(PSFFluids.kerosene(), 0, CAPACITY);
         this.liquidOxygenTank = new FluidTank(PSFFluids.liquidOxygen(), 0, CAPACITY);
         this.storage = new FuelFluidHandler();
         this.storage.addHandler(PSFFluids.kerosene(), this.keroseneTank);
         this.storage.addHandler(PSFFluids.liquidOxygen(), this.liquidOxygenTank);
+    }
+
+    public ModuleFuelTank() {
+        this("fuel_tank");
     }
 
     public void setFull() {

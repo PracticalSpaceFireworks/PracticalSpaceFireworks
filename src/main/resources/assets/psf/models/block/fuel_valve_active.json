@@ -1,6 +1,0 @@
-{
-  "parent": "psf:block/fuel_valve",
-  "textures": {
-    "particle": "psf:blocks/fuel_valve_side_active"
-  }
-}

@@ -2,12 +2,14 @@ package net.gegy1000.psf.server.block.module;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.block.property.FuelTankBorder;
 import net.gegy1000.psf.server.block.property.Part;
 import net.gegy1000.psf.server.modules.ModuleFuelTank;
+import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -29,19 +31,23 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Function;
 
+@ExtensionMethod(BlockFuelTank.class)
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class BlockFuelTank extends BlockModule {
-    private static final PropertyEnum<Part> PART = PropertyEnum.create("part", Part.class, Part.PARTS);
-
-    private static final ImmutableMap<FuelTankBorder, PropertyBool> BORDERS = FuelTankBorder.BORDERS.stream()
+    public static final PropertyEnum<Part> PART = PropertyEnum.create("part", Part.class, Part.PARTS);
+    public static final ImmutableMap<FuelTankBorder, PropertyBool> BORDERS = FuelTankBorder.BORDERS.stream()
         .collect(Maps.toImmutableEnumMap(Function.identity(), b -> PropertyBool.create(b.getName())));
 
-    public BlockFuelTank() {
-        super(Material.IRON, "fuel_tank");
+    public BlockFuelTank(String module) {
+        super(Material.IRON, module);
         setSoundType(SoundType.METAL);
         setHardness(3.0F);
         setCreativeTab(PracticalSpaceFireworks.TAB);
+    }
+
+    public static boolean isFuelTank(Block block) {
+        return block instanceof BlockFuelTank;
     }
 
     @Override
@@ -86,34 +92,34 @@ public class BlockFuelTank extends BlockModule {
     @Override
     @Deprecated
     public IBlockState getActualState(IBlockState state, IBlockAccess access, BlockPos pos) {
-        val part = Part.forPosition(access, pos, this);
+        state = super.getActualState(state, access, pos);
+        val part = Part.forPosition(access, pos, BlockFuelTank::isFuelTank);
         state = state.withProperty(PART, part);
         if (Part.TOP == part || Part.BOTH == part) {
             for (val border : FuelTankBorder.CARDINALS) {
                 val block = access.getBlockState(border.offset(pos)).getBlock();
-                state = state.withProperty(BORDERS.get(border), this != block);
+                boolean value = !isFuelTank(block);
+                state = state.withProperty(BORDERS.get(border), value);
             }
             for (val border : FuelTankBorder.ORDINALS) {
                 if (state.getValue(BORDERS.get(border.primary()))) {
                     state = state.withProperty(BORDERS.get(border), true);
                 } else {
                     val secondary = state.getValue(BORDERS.get(border.secondary()));
-                    val value = secondary || this != access.getBlockState(border.offset(pos)).getBlock();
+                    val value = secondary || !isFuelTank(access.getBlockState(border.offset(pos)).getBlock());
                     state = state.withProperty(BORDERS.get(border), value);
                 }
             }
         }
-        return super.getActualState(state, access, pos);
+        return state;
     }
 
     @Override
+    @Deprecated
     public BlockFaceShape getBlockFaceShape(IBlockAccess access, IBlockState state, BlockPos pos, EnumFacing side) {
         if (EnumFacing.UP != side) {
             state = state.getActualState(access, pos);
-            if (Part.TOP != state.getValue(PART)) {
-                return BlockFaceShape.SOLID;
-            }
-            if (state.getValue(BORDERS.get(FuelTankBorder.forDirection(side)))) {
+            if (Part.TOP != state.getValue(PART) || state.getValue(BORDERS.get(FuelTankBorder.forDirection(side)))) {
                 return BlockFaceShape.SOLID;
             }
         }
@@ -153,8 +159,8 @@ public class BlockFuelTank extends BlockModule {
         if (Part.TOP == part || Part.BOTH == part) {
             if (side.getAxis().isHorizontal()) {
                 val offset = pos.offset(side);
-                return this != access.getBlockState(offset).getBlock()
-                    || this != access.getBlockState(offset.up()).getBlock();
+                return !isFuelTank(access.getBlockState(offset).getBlock())
+                    || !isFuelTank(access.getBlockState(offset.up()).getBlock());
             }
             if (EnumFacing.UP == side) {
                 for (val property : BORDERS.values()) {
