@@ -54,7 +54,6 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                 beginExtracting();
             } else {
                 energyStorage.extractEnergy(ENERGY_PER_TICK, false);
-                System.out.println("pulled energy: " + fluidTank.getFluidAmount());
                 if (++extractionTime > totalExtractionAmount) {
                     extractionTime = 0;
                     fluidTank.fill(new FluidStack(PSFFluids.kerosene(), totalExtractionAmount), true);
