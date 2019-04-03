@@ -215,7 +215,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         buttonLaunch = new GuiButtonExt(2, guiLeft + panel.getX() + panel.getWidth() + 10, guiTop + ySize - 20 - 10, 50, 20, "Launch");
         addButton(buttonLaunch);
         
-        buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 5, 20, 20, "C");
+        buttonMode = new GuiButtonExt(1, guiLeft + panel.getX() + panel.getWidth() - 22, guiTop + panel.getY() + 7, 20, 20, "C");
         addButton(buttonMode);
         
         buttonShowDetails = new DetailsExpando(3, guiLeft + panel.getX(), guiTop + panel.getY(), panel.getWidth());
