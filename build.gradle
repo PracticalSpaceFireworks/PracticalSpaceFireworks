@@ -16,7 +16,7 @@ buildscript {
 
 plugins {
     id 'io.franzbecker.gradle-lombok' version '2.1'
-   	id 'com.matthewprenger.cursegradle' version '1.0.10'
+   	id 'com.matthewprenger.cursegradle' version '1.2.0'
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
@@ -147,7 +147,7 @@ curseforge {
         releaseType = project.curse_type
         addGameVersion '1.12.2'
         mainArtifact(jar) { displayName = getModField("NAME", mod_file) + " - ${version}" }
-        relations { requiredLibrary 'ctm' }
+        relations { requiredDependency 'ctm' }
     }
 }
 
