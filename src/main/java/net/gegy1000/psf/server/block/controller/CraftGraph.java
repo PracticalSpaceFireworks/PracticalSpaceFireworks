@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.Value;
 import net.gegy1000.psf.api.module.IModule;
+import net.gegy1000.psf.api.spacecraft.IController;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.block.module.BlockModule;
 import net.gegy1000.psf.server.block.module.TileModule;
@@ -109,6 +110,9 @@ public class CraftGraph implements Iterable<IModule> {
         SearchFilter filter = data -> {
             if (!extraFilter.test(data)) {
                 return false;
+            }
+            if (data.getModule() instanceof IController) {
+                return false; // Never connect to other controllers
             }
             ISatellite owner = data.getModule().getOwner();
             // Make sure this module is either unowned or owned by us
