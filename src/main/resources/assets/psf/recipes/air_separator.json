@@ -1,0 +1,17 @@
+{
+  "result": {
+    "item": "psf:air_separator"
+  },
+  "pattern": [
+    "IBI",
+    "PRP",
+    "IBI"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "P": { "item": "#IRON_PLATE" },
+    "R": { "item": "#REDSTONE" },
+    "B": { "item": "#IRON_BARS" }
+  }
+}

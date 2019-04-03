@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:kerosene_extractor"
+  },
+  "pattern": [
+    "II ",
+    "IIR",
+    "SSS"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "I": { "item": "#IRON_INGOT" },
+    "R": { "item": "#REDSTONE" },
+    "S": { "item": "#STONE" }
+  }
+}
