@@ -502,6 +502,8 @@ public class GuiCraftDetails extends GuiRemoteControl {
             GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - ((guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor()),
                     panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
         }
+        
+        GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
         mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         model.render(BlockRenderLayer.SOLID);
