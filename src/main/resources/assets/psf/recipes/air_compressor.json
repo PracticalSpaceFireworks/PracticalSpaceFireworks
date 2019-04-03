@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "psf:air_compressor"
+  },
+  "pattern": [
+    "RRR",
+    "III",
+    "IBI"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "R": { "item": "#REDSTONE" },
+    "I": { "item": "#IRON_INGOT" },
+    "B": { "item": "#IRON_BARS" }
+  }
+}
