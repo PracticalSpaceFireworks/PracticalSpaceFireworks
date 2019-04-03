@@ -11,6 +11,7 @@ import net.gegy1000.psf.server.init.PSFItems;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.network.PacketDisplayContainerMessage;
 import net.gegy1000.psf.server.util.PSFGuiHandler;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,6 +48,12 @@ public class BlockFuelValve extends BlockFuelTank implements Machine {
         val builder = new BlockStateContainer.Builder(this);
         BORDERS.values().forEach(builder::add);
         return builder.add(ACTIVE, DIRECTION, PART).build();
+    }
+
+    @Override
+    @Deprecated
+    public BlockFaceShape getBlockFaceShape(IBlockAccess access, IBlockState state, BlockPos pos, EnumFacing side) {
+        return BlockFaceShape.UNDEFINED;
     }
 
     @Override

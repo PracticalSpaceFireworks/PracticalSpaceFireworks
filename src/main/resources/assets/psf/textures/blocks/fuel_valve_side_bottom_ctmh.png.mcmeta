@@ -1,0 +1,14 @@
+{
+  "ctm": {
+    "ctm_version": 1,
+    "type": "ctm_horizontal",
+    "layer": "CUTOUT",
+    "extra": {
+      "connect_inside": true,
+      "connect_to": [
+        { "block": "psf:fuel_tank" },
+        { "block": "psf:fuel_valve" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "ctm": {
+    "ctm_version": 1,
+    "type": "ctm",
+    "layer": "CUTOUT",
+    "textures": [ "psf:blocks/fuel_valve_cap_ctm" ],
+    "extra": {
+      "connect_to": [
+        { "block": "psf:fuel_tank" },
+        { "block": "psf:fuel_valve" }
+      ]
+    }
+  }
+}
