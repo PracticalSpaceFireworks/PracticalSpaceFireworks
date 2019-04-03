@@ -63,6 +63,7 @@ public class BlockController extends BlockDirectional implements RegisterItemBlo
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+        /*
         @Nullable val te = world.getTileEntity(pos);
         if (te instanceof TileController) {
             if (!world.isRemote) {
@@ -70,6 +71,7 @@ public class BlockController extends BlockDirectional implements RegisterItemBlo
             }
             return true;
         }
+        */
         return false;
     }
 
