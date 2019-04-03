@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "psf:strut_slope"
+    "item": "psf:strut_slope",
+    "count": 2
   },
   "pattern": [
     "X  ",

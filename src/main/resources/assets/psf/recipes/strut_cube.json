@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "psf:strut_cube"
+    "item": "psf:strut_cube",
+    "count": 2
   },
   "pattern": [
     "XXX",

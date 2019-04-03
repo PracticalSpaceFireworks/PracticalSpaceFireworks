@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "psf:fuel_tank"
+    "item": "psf:fuel_tank",
+    "count": 2
   },
   "pattern": [
     "QIQ",
