@@ -21,6 +21,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -58,6 +59,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
             })
             .withStep(DISTILLING_STATE, ctx -> {
                 MasterInfo master = ctx.master;
+                IFluidTankProperties inputProps = master.combinedInput.getTankProperties()[0];
                 IFluidTankProperties nitrogenProps = master.combinedNitrogen.getTankProperties()[0];
                 IFluidTankProperties oxygenProps = master.combinedOxygen.getTankProperties()[0];
                 // If tanks are full, wait for drain
@@ -73,7 +75,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                     return FILLING_STATE;
                 }
 
-                FluidStack drainedInput = master.combinedInput.drainInternal(DISTILL_PER_TICK, true);
+                FluidStack drainedInput = master.combinedInput.drainInternal(DISTILL_PER_TICK * (inputProps.getCapacity() / TANK_SIZE), true);
                 if (drainedInput != null && drainedInput.amount > 0) {
                     double oxygenAmount = drainedInput.amount * OXYGEN_AMOUNT + master.oxygenRemainder;
                     double nitrogenAmount = drainedInput.amount * NITROGEN_AMOUNT + master.nitrogenRemainder;
