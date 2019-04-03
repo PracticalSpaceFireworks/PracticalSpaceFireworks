@@ -21,7 +21,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
-import net.minecraftforge.fluids.IFluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
@@ -52,7 +51,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     private static final StateMachineBuilder<StepCtx> STATE_MACHINE_BUILDER = new StateMachineBuilder<StepCtx>()
             .withInitState(DRAINING_STATE)
             .withStep(FILLING_STATE, ctx -> {
-                if (ctx.inputContents != null && ctx.inputContents.amount >= TANK_SIZE) {
+                if (ctx.inputContents != null && ctx.inputContents.amount >= ctx.inputProperties.getCapacity()) {
                     return DISTILLING_STATE;
                 }
                 return FILLING_STATE;
@@ -107,6 +106,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
     private final FluidTank localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen(), TypedFluidTank.IO.OUT);
     private final FluidTank localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen(), TypedFluidTank.IO.OUT);
 
+    // TODO: Generic API for distributed machine logic
     private MasterInfo masterInfo = null;
     private final List<TileAirSeparator> connected = new ArrayList<>();
 
@@ -118,7 +118,7 @@ public class TileAirSeparator extends TileEntity implements ITickable {
             scanConnected();
         }
 
-        if (!world.isRemote && masterInfo != null) {
+        if (!world.isRemote && masterInfo != null && masterInfo.isMaster(this)) {
             masterInfo.update(world);
         }
     }
