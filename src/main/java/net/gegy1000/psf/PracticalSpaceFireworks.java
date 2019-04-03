@@ -118,7 +118,7 @@ public class PracticalSpaceFireworks {
     
     private static void registerOredict(String name, Item item, int damage) {
         if (!OreDictionary.getOres(name).stream().anyMatch(stack -> stack.getItem() == item 
-                && (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack.getItemDamage() == damage))) {
+                && (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || damage == OreDictionary.WILDCARD_VALUE || stack.getItemDamage() == damage))) {
             OreDictionary.registerOre(name, new ItemStack(item, 1, damage));
         }
     }
