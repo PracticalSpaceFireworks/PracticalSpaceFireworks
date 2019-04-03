@@ -98,7 +98,7 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
 
     @Nonnull
     @Override
-    public Biome getBiome(BlockPos pos) {
+    public Biome getBiomeServer(BlockPos pos) {
         return biome;
     }
 

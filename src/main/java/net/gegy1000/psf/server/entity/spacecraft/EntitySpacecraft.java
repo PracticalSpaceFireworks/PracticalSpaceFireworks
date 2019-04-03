@@ -1,5 +1,14 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Stream;
+
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -7,6 +16,7 @@ import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
+import net.gegy1000.psf.client.sound.SpacecraftSound;
 import net.gegy1000.psf.server.block.controller.CraftGraph;
 import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.module.BlockModule;
@@ -18,7 +28,6 @@ import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
 import net.gegy1000.psf.server.capability.world.SatelliteWorldData;
 import net.gegy1000.psf.server.init.PSFFluids;
-import net.gegy1000.psf.server.init.PSFSounds;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.EntityBoundSatellite;
 import net.gegy1000.psf.server.util.LogisticGrowthCurve;
@@ -38,7 +47,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -53,14 +61,6 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Stream;
 
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     public static final double BASE_AIR_RESISTANCE = 0.98;
@@ -210,6 +210,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         super.onUpdate();
     }
 
+    @SideOnly(Side.CLIENT)
     private void updateRayTrace() {
         EntityPlayer player = Minecraft.getMinecraft().player;
         pointedBlock = playerRayTrace(player).orElse(null);
@@ -269,6 +270,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         if (world.isRemote) {
             player.swingArm(hand);
+            return true;
         } else if (hand == EnumHand.MAIN_HAND) {
             float prevRotationYaw = this.rotationYaw;
             float prevRotationPitch = this.rotationPitch;
@@ -478,7 +480,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         private final IFluidHandler fuelHandler;
 
         @SideOnly(Side.CLIENT)
-        private final MovingSound sound;
+        private MovingSound sound;
 
         private int stateTicks;
 
@@ -491,51 +493,13 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             if (entity.world.isRemote) {
                 sound = initSound();
             } else {
-                sound = null;
+                
             }
         }
 
-        private static final float MAX_SOUND_DIST = 128;
-        private static final float MAX_SOUND_DIST_SQ = MAX_SOUND_DIST * MAX_SOUND_DIST;
-
         @SideOnly(Side.CLIENT)
         private MovingSound initSound() {
-            MovingSound ret = new MovingSound(PSFSounds.SPACECRAFT_LAUNCH, SoundCategory.BLOCKS) {
-                {
-                    this.attenuationType = AttenuationType.NONE;
-                }
-
-                float startVol = -1;
-                int fadeOut = 20;
-
-                @Override
-                public void update() {
-                    if (entity.isDead || entity.getState() != LaunchState.this) {
-                        if (--fadeOut == 0) {
-                            this.donePlaying = true;
-                        } else {
-                            if (startVol == -1) {
-                                startVol = this.volume;
-                            }
-                            this.volume = startVol * (fadeOut / 20F);
-                        }
-                    } else {
-                        this.xPosF = (float) entity.posX;
-                        this.yPosF = (float) entity.posY;
-                        this.zPosF = (float) entity.posZ;
-
-                        Entity viewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-                        if (viewEntity == null) {
-                            return;
-                        }
-                        float distSq = (float) viewEntity.getDistanceSq(entity.posX, entity.posY / 8, entity.posZ);
-                        if (distSq > MAX_SOUND_DIST_SQ) {
-                            float dist = (float) Math.sqrt(distSq);
-                            this.volume = MathHelper.clamp((1 - ((dist - MAX_SOUND_DIST) / 64)), 0, 1);
-                        }
-                    }
-                }
-            };
+            MovingSound ret = new SpacecraftSound(entity);
             Minecraft.getMinecraft().getSoundHandler().playSound(ret);
             return ret;
         }

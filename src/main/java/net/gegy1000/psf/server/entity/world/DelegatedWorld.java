@@ -1,6 +1,13 @@
 package net.gegy1000.psf.server.entity.world;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import java.io.File;
+
 import net.gegy1000.psf.api.util.IWorldData;
+import net.gegy1000.psf.server.util.ServerEmptyChunk;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
@@ -12,7 +19,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.storage.IChunkLoader;
 import net.minecraft.world.gen.structure.template.TemplateManager;
@@ -21,11 +27,6 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.File;
 
 @ParametersAreNonnullByDefault
 public class DelegatedWorld extends World {
@@ -56,7 +57,7 @@ public class DelegatedWorld extends World {
 
     @Override
     public Chunk getChunk(int chunkX, int chunkZ) {
-        return new EmptyChunk(this, chunkX, chunkZ);
+        return new ServerEmptyChunk(this, chunkX, chunkZ);
     }
 
     @Override
@@ -131,7 +132,7 @@ public class DelegatedWorld extends World {
     @Override
     @Nonnull
     public Biome getBiome(BlockPos pos) {
-        return data.getBiome(pos);
+        return data.getBiomeServer(pos);
     }
 
     @Override
