@@ -1,1 +1,33 @@
 0.2.0:
+New
+- Crafting recipes for everything
+- Added WAILA/HWYLA integration
+- Added Fuel Valve for loading fuel into all connected tanks
+- Liquid Oxygen can now be produced
+- Kerosene can now be produced
+- Added small solar panel
+- Added sloped strut
+- Added sound for launching rockets
+- Added config to laser for strength (Low, Normal, High)
+Changes
+- Most models and textures were improved
+- Tanks buffed, higher fuel capacity and lower mass
+- Struts now have their own fancy sounds
+- Spacecraft can now be launched without right clicking the controller first (this interaction was removed)
+- Craft statistics were moved to a discrete dropdown on the preview window
+- Payload separator now denotes connection state
+- Thrusters' thrust and fuel consumption rebalanced
+- Rocket exhaust will now damage entities
+- Crafts will now be sorted by name in list
+- Prevent selecting module groups that have no information
+- Improved module config UI slightly
+- Rebalanced solar, added new power generation curve
+- All blocks that handle fluid now allow item interaction (filling/emptying buckets)
+Fixes
+- Spacecraft formation and separation is now much more reliable
+- Player's arm will swing when interacting with a spacecraft entity
+- Fix multiblock modules not handling entity conversion well
+- Crafts will now update state properly in the Remote Control System UI
+- Fixed craft details menu staying open after craft is destroyed
+- Fixed jagged lighting in craft preview render
+- Fixed craft name reverting when craft is launched
