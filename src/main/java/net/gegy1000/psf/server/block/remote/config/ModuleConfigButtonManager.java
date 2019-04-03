@@ -37,7 +37,7 @@ public class ModuleConfigButtonManager extends GuiButton {
         private final boolean centerFirstLine;
         
         public TextHolder(IModule module, int x, int y) {
-            this(new ImmutableList.Builder().add(module.getLocalizedName()).addAll(module.getSummary()).build(), x, y, (module.getSummary().size() + 1) * lineHeight, true);
+            this(new ImmutableList.Builder<String>().add(module.getLocalizedName()).addAll(module.getSummary()).build(), x, y, (module.getSummary().size() + 1) * lineHeight, true);
         }
     }
     
