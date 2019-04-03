@@ -23,7 +23,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     public static final int SCAN_RANGE = 2;
 
     private static final int SCAN_INTERVAL = 1200;
-    private static final int POWER_PER_TICK = 288000;
+    private static final int POWER_PER_TICK = 100000;
 
     private static final IEnergyStats ENERGY_STATS = new EnergyStats(POWER_PER_TICK, 0, SCAN_INTERVAL);
 
@@ -38,7 +38,7 @@ public class ModuleTerrainScanner extends EmptyModule {
     public void onSatelliteTick(@Nonnull ISatellite satellite) {
         World world = satellite.getWorld();
         BlockPos position = satellite.getPosition();
-        if (world.isBlockLoaded(position) || this.scanData == null && satellite.tryExtractEnergy(POWER_PER_TICK)) {
+        if ((world.isBlockLoaded(position) || this.scanData == null) && satellite.tryExtractEnergy(POWER_PER_TICK)) {
             this.scanData = this.scan(world, new ChunkPos(position.getX() >> 4, position.getZ() >> 4));
             this.dirty(true);
         }
