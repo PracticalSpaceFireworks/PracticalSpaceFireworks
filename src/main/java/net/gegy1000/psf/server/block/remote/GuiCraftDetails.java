@@ -1,8 +1,11 @@
 package net.gegy1000.psf.server.block.remote;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Rectangle;
+
+import com.google.common.base.Strings;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -231,11 +234,14 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-
         if (this.tfName != null) {
             this.tfName.mouseClicked(mouseX, mouseY, mouseButton);
+            if (this.tfName.isFocused() && mouseButton == 1) {
+                this.tfName.setText("");
+                return;
+            }
         }
+        super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
@@ -261,8 +267,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
 
     private void updateName() {
         IListedSpacecraft craft = getCraft();
-        if (craft != null) {
-            craft.setName(tfName.getText());
+        if (craft != null && tfName != null) {
+            String newName = tfName.getText();
+            if (!newName.isEmpty()) {
+                craft.setName(newName);
+            }
         }
     }
 
@@ -280,6 +289,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
             buttonMode.displayString = this.mode.name().substring(0, 1);
         } else if (button == buttonLaunch && craft != null && craft.canLaunch()) {
+            updateName();
             craft.launch();
             buttonLaunch.visible = craft.canLaunch();
         }
