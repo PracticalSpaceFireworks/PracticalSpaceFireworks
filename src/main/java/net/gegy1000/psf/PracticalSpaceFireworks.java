@@ -1,17 +1,32 @@
 package net.gegy1000.psf;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static net.gegy1000.psf.PracticalSpaceFireworks.DEPENDENCIES;
+import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
+import static net.gegy1000.psf.PracticalSpaceFireworks.NAME;
+import static net.gegy1000.psf.PracticalSpaceFireworks.VERSION;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import lombok.Getter;
 import lombok.val;
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.api.PSFAPIProps;
-import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.server.ServerProxy;
 import net.gegy1000.psf.server.init.PSFBlocks;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.datafix.IFixableData;
@@ -28,17 +43,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static net.gegy1000.psf.PracticalSpaceFireworks.DEPENDENCIES;
-import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
-import static net.gegy1000.psf.PracticalSpaceFireworks.NAME;
-import static net.gegy1000.psf.PracticalSpaceFireworks.VERSION;
+import net.minecraftforge.oredict.OreDictionary;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -102,6 +107,20 @@ public class PracticalSpaceFireworks {
     @EventHandler 
     static void onInitialization(FMLInitializationEvent event) {
         PROXY.onInit();
+        
+        registerOredict("barsIron", Item.getItemFromBlock(Blocks.IRON_BARS));
+        registerOredict("pearlEnderEye", Items.ENDER_EYE);
+    }
+    
+    private static void registerOredict(String name, Item item) {
+        registerOredict(name, item, OreDictionary.WILDCARD_VALUE);
+    }
+    
+    private static void registerOredict(String name, Item item, int damage) {
+        if (!OreDictionary.getOres(name).stream().anyMatch(stack -> stack.getItem() == item 
+                && (stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack.getItemDamage() == damage))) {
+            OreDictionary.registerOre(name, new ItemStack(item, 1, damage));
+        }
     }
 
     @EventHandler 
