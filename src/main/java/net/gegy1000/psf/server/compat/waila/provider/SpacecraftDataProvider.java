@@ -7,13 +7,12 @@ import mcp.mobius.waila.api.IWailaEntityAccessor;
 import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.event.WailaRenderEvent;
 import mcp.mobius.waila.config.FormattingConfig;
-import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import javax.annotation.Nullable;
@@ -22,12 +21,15 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-@Mod.EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public final class SpacecraftDataProvider implements IWailaEntityProvider {
     private static final String RESET_FORMAT_CODE = "\u00a7r";
 
     @Nullable private static RayTraceResult subHit;
     @Nullable private static Vec3d lastHitVec;
+
+    static {
+        MinecraftForge.EVENT_BUS.register(SpacecraftDataProvider.class);
+    }
 
     @SubscribeEvent
     static void wailaRenderPre(WailaRenderEvent.Pre event) {
