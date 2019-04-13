@@ -1,11 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import javax.vecmath.Point3d;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
@@ -18,7 +12,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class SpacecraftDeconstructor {
+import javax.vecmath.Point3d;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+public final class SpacecraftDeconstructor {
     public static Optional<Result> deconstruct(World world, IFixedSizeWorldData bodyData, double posX, double posY, double posZ, Matrix rotationMatrix) {
         posY = Math.round(posY);
 

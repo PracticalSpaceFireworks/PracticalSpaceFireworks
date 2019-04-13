@@ -131,46 +131,19 @@ public class ModuleFuelTank extends EmptyModule {
         }
 
         @Override
-        public int fill(FluidStack resource, boolean doFill) {
-            int fill = super.fill(resource, doFill);
-            if (doFill) {
-                dirty(true);
-            }
-            return fill;
-        }
-
-        @Override
-        public FluidStack drain(FluidStack resource, boolean doDrain) {
-            FluidStack drain = super.drain(resource, doDrain);
-            if (doDrain) {
-                dirty(true);
-            }
-            return drain;
-        }
-
-        @Override
-        public FluidStack drain(int maxDrain, boolean doDrain) {
-            FluidStack drain = super.drain(maxDrain, doDrain);
-            if (doDrain) {
-                dirty(true);
-            }
-            return drain;
-        }
-
-        @Override
         public double getAdditionalMass() {
-            double additonalMass = 0.0;
+            double additionalMass = 0.0;
             for (Map.Entry<Fluid, IFluidHandler> handler : handlers.entrySet()) {
                 double density = handler.getKey().getDensity() * 0.4;
 
                 IFluidTankProperties properties = handler.getValue().getTankProperties()[0];
                 FluidStack contents = properties.getContents();
                 if (contents != null) {
-                    additonalMass += (double) contents.amount / properties.getCapacity() * density;
+                    additionalMass += (double) contents.amount / properties.getCapacity() * density;
                 }
             }
 
-            return additonalMass;
+            return additionalMass;
         }
     }
 }

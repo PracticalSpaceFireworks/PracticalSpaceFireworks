@@ -1,13 +1,5 @@
 package net.gegy1000.psf.api.module;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import net.gegy1000.psf.api.PSFAPIProps;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.api.util.IUnique;
@@ -20,6 +12,13 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICapabilityProvider {
@@ -111,7 +110,7 @@ public interface IModule extends IUnique, INBTSerializable<NBTTagCompound>, ICap
     default void dirty(boolean dirty) {
         if (dirty) {
             ISatellite owner = getOwner();
-            if (owner != null && !owner.isInvalid()) {
+            if (owner != null && !owner.isDestroyed()) {
                 owner.markDirty();
             }
         }

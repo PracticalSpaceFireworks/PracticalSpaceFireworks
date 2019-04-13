@@ -1,45 +1,21 @@
 package net.gegy1000.psf.server.block.remote;
 
-import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.Rectangle;
-
-import com.google.common.base.Strings;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.client.IVisualData;
 import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.api.module.ITerrainScan;
 import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
-import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
 import net.gegy1000.psf.client.gui.PSFIcons;
 import net.gegy1000.psf.client.gui.Widget;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.server.block.remote.packet.PacketRequestVisual;
+import net.gegy1000.psf.server.block.remote.visual.VisualProperties;
 import net.gegy1000.psf.server.block.remote.widget.WidgetEnergyBar;
 import net.gegy1000.psf.server.block.remote.widget.WidgetFluidBar;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.modules.ModuleTerrainScanner;
 import net.gegy1000.psf.server.modules.data.EmptyTerrainScan;
@@ -67,6 +43,27 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GLContext;
+import org.lwjgl.util.Rectangle;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GuiCraftDetails extends GuiRemoteControl {
 
@@ -224,7 +221,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         tfName = new GuiTextField(99, mc.fontRenderer, guiLeft + (xSize / 2), guiTop + 10, 115, 20);
         if (craft != null) {
             tfName.setText(craft.getName());
-            buttonLaunch.visible = craft.canLaunch();
+            buttonLaunch.visible = craft.getLaunchHandle().isPresent();
         }
         
         refreshWidgets();
@@ -291,24 +288,27 @@ public class GuiCraftDetails extends GuiRemoteControl {
         } else if (button == buttonMode) {
             this.mode = PreviewMode.values()[(this.mode.ordinal() + 1) % PreviewMode.values().length];
             buttonMode.displayString = this.mode.name().substring(0, 1);
-        } else if (button == buttonLaunch && craft != null && craft.canLaunch()) {
+        } else if (button == buttonLaunch && craft != null) {
+            Optional<IListedSpacecraft.LaunchHandle> handle = craft.getLaunchHandle();
+            buttonLaunch.visible = handle.isPresent();
+
+            handle.ifPresent(IListedSpacecraft.LaunchHandle::launch);
+
             updateName();
-            craft.launch();
-            buttonLaunch.visible = craft.canLaunch();
         }
     }
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-        IListedSpacecraft craft = getCraft();
 
+        IListedSpacecraft craft = getCraft();
         drawBackground(craft);
 
         if (craft != null && synced != null) {
             renderPreview(synced);
             tfName.drawTextBox();
-            drawStats(craft);
+            drawStats();
         }
     }
 
@@ -318,15 +318,16 @@ public class GuiCraftDetails extends GuiRemoteControl {
         IListedSpacecraft craft = getCraft();
         SyncedData synced = this.synced;
         if (craft != null && !craft.isOrbiting() && synced != null) {
-            ISpacecraftMetadata metadata = synced.metadata;
-
             int x = panel.getX() + 4;
             int y = panel.getY() + panel.getHeight() - 4;
 
             int width = panel.getWidth() - 8;
-            if (metadata.getThrusters().isEmpty()) {
+            double thrust = synced.thrust;
+            double mass = synced.mass;
+
+            if (thrust <= 1e-3) {
                 y -= drawWarning(x, y, width, Collections.singletonList("No Thrusters!"), mouseX, mouseY);
-            } else if (metadata.getTotalForce() / metadata.getMass() < (EntitySpacecraft.GRAVITY * 1.25)) {
+            } else if (thrust / mass < (EntitySpacecraft.GRAVITY * 1.25)) {
                 y -= drawWarning(x, y, width, Collections.singletonList("Low Thrust!"), mouseX, mouseY);
             }
 
@@ -537,7 +538,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
         GlStateManager.popMatrix();
     }
 
-    private void drawStats(IListedSpacecraft craft) {
+    private void drawStats() {
         for (Widget widget : widgets) {
             widget.draw();
         }
@@ -597,11 +598,11 @@ public class GuiCraftDetails extends GuiRemoteControl {
             widgets.add(new WidgetEnergyBar(energyData, x, y));
         }
 
-        mass = synced.metadata.getMass();
+        mass = synced.mass;
     }
 
     @Override
-    public void setVisual(@Nonnull IVisual visual) {
+    public void setVisual(@Nonnull IVisualData visual) {
         synced = new SyncedData(visual);
         refreshWidgets();
     }
@@ -610,7 +611,7 @@ public class GuiCraftDetails extends GuiRemoteControl {
     public void updateCraft(@Nonnull IListedSpacecraft craft) {
         super.updateCraft(craft);
         tfName.setText(craft.getName());
-        buttonLaunch.visible = craft.canLaunch();
+        buttonLaunch.visible = craft.getLaunchHandle().isPresent();
         refreshWidgets();
     }
     
@@ -633,15 +634,19 @@ public class GuiCraftDetails extends GuiRemoteControl {
         final Collection<IModule> terrainScannerModules;
         final Collection<IModule> tankModules;
         final SpacecraftModel model;
-        final ISpacecraftMetadata metadata;
+        final double mass;
+        final double thrust;
         final int energyNetUsage;
 
-        public SyncedData(IVisual visual) {
-            ISpacecraftBodyData body = visual.getBodyData();
+        public SyncedData(IVisualData visual) {
+            ISpacecraftBodyData body = visual.get(VisualProperties.BODY_DATA).orElseGet(SpacecraftBodyData::empty);
 
             model = SpacecraftModel.build(body);
-            modules = visual.getModules();
+            modules = body.collectModules();
             modules.forEach(module -> module.handleModuleChange(modules));
+
+            mass = visual.get(VisualProperties.MASS).orElse(0.0);
+            thrust = visual.get(VisualProperties.THRUST).orElse(0.0);
 
             terrainScannerModules = modules.stream()
                     .filter(module -> module.hasCapability(ModuleCapabilities.TERRAIN_SCAN, null))
@@ -649,7 +654,6 @@ public class GuiCraftDetails extends GuiRemoteControl {
             tankModules = modules.stream()
                     .filter(m -> m.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
                     .collect(Collectors.toList());
-            metadata = body.buildSpacecraftMetadata(Minecraft.getMinecraft().world);
 
             energyNetUsage = modules.stream()
                     .filter(m -> m.hasCapability(ModuleCapabilities.ENERGY_STATS, null))

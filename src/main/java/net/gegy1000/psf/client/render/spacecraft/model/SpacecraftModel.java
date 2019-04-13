@@ -1,9 +1,5 @@
 package net.gegy1000.psf.client.render.spacecraft.model;
 
-import org.lwjgl.opengl.GL11;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import mcp.MethodsReturnNonnullByDefault;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.minecraft.block.state.IBlockState;
@@ -17,6 +13,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -36,7 +35,7 @@ public interface SpacecraftModel {
     default void drawBlocks(ISpacecraftBodyData body, BlockRenderLayer layer, BufferBuilder builder) {
         builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
-        World world = body.buildWorld(Minecraft.getMinecraft().world);
+        World world = body.asWorld();
         for (BlockPos pos : BlockPos.getAllInBoxMutable(body.getMinPos(), body.getMaxPos())) {
             IBlockState state = world.getBlockState(pos);
             if (state.getBlock() != Blocks.AIR && state.getBlock().canRenderInLayer(state, layer)) {

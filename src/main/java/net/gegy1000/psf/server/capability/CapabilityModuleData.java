@@ -6,7 +6,9 @@ import net.gegy1000.psf.api.module.IAdditionalMass;
 import net.gegy1000.psf.api.module.IEnergyStats;
 import net.gegy1000.psf.api.module.IEntityList;
 import net.gegy1000.psf.api.module.ILaser;
+import net.gegy1000.psf.api.module.ISeparator;
 import net.gegy1000.psf.api.module.ITerrainScan;
+import net.gegy1000.psf.api.module.IThruster;
 import net.gegy1000.psf.api.module.IWeatherData;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 
@@ -21,5 +23,7 @@ public class CapabilityModuleData {
         CapabilityManager.INSTANCE.register(ILaser.class, new BlankStorage<>(), () -> null); // FIXME
         CapabilityManager.INSTANCE.register(IEnergyStats.class, new BlankStorage<>(), () -> null); // FIXME
         CapabilityManager.INSTANCE.register(IWeatherData.class, new BlankStorage<>(), () -> null); // FIXME
+        CapabilityManager.INSTANCE.register(IThruster.class, new BlankStorage<>(), () -> null); // FIXME
+        CapabilityManager.INSTANCE.register(ISeparator.class, new BlankStorage<>(), () -> null); // FIXME
     }
 }

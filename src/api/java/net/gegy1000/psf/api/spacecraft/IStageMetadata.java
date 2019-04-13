@@ -1,26 +1,23 @@
 package net.gegy1000.psf.api.spacecraft;
 
-import javax.vecmath.Point3d;
-
-import java.util.List;
-
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-public interface ISpacecraftMetadata {
+import java.util.Collection;
 
-    List<Thruster> getThrusters();
+public interface IStageMetadata {
+
+    Collection<Thruster> getThrusters();
+
+    Collection<Separator> getSeparators();
 
     double getTotalForce();
 
     int getTotalFuelDrain();
 
-    double getMass();
+    IFluidHandler getFuelHandler();
 
-    Point3d getCoM();
-
-    IFluidHandler buildFuelHandler();
-    
     public static class Thruster {
         private final BlockPos pos;
         private final double force;
@@ -42,6 +39,28 @@ public interface ISpacecraftMetadata {
 
         public int getDrain() {
             return this.drain;
+        }
+    }
+
+    public static class Separator {
+        private final BlockPos pos;
+        private final EnumFacing direction;
+
+        public Separator(BlockPos pos, EnumFacing direction) {
+            this.pos = pos;
+            this.direction = direction;
+        }
+
+        public BlockPos getPos() {
+            return pos;
+        }
+
+        public EnumFacing getDirection() {
+            return direction;
+        }
+
+        public BlockPos getConnectedPos() {
+            return pos.offset(direction);
         }
     }
 }

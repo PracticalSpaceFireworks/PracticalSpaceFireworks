@@ -1,16 +1,16 @@
 package net.gegy1000.psf.server.block.remote.tile;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.util.UUID;
-
 import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.block.remote.packet.PacketSetName;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.util.math.BlockPos;
+
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
+import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 public class TileListedSpacecraft implements IListedSpacecraft {
@@ -45,13 +45,10 @@ public class TileListedSpacecraft implements IListedSpacecraft {
     }
 
     @Override
-    public void launch() {
-        PSFNetworkHandler.network.sendToServer(new PacketLaunchTile(satellite.getPosition()));
-    }
-
-    @Override
-    public boolean canLaunch() {
-        return true;
+    public Optional<LaunchHandle> getLaunchHandle() {
+        return Optional.of(() -> {
+            PSFNetworkHandler.network.sendToServer(new PacketLaunchTile(satellite.getPosition()));
+        });
     }
     
     @Override

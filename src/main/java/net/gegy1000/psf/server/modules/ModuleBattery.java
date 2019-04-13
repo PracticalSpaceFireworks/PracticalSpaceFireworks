@@ -40,25 +40,7 @@ public class ModuleBattery extends EmptyModule {
 
     public ModuleBattery(BatteryTier tier, int capacity) {
         super("battery_" + tier.getName());
-        this.storage = new EnergyStorage(capacity, capacity, capacity, capacity) {
-            @Override
-            public int receiveEnergy(int maxReceive, boolean simulate) {
-                int ret = super.receiveEnergy(maxReceive, simulate);
-                if (ret > 0) {
-                    dirty(true);
-                }
-                return ret;
-            }
-            
-            @Override
-            public int extractEnergy(int maxExtract, boolean simulate) {
-                int ret = super.extractEnergy(maxExtract, simulate);
-                if (ret > 0) {
-                    dirty(true);
-                }
-                return ret;
-            }
-        };
+        this.storage = new EnergyStorage(capacity, capacity, capacity, capacity);
     }
 
     @Override

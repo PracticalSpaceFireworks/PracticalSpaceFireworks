@@ -2,15 +2,20 @@ package net.gegy1000.psf.server.modules;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.gegy1000.psf.api.module.IThruster;
+import net.gegy1000.psf.api.module.ModuleCapabilities;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
+import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ModuleThruster extends EmptyModule {
 
     @RequiredArgsConstructor
-    public enum ThrusterTier implements IStringSerializable {
+    public enum ThrusterTier implements IStringSerializable, IThruster {
         // TODO: Different names for thrusters
         SIMPLE("simple", 150_000, 125),
         ADVANCED("advanced", 1_260_000, 600);
@@ -21,6 +26,16 @@ public class ModuleThruster extends EmptyModule {
         private final double thrust;
         @Getter
         private final int drain;
+
+        @Override
+        public double getThrustPerTick() {
+            return thrust;
+        }
+
+        @Override
+        public int getDrainPerTick() {
+            return drain;
+        }
     }
 
     @Getter
@@ -43,5 +58,19 @@ public class ModuleThruster extends EmptyModule {
         super.deserializeNBT(nbt);
         int tier = nbt.getByte("tier") & 0xFF;
         this.tier = ThrusterTier.values()[tier % ThrusterTier.values().length];
+    }
+
+    @Override
+    public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+        return super.hasCapability(capability, facing) || capability == ModuleCapabilities.THRUSTER;
+    }
+
+    @Nullable
+    @Override
+    public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+        if (capability == ModuleCapabilities.THRUSTER) {
+            return ModuleCapabilities.THRUSTER.cast(tier);
+        }
+        return super.getCapability(capability, facing);
     }
 }

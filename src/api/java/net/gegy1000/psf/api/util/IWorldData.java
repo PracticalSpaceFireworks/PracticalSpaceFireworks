@@ -1,9 +1,7 @@
 package net.gegy1000.psf.api.util;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Biomes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +12,9 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public interface IWorldData extends IBlockAccess, INBTSerializable<NBTTagCompound>, IByteBufSerializeable {
     void setBlockState(BlockPos pos, IBlockState state);
 
@@ -21,15 +22,12 @@ public interface IWorldData extends IBlockAccess, INBTSerializable<NBTTagCompoun
 
     boolean containsBlock(BlockPos pos);
 
-    World buildWorld(World parent);
-    
-    @Nonnull
-    Biome getBiomeServer(BlockPos pos);
-    
+    World asWorld();
+
     @Override
     @Deprecated
     @SideOnly(Side.CLIENT)
     default @Nonnull Biome getBiome(@Nonnull BlockPos pos) {
-        return getBiomeServer(pos);
+        return Biomes.DEFAULT;
     }
 }

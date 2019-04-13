@@ -1,16 +1,8 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import javax.annotation.Nonnull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
-import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
-import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.util.Matrix;
 import net.minecraft.block.state.IBlockState;
@@ -22,6 +14,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class SpacecraftBody {
     @Getter
@@ -40,13 +37,13 @@ public class SpacecraftBody {
     private float lastRecalcYaw = Float.MAX_VALUE;
     private float lastRecalcPitch = Float.MAX_VALUE;
 
-    public SpacecraftBody(World parent, ISpacecraftBodyData data) {
+    public SpacecraftBody(ISpacecraftBodyData data) {
         this.data = data;
-        this.world = new DelegatedWorld(parent, data);
+        this.world = new DelegatedWorld(data);
     }
 
-    public SpacecraftBody(ISatellite craft) {
-        this(craft.getWorld(), craft.buildBodyData(craft.getWorld()));
+    public static SpacecraftBody empty() {
+        return new SpacecraftBody(SpacecraftBodyData.empty());
     }
 
     public boolean updateRotation(float yaw, float pitch) {
@@ -136,26 +133,22 @@ public class SpacecraftBody {
         return rotationMatrix.transformPoint(point);
     }
 
-    public ISpacecraftMetadata buildSpacecraftMetadata() {
-        return data.buildSpacecraftMetadata(world.getParent());
-    }
-
     public NBTTagCompound serialize(NBTTagCompound compound) {
         compound.setTag("body_data", data.serializeNBT());
         return compound;
     }
 
-    public static SpacecraftBody deserialize(World world, NBTTagCompound compound) {
+    public static SpacecraftBody deserialize(NBTTagCompound compound) {
         SpacecraftBodyData bodyData = SpacecraftBodyData.deserializeCraft(compound.getCompoundTag("body_data"));
-        return new SpacecraftBody(world, bodyData);
+        return new SpacecraftBody(bodyData);
     }
 
     public void serialize(ByteBuf buf) {
         data.serialize(buf);
     }
 
-    public static SpacecraftBody deserialize(World world, ByteBuf buf) {
+    public static SpacecraftBody deserialize(ByteBuf buf) {
         SpacecraftBodyData bodyData = SpacecraftBodyData.deserializeCraft(buf);
-        return new SpacecraftBody(world, bodyData);
+        return new SpacecraftBody(bodyData);
     }
 }

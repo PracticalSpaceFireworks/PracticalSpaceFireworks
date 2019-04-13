@@ -14,12 +14,13 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.IBlockAccess;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @ParametersAreNonnullByDefault
 public class CraftGraph implements Iterable<IModule> {
-    
+
     @ToString
     @RequiredArgsConstructor
     @Getter
@@ -57,7 +58,7 @@ public class CraftGraph implements Iterable<IModule> {
 
             return pos.equals(other.pos);
         }
-        
+
         @Override
         public int hashCode() {
             final int prime = 31;
@@ -73,42 +74,41 @@ public class CraftGraph implements Iterable<IModule> {
         private final Vertex vertex;
         private final int distance;
     }
-    
+
     @Value
     public static class SearchData {
         private final IModule module;
         private final BlockPos pos, from;
         private final EnumFacing dir;
     }
-    
+
     @FunctionalInterface
     public interface SearchFilter extends Predicate<SearchData> {
-        
+
         public static final SearchFilter TRUE = d -> true;
-        
+
         boolean test(SearchData data);
-        
     }
-    
+
     public static final int RANGE = 32;
-    
+
     @Getter
     private final ISatellite satellite;
-    
+
     private final Map<Vertex, List<Vertex>> adjacencies = new HashMap<>();
-    
+
     private List<Vertex> getAdjacent(Vertex vertex) {
         return adjacencies.computeIfAbsent(vertex, v -> new ArrayList<>());
     }
-    
-    public void scan(BlockPos root, World world) {
+
+    public void scan(BlockPos root, IBlockAccess world) {
         scan(root, world, SearchFilter.TRUE);
     }
-    
-    public void scan(BlockPos root, World world, SearchFilter extraFilter) {
+
+    public void scan(BlockPos root, IBlockAccess world, SearchFilter terminationFilter) {
         // Compose filter argument with default filtering logic
         SearchFilter filter = data -> {
-            if (!extraFilter.test(data)) {
+            if (!terminationFilter.test(data)) {
                 return false;
             }
             if (data.getModule() instanceof IController) {
@@ -116,14 +116,14 @@ public class CraftGraph implements Iterable<IModule> {
             }
             ISatellite owner = data.getModule().getOwner();
             // Make sure this module is either unowned or owned by us
-            if (owner == null || owner.isInvalid() || owner.equals(getSatellite())) {
+            if (owner == null || owner.isDestroyed() || owner.equals(getSatellite())) {
                 IBlockState state = world.getBlockState(data.getFrom());
                 // Check that connecting these states is valid, don't form edges through non-solid adjacent modules
                 return BlockModule.isConnectedTo(state, data.getDir());
             }
             return false;
         };
-        
+
         // Clear owners
         adjacencies.values().stream().flatMap(List::stream).forEach(v -> {
             IModule m = TileModule.getModule(world.getTileEntity(v.getPos()));
@@ -131,7 +131,7 @@ public class CraftGraph implements Iterable<IModule> {
                 m.setOwner(null);
             }
         });
-        
+
         // Empty graph
         adjacencies.clear();
 
@@ -141,11 +141,11 @@ public class CraftGraph implements Iterable<IModule> {
 
         IModule module = TileModule.getModule(world.getTileEntity(root));
         Queue<SearchNode> search = new ArrayDeque<>();
-        
+
         Vertex rootVertex = new Vertex(module, root);
         search.add(new SearchNode(rootVertex, 0));
         getAdjacent(rootVertex); // Add empty mapping for root so it's in the keyset
-        
+
         // Find all modules
         while (!search.isEmpty()) {
             SearchNode ret = search.poll();
@@ -154,36 +154,42 @@ public class CraftGraph implements Iterable<IModule> {
                     BlockPos bp = ret.getVertex().getPos().offset(face);
                     TileEntity te = world.getTileEntity(bp);
                     IModule cap = te != null ? te.getCapability(CapabilityModule.INSTANCE, null) : null;
-                    if (cap != null) {
-                        Vertex newVertex = new Vertex(cap, bp);
-                        if (filter.test(new SearchData(newVertex.getModule(), newVertex.getPos(), ret.getVertex().getPos(), face))) {
-                            // Only search through this node if it's not been seen before
-                            if (!seen.contains(bp)) {
-                                search.offer(new SearchNode(newVertex, ret.getDistance() + 1));
-                                cap.setOwner(getSatellite());
-                            }
-                            getAdjacent(ret.getVertex()).add(newVertex);
-                            getAdjacent(newVertex).add(ret.getVertex());
-                            seen.add(bp);
+                    if (cap == null) continue;
+
+                    Vertex newVertex = new Vertex(cap, bp);
+                    SearchData searchData = new SearchData(newVertex.getModule(), newVertex.getPos(), ret.getVertex().getPos(), face);
+
+                    if (filter.test(searchData)) {
+                        // Only search through this node if it's not been seen before
+                        if (!seen.contains(bp)) {
+                            search.offer(new SearchNode(newVertex, ret.getDistance() + 1));
+                            cap.setOwner(getSatellite());
                         }
+                        getAdjacent(ret.getVertex()).add(newVertex);
+                        getAdjacent(newVertex).add(ret.getVertex());
+                        seen.add(bp);
                     }
                 }
             }
         }
 
-        List<IModule> modules = adjacencies.keySet().stream().map(Vertex::getModule).distinct().collect(Collectors.toList());
+        Collection<IModule> modules = getModules();
         for (IModule cap : modules) {
             cap.handleModuleChange(modules);
         }
     }
 
-    public Iterable<BlockPos> getPositions() {
-        return adjacencies.keySet().stream().map(Vertex::getPos)::iterator;
+    public Collection<BlockPos> getPositions() {
+        return adjacencies.keySet().stream().map(Vertex::getPos).collect(Collectors.toList());
+    }
+
+    public Collection<IModule> getModules() {
+        return adjacencies.keySet().stream().map(Vertex::getModule).distinct().collect(Collectors.toList());
     }
 
     @Override
     public Iterator<IModule> iterator() {
-        return adjacencies.keySet().stream().map(Vertex::getModule).distinct().iterator();
+        return getModules().iterator();
     }
 
     public boolean isEmpty() {

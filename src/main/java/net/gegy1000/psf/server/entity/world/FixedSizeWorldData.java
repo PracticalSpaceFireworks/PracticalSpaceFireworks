@@ -1,11 +1,5 @@
 package net.gegy1000.psf.server.entity.world;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.util.Map;
-
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -16,19 +10,21 @@ import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.util.IFixedSizeWorldData;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldType;
-import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Map;
 
 @ParametersAreNonnullByDefault
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -37,18 +33,15 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
     protected int[] lightData;
     protected Long2ObjectMap<TileEntity> entities;
 
-    protected Biome biome;
-
     @Getter(onMethod = @__({@Override}))
     protected BlockPos minPos;
     @Getter(onMethod = @__({@Override}))
     protected BlockPos maxPos;
 
-    protected FixedSizeWorldData(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, Biome biome, BlockPos minPos, BlockPos maxPos) {
+    protected FixedSizeWorldData(int[] blockData, int[] lightData, Long2ObjectMap<TileEntity> entities, BlockPos minPos, BlockPos maxPos) {
         this.blockData = blockData;
         this.lightData = lightData;
         this.entities = entities;
-        this.biome = biome;
         this.minPos = minPos;
         this.maxPos = maxPos;
     }
@@ -96,12 +89,6 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
         }
     }
 
-    @Nonnull
-    @Override
-    public Biome getBiomeServer(BlockPos pos) {
-        return biome;
-    }
-
     @Override
     public boolean containsBlock(BlockPos pos) {
         return pos.getX() >= minPos.getX() && pos.getY() >= minPos.getY() && pos.getZ() >= minPos.getZ()
@@ -118,10 +105,6 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
         compound.setInteger("max_x", this.maxPos.getX());
         compound.setInteger("max_y", this.maxPos.getY());
         compound.setInteger("max_z", this.maxPos.getZ());
-
-        if (this.biome.getRegistryName() != null) {
-            compound.setString("biome", this.biome.getRegistryName().toString());
-        }
 
         compound.setIntArray("block_data", this.blockData);
         compound.setIntArray("light_data", this.lightData);
@@ -140,11 +123,6 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
     public void deserializeNBT(NBTTagCompound compound) {
         minPos = new BlockPos(compound.getInteger("min_x"), compound.getInteger("min_y"), compound.getInteger("min_z"));
         maxPos = new BlockPos(compound.getInteger("max_x"), compound.getInteger("max_y"), compound.getInteger("max_z"));
-        biome = Biome.REGISTRY.getObject(new ResourceLocation(compound.getString("biome")));
-        if (biome == null) {
-            PracticalSpaceFireworks.LOGGER.warn("Failed to load biome with id {}", compound.getString("biome"));
-            biome = Biomes.DEFAULT;
-        }
 
         int expectedLength = getDataSize(minPos, maxPos);
 
@@ -177,7 +155,6 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
     public void serialize(ByteBuf buffer) {
         buffer.writeLong(this.minPos.toLong());
         buffer.writeLong(this.maxPos.toLong());
-        buffer.writeShort(Biome.getIdForBiome(this.biome) & 0xFFFF);
 
         for (int block : this.blockData) {
             buffer.writeShort(block & 0xFFFF);
@@ -197,8 +174,6 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
     public void deserialize(ByteBuf buffer) {
         minPos = BlockPos.fromLong(buffer.readLong());
         maxPos = BlockPos.fromLong(buffer.readLong());
-
-        biome = Biome.getBiome(buffer.readUnsignedShort(), Biomes.DEFAULT);
 
         blockData = new int[getDataSize(minPos, maxPos)];
         for (int i = 0; i < blockData.length; i++) {
@@ -262,7 +237,7 @@ public class FixedSizeWorldData implements IFixedSizeWorldData {
     }
 
     @Override
-    public World buildWorld(World parent) {
-        return new DelegatedWorld(parent, this);
+    public World asWorld() {
+        return new DelegatedWorld(this);
     }
 }

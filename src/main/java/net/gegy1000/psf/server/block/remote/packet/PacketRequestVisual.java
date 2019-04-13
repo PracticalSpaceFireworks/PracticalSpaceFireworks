@@ -38,7 +38,7 @@ public class PacketRequestVisual implements IMessage {
                 ISatellite satellite = PracticalSpaceFireworks.PROXY.getSatellites().get(message.uuid);
 
                 if (satellite != null) {
-                    PSFNetworkHandler.network.sendTo(new PacketVisualData(satellite.buildBodyData(player.world)), player);
+                    PSFNetworkHandler.network.sendTo(new PacketVisualData(satellite.buildVisual()), player);
                 }
             });
 

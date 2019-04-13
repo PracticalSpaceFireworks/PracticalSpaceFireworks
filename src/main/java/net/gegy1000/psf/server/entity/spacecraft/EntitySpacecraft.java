@@ -1,19 +1,11 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.vecmath.Point3d;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Stream;
-
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
-import net.gegy1000.psf.api.spacecraft.ISpacecraftMetadata;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftPhysics;
+import net.gegy1000.psf.api.spacecraft.IStageMetadata;
 import net.gegy1000.psf.client.particle.PSFParticles;
 import net.gegy1000.psf.client.render.spacecraft.model.SpacecraftModel;
 import net.gegy1000.psf.client.sound.SpacecraftSound;
@@ -62,6 +54,16 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
+import javax.vecmath.Point3d;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnData {
     public static final double BASE_AIR_RESISTANCE = 0.98;
     public static final double GRAVITY = 1.6;
@@ -75,7 +77,17 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         PSFNetworkHandler.network.registerMessage(PacketLaunchTile.Handler.class, PacketLaunchTile.class, PSFNetworkHandler.nextID(), Side.SERVER);
     }
 
+    @Getter
     private SpacecraftBody body;
+
+    @Getter
+    private SpacecraftStageTree stageTree;
+
+    @Getter
+    private Collection<SpacecraftStage> activeStages = new ArrayList<>();
+
+    @Getter
+    private ISpacecraftPhysics physics;
 
     @Getter
     private final EntityBoundSatellite satellite;
@@ -90,29 +102,28 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
     private State state = new StaticState(this);
 
     private boolean converted;
-    private ISpacecraftMetadata metadata;
 
     public EntitySpacecraft(World world) {
-        this(world, null, BlockPos.ORIGIN, null);
+        super(world);
+        this.setSize(1, 1);
+
+        this.body = SpacecraftBody.empty();
+        this.satellite = new EntityBoundSatellite(this, getUniqueID(), "Unnamed Craft #" + getUniqueID().hashCode() % 1000);
     }
 
-    public EntitySpacecraft(World world, @Nullable CraftGraph positions, @Nonnull BlockPos origin, @Nullable ISatellite parent) {
+    public EntitySpacecraft(World world, CraftGraph graph, BlockPos origin, ISatellite parent) {
         super(world);
         this.setSize(1, 1);
 
         SpacecraftBuilder builder = new SpacecraftBuilder();
-        builder.copyFrom(world, origin, positions);
-        this.body = new SpacecraftBody(world, builder.buildBodyData(origin, world));
+        builder.copyFrom(world, origin, graph.getPositions());
+        this.body = new SpacecraftBody(builder.buildBodyData(origin, world));
 
-        if (parent != null) {
-            this.satellite = new EntityBoundSatellite(this, parent.getId(), parent.getName());
-            parent.getTrackingPlayers().forEach(satellite::track);
+        this.satellite = new EntityBoundSatellite(this, parent.getId(), parent.getName());
+        parent.getTrackingPlayers().forEach(satellite::track);
 
-            if (!world.isRemote) {
-                initSpacecraft();
-            }
-        } else {
-            this.satellite = new EntityBoundSatellite(this, getUniqueID(), "Unnamed Craft #" + getUniqueID().hashCode() % 1000);
+        if (!world.isRemote) {
+            initSpacecraft();
         }
     }
 
@@ -120,7 +131,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         super(craft.getWorld());
         this.setSize(1, 1);
 
-        this.body = new SpacecraftBody(craft);
+        this.body = new SpacecraftBody(craft.getBodyData());
 
         this.satellite = new EntityBoundSatellite(this, craft.getId(), craft.getName());
         initSpacecraft();
@@ -131,7 +142,10 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         this.body.updateRotation(rotationYaw, rotationPitch);
         this.body.apply(this);
 
-        this.metadata = body.buildSpacecraftMetadata();
+        stageTree = SpacecraftStageTree.scan(satellite);
+        activeStages = stageTree.leaves().collect(Collectors.toList());
+
+        physics = SpacecraftPhysics.build(body.getData());
 
         if (!world.isRemote) {
             PracticalSpaceFireworks.PROXY.getSatellites().register(satellite);
@@ -180,7 +194,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         if (lastMotionY <= -1 && this.collidedVertically) {
             if (!world.isRemote) {
-                world.createExplosion(this, posX, getEntityBoundingBox().minY, posZ, (float) Math.log10(-lastMotionY * metadata.getMass()) + 1, true);
+                world.createExplosion(this, posX, getEntityBoundingBox().minY, posZ, (float) Math.log10(-lastMotionY * physics.getMass()) + 1, true);
             }
             setDead();
         }
@@ -194,7 +208,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                     converted = true;
                     for (EntityPlayerMP player : orbiting.getTrackingPlayers()) {
                         PSFNetworkHandler.network.sendTo(new PacketCraftState(PacketOpenRemoteControl.SatelliteState.ORBIT, orbiting.toListedCraft()), player);
-                        PSFNetworkHandler.network.sendTo(new PacketVisualData(orbiting.buildBodyData(world)), player);
+                        PSFNetworkHandler.network.sendTo(new PacketVisualData(orbiting.buildVisual()), player);
                     }
                 }
             }
@@ -357,7 +371,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound compound) {
-        this.body = SpacecraftBody.deserialize(world, compound.getCompoundTag("body"));
+        this.body = SpacecraftBody.deserialize(compound.getCompoundTag("body"));
         this.satellite.deserializeNBT(compound.getCompoundTag("satellite"));
 
         initSpacecraft();
@@ -377,7 +391,7 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
     @Override
     public void readSpawnData(ByteBuf buffer) {
-        this.body = SpacecraftBody.deserialize(world, buffer);
+        this.body = SpacecraftBody.deserialize(buffer);
 
         this.satellite.deserializeNBT(ByteBufUtils.readTag(buffer));
         this.model = null;
@@ -392,10 +406,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         if (!world.isRemote) {
             this.dataManager.set(STATE, (byte) state.ordinal());
         }
-    }
-
-    public SpacecraftBody getBody() {
-        return body;
     }
 
     @Override
@@ -477,7 +487,6 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         private static final int ENGINE_WARMUP = 80;
 
         private final EntitySpacecraft entity;
-        private final IFluidHandler fuelHandler;
 
         @SideOnly(Side.CLIENT)
         private MovingSound sound;
@@ -488,12 +497,11 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
 
         LaunchState(EntitySpacecraft entity) {
             this.entity = entity;
-            this.fuelHandler = entity.metadata.buildFuelHandler();
 
             if (entity.world.isRemote) {
                 sound = initSound();
             } else {
-                
+
             }
         }
 
@@ -510,54 +518,24 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
         public State update() {
             World world = this.entity.getEntityWorld();
 
-            double acceleration = 0.0;
+            double acceleration;
             double force = 0.0;
-            if (world.isRemote) {
-                acceleration = entity.dataManager.get(ACCELERATION);
-                force = entity.dataManager.get(FORCE);
-            } else {
-                int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
-                FluidStack keroseneDrain = new FluidStack(PSFFluids.kerosene(), totalDrain);
-                FluidStack liquidOxygenDrain = new FluidStack(PSFFluids.liquidOxygen(), totalDrain);
-                FluidStack keroseneResult = this.fuelHandler.drain(keroseneDrain, false);
-                FluidStack liquidOxygenResult = this.fuelHandler.drain(liquidOxygenDrain, false);
-                if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
-                    double totalForce = entity.metadata.getTotalForce();
-                    double forcePercentage = FORCE_CURVE.get(stateTicks / 20D);
-                    force = totalForce * forcePercentage;
-                    keroseneDrain.amount *= forcePercentage;
-                    liquidOxygenDrain.amount *= forcePercentage;
-                    this.fuelHandler.drain(keroseneDrain, true);
-                    this.fuelHandler.drain(liquidOxygenDrain, true);
-                    acceleration = force / entity.metadata.getMass() / 20.0;
 
-                    entity.dataManager.set(ACCELERATION, (float) acceleration);
-                    entity.dataManager.set(FORCE, (float) force);
+            if (!world.isRemote) {
+                for (SpacecraftStage stage : entity.activeStages) {
+                    force += applyStage(stage);
+                }
 
-                    if (stateTicks > IGNITION_TIME) {
-                        for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
-                            double thrusterY = entity.posY + thruster.getPos().getY();
-                            AxisAlignedBB damageArea = new AxisAlignedBB(thruster.getPos())
-                                    .offset(entity.getPositionVector())
-                                    .offset(0, -1, 0)
-                                    .grow(0.25, 0, 0.25)
-                                    .expand(0, -force / 5_000, 0);
+                acceleration = force / entity.physics.getMass() / 20.0;
+                entity.dataManager.set(ACCELERATION, (float) acceleration);
+                entity.dataManager.set(FORCE, (float) force);
 
-                            for (Entity e : entity.getEntityWorld().getEntitiesWithinAABBExcludingEntity(entity, damageArea)) {
-                                float dist = (float) ((thrusterY - e.posY) / (damageArea.maxY - damageArea.minY));
-                                if (dist > 1) {
-                                    continue;
-                                }
-                                e.attackEntityFrom(new DamageSourceThruster(entity), (1 - dist) * 10);
-                                e.setFire(MathHelper.ceil(dist * 5));
-                            }
-                        }
-                    }
-                } else {
-                    entity.dataManager.set(ACCELERATION, 0F);
-                    entity.dataManager.set(FORCE, 0F);
+                if (force <= 0.0) {
                     return StateType.STATIC.create(entity);
                 }
+            } else {
+                acceleration = entity.dataManager.get(ACCELERATION);
+                force = entity.dataManager.get(FORCE);
             }
 
             this.lastForce = force;
@@ -565,58 +543,112 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
             this.entity.rotationYaw += Math.max(this.entity.motionY, 0.0F) * 0.5F;
 
             if (world.isRemote) {
-                if (stateTicks < IGNITION_TIME) {
-                    Random rand = this.entity.rand;
-                    for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
-                        BlockPos thrusterPos = thruster.getPos();
-                        Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
-                        this.entity.body.getRotationMatrix().transform(thrusterPoint);
-                        double posX = this.entity.posX + thrusterPoint.x + (rand.nextDouble() - 0.5);
-                        double posY = this.entity.posY + thrusterPoint.y + 0.5 + (rand.nextDouble() - 0.5);
-                        double posZ = this.entity.posZ + thrusterPoint.z + (rand.nextDouble() - 0.5);
-                        if (rand.nextBoolean()) {
-                            double motionX = (rand.nextDouble() * 2.0 - 1) * 0.05;
-                            double motionY = rand.nextDouble() * 0.05;
-                            double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.05;
-                            this.entity.world.spawnParticle(EnumParticleTypes.CRIT, posX, posY, posZ, motionX, motionY, motionZ);
-                        }
-                    }
-                } else if (stateTicks == IGNITION_TIME) {
-                    Random rand = this.entity.rand;
-                    for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
-                        BlockPos thrusterPos = thruster.getPos();
-                        Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
-                        this.entity.body.getRotationMatrix().transform(thrusterPoint);
-                        double posX = this.entity.posX + thrusterPoint.x;
-                        double posY = this.entity.posY + thrusterPoint.y;
-                        double posZ = this.entity.posZ + thrusterPoint.z;
-                        for (int i = 0; i < 60; i++) {
-                            double motionX = (rand.nextDouble() * 2.0 - 1) * 0.1;
-                            double motionY = -rand.nextDouble() * 0.2;
-                            double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.1;
-                            PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY + rand.nextDouble() * motionY, posZ + motionZ, motionX, motionY, motionZ);
-                        }
-                    }
-                } else if (acceleration > 1e-4 || stateTicks < IGNITION_TIME + ENGINE_WARMUP) {
-                    Random rand = this.entity.rand;
-                    for (SpacecraftMetadata.Thruster thruster : entity.metadata.getThrusters()) {
-                        BlockPos thrusterPos = thruster.getPos();
-                        Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
-                        this.entity.body.getRotationMatrix().transform(thrusterPoint);
-                        double posX = this.entity.posX + thrusterPoint.x;
-                        double posY = this.entity.posY + thrusterPoint.y;
-                        double posZ = this.entity.posZ + thrusterPoint.z;
-                        for (int i = 0; i < 30; i++) {
-                            double motionX = (rand.nextDouble() * 2.0 - 1) * 0.05;
-                            double motionY = -Math.min(force / 1e+3, 1.0) - rand.nextDouble() * 0.1;
-                            double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.05;
-                            PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY + rand.nextDouble() * motionY, posZ + motionZ, motionX, motionY, motionZ);
+                for (SpacecraftStage stage : entity.activeStages) {
+                    spawnStageParticles(world, stage, acceleration, force);
+                }
+            }
+
+            this.stateTicks++;
+            return this;
+        }
+
+        private double applyStage(SpacecraftStage stage) {
+            IStageMetadata stageMeta = stage.getMetadata();
+            IFluidHandler fuelHandler = stageMeta.getFuelHandler();
+
+            int totalDrain = stageMeta.getTotalFuelDrain() / 20;
+            FluidStack keroseneDrain = new FluidStack(PSFFluids.kerosene(), totalDrain);
+            FluidStack liquidOxygenDrain = new FluidStack(PSFFluids.liquidOxygen(), totalDrain);
+            FluidStack keroseneResult = fuelHandler.drain(keroseneDrain, false);
+            FluidStack liquidOxygenResult = fuelHandler.drain(liquidOxygenDrain, false);
+
+            if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {
+                double totalForce = stageMeta.getTotalForce();
+                double forcePercentage = FORCE_CURVE.get(stateTicks / 20D);
+                double force = totalForce * forcePercentage;
+
+                keroseneDrain.amount *= forcePercentage;
+                liquidOxygenDrain.amount *= forcePercentage;
+                fuelHandler.drain(keroseneDrain, true);
+                fuelHandler.drain(liquidOxygenDrain, true);
+
+                if (stateTicks > IGNITION_TIME) {
+                    for (IStageMetadata.Thruster thruster : stageMeta.getThrusters()) {
+                        double thrusterY = entity.posY + thruster.getPos().getY();
+                        AxisAlignedBB damageArea = new AxisAlignedBB(thruster.getPos())
+                                .offset(entity.getPositionVector())
+                                .offset(0, -1, 0)
+                                .grow(0.25, 0, 0.25)
+                                .expand(0, -force / 5_000, 0);
+
+                        for (Entity e : entity.getEntityWorld().getEntitiesWithinAABBExcludingEntity(entity, damageArea)) {
+                            float dist = (float) ((thrusterY - e.posY) / (damageArea.maxY - damageArea.minY));
+                            if (dist > 1) {
+                                continue;
+                            }
+                            e.attackEntityFrom(new DamageSourceThruster(entity), (1 - dist) * 10);
+                            e.setFire(MathHelper.ceil(dist * 5));
                         }
                     }
                 }
+
+                return force;
             }
-            this.stateTicks++;
-            return this;
+
+            return 0.0;
+        }
+
+        private void spawnStageParticles(World world, SpacecraftStage stage, double acceleration, double force) {
+            IStageMetadata stageMeta = stage.getMetadata();
+            Random rand = this.entity.rand;
+
+            if (stateTicks < IGNITION_TIME) {
+                for (IStageMetadata.Thruster thruster : stageMeta.getThrusters()) {
+                    BlockPos thrusterPos = thruster.getPos();
+                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                    this.entity.body.getRotationMatrix().transform(thrusterPoint);
+                    double posX = this.entity.posX + thrusterPoint.x + (rand.nextDouble() - 0.5);
+                    double posY = this.entity.posY + thrusterPoint.y + 0.5 + (rand.nextDouble() - 0.5);
+                    double posZ = this.entity.posZ + thrusterPoint.z + (rand.nextDouble() - 0.5);
+                    if (rand.nextBoolean()) {
+                        double motionX = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                        double motionY = rand.nextDouble() * 0.05;
+                        double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                        this.entity.world.spawnParticle(EnumParticleTypes.CRIT, posX, posY, posZ, motionX, motionY, motionZ);
+                    }
+                }
+            } else if (stateTicks == IGNITION_TIME) {
+                for (IStageMetadata.Thruster thruster : stageMeta.getThrusters()) {
+                    BlockPos thrusterPos = thruster.getPos();
+                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                    this.entity.body.getRotationMatrix().transform(thrusterPoint);
+                    double posX = this.entity.posX + thrusterPoint.x;
+                    double posY = this.entity.posY + thrusterPoint.y;
+                    double posZ = this.entity.posZ + thrusterPoint.z;
+                    for (int i = 0; i < 60; i++) {
+                        double motionX = (rand.nextDouble() * 2.0 - 1) * 0.1;
+                        double motionY = -rand.nextDouble() * 0.2;
+                        double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.1;
+                        PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY + rand.nextDouble() * motionY, posZ + motionZ, motionX, motionY, motionZ);
+                    }
+                }
+            } else if (acceleration > 1e-4 || stateTicks < IGNITION_TIME + ENGINE_WARMUP) {
+                for (IStageMetadata.Thruster thruster : stageMeta.getThrusters()) {
+                    BlockPos thrusterPos = thruster.getPos();
+                    Point3d thrusterPoint = new Point3d(thrusterPos.getX(), thrusterPos.getY(), thrusterPos.getZ());
+                    this.entity.body.getRotationMatrix().transform(thrusterPoint);
+                    double posX = this.entity.posX + thrusterPoint.x;
+                    double posY = this.entity.posY + thrusterPoint.y;
+                    double posZ = this.entity.posZ + thrusterPoint.z;
+                    for (int i = 0; i < 30; i++) {
+                        // TODO: use local thruster force?
+                        double motionX = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                        double motionY = -Math.min(force / 1e+3, 1.0) - rand.nextDouble() * 0.1;
+                        double motionZ = (rand.nextDouble() * 2.0 - 1) * 0.05;
+                        PSFParticles.ROCKET_PLUME.spawn(world, posX + motionX, posY + rand.nextDouble() * motionY, posZ + motionZ, motionX, motionY, motionZ);
+                    }
+                }
+            }
         }
 
         @Override

@@ -141,7 +141,7 @@ public class BlockModule extends Block implements RegisterItemBlock, RegisterIte
             val module = TileModule.getModule(world.getTileEntity(pos));
             if (module != null) {
                 val owner = module.getOwner();
-                if (owner != null && !owner.isInvalid()) {
+                if (owner != null && !owner.isDestroyed()) {
                     val te = world.getTileEntity(owner.getPosition());
                     if (te instanceof TileController) {
                         ((TileController) te).scanStructure();

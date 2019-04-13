@@ -1,25 +1,27 @@
 package net.gegy1000.psf.server.satellite;
 
-import javax.annotation.Nonnull;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 import lombok.Getter;
 import lombok.Setter;
+import net.gegy1000.psf.api.client.IVisualData;
 import net.gegy1000.psf.api.module.IModule;
-import net.gegy1000.psf.api.spacecraft.IController;
 import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.gegy1000.psf.server.block.remote.orbiting.OrbitingListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.visual.VisualData;
+import net.gegy1000.psf.server.block.remote.visual.VisualProperties;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftPhysics;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 public class OrbitingSatellite extends AbstractSatellite {
     private final World world;
@@ -30,20 +32,18 @@ public class OrbitingSatellite extends AbstractSatellite {
     private final UUID uuid;
 
     private final BlockPos position;
-    private final SpacecraftBodyData bodyData;
+    private final ISpacecraftBodyData bodyData;
 
-    private final IController controller;
     private final List<IModule> modules;
 
-    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, SpacecraftBodyData bodyData, Collection<EntityPlayerMP> trackingPlayers) {
+    public OrbitingSatellite(World world, String name, UUID uuid, BlockPos position, ISpacecraftBodyData bodyData, Collection<EntityPlayerMP> trackingPlayers) {
         this.world = world;
         this.name = name;
         this.uuid = uuid;
         this.position = position;
         this.bodyData = bodyData;
 
-        this.controller = bodyData.findController();
-        this.modules = bodyData.findModules();
+        this.modules = bodyData.collectModules();
 
         modules.forEach(module -> module.setOwner(this));
         trackingPlayers.forEach(this::track);
@@ -56,8 +56,18 @@ public class OrbitingSatellite extends AbstractSatellite {
     }
 
     @Override
-    public IController getController() {
-        return this.controller;
+    public ISpacecraftBodyData getBodyData() {
+        return bodyData;
+    }
+
+    @Override
+    public IVisualData buildVisual() {
+        SpacecraftPhysics physics = SpacecraftPhysics.build(bodyData);
+        return VisualData.builder()
+                .with(VisualProperties.BODY_DATA, bodyData)
+                .with(VisualProperties.MASS, physics.getMass())
+                .with(VisualProperties.THRUST, 0.0)
+                .build();
     }
 
     @Override
@@ -65,20 +75,10 @@ public class OrbitingSatellite extends AbstractSatellite {
         return this.modules;
     }
 
-    @Override
-    public boolean isInvalid() {
-        return false;
-    }
-
     @Nonnull
     @Override
     public BlockPos getPosition() {
         return this.position;
-    }
-
-    @Override
-    public ISpacecraftBodyData buildBodyData(@Nonnull World world) {
-        return bodyData;
     }
 
     @Override

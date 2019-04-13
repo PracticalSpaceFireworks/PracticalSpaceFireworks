@@ -1,6 +1,5 @@
 package net.gegy1000.psf.server.entity.spacecraft;
 
-import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -8,7 +7,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import net.gegy1000.psf.PracticalSpaceFireworks;
-import net.gegy1000.psf.server.block.controller.CraftGraph;
+import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.gegy1000.psf.server.util.PointUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -19,11 +18,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class SpacecraftBuilder {
     private final LongList blockKeys = new LongArrayList();
@@ -51,12 +46,8 @@ public class SpacecraftBuilder {
         this.maxPos = PointUtils.max(pos, this.maxPos);
     }
 
-    public SpacecraftBuilder copyFrom(World world, BlockPos origin, @Nullable CraftGraph positions) {
-        if (positions == null) {
-            return this;
-        }
-        List<BlockPos> locations = Lists.newArrayList(positions.getPositions());
-        for (BlockPos pos : locations) {
+    public SpacecraftBuilder copyFrom(World world, BlockPos origin, Iterable<BlockPos> positions) {
+        for (BlockPos pos : positions) {
             BlockPos localPos = pos.subtract(origin);
             IBlockState state = world.getBlockState(pos);
             this.setBlockState(localPos, state);
@@ -78,26 +69,23 @@ public class SpacecraftBuilder {
         return this;
     }
 
-    public SpacecraftBodyData buildBodyData(BlockPos origin, World world) {
+    public ISpacecraftBodyData buildBodyData(BlockPos origin, World world) {
         int[] blockData = new int[SpacecraftBodyData.getDataSize(minPos, maxPos)];
         for (int i = 0; i < this.blockKeys.size(); i++) {
             BlockPos pos = BlockPos.fromLong(this.blockKeys.getLong(i));
             int state = this.blockValues.getInt(i);
-
             blockData[SpacecraftBodyData.getPosIndex(pos, minPos, maxPos)] = state;
         }
+
         MutableBlockPos mutablePos = new MutableBlockPos(origin);
         int[] lightData = new int[SpacecraftBodyData.getDataSize(minPos, maxPos)];
         for (BlockPos pos : BlockPos.getAllInBoxMutable(minPos, maxPos)) {
             mutablePos.setPos(origin.getX() + pos.getX(), origin.getY() + pos.getY(), origin.getZ() + pos.getZ());
             int index = SpacecraftBodyData.getPosIndex(pos, minPos, maxPos);
             lightData[index] = getCombinedLight(world, mutablePos);
-            mutablePos.setPos(origin);
         }
 
-        Biome biome = world.getBiome(origin);
-
-        return new SpacecraftBodyData(blockData, lightData, this.entities, biome, minPos, maxPos);
+        return new SpacecraftBodyData(blockData, lightData, this.entities, minPos, maxPos);
     }
 
     private int getCombinedLight(World world, MutableBlockPos pos) {

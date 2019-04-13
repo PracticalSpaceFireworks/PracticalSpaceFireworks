@@ -1,17 +1,16 @@
 package net.gegy1000.psf.server.block.remote.packet;
 
-import java.util.UUID;
-
 import io.netty.buffer.ByteBuf;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,8 +35,6 @@ public class PacketSetName implements IMessage {
         @Override
         public IMessage onMessage(PacketSetName message, MessageContext ctx) {
             PracticalSpaceFireworks.PROXY.handlePacket(ctx, player -> {
-                World world = player.world;
-
                 ISatellite satellite = PracticalSpaceFireworks.PROXY.getSatellites().get(message.uuid);
                 if (satellite != null) {
                     satellite.setName(message.name);

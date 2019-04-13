@@ -1,15 +1,9 @@
 package net.gegy1000.psf.server.block.remote;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.UUID;
-
 import lombok.Getter;
 import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.client.IVisualData;
 import net.gegy1000.psf.api.client.IVisualReceiver;
-import net.gegy1000.psf.api.client.IVisualReceiver.IVisual;
 import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.server.block.remote.packet.PacketTrackCraft;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
@@ -21,6 +15,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.UUID;
 
 public abstract class GuiRemoteControl extends GuiContainer implements IVisualReceiver {
     
@@ -83,7 +82,7 @@ public abstract class GuiRemoteControl extends GuiContainer implements IVisualRe
     }
     
     @Override
-    public void setVisual(@Nonnull IVisual visual) {}
+    public void setVisual(@Nonnull IVisualData visual) {}
 
     @Override
     public void updateModule(@Nonnull UUID id, @Nonnull NBTTagCompound tag) {}

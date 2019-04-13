@@ -1,28 +1,30 @@
 package net.gegy1000.psf.server.satellite;
 
 import com.google.common.collect.Lists;
-
-import javax.annotation.Nonnull;
-
-import java.util.Collection;
-import java.util.UUID;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import net.gegy1000.psf.api.client.IVisualData;
 import net.gegy1000.psf.api.module.IModule;
-import net.gegy1000.psf.api.spacecraft.IController;
 import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
 import net.gegy1000.psf.server.block.controller.TileController;
 import net.gegy1000.psf.server.block.remote.tile.TileListedSpacecraft;
-import net.gegy1000.psf.server.capability.CapabilityController;
+import net.gegy1000.psf.server.block.remote.visual.VisualData;
+import net.gegy1000.psf.server.block.remote.visual.VisualProperties;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchTile;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftPhysics;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftStageTree;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class TileBoundSatellite extends AbstractSatellite {
@@ -37,18 +39,8 @@ public class TileBoundSatellite extends AbstractSatellite {
     private String name;
 
     @Override
-    public IController getController() {
-        return controller.getCapability(CapabilityController.INSTANCE, null);
-    }
-
-    @Override
     public Collection<IModule> getModules() {
         return Lists.newArrayList(controller.getModules());
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return controller.isInvalid();
     }
 
     @Nonnull
@@ -64,10 +56,25 @@ public class TileBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public ISpacecraftBodyData buildBodyData(@Nonnull World world) {
+    public IVisualData buildVisual() {
+        ISpacecraftBodyData bodyData = getBodyData();
+        SpacecraftPhysics physics = SpacecraftPhysics.build(bodyData);
+        SpacecraftStageTree stageTree = SpacecraftStageTree.scan(this);
+        double thrust = stageTree.leaves().mapToDouble(stage -> stage.getMetadata().getTotalForce()).sum();
+
+        return VisualData.builder()
+                .with(VisualProperties.BODY_DATA, bodyData)
+                .with(VisualProperties.MASS, physics.getMass())
+                .with(VisualProperties.THRUST, thrust)
+                .build();
+    }
+
+    @Override
+    public ISpacecraftBodyData getBodyData() {
+        World world = controller.getWorld();
         BlockPos origin = controller.getPos();
         SpacecraftBuilder builder = new SpacecraftBuilder();
-        builder.copyFrom(world, origin, controller.getModules());
+        builder.copyFrom(world, origin, controller.getModules().getPositions());
         return builder.buildBodyData(origin, world);
     }
 
@@ -104,13 +111,10 @@ public class TileBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public void launch() {
-        PSFNetworkHandler.network.sendToServer(new PacketLaunchTile(controller.getPos()));
-    }
-
-    @Override
-    public boolean canLaunch() {
-        return true;
+    public Optional<LaunchHandle> getLaunchHandle() {
+        return Optional.of(() -> {
+            PSFNetworkHandler.network.sendToServer(new PacketLaunchTile(controller.getPos()));
+        });
     }
     
     @Override

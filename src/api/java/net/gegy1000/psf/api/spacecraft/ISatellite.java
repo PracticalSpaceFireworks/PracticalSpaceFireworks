@@ -1,6 +1,7 @@
 package net.gegy1000.psf.api.spacecraft;
 
 import com.google.common.base.Functions;
+import net.gegy1000.psf.api.client.IVisualData;
 import net.gegy1000.psf.api.module.IModule;
 import net.gegy1000.psf.api.util.IUnique;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -11,7 +12,6 @@ import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -25,16 +25,27 @@ import java.util.stream.Collectors;
 @ParametersAreNonnullByDefault
 public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable<NBTTagCompound> {
 
-    @Override
-    @Nonnull
-    String getName();
+    ISpacecraftBodyData getBodyData();
 
-    IController getController();
+    IVisualData buildVisual();
 
     Collection<IModule> getModules();
 
-    boolean isInvalid();
-    
+    IListedSpacecraft toListedCraft();
+
+    World getWorld();
+
+    void sendModulePacket(IModule module, NBTTagCompound data);
+
+    @Override
+    default NBTTagCompound serializeNBT() {
+        return new NBTTagCompound();
+    }
+
+    @Override
+    default void deserializeNBT(@Nullable NBTTagCompound tag) {
+    }
+
     default Map<UUID, IModule> getIndexedModules() {
         return getModules().stream().collect(Collectors.toMap(IModule::getId, Functions.identity()));
     }
@@ -67,21 +78,6 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
         return caps;
     }
 
-    ISpacecraftBodyData buildBodyData(World world);
-
-    IListedSpacecraft toListedCraft();
-
-    World getWorld();
-
-    @Override
-    default NBTTagCompound serializeNBT() {
-        return new NBTTagCompound();
-    }
-
-    @Override
-    default void deserializeNBT(@Nullable NBTTagCompound tag) {}
-   
-
     default void tickSatellite(long ticksExisted) {
         for (IModule module : getModules()) {
             if (isOrbiting() && ticksExisted % module.getTickInterval() == 0) {
@@ -93,25 +89,26 @@ public interface ISatellite extends IUnique, IListedSpacecraft, INBTSerializable
             }
         }
     }
-    
+
     default void updateModuleClient(UUID id, NBTTagCompound data) {
         IModule module = getIndexedModules().get(id);
         if (module != null) {
             module.readUpdateTag(data);
         }
     }
-    
-    void sendModulePacket(IModule module, NBTTagCompound data);
-    
+
     default Collection<EntityPlayerMP> getTrackingPlayers() {
         return Collections.emptyList();
     }
 
-    default void track(EntityPlayerMP player) {}
-    
-    default void untrack(EntityPlayerMP player) {}
+    default void track(EntityPlayerMP player) {
+    }
 
-    default void markDirty() {} // For TE
+    default void untrack(EntityPlayerMP player) {
+    }
+
+    default void markDirty() {
+    } // For TE
 
     default void onRemove() {
         for (IModule module : getModules()) {

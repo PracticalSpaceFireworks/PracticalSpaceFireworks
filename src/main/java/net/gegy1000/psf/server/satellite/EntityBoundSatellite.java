@@ -1,33 +1,31 @@
 package net.gegy1000.psf.server.satellite;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-
 import lombok.Setter;
-import net.gegy1000.psf.PracticalSpaceFireworks;
+import net.gegy1000.psf.api.client.IVisualData;
 import net.gegy1000.psf.api.module.IModule;
-import net.gegy1000.psf.api.spacecraft.IController;
 import net.gegy1000.psf.api.spacecraft.IListedSpacecraft;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.api.spacecraft.ISpacecraftBodyData;
-import net.gegy1000.psf.server.block.controller.CraftGraph;
-import net.gegy1000.psf.server.block.controller.CraftGraph.SearchFilter;
 import net.gegy1000.psf.server.block.remote.entity.EntityListedSpacecraft;
+import net.gegy1000.psf.server.block.remote.visual.VisualData;
+import net.gegy1000.psf.server.block.remote.visual.VisualProperties;
 import net.gegy1000.psf.server.entity.spacecraft.EntitySpacecraft;
 import net.gegy1000.psf.server.entity.spacecraft.PacketLaunchCraft;
-import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBodyData;
 import net.gegy1000.psf.server.entity.spacecraft.SpacecraftBuilder;
+import net.gegy1000.psf.server.entity.spacecraft.SpacecraftStage;
 import net.gegy1000.psf.server.entity.world.DelegatedWorld;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class EntityBoundSatellite extends AbstractSatellite {
 
@@ -35,7 +33,6 @@ public class EntityBoundSatellite extends AbstractSatellite {
     private UUID uuid;
 
     private final List<IModule> modules = new ArrayList<>();
-    private IController controller;
     @Setter
     @Nonnull
     private String name;
@@ -50,10 +47,8 @@ public class EntityBoundSatellite extends AbstractSatellite {
         ISpacecraftBodyData bodyData = this.spacecraft.getBody().getData();
 
         this.modules.clear();
-        this.modules.addAll(bodyData.findModules());
+        this.modules.addAll(bodyData.collectModules());
         this.modules.forEach(module -> module.setOwner(this));
-
-        this.controller = bodyData.findController();
     }
 
     @Nonnull
@@ -69,18 +64,8 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public IController getController() {
-        return this.controller;
-    }
-
-    @Override
     public Collection<IModule> getModules() {
         return this.modules;
-    }
-
-    @Override
-    public boolean isInvalid() {
-        return !spacecraft.isEntityAlive();
     }
 
     @Nonnull
@@ -90,13 +75,30 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public ISpacecraftBodyData buildBodyData(@Nonnull World world) {
-        return this.spacecraft.getBody().getData();
+    public IListedSpacecraft toListedCraft() {
+        return new EntityListedSpacecraft(spacecraft, uuid);
     }
 
     @Override
-    public IListedSpacecraft toListedCraft() {
-        return new EntityListedSpacecraft(spacecraft, uuid);
+    public ISpacecraftBodyData getBodyData() {
+        return spacecraft.getBody().getData();
+    }
+
+    @Override
+    public IVisualData buildVisual() {
+        ISpacecraftBodyData bodyData = getBodyData();
+        double mass = spacecraft.getPhysics().getMass();
+        double thrust = 0.0;
+
+        for (SpacecraftStage stage : spacecraft.getActiveStages()) {
+            thrust += stage.getMetadata().getTotalForce();
+        }
+
+        return VisualData.builder()
+                .with(VisualProperties.BODY_DATA, bodyData)
+                .with(VisualProperties.MASS, mass)
+                .with(VisualProperties.THRUST, thrust)
+                .build();
     }
 
     @Override
@@ -105,15 +107,16 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     @Override
-    public boolean canLaunch() {
-        return this.spacecraft.getState().getType() == EntitySpacecraft.StateType.STATIC;
+    public Optional<LaunchHandle> getLaunchHandle() {
+        if (this.spacecraft.getState().getType() == EntitySpacecraft.StateType.STATIC) {
+            return Optional.of(() -> {
+                PSFNetworkHandler.network.sendToServer(new PacketLaunchCraft(spacecraft.getEntityId()));
+            });
+        } else {
+            return Optional.empty();
+        }
     }
 
-    @Override
-    public void launch() {
-        PSFNetworkHandler.network.sendToServer(new PacketLaunchCraft(spacecraft.getEntityId()));
-    }
-    
     @Override
     public boolean isDestroyed() {
         return spacecraft.isDead;
@@ -147,11 +150,18 @@ public class EntityBoundSatellite extends AbstractSatellite {
     }
 
     public ISatellite toOrbiting() {
-        CraftGraph craft = new CraftGraph(this);
-        SearchFilter filter = d -> !d.getModule().getRegistryName().equals(new ResourceLocation(PracticalSpaceFireworks.MODID, "payload_separator"));
-        DelegatedWorld spacecraftWorld = this.spacecraft.getBody().getWorld();
-        craft.scan(BlockPos.ORIGIN, spacecraftWorld, filter);
-        SpacecraftBodyData payload = new SpacecraftBuilder().copyFrom(spacecraftWorld, BlockPos.ORIGIN, craft).buildBodyData(BlockPos.ORIGIN, spacecraftWorld);
-        return new OrbitingSatellite(this.getWorld(), this.name, this.getId(), this.getPosition(), payload, getTrackingPlayers());
+        // TODO: Drop all other remaining stages at this point
+        ISpacecraftBodyData payload = buildPayload();
+        return new OrbitingSatellite(getWorld(), name, getId(), getPosition(), payload, getTrackingPlayers());
+    }
+
+    private ISpacecraftBodyData buildPayload() {
+        DelegatedWorld bodyWorld = spacecraft.getBody().getWorld();
+        SpacecraftStage upperStage = spacecraft.getStageTree().getUpperStage();
+        BlockPos origin = upperStage.getOrigin();
+        Collection<BlockPos> positions = upperStage.getGraph().getPositions();
+
+        SpacecraftBuilder builder = new SpacecraftBuilder().copyFrom(bodyWorld, origin, positions);
+        return builder.buildBodyData(origin, bodyWorld);
     }
 }

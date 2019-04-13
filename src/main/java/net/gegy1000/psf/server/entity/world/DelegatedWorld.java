@@ -1,20 +1,17 @@
 package net.gegy1000.psf.server.entity.world;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-import java.io.File;
-
 import net.gegy1000.psf.api.util.IWorldData;
 import net.gegy1000.psf.server.util.ServerEmptyChunk;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.biome.Biome;
@@ -28,20 +25,27 @@ import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.File;
+
 @ParametersAreNonnullByDefault
 public class DelegatedWorld extends World {
-    private final World parent;
+    private static final WorldInfo FAKE_WORLD_INFO = new WorldInfo(new NBTTagCompound());
+    private static final WorldProvider FAKE_WORLD_PROVIDER = new WorldProvider() {
+        @Override
+        public DimensionType getDimensionType() {
+            return DimensionType.OVERWORLD;
+        }
+    };
+    private static final Profiler FAKE_PROFILER = new Profiler();
+
     private final IWorldData data;
 
-    public DelegatedWorld(World parent, IWorldData data) {
-        super(new SaveHandler(), parent.getWorldInfo(), parent.provider, parent.profiler, parent.isRemote);
-        this.parent = parent;
+    public DelegatedWorld(IWorldData data) {
+        super(new SaveHandler(), FAKE_WORLD_INFO, FAKE_WORLD_PROVIDER, FAKE_PROFILER, false);
         this.data = data;
-    }
-
-    @Nonnull
-    public World getParent() {
-        return parent;
     }
 
     @Override
@@ -132,7 +136,7 @@ public class DelegatedWorld extends World {
     @Override
     @Nonnull
     public Biome getBiome(BlockPos pos) {
-        return data.getBiomeServer(pos);
+        return Biomes.DEFAULT;
     }
 
     @Override
