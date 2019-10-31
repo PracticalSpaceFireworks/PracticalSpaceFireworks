@@ -105,6 +105,8 @@ public final class PSFClientEvents {
             shakeX = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
             shakeY = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
             shakeZ = (rand.nextDouble() * 2.0 - 1.0) * totalShake;
+        } else {
+            shakeX = shakeY = shakeZ = 0;
         }
     }
 
