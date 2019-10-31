@@ -78,7 +78,7 @@ public class ModuleTerrainScanner extends EmptyModule {
         for (int localX = 0; localX < 16; localX++) {
             for (int localZ = 0; localZ < 16; localZ++) {
                 for (int localY = 0; localY < 256; localY++) {
-                    MapColor mapColor = chunk.getBlockState(localX, localY, localZ).getMapColor(null, null);
+                    MapColor mapColor = chunk.getBlockState(localX, localY, localZ).getMapColor(chunk.getWorld(), chunk.getPos().getBlock(localX, localY, localZ));
                     blockColors[index++] = (byte) mapColor.colorIndex;
                 }
             }
