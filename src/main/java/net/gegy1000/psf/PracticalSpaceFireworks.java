@@ -110,6 +110,8 @@ public class PracticalSpaceFireworks {
         
         registerOredict("barsIron", Item.getItemFromBlock(Blocks.IRON_BARS));
         registerOredict("pearlEnderEye", Items.ENDER_EYE);
+        registerOredict("itemCoal", Items.COAL, 0);
+        registerOredict("itemCharcoal", Items.COAL, 1);
     }
     
     private static void registerOredict(String name, Item item) {
