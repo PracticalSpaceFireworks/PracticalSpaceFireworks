@@ -51,7 +51,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     public void update() {
         if (world.isRemote) return;
 
-        boolean hasEnergy = energyStorage.extractEnergy(ENERGY_PER_TICK, true) >= ENERGY_PER_TICK;
+        boolean hasEnergy = true || energyStorage.extractEnergy(ENERGY_PER_TICK, true) >= ENERGY_PER_TICK;
         if (hasEnergy) {
             stateTracker.markActive();
             if (!isExtracting()) {
@@ -60,8 +60,9 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                 energyStorage.extractEnergy(ENERGY_PER_TICK, false);
                 if (++extractionTime > totalExtractionAmount) {
                     extractionTime = 0;
-                    fluidTank.fillInternal(new FluidStack(PSFFluids.KEROSENE.getFluid(), totalExtractionAmount), true);
                     beginExtracting();
+                } else {
+                    fluidTank.fillInternal(new FluidStack(PSFFluids.KEROSENE.getFluid(), 1), true);
                 }
             }
         } else {
@@ -141,6 +142,10 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                     return 15;
                 case "itemCoal":
                     return 30;
+                case "blockCharcoal":
+                    return 15 * 9;
+                case "blockCoal":
+                    return 30 * 9;
             }
         }
         return 0;
