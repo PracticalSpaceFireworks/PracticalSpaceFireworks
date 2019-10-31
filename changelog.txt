@@ -1,3 +1,13 @@
+0.2.1:
+Changes
+- Kerosene extractor now supports coal and charcoal blocks
+- Kerosene extractor will gradually output the result instead of all at once
+Fixes
+- #11 Fluids are displayed incorrectly when other mods add the same fluids
+- #12 Screen shake can leave cursor offset
+- #13 Coal and Charcoal missing oredict registrations, causing only wood to be accepted
+- #14 Crash when using terrain scanner on certain blocks (e.g. beds)
+
 0.2.0:
 New
 - Crafting recipes for everything
