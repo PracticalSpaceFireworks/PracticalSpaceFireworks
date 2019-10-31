@@ -53,9 +53,9 @@ public class GuiAirSeparator extends GuiContainer {
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
-        compressedAirTank.drawTooltip(PSFFluids.compressedAir(), container.getCompressedAirState().getAmount(), container.getCompressedAirState().getCapacity(), mouseX, mouseY);
-        liquidNitrogenTank.drawTooltip(PSFFluids.liquidNitrogen(), container.getLiquidNitrogenState().getAmount(), container.getLiquidNitrogenState().getCapacity(), mouseX, mouseY);
-        liquidOxygenTank.drawTooltip(PSFFluids.liquidOxygen(), container.getLiquidOxygenState().getAmount(), container.getLiquidOxygenState().getCapacity(), mouseX, mouseY);
+        compressedAirTank.drawTooltip(PSFFluids.COMPRESSED_AIR.getFluid(), container.getCompressedAirState().getAmount(), container.getCompressedAirState().getCapacity(), mouseX, mouseY);
+        liquidNitrogenTank.drawTooltip(PSFFluids.LIQUID_NITROGEN.getFluid(), container.getLiquidNitrogenState().getAmount(), container.getLiquidNitrogenState().getCapacity(), mouseX, mouseY);
+        liquidOxygenTank.drawTooltip(PSFFluids.LIQUID_OXYGEN.getFluid(), container.getLiquidOxygenState().getAmount(), container.getLiquidOxygenState().getCapacity(), mouseX, mouseY);
     }
 
     @Override
@@ -72,8 +72,8 @@ public class GuiAirSeparator extends GuiContainer {
             drawTexturedModalRect(originX + 65, originY + 29, 176, 0, 46, 30);
         }
         
-        compressedAirTank.draw(PSFFluids.compressedAir(), container.getCompressedAirState().getAmount(), container.getCompressedAirState().getCapacity(), originX, originY);
-        liquidNitrogenTank.draw(PSFFluids.liquidNitrogen(), container.getLiquidNitrogenState().getAmount(), container.getLiquidNitrogenState().getCapacity(), originX, originY);
-        liquidOxygenTank.draw(PSFFluids.liquidOxygen(), container.getLiquidOxygenState().getAmount(), container.getLiquidOxygenState().getCapacity(), originX, originY);
+        compressedAirTank.draw(PSFFluids.COMPRESSED_AIR.getFluid(), container.getCompressedAirState().getAmount(), container.getCompressedAirState().getCapacity(), originX, originY);
+        liquidNitrogenTank.draw(PSFFluids.LIQUID_NITROGEN.getFluid(), container.getLiquidNitrogenState().getAmount(), container.getLiquidNitrogenState().getCapacity(), originX, originY);
+        liquidOxygenTank.draw(PSFFluids.LIQUID_OXYGEN.getFluid(), container.getLiquidOxygenState().getAmount(), container.getLiquidOxygenState().getCapacity(), originX, originY);
     }
 }

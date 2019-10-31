@@ -30,16 +30,16 @@ public class ModuleFuelTank extends EmptyModule {
     public ModuleFuelTank() {
         super("fuel_tank");
 
-        this.keroseneTank = new FluidTank(PSFFluids.kerosene(), 0, CAPACITY);
-        this.liquidOxygenTank = new FluidTank(PSFFluids.liquidOxygen(), 0, CAPACITY);
+        this.keroseneTank = new FluidTank(PSFFluids.KEROSENE.getFluid(), 0, CAPACITY);
+        this.liquidOxygenTank = new FluidTank(PSFFluids.LIQUID_OXYGEN.getFluid(), 0, CAPACITY);
         this.storage = new FuelFluidHandler();
-        this.storage.addHandler(PSFFluids.kerosene(), this.keroseneTank);
-        this.storage.addHandler(PSFFluids.liquidOxygen(), this.liquidOxygenTank);
+        this.storage.addHandler(PSFFluids.KEROSENE.getFluid(), this.keroseneTank);
+        this.storage.addHandler(PSFFluids.LIQUID_OXYGEN.getFluid(), this.liquidOxygenTank);
     }
 
     public void setFull() {
-        this.keroseneTank.fill(new FluidStack(PSFFluids.kerosene(), CAPACITY), true);
-        this.liquidOxygenTank.fill(new FluidStack(PSFFluids.liquidOxygen(), CAPACITY), true);
+        this.keroseneTank.fill(new FluidStack(PSFFluids.KEROSENE.getFluid(), CAPACITY), true);
+        this.liquidOxygenTank.fill(new FluidStack(PSFFluids.LIQUID_OXYGEN.getFluid(), CAPACITY), true);
     }
 
     @Override

@@ -63,8 +63,8 @@ public class ContainerFuelValve extends Container {
 
         this.fluidHandler = module.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
 
-        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 0, 26, 36, PSFFluids.kerosene()));
-        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 1, 134, 36, PSFFluids.liquidOxygen()));
+        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 0, 26, 36, PSFFluids.KEROSENE.getFluid()));
+        this.addSlotToContainer(new SlotFluidContainer(this.inputHandler, 1, 134, 36, PSFFluids.LIQUID_OXYGEN.getFluid()));
 
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
@@ -117,8 +117,8 @@ public class ContainerFuelValve extends Container {
         super.detectAndSendChanges();
 
         Map<Fluid, FuelState> states = module.computeFuelStates();
-        FuelState keroseneState = states.getOrDefault(PSFFluids.kerosene(), new FuelState());
-        FuelState liquidOxygenState = states.getOrDefault(PSFFluids.liquidOxygen(), new FuelState());
+        FuelState keroseneState = states.getOrDefault(PSFFluids.KEROSENE.getFluid(), new FuelState());
+        FuelState liquidOxygenState = states.getOrDefault(PSFFluids.LIQUID_OXYGEN.getFluid(), new FuelState());
 
         boolean keroseneChanged = !this.keroseneState.equals(keroseneState);
         boolean liquidOxygenChanged = !this.liquidOxygenState.equals(liquidOxygenState);

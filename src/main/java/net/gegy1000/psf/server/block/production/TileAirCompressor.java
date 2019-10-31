@@ -59,9 +59,9 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                     return DRAINING_STATE;
                 }
                 if (ctx.tile.energyStorage.extractEnergy(ENERGY_PER_TICK, false) >= ENERGY_PER_TICK) {
-                    FluidStack drained = ctx.tile.inputStorage.drainInternal(new FluidStack(PSFFluids.filteredAir(), COMPRESS_PER_TICK), true);
+                    FluidStack drained = ctx.tile.inputStorage.drainInternal(new FluidStack(PSFFluids.FILTERED_AIR.getFluid(), COMPRESS_PER_TICK), true);
                     if (drained != null && drained.amount > 0) {
-                        ctx.tile.outputStorage.fillInternal(new FluidStack(PSFFluids.compressedAir(), drained.amount), true);
+                        ctx.tile.outputStorage.fillInternal(new FluidStack(PSFFluids.COMPRESSED_AIR.getFluid(), drained.amount), true);
                         ctx.markActive();
                     }
                     return COMPRESSING_STATE;
@@ -98,8 +98,8 @@ public class TileAirCompressor extends TileEntity implements ITickable {
                 return DRAINING_STATE;
             });
 
-    private final FluidTank inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.filteredAir(), TypedFluidTank.IO.IN);
-    private final FluidTank outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.OUT);
+    private final FluidTank inputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.FILTERED_AIR.getFluid(), TypedFluidTank.IO.IN);
+    private final FluidTank outputStorage = new TypedFluidTank(TANK_SIZE, PSFFluids.COMPRESSED_AIR.getFluid(), TypedFluidTank.IO.OUT);
     private final IFluidHandler combinedStorage = new FluidHandlerConcatenate(inputStorage, outputStorage);
 
     private final IEnergyStorage energyStorage = new EnergyStorage(ENERGY_BUFFER);

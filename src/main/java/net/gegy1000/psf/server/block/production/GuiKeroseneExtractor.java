@@ -51,7 +51,7 @@ public class GuiKeroseneExtractor extends GuiContainer {
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 5, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
-        keroseneTank.drawTooltip(PSFFluids.kerosene(), container.getKeroseneAmount(), TileKeroseneExtractor.MAX_STORAGE, mouseX, mouseY);
+        keroseneTank.drawTooltip(PSFFluids.KEROSENE.getFluid(), container.getKeroseneAmount(), TileKeroseneExtractor.MAX_STORAGE, mouseX, mouseY);
     }
 
     @Override
@@ -73,6 +73,6 @@ public class GuiKeroseneExtractor extends GuiContainer {
         int progressWidth = total != 0 ? time * 24 / total : 0;
         drawTexturedModalRect(originX + 82, originY + 37, 176, 14, progressWidth, 17);
 
-        keroseneTank.draw(PSFFluids.kerosene(), container.getKeroseneAmount(), TileKeroseneExtractor.MAX_STORAGE, originX, originY);
+        keroseneTank.draw(PSFFluids.KEROSENE.getFluid(), container.getKeroseneAmount(), TileKeroseneExtractor.MAX_STORAGE, originX, originY);
     }
 }

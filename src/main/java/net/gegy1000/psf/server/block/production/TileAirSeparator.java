@@ -67,8 +67,8 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                     return DRAINING_STATE;
                 }
                 if (ctx.inputContents == null || ctx.inputContents.amount <= 0) {
-                    master.combinedOxygen.fillInternal(new FluidStack(PSFFluids.liquidOxygen(), (int) Math.round(master.oxygenRemainder)), true);
-                    master.combinedNitrogen.fillInternal(new FluidStack(PSFFluids.liquidNitrogen(), (int) Math.round(master.nitrogenRemainder)), true);
+                    master.combinedOxygen.fillInternal(new FluidStack(PSFFluids.LIQUID_OXYGEN.getFluid(), (int) Math.round(master.oxygenRemainder)), true);
+                    master.combinedNitrogen.fillInternal(new FluidStack(PSFFluids.LIQUID_NITROGEN.getFluid(), (int) Math.round(master.nitrogenRemainder)), true);
                     master.oxygenRemainder = 0.0;
                     master.nitrogenRemainder = 0.0;
                     return FILLING_STATE;
@@ -84,8 +84,8 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                     master.nitrogenRemainder = nitrogenAmount - nitrogenFillAmount;
 
                     // TODO: What if these outputs are full?
-                    master.combinedOxygen.fillInternal(new FluidStack(PSFFluids.liquidOxygen(), oxygenFillAmount), true);
-                    master.combinedNitrogen.fillInternal(new FluidStack(PSFFluids.liquidNitrogen(), nitrogenFillAmount), true);
+                    master.combinedOxygen.fillInternal(new FluidStack(PSFFluids.LIQUID_OXYGEN.getFluid(), oxygenFillAmount), true);
+                    master.combinedNitrogen.fillInternal(new FluidStack(PSFFluids.LIQUID_NITROGEN.getFluid(), nitrogenFillAmount), true);
                 }
 
                 return DISTILLING_STATE;
@@ -102,9 +102,9 @@ public class TileAirSeparator extends TileEntity implements ITickable {
                 return DRAINING_STATE;
             });
 
-    private final FluidTank localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.compressedAir(), TypedFluidTank.IO.IN);
-    private final FluidTank localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidOxygen(), TypedFluidTank.IO.OUT);
-    private final FluidTank localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.liquidNitrogen(), TypedFluidTank.IO.OUT);
+    private final FluidTank localInput = new TypedFluidTank(TANK_SIZE, PSFFluids.COMPRESSED_AIR.getFluid(), TypedFluidTank.IO.IN);
+    private final FluidTank localOxygen = new TypedFluidTank(TANK_SIZE, PSFFluids.LIQUID_OXYGEN.getFluid(), TypedFluidTank.IO.OUT);
+    private final FluidTank localNitrogen = new TypedFluidTank(TANK_SIZE, PSFFluids.LIQUID_NITROGEN.getFluid(), TypedFluidTank.IO.OUT);
 
     // TODO: Generic API for distributed machine logic
     private MasterInfo masterInfo = null;

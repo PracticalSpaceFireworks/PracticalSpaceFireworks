@@ -108,9 +108,9 @@ public class ContainerAirSeparator extends Container {
         }
 
         Map<Fluid, FuelState> fuelStates = te.computeFuelStates();
-        FuelState compressedAirState = fuelStates.getOrDefault(PSFFluids.compressedAir(), new FuelState());
-        FuelState liquidNitrogenState = fuelStates.getOrDefault(PSFFluids.liquidNitrogen(), new FuelState());
-        FuelState liquidOxygenState = fuelStates.getOrDefault(PSFFluids.liquidOxygen(), new FuelState());
+        FuelState compressedAirState = fuelStates.getOrDefault(PSFFluids.COMPRESSED_AIR.getFluid(), new FuelState());
+        FuelState liquidNitrogenState = fuelStates.getOrDefault(PSFFluids.LIQUID_NITROGEN.getFluid(), new FuelState());
+        FuelState liquidOxygenState = fuelStates.getOrDefault(PSFFluids.LIQUID_OXYGEN.getFluid(), new FuelState());
         boolean active = te.isActive();
 
         boolean compressedAirChanged = !compressedAirState.equals(this.compressedAirState);

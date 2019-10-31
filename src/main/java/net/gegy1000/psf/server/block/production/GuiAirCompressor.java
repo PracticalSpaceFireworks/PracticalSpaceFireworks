@@ -52,8 +52,8 @@ public class GuiAirCompressor extends GuiContainer {
         fontRenderer.drawString(title, (xSize - fontRenderer.getStringWidth(title)) / 2, 4, 0x404040);
 
         GlStateManager.color(1, 1, 1, 1);
-        airTank.drawTooltip(PSFFluids.filteredAir(), container.getAirAmount(), TileAirCompressor.TANK_SIZE, mouseX, mouseY);
-        compressedAirTank.drawTooltip(PSFFluids.compressedAir(), container.getCompressedAirAmount(), TileAirCompressor.TANK_SIZE, mouseX, mouseY);
+        airTank.drawTooltip(PSFFluids.FILTERED_AIR.getFluid(), container.getAirAmount(), TileAirCompressor.TANK_SIZE, mouseX, mouseY);
+        compressedAirTank.drawTooltip(PSFFluids.COMPRESSED_AIR.getFluid(), container.getCompressedAirAmount(), TileAirCompressor.TANK_SIZE, mouseX, mouseY);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class GuiAirCompressor extends GuiContainer {
             drawTexturedModalRect(originX + 72, originY + 31, 176, 0, 33, 33);
         }
         
-        airTank.draw(PSFFluids.filteredAir(), container.getAirAmount(), TileAirCompressor.TANK_SIZE, originX, originY);
-        compressedAirTank.draw(PSFFluids.compressedAir(), container.getCompressedAirAmount(), TileAirCompressor.TANK_SIZE, originX, originY);
+        airTank.draw(PSFFluids.FILTERED_AIR.getFluid(), container.getAirAmount(), TileAirCompressor.TANK_SIZE, originX, originY);
+        compressedAirTank.draw(PSFFluids.COMPRESSED_AIR.getFluid(), container.getCompressedAirAmount(), TileAirCompressor.TANK_SIZE, originX, originY);
     }
 }

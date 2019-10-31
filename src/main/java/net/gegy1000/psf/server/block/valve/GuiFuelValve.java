@@ -56,8 +56,8 @@ public class GuiFuelValve extends GuiContainer {
         FuelState keroseneState = container.getKeroseneState();
         FuelState liquidOxygenState = container.getLiquidOxygenState();
 
-        keroseneTank.drawTooltip(PSFFluids.kerosene(), keroseneState.getAmount(), keroseneState.getCapacity(), mouseX, mouseY);
-        loxTank.drawTooltip(PSFFluids.liquidOxygen(), liquidOxygenState.getAmount(), liquidOxygenState.getCapacity(), mouseX, mouseY);
+        keroseneTank.drawTooltip(PSFFluids.KEROSENE.getFluid(), keroseneState.getAmount(), keroseneState.getCapacity(), mouseX, mouseY);
+        loxTank.drawTooltip(PSFFluids.LIQUID_OXYGEN.getFluid(), liquidOxygenState.getAmount(), liquidOxygenState.getCapacity(), mouseX, mouseY);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class GuiFuelValve extends GuiContainer {
         FuelState keroseneState = container.getKeroseneState();
         FuelState liquidOxygenState = container.getLiquidOxygenState();
         
-        keroseneTank.draw(PSFFluids.kerosene(), keroseneState.getAmount(), keroseneState.getCapacity(), originX, originY);
-        loxTank.draw(PSFFluids.liquidOxygen(), liquidOxygenState.getAmount(), liquidOxygenState.getCapacity(), originX, originY);
+        keroseneTank.draw(PSFFluids.KEROSENE.getFluid(), keroseneState.getAmount(), keroseneState.getCapacity(), originX, originY);
+        loxTank.draw(PSFFluids.LIQUID_OXYGEN.getFluid(), liquidOxygenState.getAmount(), liquidOxygenState.getCapacity(), originX, originY);
     }
 }

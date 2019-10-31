@@ -338,14 +338,14 @@ public class GuiCraftDetails extends GuiRemoteControl {
                 y -= drawWarning(x, y, width, Collections.singletonList("Needs Solar!"), mouseX, mouseY);
             }
 
-            ResourceAmount kerosene = fluidData.get(PSFFluids.kerosene());
+            ResourceAmount kerosene = fluidData.get(PSFFluids.KEROSENE.getFluid());
             if (kerosene != null && kerosene.getCapacity() > 0) {
                 if ((float) kerosene.getAmount() / kerosene.getCapacity() < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low Kerosene!"), mouseX, mouseY);
                 }
             }
 
-            ResourceAmount lox = fluidData.get(PSFFluids.liquidOxygen());
+            ResourceAmount lox = fluidData.get(PSFFluids.LIQUID_OXYGEN.getFluid());
             if (lox != null && lox.getCapacity() > 0) {
                 if ((float) lox.getAmount() / lox.getCapacity() < 0.25f) {
                     y -= drawWarning(x, y, width, Collections.singletonList("Low LOX!"), mouseX, mouseY);

@@ -517,8 +517,8 @@ public class EntitySpacecraft extends Entity implements IEntityAdditionalSpawnDa
                 force = entity.dataManager.get(FORCE);
             } else {
                 int totalDrain = entity.metadata.getTotalFuelDrain() / 20;
-                FluidStack keroseneDrain = new FluidStack(PSFFluids.kerosene(), totalDrain);
-                FluidStack liquidOxygenDrain = new FluidStack(PSFFluids.liquidOxygen(), totalDrain);
+                FluidStack keroseneDrain = new FluidStack(PSFFluids.KEROSENE.getFluid(), totalDrain);
+                FluidStack liquidOxygenDrain = new FluidStack(PSFFluids.LIQUID_OXYGEN.getFluid(), totalDrain);
                 FluidStack keroseneResult = this.fuelHandler.drain(keroseneDrain, false);
                 FluidStack liquidOxygenResult = this.fuelHandler.drain(liquidOxygenDrain, false);
                 if (keroseneResult != null && keroseneResult.amount > 0 && liquidOxygenResult != null && liquidOxygenResult.amount > 0) {

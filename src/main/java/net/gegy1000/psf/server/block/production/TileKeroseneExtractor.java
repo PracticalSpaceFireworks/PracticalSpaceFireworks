@@ -35,7 +35,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
     @Getter
     private int totalExtractionAmount = -1;
 
-    private final FluidTank fluidTank = new TypedFluidTank(MAX_STORAGE, PSFFluids.kerosene(), TypedFluidTank.IO.OUT);
+    private final FluidTank fluidTank = new TypedFluidTank(MAX_STORAGE, PSFFluids.KEROSENE.getFluid(), TypedFluidTank.IO.OUT);
 
     private final IItemHandler itemHandler = new ItemStackHandler(1) {
         @Override
@@ -60,7 +60,7 @@ public class TileKeroseneExtractor extends TileEntity implements ITickable {
                 energyStorage.extractEnergy(ENERGY_PER_TICK, false);
                 if (++extractionTime > totalExtractionAmount) {
                     extractionTime = 0;
-                    fluidTank.fillInternal(new FluidStack(PSFFluids.kerosene(), totalExtractionAmount), true);
+                    fluidTank.fillInternal(new FluidStack(PSFFluids.KEROSENE.getFluid(), totalExtractionAmount), true);
                     beginExtracting();
                 }
             }

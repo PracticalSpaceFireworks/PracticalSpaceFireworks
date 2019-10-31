@@ -49,7 +49,7 @@ public class TileAirIntake extends TileEntity implements ITickable {
                 stateTracker.markActive();
                 IFluidHandler output = outputEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, facing);
                 if (output != null) {
-                    output.fill(new FluidStack(PSFFluids.filteredAir(), AIR_PER_TICK), true);
+                    output.fill(new FluidStack(PSFFluids.FILTERED_AIR.getFluid(), AIR_PER_TICK), true);
                 }
             }
         }

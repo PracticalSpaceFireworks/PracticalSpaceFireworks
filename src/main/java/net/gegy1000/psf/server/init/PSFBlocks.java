@@ -46,11 +46,7 @@ import static net.minecraftforge.fml.common.registry.GameRegistry.registerTileEn
 @ObjectHolder(PracticalSpaceFireworks.MODID)
 @EventBusSubscriber(modid = PracticalSpaceFireworks.MODID)
 public final class PSFBlocks {
-    public static final BlockFluidFinite KEROSENE = null;
-    public static final BlockFluidFinite LIQUID_OXYGEN = null;
-    public static final BlockFluidFinite LIQUID_NITROGEN = null;
-    public static final BlockFluidFinite FILTERED_AIR = null;
-    public static final BlockFluidFinite COMPRESSED_AIR = null;
+
     public static final BlockStrutFixed STRUT_CUBE = null;
     public static final BlockStrutOrientable STRUT_SLOPE = null;
     public static final BlockController CONTROLLER_SIMPLE = null;
@@ -72,7 +68,7 @@ public final class PSFBlocks {
     public static final BlockModule WEATHER_SCANNER = null;
     public static final BlockMultiblockModule LASER = null;
 
-    private static final Set<Block> ALL_BLOCKS = new LinkedHashSet<>();
+    static final Set<Block> ALL_BLOCKS = new LinkedHashSet<>();
 
     private PSFBlocks() {
         throw new UnsupportedOperationException();
@@ -85,12 +81,6 @@ public final class PSFBlocks {
     @SubscribeEvent
     static void registerBlocks(final RegistryEvent.Register<Block> event) {
         @Nonnull val registry = event.getRegistry();
-
-        register(registry, "kerosene", new BlockPSFFluid(PSFFluids.kerosene(), Material.WATER));
-        register(registry, "liquid_oxygen", new BlockPSFFluid(PSFFluids.liquidOxygen(), Material.WATER));
-        register(registry, "liquid_nitrogen", new BlockPSFFluid(PSFFluids.liquidNitrogen(), Material.WATER));
-        register(registry, "filtered_air", new BlockPSFFluid(PSFFluids.filteredAir(), Material.WATER));
-        register(registry, "compressed_air", new BlockPSFFluid(PSFFluids.compressedAir(), Material.WATER));
 
         register(registry, "strut_cube", new BlockStrutFixed("strut_cube"));
         register(registry, "strut_slope", new BlockStrutOrientable.Slope("strut_slope"));

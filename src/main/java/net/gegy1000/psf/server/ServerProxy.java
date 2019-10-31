@@ -1,5 +1,7 @@
 package net.gegy1000.psf.server;
 
+import java.util.function.Consumer;
+
 import net.gegy1000.psf.PracticalSpaceFireworks;
 import net.gegy1000.psf.api.spacecraft.ISatellite;
 import net.gegy1000.psf.server.capability.CapabilityController;
@@ -7,7 +9,6 @@ import net.gegy1000.psf.server.capability.CapabilityModule;
 import net.gegy1000.psf.server.capability.CapabilityModuleData;
 import net.gegy1000.psf.server.capability.CapabilitySatellite;
 import net.gegy1000.psf.server.capability.world.CapabilityWorldData;
-import net.gegy1000.psf.server.init.PSFFluids;
 import net.gegy1000.psf.server.network.PSFNetworkHandler;
 import net.gegy1000.psf.server.satellite.UniqueManager;
 import net.gegy1000.psf.server.util.BlockMassHandler;
@@ -17,8 +18,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import java.util.function.Consumer;
-
 public class ServerProxy {
     
     private final UniqueManager<ISatellite> satelliteManager = new UniqueManager<ISatellite>()
@@ -26,7 +25,6 @@ public class ServerProxy {
     
     public void onPreInit() {
         BlockMassHandler.register();
-        PSFFluids.init();
 
         CapabilityWorldData.register();
         CapabilityController.register();
