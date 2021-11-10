@@ -14,7 +14,7 @@
     ],
     "useDependencyInformation": true,
     "dependencies": [
-      "required-after:forge@[14.23.5.2847,15);",
+      "required-after:forge@[14.23.5.2847,15)",
       "required-after-client:ctm@[MC1.12.2-1.0.2.31,)"
     ]
   }
