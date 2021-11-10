@@ -5,24 +5,10 @@ plugins {
     id 'net.nemerosa.versioning' version '2.15.1'
 }
 
-ext.buildnumber = 0
-project.buildnumber = System.getenv('BUILD_NUMBER') ?: versioning.info.build
-
-ext.mod_file = ""
-project.mod_file = modFile
-
-if (mod_file.empty) {
-    throw new ProjectConfigurationException("Could not locate main mod file!", null)
-}
-
-def modVersion = getModField("VERSION", mod_file)
-
-if (modVersion.empty) {
-    throw new ProjectConfigurationException("Could not locate mod version in " + mod_file, null)
-}
+def buildNumber = System.getenv('BUILD_NUMBER') ?: versioning.info.build
 
 group = "net.gegy1000"
-version = "$modVersion.$buildnumber"
+version = "0.2.1.$buildNumber"
 
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
@@ -67,7 +53,7 @@ compileJava {
 }
 
 processResources {
-    filesMatching('/mcmod.info') {
+    filesMatching(['/mcmod.info', 'version.properties']) {
         expand 'version': project.version
     }
 }
@@ -113,7 +99,7 @@ if (project.hasProperty('curseforge_key')) {
             releaseType = 'beta'
             addGameVersion '1.12.2'
             mainArtifact(jar) {
-                displayName = "${getModField('NAME', mod_file)} - $version"
+                displayName = "${rootProject.name} - $version"
             }
             relations {
                 requiredDependency 'ctm'
@@ -134,7 +120,7 @@ String parseChangelog() {
         if (it.size() > 1) {
             def temp = it
             if (lineCount == 0) {
-                temp = "${getModField('NAME', mod_file)} $version"
+                temp = "${rootProject.name} $version"
                 temp = "<h2>$temp</h2>"
             } else if (it.startsWith('-')) {
                 temp = "&nbsp;&nbsp;&nbsp;$temp"
@@ -151,38 +137,4 @@ String parseChangelog() {
         }
     }
     return changelogText
-}
-
-String getModFile() {
-    String path = ""
-    FileTree tree = fileTree(dir: 'src/main/java')
-    tree.include '**/*.java'
-    tree.visit { element ->
-        if (element.file.isFile()) {
-            element.file.eachLine { String line ->
-                line = line.trim()
-                if (line.matches("@Mod\\s*[(].*")) {
-                    path = "src/main/java/$element.relativePath"
-                }
-            }
-        }
-    }
-    return path
-}
-
-String getModField(String type, String modFile) {
-    if (modFile.length() == 0) {
-        return ''
-    }
-    String field = ''
-    String prefix = "public static final String $type = \""
-    File file = file(modFile)
-    file.eachLine { String line ->
-        line = line.trim()
-        if (line.startsWith(prefix)) {
-            line = line.substring(prefix.length(), line.length() - 2)
-            field = line
-        }
-    }
-    return field
 }

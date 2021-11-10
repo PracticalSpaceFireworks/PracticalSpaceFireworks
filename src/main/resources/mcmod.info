@@ -3,16 +3,19 @@
     "modid": "psf",
     "name": "Practical Space Fireworks",
     "description": "Build your own rockets and launch them into orbit.",
-    "version": "${version}",
     "url": "https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks/",
+    "logoFile": "logo.png",
+    "version": "$version",
     "authorList": [
       "ExpensiveKoala",
       "gegy1000",
       "tterrag",
       "Chloe Dawn"
     ],
-    "dependencies": [],
-    "credits": "",
-    "logoFile": "logo.png"
+    "useDependencyInformation": true,
+    "dependencies": [
+      "required-after:forge@[14.23.5.2847,15);",
+      "required-after-client:ctm@[MC1.12.2-1.0.2.31,)"
+    ]
   }
 ]
