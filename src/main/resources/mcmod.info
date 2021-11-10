@@ -4,7 +4,7 @@
     "name": "Practical Space Fireworks",
     "description": "Build your own rockets and launch them into orbit.",
     "url": "https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks/",
-    "logoFile": "logo.png",
+    "logoFile": "pack.png",
     "version": "$version",
     "authorList": [
       "ExpensiveKoala",
