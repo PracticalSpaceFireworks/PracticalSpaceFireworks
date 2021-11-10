@@ -1,3 +1,5 @@
+import groovy.xml.MarkupBuilder
+
 plugins {
     id 'net.minecraftforge.gradle.forge' version '2.3.4'
     id 'io.franzbecker.gradle-lombok' version '5.0.0'
@@ -113,32 +115,37 @@ if (project.hasProperty('curseforge_key')) {
 }
 
 String parseChangelog() {
-    def changelogFile = file('changelog.txt')
-    String changelogText = ''
-    int lineCount = 0
-    boolean done = false
-    changelogFile.eachLine {
-        if (done || it == null) {
-            return
-        }
-        if (it.size() > 1) {
-            def temp = it
-            if (lineCount == 0) {
-                temp = "$rootProject.name $version"
-                temp = "<h2>$temp</h2>"
-            } else if (it.startsWith('-')) {
-                temp = "&nbsp;&nbsp;&nbsp;$temp"
-                temp = temp.replaceAll('(\\S+\\/\\S+)#([0-9]+)\\b', '<a href="https://github.com/$1/issues/$2">$0</a>')
-                temp = temp.replaceAll('#([0-9]+)\\b(?!</a>)', '<a href="https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks/issues/$1">$0</a>')
-            } else {
-                temp = "<h4>$temp</h4>"
+    def writer = new StringWriter()
+    def html = new MarkupBuilder(writer)
+    html.h2 "$rootProject.name $version"
+    html.ul {
+        file('changelog.txt').withReader('UTF-8') { reader ->
+            reader.readLine() // Skip first line containing version number
+            String line
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith('-')) {
+                    def matcher = line =~ /-\s(#\d+)\s(.+)\u0024/
+                    if (matcher.matches()) { // References an issue ticker number
+                        def repo = 'https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks'
+                        // Create a list element with hyperlink, <a href="..."><li>...</li></a>
+                        html.a(href: "$repo/issues/${matcher.group(1)}") {
+                            html.li matcher.group(2)
+                        }
+                    } else {
+                        // Append regular list element <li>...</li>
+                        html.li line.substring('- '.length()).trim()
+                    }
+                } else {
+                    if (line.trim().empty) {
+                        // Blank line, end of version changelog
+                        break
+                    }
+
+                    // Append header, e.g Changes, Fixes
+                    html.h4 line
+                }
             }
-            changelogText += "$temp<br/>"
-            lineCount++
-            return
-        } else {
-            done = true
         }
     }
-    return changelogText
+    return writer.toString()
 }
