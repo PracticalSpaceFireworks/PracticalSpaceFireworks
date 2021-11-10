@@ -1,11 +1,5 @@
 newmtl slope
-Ka 1.0 1.0 1.0
-Kd 1.0 1.0 1.0
-d 1.0
 map_Kd psf:blocks/strut_slope
 
 newmtl cube
-Ka 1.0 1.0 1.0
-Kd 1.0 1.0 1.0
-d 1.0
 map_Kd psf:blocks/strut_cube
