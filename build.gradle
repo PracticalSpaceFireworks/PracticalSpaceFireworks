@@ -1,67 +1,80 @@
 import org.ajoberstar.grgit.Grgit
 
-buildscript {
-  repositories {
-    jcenter()
-    maven {
-      name = "forge"
-      url = "http://files.minecraftforge.net/maven"
-    }
-  }
-  dependencies {
-    classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
-    classpath 'org.ajoberstar:gradle-git:0.10.1'
-  }
-}
-
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '2.1'
-   	id 'com.matthewprenger.cursegradle' version '1.2.0'
+    id 'net.minecraftforge.gradle.forge' version '2.3.4'
+    id 'io.franzbecker.gradle-lombok' version '5.0.0'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id 'org.ajoberstar.grgit' version '4.1.0'
 }
 
-apply plugin: "net.minecraftforge.gradle.forge"
-
-def repo = Grgit.open(project.file('.'))
+def repo = Grgit.open(dir: './')
 project.ext.gitHash = repo.log().find().abbreviatedId
 
-boolean dev = System.getenv('RELEASE') == null || System.getenv('RELEASE').equals('false');
-
 ext.buildnumber = 0
-project.buildnumber = System.getenv('BUILD_NUMBER') != null ? System.getenv('BUILD_NUMBER') : project.ext.gitHash
+project.buildnumber = System.getenv('BUILD_NUMBER') ?: project.ext.gitHash
 
 ext.mod_file = ""
-project.mod_file = getModFile()
-if (mod_file.isEmpty()) {
-  throw new ProjectConfigurationException("Could not locate main mod file!", null)
+project.mod_file = modFile
+
+if (mod_file.empty) {
+    throw new ProjectConfigurationException("Could not locate main mod file!", null)
 }
-def mod_version = getModField("VERSION", mod_file)
-if (mod_version.isEmpty()) {
-  throw new ProjectConfigurationException("Could not locate mod version in " + mod_file, null)
+
+def modVersion = getModField("VERSION", mod_file)
+
+if (modVersion.empty) {
+    throw new ProjectConfigurationException("Could not locate mod version in " + mod_file, null)
 }
-version = mod_version + ".${buildnumber}"
+
 group = "net.gegy1000"
-archivesBaseName = "practical-space-fireworks"
-sourceCompatibility = targetCompatibility = "1.8"
+version = "$modVersion.$buildnumber"
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+lombok {
+    version = '1.18.22'
+    sha256 = '39f3922deb679b1852af519eb227157ef2dd0a21eec3542c8ce1b45f2df39742'
+}
 
 minecraft {
-    version = "${minecraft_version}-${forge_version}"
-    runDir = 'minecraft'
+    version = '1.12.2-14.23.5.2847'
     mappings = 'stable_39'
+    runDir = 'minecraft'
 }
 
 repositories {
-    mavenCentral()
-    jcenter()
-    maven { url = 'https://maven.tterrag.com' }
-    maven { url = 'https://tehnut.info/maven' }
-    maven { url = 'https://dvs1.progwml6.com/files/maven' }
+    maven {
+        url = 'https://maven.tterrag.com'
+    }
+    maven {
+        url = 'https://cursemaven.com'
+    }
+    maven {
+        url = 'https://dvs1.progwml6.com/files/maven'
+    }
 }
 
 dependencies {
-    runtime 'team.chisel.ctm:CTM:MC1.12.2-0.3.3.22'
-    compile 'mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2'
-    deobfProvided 'mezz.jei:jei_1.12.2:4.15.0.272:api'
-    runtime 'mezz.jei:jei_1.12.2:4.15.0.272'
+    runtime 'team.chisel.ctm:CTM:MC1.12.2-1.0.2.31'
+    compile 'curse.maven:hwyla-253449:2568751' // 1.8.26-B41_1.12.2
+    deobfProvided 'mezz.jei:jei_1.12.2:4.16.1.302:api'
+    runtime 'mezz.jei:jei_1.12.2:4.16.1.302'
+}
+
+compileJava {
+    options.with {
+        it.fork = true
+        it.deprecation = true
+        it.encoding = 'UTF-8'
+        it.compilerArgs.addAll(['-Xlint:all', '-parameters'])
+    }
+}
+
+processResources {
+    filesMatching('/mcmod.info') {
+        expand 'version': project.version
+    }
 }
 
 jar {
@@ -76,35 +89,47 @@ task apiJar(type: Jar) {
 }
 
 reobf {
-    apiJar { mappingType = 'SEARGE' }
+    apiJar {
+        mappingType = 'SEARGE'
+    }
 }
 
-tasks.build.dependsOn apiJar, reobfApiJar
-
-processResources {
-  inputs.property "version", project.version
-  inputs.property "mcversion", project.minecraft.version
-
-  from(sourceSets.main.resources.srcDirs) {
-    include "mcmod.info"
-    expand "version": project.version, "mcversion": project.minecraft.version
-  }
-
-  from(sourceSets.main.resources.srcDirs) {
-    exclude "mcmod.info"
-  }
+assemble {
+    dependsOn apiJar, reobfApiJar
 }
 
-lombok {
-    version = '1.18.6'
-    sha256 = ''
+tasks.eclipse {
+    dependsOn installLombok
 }
 
-tasks.eclipse.dependsOn installLombok
+if (project.hasProperty('curseforge_key')) {
+    curseforge {
+        if (project.hasProperty('curseforge_key')) {
+            apiKey = project.curseforge_key
+        }
 
-String getChangelogText() {
+        project {
+            id = '291502'
+            changelog = System.getenv('CHANGELOG')
+            if (changelog == null || changelog == 'none') {
+                changelog = parseChangelog()
+            }
+            changelogType = 'html'
+            releaseType = 'beta'
+            addGameVersion '1.12.2'
+            mainArtifact(jar) {
+                displayName = "${getModField('NAME', mod_file)} - $version"
+            }
+            relations {
+                requiredDependency 'ctm'
+            }
+        }
+    }
+}
+
+String parseChangelog() {
     def changelogFile = file('changelog.txt')
-    String str = ''
+    String changelogText = ''
     int lineCount = 0
     boolean done = false
     changelogFile.eachLine {
@@ -114,73 +139,55 @@ String getChangelogText() {
         if (it.size() > 1) {
             def temp = it
             if (lineCount == 0) {
-                temp = getModField("NAME", mod_file) + " ${version}"
+                temp = "${getModField('NAME', mod_file)} $version"
                 temp = "<h2>$temp</h2>"
             } else if (it.startsWith('-')) {
                 temp = "&nbsp;&nbsp;&nbsp;$temp"
-                temp = temp.replaceAll("(\\S+\\/\\S+)#([0-9]+)\\b", "<a href=\"https://github.com/\$1/issues/\$2\">\$0</a>");
-                temp = temp.replaceAll("#([0-9]+)\\b(?!<\\/a>)", "<a href=\"https://github.com/$github_project/issues/\$1\">\$0</a>");
+                temp = temp.replaceAll('(\\S+\\/\\S+)#([0-9]+)\\b', '<a href="https://github.com/$1/issues/$2">$0</a>')
+                temp = temp.replaceAll('#([0-9]+)\\b(?!</a>)', '<a href="https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks/issues/$1">$0</a>')
             } else {
                 temp = "<h4>$temp</h4>"
             }
-            str += "$temp<br/>"
+            changelogText += "$temp<br/>"
             lineCount++
             return
         } else {
             done = true
         }
     }
-    return str
-}
-
-tasks.curseforge.enabled = !dev && project.hasProperty('curseforge_key')
-
-curseforge {
-    if (project.hasProperty('curseforge_key')) {
-        apiKey = project.curseforge_key
-    }
-
-    project {
-        id = project.project_id
-        changelog = System.getenv('CHANGELOG') == null || System.getenv('CHANGELOG') == 'none' ? getChangelogText() : System.getenv('CHANGELOG')
-        changelogType = 'html'
-        releaseType = project.curse_type
-        addGameVersion '1.12.2'
-        mainArtifact(jar) { displayName = getModField("NAME", mod_file) + " - ${version}" }
-        relations { requiredDependency 'ctm' }
-    }
+    return changelogText
 }
 
 String getModFile() {
-  String path = ""
-  FileTree tree = fileTree(dir: 'src/main/java')
-  tree.include '**/*.java'
-  tree.visit { element ->
-    if (element.file.isFile()) {
-      element.file.eachLine { String s ->
-        s = s.trim()
-        if (s.matches("@Mod\\s*\\(.*")) {
-          path = "src/main/java/$element.relativePath"
+    String path = ""
+    FileTree tree = fileTree(dir: 'src/main/java')
+    tree.include '**/*.java'
+    tree.visit { element ->
+        if (element.file.isFile()) {
+            element.file.eachLine { String line ->
+                line = line.trim()
+                if (line.matches("@Mod\\s*[(].*")) {
+                    path = "src/main/java/$element.relativePath"
+                }
+            }
         }
-      }
     }
-  }
-  return path
+    return path
 }
 
-String getModField(String type, String mod_file) {
-  if (mod_file.length() == 0) {
-    return ""
-  }
-  String field = ""
-  String prefix = "public static final String $type = \""
-  File file = file(mod_file)
-  file.eachLine { String s ->
-    s = s.trim()
-    if (s.startsWith(prefix)) {
-      s = s.substring(prefix.length(), s.length() - 2)
-      field = s
+String getModField(String type, String modFile) {
+    if (modFile.length() == 0) {
+        return ''
     }
-  }
-  return field
+    String field = ''
+    String prefix = "public static final String $type = \""
+    File file = file(modFile)
+    file.eachLine { String line ->
+        line = line.trim()
+        if (line.startsWith(prefix)) {
+            line = line.substring(prefix.length(), line.length() - 2)
+            field = line
+        }
+    }
+    return field
 }
