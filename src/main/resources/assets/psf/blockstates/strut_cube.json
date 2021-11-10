@@ -5,27 +5,27 @@
     },
     {
       "when": { "down": true },
-      "apply": { "model": "psf:strut_cube_side", "x": 90, "uvlock": true }
+      "apply": { "model": "psf:strut_cube_inner_face", "x": 90, "uvlock": true }
     },
     {
       "when": { "up": true },
-      "apply": { "model": "psf:strut_cube_side", "x": 270, "uvlock": true }
+      "apply": { "model": "psf:strut_cube_inner_face", "x": 270, "uvlock": true }
     },
     {
       "when": { "north": true },
-      "apply": { "model": "psf:strut_cube_side" }
+      "apply": { "model": "psf:strut_cube_inner_face" }
     },
     {
       "when": { "south": true },
-      "apply": { "model": "psf:strut_cube_side", "y": 180, "uvlock": true }
+      "apply": { "model": "psf:strut_cube_inner_face", "y": 180, "uvlock": true }
     },
     {
       "when": { "west": true },
-      "apply": { "model": "psf:strut_cube_side", "y": 270, "uvlock": true }
+      "apply": { "model": "psf:strut_cube_inner_face", "y": 270, "uvlock": true }
     },
     {
       "when": { "east": true },
-      "apply": { "model": "psf:strut_cube_side", "y": 90, "uvlock": true }
+      "apply": { "model": "psf:strut_cube_inner_face", "y": 90, "uvlock": true }
     }
   ]
 }
