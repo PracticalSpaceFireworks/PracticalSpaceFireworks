@@ -103,7 +103,7 @@ if (project.hasProperty('curseforge_key')) {
             releaseType = 'beta'
             addGameVersion '1.12.2'
             mainArtifact(jar) {
-                displayName = "${rootProject.name} - $version"
+                displayName = "$rootProject.name - $version"
             }
             relations {
                 requiredDependency 'ctm'
@@ -124,7 +124,7 @@ String parseChangelog() {
         if (it.size() > 1) {
             def temp = it
             if (lineCount == 0) {
-                temp = "${rootProject.name} $version"
+                temp = "$rootProject.name $version"
                 temp = "<h2>$temp</h2>"
             } else if (it.startsWith('-')) {
                 temp = "&nbsp;&nbsp;&nbsp;$temp"
