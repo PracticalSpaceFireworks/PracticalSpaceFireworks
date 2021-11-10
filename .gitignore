@@ -1,22 +1,19 @@
-# IDEA
+# eclipse
+.classpath/
+.metadata/
+.project/
+.settings/
+*.launch
+bin/
+eclipse/
 
+# idea
 .idea/
-out/
 *.ipr
 *.iws
-*.iml
+out/
 
-# Eclipse
-
-*.launch
-*.project
-*.classpath
-.settings/
-
-# Gradle
-build/
+# gradle
 .gradle/
-
-# Minecraft
+build/
 minecraft/
-/bin/

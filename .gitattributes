@@ -1,0 +1,23 @@
+*               text=auto
+
+CHANGES         text
+CONTRIBUTING    text
+LICENSE         text
+README          text
+
+.gitattributes  export-ignore
+.gitignore      export-ignore
+
+*.java          text diff=java
+
+*.bat           text eol=crlf
+*.md            text
+*.properties    text
+*.sh            text eol=lf
+
+*.json          text
+*.mcmeta        text
+*.ogg           binary
+*.png           binary
+
+*.jar           binary
