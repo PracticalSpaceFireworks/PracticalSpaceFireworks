@@ -59,14 +59,20 @@ processResources {
 }
 
 jar {
+    from '/LICENSE'
     from sourceSets.api.output
     from sourceSets.main.output
 }
 
 task apiJar(type: Jar) {
+    from '/LICENSE'
     from sourceSets.api.allSource
     from sourceSets.api.output
     classifier = 'api'
+}
+
+sourceJar {
+    from '/LICENSE'
 }
 
 reobf {
