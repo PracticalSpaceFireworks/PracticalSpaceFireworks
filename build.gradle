@@ -117,35 +117,54 @@ if (project.hasProperty('curseforge_key')) {
 String parseChangelog() {
     def writer = new StringWriter()
     def html = new MarkupBuilder(writer)
+
+    // Legacy browser support
+    html.expandEmptyElements = true
+
     html.h2 "$rootProject.name $version"
-    html.ul {
-        file('changelog.txt').withReader('UTF-8') { reader ->
-            reader.readLine() // Skip first line containing version number
-            String line
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith('-')) {
-                    def matcher = line =~ /-\s(#\d+)\s(.+)\u0024/
-                    if (matcher.matches()) { // References an issue ticker number
-                        def repo = 'https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks'
-                        // Create a list element with hyperlink, <a href="..."><li>...</li></a>
-                        html.a(href: "$repo/issues/${matcher.group(1)}") {
-                            html.li matcher.group(2)
-                        }
-                    } else {
-                        // Append regular list element <li>...</li>
-                        html.li line.substring('- '.length()).trim()
+
+    file('changelog.txt').withReader('UTF-8') { reader ->
+        reader.readLine() // Skip first line containing version number
+        String line
+
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith('-')) {
+                def matcher = line =~ /-\s#(\d+)\s(.+)$/
+
+                if (matcher.matches()) {
+                    // References an issue ticker number
+                    def repo = 'https://github.com/PracticalSpaceFireworks/PracticalSpaceFireworks'
+
+                    // Create a list element with hyperlink, <li><a href="...">...</a>...</li>
+                    html.li {
+                        def url = "$repo/issues/${matcher.group(1)}"
+                        html.a target: '_blank', href: url, '#' + matcher.group(1)
+                        // Insert raw text description into list element tag body
+                        html.mkp.yield ' ' + matcher.group(2)
                     }
                 } else {
-                    if (line.trim().empty) {
-                        // Blank line, end of version changelog
-                        break
-                    }
-
-                    // Append header, e.g Changes, Fixes
-                    html.h4 line
+                    // Append regular list element <li>...</li>
+                    html.li line.substring('- '.length()).trim()
                 }
+            } else {
+                // Exit current unordered list scope
+                // We have to yield raw HTML as there is no API for scopes
+                // Unfortunately this approach results in no body indentation
+                html.mkp.yieldUnescaped '\n</ul>'
+
+                if (line.trim().empty) {
+                    // Blank line, end of this version's changelog
+                    break
+                }
+
+                // Append header, e.g Changes, Fixes
+                html.h4 line
+
+                // Enter new unordered list scope
+                html.mkp.yieldUnescaped '\n<ul>'
             }
         }
     }
+
     return writer.toString()
 }
