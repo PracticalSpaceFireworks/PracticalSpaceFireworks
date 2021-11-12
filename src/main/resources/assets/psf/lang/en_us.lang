@@ -4,8 +4,8 @@ itemGroup.psf=Practical Space Fireworks
 
 tile.psf.fuel_tank.name=Fuel Tank
 tile.psf.fuel_valve.name=Fuel Valve
-tile.psf.strut_cube.name=Cubic Strut
-tile.psf.strut_slope.name=Sloped Strut
+tile.psf.strut_cube.name=Iron Strut
+tile.psf.strut_slope.name=Iron Strut Slope
 tile.psf.thruster_simple.name=Simple Thruster
 tile.psf.payload_separator.name=Payload Separator
 tile.psf.terrain_scanner.name=Terrain Scanner
