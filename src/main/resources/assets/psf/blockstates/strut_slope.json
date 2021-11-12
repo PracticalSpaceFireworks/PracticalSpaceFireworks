@@ -1,25 +1,30 @@
 {
   "forge_marker": 1,
   "variants": {
-    "orientation=north_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 90 },
-    "orientation=north_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 90 },
-    "orientation=north_west": { "model": "psf:strut_slope.obj", "y": 90 },
-    "orientation=north_east": { "model": "psf:strut_slope.obj", "y": 180 },
-    "orientation=south_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 270 },
-    "orientation=south_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 270 },
-    "orientation=south_west": { "model": "psf:strut_slope.obj" },
-    "orientation=south_east": { "model": "psf:strut_slope.obj", "y": 270 },
-    "orientation=west_down": { "model": "psf:strut_slope.obj", "x": 270 },
-    "orientation=west_up": { "model": "psf:strut_slope.obj", "x": 90 },
-    "orientation=east_down": { "model": "psf:strut_slope.obj", "x": 270, "y": 180 },
-    "orientation=east_up": { "model": "psf:strut_slope.obj", "x": 90, "y": 180 },
+    "orientation=east_down": { "model": "psf:strut_slope.obj" },
+    "orientation=west_down": { "model": "psf:strut_slope.obj", "y": 180 },
+    "orientation=south_down": { "model": "psf:strut_slope.obj", "y": 90 },
+    "orientation=north_down": { "model": "psf:strut_slope.obj", "y": 270 },
+    "orientation=east_up": { "model": "psf:strut_slope.obj", "x": 180 },
+    "orientation=west_up": { "model": "psf:strut_slope.obj", "x": 180, "y": 180 },
+    "orientation=south_up": { "model": "psf:strut_slope.obj", "x": 180, "y": 90 },
+    "orientation=north_up": { "model": "psf:strut_slope.obj", "x": 180, "y": 270 },
+    "orientation=north_east": { "model": "psf:strut_slope.obj", "x": 270 },
+    "orientation=south_west": { "model": "psf:strut_slope.obj", "x": 270, "y": 180 },
+    "orientation=south_east": { "model": "psf:strut_slope.obj", "x": 270, "y": 90 },
+    "orientation=north_west": { "model": "psf:strut_slope.obj", "x": 270, "y": 270 },
     "inventory": {
       "model": "psf:strut_slope.obj",
       "transform": {
         "gui": {
-          "rotation": [ 30, 225, 0 ],
-          "translation": [ 0.0, -0.09375, 0.0 ],
+          "rotation": [ 30, 135, 0 ],
+          "translation": [ 0.0, 0.0, 0.0 ],
           "scale": [ 0.625, 0.625, 0.625 ]
+        },
+        "head": {
+          "rotation": [ 0, -90, 0 ],
+          "translation": [ 0, 0, 0 ],
+          "scale": [ 1.0, 1.0, 1.0 ]
         },
         "ground": {
           "rotation": [ 0, 0, 0 ],
@@ -37,7 +42,7 @@
           "scale": [ 0.375, 0.375, 0.375 ]
         },
         "thirdperson_lefthand": {
-          "rotation": [ 75, 45, 0 ],
+          "rotation": [ 75, -135, 0 ],
           "translation": [ 0.0, 0.15625, 0.0 ],
           "scale": [ 0.375, 0.375, 0.375 ]
         },
