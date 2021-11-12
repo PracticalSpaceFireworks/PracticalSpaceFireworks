@@ -14,6 +14,7 @@
     "orientation=south_east": { "model": "psf:strut_slope.obj", "x": 270, "y": 90 },
     "orientation=north_west": { "model": "psf:strut_slope.obj", "x": 270, "y": 270 },
     "inventory": {
+      "__comment": "OBJ models are not supported as item model parents, so we define it here",
       "model": "psf:strut_slope.obj",
       "transform": {
         "gui": {
