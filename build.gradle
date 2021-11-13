@@ -31,19 +31,20 @@ repositories {
     maven {
         url = 'https://maven.tterrag.com'
     }
+
     maven {
         url = 'https://cursemaven.com'
     }
+
     maven {
         url = 'https://dvs1.progwml6.com/files/maven'
     }
 }
 
 dependencies {
-    runtime 'team.chisel.ctm:CTM:MC1.12.2-1.0.2.31'
-    compile 'curse.maven:hwyla-253449:2568751' // 1.8.26-B41_1.12.2
-    deobfProvided 'mezz.jei:jei_1.12.2:4.16.1.302:api'
-    runtime 'mezz.jei:jei_1.12.2:4.16.1.302'
+    implementation 'team.chisel.ctm:CTM:MC1.12.2-1.0.2.31'
+    implementation 'curse.maven:hwyla-253449:2568751' // 1.8.26-B41_1.12.2
+    implementation 'mezz.jei:jei_1.12.2:4.16.1.302'
 }
 
 compileJava {
@@ -63,14 +64,17 @@ processResources {
 
 jar {
     from '/LICENSE'
+
     from sourceSets.api.output
     from sourceSets.main.output
 }
 
 task apiJar(type: Jar) {
     from '/LICENSE'
+
     from sourceSets.api.allSource
     from sourceSets.api.output
+
     classifier = 'api'
 }
 
