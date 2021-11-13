@@ -62,19 +62,18 @@ processResources {
 }
 
 jar {
-    from '/LICENSE'
+    dependsOn apiClasses
 
+    from '/LICENSE'
     from sourceSets.api.output
-    from sourceSets.main.output
 }
 
 task apiJar(type: Jar) {
-    from '/LICENSE'
-
-    from sourceSets.api.allSource
-    from sourceSets.api.output
-
     classifier = 'api'
+
+    from '/LICENSE'
+    from sourceSets.api.output
+    from sourceSets.api.allSource
 }
 
 sourceJar {
@@ -83,7 +82,6 @@ sourceJar {
 
 reobf {
     apiJar {
-        mappingType = 'SEARGE'
     }
 }
 
