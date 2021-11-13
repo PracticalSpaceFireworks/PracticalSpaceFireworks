@@ -100,7 +100,7 @@ if (project.hasProperty('curseforge_key')) {
 
         project {
             id = '291502'
-            releaseType = 'beta'
+            releaseType = System.getenv('RELEASE_TYPE') ?: 'beta'
             addGameVersion '1.12.2'
 
             changelogType = 'html'
