@@ -123,9 +123,7 @@ if (project.hasProperty('curseforge_key')) {
 }
 
 String parseChangelog() {
-    def changelog = ''
-
-    changelog += "<h2>$friendlyName $version</h2>"
+    def changelog = "<h2>$friendlyName $version</h2>"
 
     file('changelog.txt').withReader('UTF-8') { reader ->
         reader.readLine() // Skip version header
