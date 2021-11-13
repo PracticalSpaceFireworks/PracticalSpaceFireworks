@@ -8,7 +8,7 @@ plugins {
     id 'net.nemerosa.versioning' version '2.15.1'
 }
 
-def friendlyName = project.name.replaceAll(/(?!^)([A-Z])(?![A-Z])/, ' $1')
+def friendlyName = name.replaceAll(/(?!^)([A-Z])(?![A-Z])/, ' $1')
 def buildNumber = System.getenv('BUILD_NUMBER') ?: versioning.info.build
 
 group = "net.gegy1000"
@@ -59,7 +59,7 @@ compileJava {
 
 processResources {
     filesMatching(['/mcmod.info', 'version.properties']) {
-        expand 'version': project.version
+        expand 'version': version
     }
 }
 
