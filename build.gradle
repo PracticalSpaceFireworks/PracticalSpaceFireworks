@@ -1,6 +1,7 @@
 import groovy.xml.MarkupBuilder
 
 plugins {
+    // Cannot use ForgeGradle 3+ as it does not support access transformers
     id 'net.minecraftforge.gradle.forge' version '2.3.4'
     id 'io.franzbecker.gradle-lombok' version '5.0.0'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
