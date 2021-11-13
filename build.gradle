@@ -46,50 +46,52 @@ dependencies {
     implementation 'mezz.jei:jei_1.12.2:4.16.1.302'
 }
 
-compileJava {
-    options.with {
-        it.fork = true
-        it.deprecation = true
-        it.encoding = 'UTF-8'
-        it.compilerArgs.addAll(['-Xlint:all', '-parameters'])
+tasks {
+    eclipse {
+        dependsOn installLombok
     }
-}
 
-processResources {
-    filesMatching(['/mcmod.info', 'version.properties']) {
-        expand 'version': version
+    compileJava {
+        options.with {
+            it.fork = true
+            it.deprecation = true
+            it.encoding = 'UTF-8'
+            it.compilerArgs.addAll(['-Xlint:all', '-parameters'])
+        }
     }
-}
 
-jar {
-    dependsOn apiClasses
+    processResources {
+        filesMatching(['/mcmod.info', 'version.properties']) {
+            expand 'version': version
+        }
+    }
 
-    from '/LICENSE'
-    from sourceSets.api.output
-}
+    jar {
+        dependsOn apiClasses
 
-task apiJar(type: Jar) {
-    classifier = 'api'
+        from '/LICENSE'
+        from sourceSets.api.output
+    }
 
-    from '/LICENSE'
-    from sourceSets.api.output
-    from sourceSets.api.allSource
-}
+    sourceJar {
+        from '/LICENSE'
+    }
 
-sourceJar {
-    from '/LICENSE'
-}
+    task apiJar(type: Jar) {
+        classifier = 'api'
 
-reobf {
-    create 'apiJar'
-}
+        from '/LICENSE'
+        from sourceSets.api.output
+        from sourceSets.api.allSource
+    }
 
-assemble {
-    dependsOn apiJar, reobfApiJar
-}
+    reobf {
+        create 'apiJar'
+    }
 
-tasks.eclipse {
-    dependsOn installLombok
+    assemble {
+        dependsOn apiJar, reobfApiJar
+    }
 }
 
 if (project.hasProperty('curseforge_key')) {
