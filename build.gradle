@@ -168,5 +168,3 @@ String parseChangelog() {
 
     return changelog
 }
-
-println(parseChangelog())
