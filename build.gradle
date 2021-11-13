@@ -102,16 +102,20 @@ if (project.hasProperty('curseforge_key')) {
 
         project {
             id = '291502'
+            releaseType = 'beta'
+            addGameVersion '1.12.2'
+
+            changelogType = 'html'
             changelog = System.getenv('CHANGELOG')
+
             if (changelog == null || changelog == 'none') {
                 changelog = parseChangelog()
             }
-            changelogType = 'html'
-            releaseType = 'beta'
-            addGameVersion '1.12.2'
+
             mainArtifact(jar) {
                 displayName = "$friendlyName - $version"
             }
+
             relations {
                 requiredDependency 'ctm'
             }
