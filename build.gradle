@@ -139,10 +139,9 @@ String parseChangelog() {
                 if (matcher.matches()) {
                     def id = matcher.group(1)
                     def description = matcher.group(2)
+                    def url = "https://github.com/$name/$name/issues/$id"
 
-                    changelog += "<a href='https://github.com/$name/$name/issues/$id' target='_blank'>#$id</a>"
-                    changelog += " $description"
-
+                    changelog += "<a href='$url' target='_blank'>#$id</a> $description"
                 } else {
                     changelog += line.substring('- '.length())
                 }
