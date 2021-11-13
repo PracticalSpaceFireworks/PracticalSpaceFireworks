@@ -81,8 +81,7 @@ sourceJar {
 }
 
 reobf {
-    apiJar {
-    }
+    create 'apiJar'
 }
 
 assemble {
