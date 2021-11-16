@@ -1,13 +1,13 @@
 plugins {
     // Cannot use ForgeGradle 3+ as it does not support access transformers
-    id 'net.minecraftforge.gradle.forge' version '2.3.4'
-    id 'io.franzbecker.gradle-lombok' version '5.0.0'
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id 'net.nemerosa.versioning' version '2.15.1'
+    id "net.minecraftforge.gradle.forge" version "2.3.4"
+    id "io.franzbecker.gradle-lombok" version "5.0.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "net.nemerosa.versioning" version "2.15.1"
 }
 
-ext.friendlyName = name.replaceAll(/(?!^)([A-Z])(?![A-Z])/, ' $1')
-ext.buildNumber = System.getenv('BUILD_NUMBER') ?: versioning.info.build
+ext.friendlyName = name.replaceAll(/(?!^)([A-Z])(?![A-Z])/, " \$1")
+ext.buildNumber = System.getenv("BUILD_NUMBER") ?: versioning.info.build
 
 group = "net.gegy1000"
 version = "0.2.1-$buildNumber"
@@ -16,34 +16,34 @@ sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
 lombok {
-    version = '1.18.22'
-    sha256 = '39f3922deb679b1852af519eb227157ef2dd0a21eec3542c8ce1b45f2df39742'
+    version = "1.18.22"
+    sha256 = "39f3922deb679b1852af519eb227157ef2dd0a21eec3542c8ce1b45f2df39742"
 }
 
 minecraft {
-    version = '1.12.2-14.23.5.2847'
-    mappings = 'stable_39'
-    runDir = 'minecraft'
+    version = "1.12.2-14.23.5.2847"
+    mappings = "stable_39"
+    runDir = "minecraft"
 }
 
 repositories {
     maven {
-        url = 'https://maven.tterrag.com'
+        url = "https://maven.tterrag.com"
     }
 
     maven {
-        url = 'https://cursemaven.com'
+        url = "https://cursemaven.com"
     }
 
     maven {
-        url = 'https://dvs1.progwml6.com/files/maven'
+        url = "https://dvs1.progwml6.com/files/maven"
     }
 }
 
 dependencies {
-    implementation 'team.chisel.ctm:CTM:MC1.12.2-1.0.2.31'
-    implementation 'curse.maven:hwyla-253449:2568751' // 1.8.26-B41_1.12.2
-    implementation 'mezz.jei:jei_1.12.2:4.16.1.302'
+    implementation "team.chisel.ctm:CTM:MC1.12.2-1.0.2.31"
+    implementation "curse.maven:hwyla-253449:2568751" // 1.8.26-B41_1.12.2
+    implementation "mezz.jei:jei_1.12.2:4.16.1.302"
 }
 
 tasks {
@@ -55,38 +55,38 @@ tasks {
         options.with {
             it.fork = true
             it.deprecation = true
-            it.encoding = 'UTF-8'
-            it.compilerArgs.addAll(['-Xlint:all', '-parameters'])
+            it.encoding = "UTF-8"
+            it.compilerArgs.addAll(["-Xlint:all", "-parameters"])
         }
     }
 
     processResources {
-        filesMatching(['/mcmod.info', 'version.properties']) {
-            expand 'version': version
+        filesMatching(["/mcmod.info", "version.properties"]) {
+            expand "version": version
         }
     }
 
     jar {
         dependsOn apiClasses
 
-        from '/LICENSE'
+        from "/LICENSE"
         from sourceSets.api.output
     }
 
     sourceJar {
-        from '/LICENSE'
+        from "/LICENSE"
     }
 
     task apiJar(type: Jar) {
-        classifier = 'api'
+        classifier = "api"
 
-        from '/LICENSE'
+        from "/LICENSE"
         from sourceSets.api.output
         from sourceSets.api.allSource
     }
 
     reobf {
-        create 'apiJar'
+        create "apiJar"
     }
 
     assemble {
@@ -94,19 +94,19 @@ tasks {
     }
 }
 
-if (project.hasProperty('curseforge_key')) {
+if (project.hasProperty("curseforge_key")) {
     curseforge {
         apiKey = project.curseforge_key
 
         project {
-            id = '291502'
-            releaseType = System.getenv('RELEASE_TYPE') ?: 'beta'
-            addGameVersion '1.12.2'
+            id = "291502"
+            releaseType = System.getenv("RELEASE_TYPE") ?: "beta"
+            addGameVersion "1.12.2"
 
-            changelogType = 'html'
-            changelog = System.getenv('CHANGELOG')
+            changelogType = "html"
+            changelog = System.getenv("CHANGELOG")
 
-            if (changelog == null || changelog == 'none') {
+            if (changelog == null || changelog == "none") {
                 changelog = parseChangelog()
             }
 
@@ -115,7 +115,7 @@ if (project.hasProperty('curseforge_key')) {
             }
 
             relations {
-                requiredDependency 'ctm'
+                requiredDependency "ctm"
             }
         }
     }
@@ -124,14 +124,14 @@ if (project.hasProperty('curseforge_key')) {
 String parseChangelog() {
     def changelog = "<h2>$friendlyName $version</h2>"
 
-    file('changelog.txt').withReader('UTF-8') { reader ->
+    file("changelog.txt").withReader("UTF-8") { reader ->
         reader.readLine() // Skip version header
 
-        String line, lastLine = ''
+        String line, lastLine = ""
 
         while ((line = reader.readLine()) != null) {
-            if (line.startsWith('- ')) {
-                changelog += '<li>'
+            if (line.startsWith("- ")) {
+                changelog += "<li>"
 
                 def matcher = line =~ /-\s#(\d+)\s(.+)$/
 
@@ -142,13 +142,13 @@ String parseChangelog() {
 
                     changelog += "<a href='$url' target='_blank'>#$id</a> $description"
                 } else {
-                    changelog += line.substring('- '.length())
+                    changelog += line.substring("- ".length())
                 }
 
-                changelog += '</li>'
+                changelog += "</li>"
             } else {
                 if (!lastLine.empty) {
-                    changelog += '</ul>'
+                    changelog += "</ul>"
                 }
 
                 if (line.empty) {
@@ -156,7 +156,7 @@ String parseChangelog() {
                 }
 
                 changelog += "<h4>$line</h4>"
-                changelog += '<ul>'
+                changelog += "<ul>"
                 lastLine = line
             }
         }
