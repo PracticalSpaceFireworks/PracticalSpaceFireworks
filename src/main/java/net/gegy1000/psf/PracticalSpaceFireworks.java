@@ -3,6 +3,7 @@ package net.gegy1000.psf;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static net.gegy1000.psf.PracticalSpaceFireworks.MODID;
+import static net.gegy1000.psf.PracticalSpaceFireworks.DEPENDENCIES;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,9 +45,10 @@ import net.minecraftforge.oredict.OreDictionary;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-@Mod(modid = MODID, acceptedMinecraftVersions = "[1.12.2]", useMetadata = true)
+@Mod(modid = MODID, acceptedMinecraftVersions = "[1.12.2]", dependencies = DEPENDENCIES, useMetadata = true)
 public class PracticalSpaceFireworks {
     public static final String MODID = PSFAPIProps.MODID;
+    public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2847,15);required-after-client:ctm@[MC1.12.2-1.0.2.31,)";
 
     public static final String CLIENT_PROXY = "net.gegy1000.psf.client.ClientProxy";
     public static final String SERVER_PROXY = "net.gegy1000.psf.server.ServerProxy";

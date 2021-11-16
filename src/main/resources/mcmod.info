@@ -11,11 +11,6 @@
       "gegy1000",
       "tterrag",
       "Chloe Dawn"
-    ],
-    "useDependencyInformation": true,
-    "requiredMods": [
-      "forge@[14.23.5.2847,15)",
-      "ctm@[MC1.12.2-1.0.2.31,)"
     ]
   }
 ]
