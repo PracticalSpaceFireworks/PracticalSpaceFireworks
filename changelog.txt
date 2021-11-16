@@ -1,3 +1,9 @@
+0.3.0:
+Changes:
+- Changed localisation for struts to Iron Strut and Iron Strut Slope
+- Optimized and improved Iron Strut Slope model
+- Rebalanced Iron Strut slope recipe to output 3 instead of 2
+
 0.2.1:
 Changes
 - Kerosene extractor now supports coal and charcoal blocks
